@@ -26,7 +26,7 @@ def call(token,payload):
             body=json.load(error)
         except (ValueError,TypeError):
             body={}
-        print('Sync endpoint HTTP:',error.code,'check:',body.get('checks',[]),'error:',body.get('error',''))
+        print('Sync endpoint HTTP:',error.code,'check:',body.get('checks',[]),'error:',body.get('error',''),'subject:',body.get('subject',''))
         raise
 
 def main():
