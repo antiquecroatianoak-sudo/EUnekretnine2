@@ -83,13 +83,13 @@ with tabs[1]:
   and (not countries or p['country'] in countries)
   and (not legal_filters or p['legal'] in legal_filters)
   and (not stages_filter or p['status'] in stages_filter)
-  and p['price'] is not None and p['price']>=min_price and (not max_price or p['price']<=max_price)
-  and p['area'] is not None and p['area']>=min_area and (not max_area or p['area']<=max_area)]
+  and ((p['price'] is None and not min_price and not max_price) or (p['price'] is not None and p['price']>=min_price and (not max_price or p['price']<=max_price)))
+  and ((p['area'] is None and not min_area and not max_area) or (p['area'] is not None and p['area']>=min_area and (not max_area or p['area']<=max_area)))]
  st.caption(f'Prikazano {len(filtered)} od {len(props)} nekretnina.')
  st.dataframe(filtered,use_container_width=True)
  if not filtered: st.info('Nema nekretnina koje odgovaraju odabranim filtrima.')
 with tabs[2]:
- eligible=[p for p in props if p['legal']=='Uredno']
+ eligible=[p for p in props if p['legal']=='Uredno' and p['status'] not in ('Prodano','Povučeno','Rok istekao - ishod nepoznat') and all(p.get(k) is not None for k in ('price','renovation','other_costs'))]
  if not eligible:st.info('Nema pravno provjerenih nekretnina za analizu.')
  else:
   p=st.selectbox('Nekretnina',eligible,format_func=lambda x:x['title']);cost=p['price']+p['renovation']+p['other_costs'];st.metric('Ukupni procijenjeni trošak',f'{cost:,.0f} €');
@@ -103,13 +103,11 @@ with tabs[3]:
    else:c.execute('INSERT INTO investors(name,country,min_budget,max_budget,preferred_countries,notes,verified) VALUES(?,?,?,?,?,?,?)',(name,icountry,minb,maxb,','.join(prefs),notes,int(verified)));c.commit();st.rerun()
  st.dataframe(investors,use_container_width=True)
 with tabs[4]:
- matches=[]
- for p in props:
-  if p['legal']!='Uredno':continue
-  cost=p['price']+p['renovation']+p['other_costs']
-  for i in investors:
-   if i['verified'] and i['min_budget']<=cost<=i['max_budget'] and p['country'] in (i['preferred_countries'] or '').split(','):matches.append({'Nekretnina':p['title'],'Investitor':i['name'],'Država':p['country'],'Procijenjeni ukupni trošak EUR':cost})
- st.dataframe(matches,use_container_width=True);st.caption('Podudaranje prema državi i budžetu; nije dokaz investitorova interesa niti pravne podobnosti.')
+ st.subheader('Evidentirana podudaranja iz zajedničke baze')
+ matches=[dict(r) for r in c.execute("SELECT a.id,a.property_id,a.investor_id,p.title AS property_title,i.name AS investor_name,a.stage,a.notes,a.date FROM activity a JOIN properties p ON p.id=a.property_id JOIN investors i ON i.id=a.investor_id WHERE p.status NOT IN ('Prodano','Povučeno','Rok istekao - ishod nepoznat') AND a.stage IN ('Potencijalno podudaranje','Kandidat - potrebna provjera kriterija','Ne odgovara - kriteriji') AND NOT EXISTS (SELECT 1 FROM activity newer WHERE newer.property_id=a.property_id AND newer.investor_id=a.investor_id AND newer.id>a.id) ORDER BY a.id DESC")]
+ st.dataframe(matches,use_container_width=True)
+ st.caption('Prikazana je posljednja evidencija za svaki par. Kandidat znači da kriteriji nisu potpuno potvrđeni; podudaranje nije dokaz interesa za kupnju.')
+ if not matches: st.info('Još nema evidentiranih podudaranja za aktivne nekretnine.')
 with tabs[5]:
  stages=['Novo','Provjera','Analiza','Investitor identificiran','Ponuda','Ugovor','Zatvoreno']
  if props:
