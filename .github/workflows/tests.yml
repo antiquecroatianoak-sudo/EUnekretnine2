@@ -1,0 +1,47 @@
+name: Provjera aplikacije i PostgreSQL uparivanja
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: matching_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Uključi TLS za izoliranu testnu bazu
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout /tmp/ci-postgres.key -out /tmp/ci-postgres.crt -days 1 -subj '/CN=localhost'
+          docker cp /tmp/ci-postgres.key "$PG_CONTAINER:/var/lib/postgresql/server.key"
+          docker cp /tmp/ci-postgres.crt "$PG_CONTAINER:/var/lib/postgresql/server.crt"
+          docker exec -u root "$PG_CONTAINER" sh -c 'chown postgres:postgres /var/lib/postgresql/server.key /var/lib/postgresql/server.crt; chmod 600 /var/lib/postgresql/server.key'
+          docker exec "$PG_CONTAINER" psql -U postgres -c "ALTER SYSTEM SET ssl_cert_file = '/var/lib/postgresql/server.crt'"
+          docker exec "$PG_CONTAINER" psql -U postgres -c "ALTER SYSTEM SET ssl_key_file = '/var/lib/postgresql/server.key'"
+          docker exec "$PG_CONTAINER" psql -U postgres -c "ALTER SYSTEM SET ssl = 'on'"
+          docker exec "$PG_CONTAINER" psql -U postgres -c 'SELECT pg_reload_conf()'
+      - name: SQLite, Streamlit obrasci i PostgreSQL preko TLS-a
+        env:
+          TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test?sslmode=require
+        run: python -m unittest discover -p 'test_*.py'

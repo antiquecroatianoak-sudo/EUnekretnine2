@@ -38,3 +38,7 @@ Prošla su četiri SQLite testa: integracija i deduplikacija, blokiranje obavije
 - Testovi: `python -m unittest discover -p 'test_*.py'`. SQLite testovi i Streamlit AppTest pokrivaju unos, izmjenu, budžet s troškovima, uvjete, dokaze, stare zapise, transakcije i osvježavanje rezultata. Stvarni Supabase PostgreSQL i objava na Streamlitu ostaju neprovjereni.
 
 Automatsko pronalaženje nekretnina i novih kupaca na internetu, provjera njihovog stvarnog interesa i neprekidni rad na poslužitelju još nisu implementirani. Ova nadogradnja uparuje podatke koje je sustav već dobio.
+
+## Automatska provjera izmjena
+
+Workflow `Provjera aplikacije i PostgreSQL uparivanja` pokreće se pri izmjeni main grane i na pull requestu. Izolirana PostgreSQL 17 testna baza koristi TLS i privremene testne podatke, bez pristupa stvarnoj Supabase bazi. Dva integracijska testa provjeravaju uvoz, deduplikaciju, ažuriranje kriterija, RLS nove tablice, ponovljivu nadogradnju i rollback. Bez TEST_POSTGRES_URL preskaču se uz vidljivu oznaku; lokalni prolaz nije potvrda tih PostgreSQL testova. Ovaj workflow provjerava kod; ne pronalazi nove oglase niti pokreće produkcijski sustav.
