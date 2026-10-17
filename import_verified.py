@@ -5,6 +5,7 @@ import math
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 from storage import connect
+from matching import PROPERTY_TYPES, CONDITIONS, MATCH, evaluate, refresh_matches
 
 def url(value):
     parsed = urlparse(value)
@@ -26,6 +27,13 @@ def validate(item):
         raise ValueError('Izvor i aktivnost oglasa moraju biti provjereni.')
     if item.get('legal') not in ('Nepoznato', 'Uredno', 'Komplikacije'):
         raise ValueError('Potreban je status pravne provjere.')
+    for field, allowed in [('property_type', PROPERTY_TYPES), ('condition', CONDITIONS)]:
+        if item.get(field) is not None and item[field] not in allowed: raise ValueError('Nepoznata vrijednost: ' + field)
+    if item.get('buildable') not in (None, 'Da', 'Ne', 'Nepoznato'): raise ValueError('Nevaljana mogućnost gradnje.')
+    for field in ('planning_evidence_url', 'legal_evidence_url', 'valuation_evidence_url'):
+        if item.get(field): url(item[field])
+    if item.get('available_until'):
+        datetime.fromisoformat(item['available_until'])
     if item['legal'] == 'Uredno': url(item.get('legal_evidence_url', ''))
     for field in ('price', 'area', 'renovation', 'other_costs'):
         value = item.get(field)
@@ -44,19 +52,20 @@ def run(c, items):
         for item in items:
             if c.execute('SELECT id FROM imports WHERE source_url=?', (item['source'],)).fetchone(): continue
             if c.execute('SELECT id FROM properties WHERE source=?', (item['source'],)).fetchone(): continue
-            fields = ('country','city','title','price','area','source','legal','renovation','other_costs','estimated_value')
-            p = c.execute('INSERT INTO properties('+','.join(fields)+',updated) VALUES('+','.join('?' for _ in range(11))+') RETURNING id', tuple(item.get(f) for f in fields)+(item['checked_at'],)).fetchone()
+            fields = ('country','city','title','price','area','source','legal','renovation','other_costs','estimated_value','property_type','condition','region','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until')
+            p = c.execute('INSERT INTO properties('+','.join(fields)+',updated) VALUES('+','.join('?' for _ in range(len(fields)+1))+') RETURNING id', tuple(item.get(f) for f in fields)+(item['checked_at'],)).fetchone()
             property_id = p['id']
             # Retain the complete submitted evidence in the audit log.
             c.execute('INSERT INTO activity(property_id,stage,notes,date) VALUES(?,?,?,?)', (property_id,'Uvoz provjerenog zapisa',json.dumps(item,ensure_ascii=False),item['checked_at']))
             c.execute('INSERT INTO imports(source_url,checked_at,evidence_url,property_id) VALUES(?,?,?,?)', (item['source'],item['checked_at'],item['evidence_url'],property_id))
             if item['legal'] == 'Uredno' and item.get('estimated_value') is not None:
                 cost = sum(item[f] for f in ('price','renovation','other_costs'))
-                matches = [dict(r) for r in c.execute('SELECT * FROM investors WHERE verified=1') if r['min_budget'] <= cost <= r['max_budget'] and item['country'] in (r['preferred_countries'] or '').split(',')]
+                matches = [dict(r) for r in c.execute('SELECT * FROM investors WHERE verified=1') if evaluate(dict(item, status='Novo'), dict(r))['status'] == MATCH]
                 if matches:
                     message = json.dumps({'title':item['title'],'total_cost':cost,'estimated_difference':item['estimated_value']-cost,'potential_investor_ids':[r['id'] for r in matches]},ensure_ascii=False)
                     c.execute('INSERT INTO notification_outbox(property_id,created_at,message) VALUES(?,?,?)',(property_id,item['checked_at'],message))
             inserted += 1
+        refresh_matches(c)
         c.commit()
     except Exception:
         c.rollback()
@@ -72,4 +81,5 @@ if __name__ == '__main__':
     c = connect()
     try: print('Integrirano zapisa:', run(c, items))
     finally: c.close()
+
 

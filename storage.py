@@ -10,7 +10,25 @@ CREATE TABLE IF NOT EXISTS sources(id INTEGER PRIMARY KEY,country TEXT,name TEXT
 CREATE TABLE IF NOT EXISTS activity(id INTEGER PRIMARY KEY,property_id INTEGER,investor_id INTEGER,stage TEXT,notes TEXT,date TEXT);
 CREATE TABLE IF NOT EXISTS imports(id INTEGER PRIMARY KEY,source_url TEXT UNIQUE NOT NULL,checked_at TEXT NOT NULL,evidence_url TEXT NOT NULL,property_id INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS notification_outbox(id INTEGER PRIMARY KEY,property_id INTEGER NOT NULL,created_at TEXT NOT NULL,status TEXT DEFAULT 'Spremno',message TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS match_results(property_id INTEGER NOT NULL,investor_id INTEGER NOT NULL,result_json TEXT NOT NULL,updated TEXT NOT NULL,PRIMARY KEY(property_id,investor_id));
 '''
+
+# Additive migration: old rows keep unknown criteria rather than invented values.
+EXTRA_COLUMNS = {
+    'properties': {'property_type': 'TEXT', 'condition': 'TEXT', 'region': 'TEXT',
+                   'buildable': 'TEXT', 'planning_evidence_url': 'TEXT',
+                   'legal_evidence_url': 'TEXT', 'valuation_evidence_url': 'TEXT', 'available_until': 'TEXT'},
+    'investors': {'criteria_json': "TEXT DEFAULT '{}'"},
+}
+
+def upgrade(c, postgres):
+    for table, columns in EXTRA_COLUMNS.items():
+        existing = set() if postgres else {r['name'] for r in c.execute('PRAGMA table_info(' + table + ')')}
+        for name, definition in columns.items():
+            if postgres:
+                c.execute(f'ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {name} {definition}')
+            elif name not in existing:
+                c.execute(f'ALTER TABLE {table} ADD COLUMN {name} {definition}')
 
 class Postgres:
     def __init__(self, url):
@@ -36,5 +54,10 @@ def connect(url=None, path=None):
         c = sqlite3.connect(path or str(Path(__file__).with_name('eu_platform.db')))
         c.row_factory = sqlite3.Row
         c.executescript(SCHEMA)
+    upgrade(c, bool(url))
+    if url:
+        # Results contain private mandates; keep the new table off public Data API access.
+        c.execute('ALTER TABLE match_results ENABLE ROW LEVEL SECURITY')
     c.commit()
     return c
+

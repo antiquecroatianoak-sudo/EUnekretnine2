@@ -1,4 +1,6 @@
 import unittest
+import json
+from datetime import datetime, timezone
 from storage import connect
 from import_verified import run
 
@@ -10,6 +12,9 @@ class ImportTests(unittest.TestCase):
     def count(self, table): return self.c.execute('SELECT COUNT(*) AS n FROM '+table).fetchone()['n']
     def test_integrate_then_outbox_and_deduplicate(self):
         self.c.execute('INSERT INTO investors(name,min_budget,max_budget,preferred_countries,verified) VALUES(?,?,?,?,?)', ('TEST',0,200,'Francuska',1)); self.c.commit()
+        criteria = dict(property_types=['Zemljište'], conditions=['Neizgrađeno'], source_url='https://example.org/mandate', checked_at=datetime.now(timezone.utc).isoformat())
+        self.c.execute('UPDATE investors SET criteria_json=?', (json.dumps(criteria),)); self.c.commit()
+        self.item.update(property_type='Zemljište', condition='Neizgrađeno')
         self.assertEqual(run(self.c,[self.item]),1)
         self.assertEqual(self.count('notification_outbox'),1)
         self.assertEqual(run(self.c,[self.item]),0)
@@ -30,3 +35,4 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(self.count('notification_outbox'),0)
 
 if __name__=='__main__': unittest.main()
+

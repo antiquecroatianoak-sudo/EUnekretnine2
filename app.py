@@ -1,9 +1,11 @@
 import streamlit as st, sqlite3, os, csv, io, json
 from import_verified import validate, run as import_batch
 from datetime import datetime
+from matching import MATCH, CANDIDATE, REJECT, refresh_matches, ranked_matches
+from matching_ui import property_form, investor_form
 DB=os.path.join(os.path.dirname(__file__),'eu_platform.db')
 EU=['Austrija','Belgija','Bugarska','Hrvatska','Cipar','Češka','Danska','Estonija','Finska','Francuska','Njemačka','Grčka','Mađarska','Irska','Italija','Latvija','Litva','Luksemburg','Malta','Nizozemska','Poljska','Portugal','Rumunjska','Slovačka','Slovenija','Španjolska','Švedska']
-PRIORITY=['Francuska','Nizozemska','Slovenija','Litva','Austrija','Belgija']
+PRIORITY=['Francuska','Nizozemska','Hrvatska','Slovenija','Litva','Austrija','Belgija']
 from storage import connect
 try:
  database_url = os.environ.get('DATABASE_URL') or st.secrets.get('DATABASE_URL')
@@ -29,11 +31,7 @@ with tabs[0]:
   st.dataframe(pending,use_container_width=True)
  st.info('Sustav ne sadrži izmišljene nekretnine ili investitore. Izvori su početne poveznice, ne automatski provjereni oglasi.')
 with tabs[1]:
- with st.form('new_property'):
-  country=st.selectbox('Država',EU,index=EU.index('Francuska'));city=st.text_input('Grad');title=st.text_input('Naziv nekretnine');price=st.number_input('Tražena cijena EUR',min_value=0.0);area=st.number_input('Površina m²',min_value=0.0);source=st.text_input('URL izvornog oglasa');legal=st.selectbox('Pravni status',['Nepoznato','Uredno','Komplikacije']);renovation=st.number_input('Procjena obnove EUR',min_value=0.0);other=st.number_input('Ostali troškovi EUR',min_value=0.0);value=st.number_input('Procijenjena tržišna vrijednost EUR',min_value=0.0);submitted=st.form_submit_button('Spremi nekretninu')
-  if submitted:
-   if not title or not source:st.error('Unesi naziv i izvor oglasa.')
-   else:c.execute('INSERT INTO properties(country,city,title,price,area,source,legal,renovation,other_costs,estimated_value,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?)',(country,city,title,price,area,source,legal,renovation,other,value or None,datetime.now().isoformat()));c.commit();st.rerun()
+ property_form(c, props, EU)
  st.subheader('Uvoz provjerenih zapisa')
  st.caption('JSON popis zapisa za pilot: Francuska, Nizozemska, Hrvatska i Slovenija. Provjera izvora i aktivnosti oglasa nije pravna provjera.')
  with st.expander('Obavezna polja i pravila uvoza'):
@@ -96,18 +94,30 @@ with tabs[2]:
   if p['estimated_value'] is not None:
    profit=p['estimated_value']-cost;st.metric('Potencijalna razlika (prije poreza i nepredviđenih troškova)',f'{profit:,.0f} €');st.metric('Jednostavni ROI',f'{100*profit/cost:.1f}%' if cost else 'N/A')
 with tabs[3]:
- with st.form('new_investor'):
-  name=st.text_input('Naziv investitora / tvrtke');icountry=st.selectbox('Sjedište',EU);minb=st.number_input('Minimalni budžet EUR',min_value=0.0);maxb=st.number_input('Maksimalni budžet EUR',min_value=0.0);prefs=st.multiselect('Zanimljive države',EU);notes=st.text_area('Kriteriji / napomene');verified=st.checkbox('Kriteriji su potvrđeni');save=st.form_submit_button('Spremi investitora')
-  if save:
-   if not name or maxb<minb:st.error('Provjeri naziv i budžet.')
-   else:c.execute('INSERT INTO investors(name,country,min_budget,max_budget,preferred_countries,notes,verified) VALUES(?,?,?,?,?,?,?)',(name,icountry,minb,maxb,','.join(prefs),notes,int(verified)));c.commit();st.rerun()
+ investor_form(c, investors, EU)
  st.dataframe(investors,use_container_width=True)
 with tabs[4]:
- st.subheader('Evidentirana podudaranja iz zajedničke baze')
- matches=[dict(r) for r in c.execute("SELECT a.id,a.property_id,a.investor_id,p.title AS property_title,i.name AS investor_name,a.stage,a.notes,a.date FROM activity a JOIN properties p ON p.id=a.property_id JOIN investors i ON i.id=a.investor_id WHERE p.status NOT IN ('Prodano','Povučeno','Rok istekao - ishod nepoznat') AND a.stage IN ('Potencijalno podudaranje','Kandidat - potrebna provjera kriterija','Ne odgovara - kriteriji') AND NOT EXISTS (SELECT 1 FROM activity newer WHERE newer.property_id=a.property_id AND newer.investor_id=a.investor_id AND newer.id>a.id) ORDER BY a.id DESC")]
- st.dataframe(matches,use_container_width=True)
- st.caption('Prikazana je posljednja evidencija za svaki par. Kandidat znači da kriteriji nisu potpuno potvrđeni; podudaranje nije dokaz interesa za kupnju.')
- if not matches: st.info('Još nema evidentiranih podudaranja za aktivne nekretnine.')
+ st.subheader('Uparivanje prema zahtjevima kupaca')
+ refresh_matches(c); c.commit()
+ matches=ranked_matches(c)
+ st.caption('Ocjena je udio zadovoljenih strukturiranih kriterija, nije vjerojatnost prodaje. Potvrda kriterija nije potvrda interesa za konkretnu nekretninu. Napomene i dokumentaciju treba ručno provjeriti.')
+ statuses=st.multiselect('Prikaži rezultate', [MATCH,CANDIDATE,REJECT],default=[MATCH,CANDIDATE])
+ selected_property=st.selectbox('Nekretnina za uparivanje', [None]+[p['id'] for p in props],format_func=lambda x: 'Sve nekretnine' if x is None else next(p['title'] for p in props if p['id']==x))
+ selected_buyer=st.selectbox('Kupac za uparivanje', [None]+[i['id'] for i in investors],format_func=lambda x: 'Svi kupci' if x is None else next(i['name'] for i in investors if i['id']==x))
+ visible=[m for m in matches if m['status'] in statuses and (selected_property is None or m['property_id']==selected_property) and (selected_buyer is None or m['investor_id']==selected_buyer)]
+ if not visible: st.info('Nema rezultata za odabrane filtre. Unesi nekretnine i zahtjeve kupaca; nepoznati kriteriji ostaju označeni za provjeru.')
+ for m in visible:
+  with st.expander(f"{m['title']} → {m['name']} · {m['status']} · {m['score']}% kriterija"):
+   st.write('Zadovoljeno:', ', '.join(m['reasons']) or 'Nema potvrđenih kriterija')
+   if m['missing']: st.warning('Treba provjeriti: '+', '.join(m['missing']))
+   if m['rejected']: st.error('Ne odgovara: '+', '.join(m['rejected']))
+   st.write('Ukupni procijenjeni trošak EUR:', m['total_cost'] if m['total_cost'] is not None else 'Nepoznato')
+   if m['roi'] is not None: st.write('Jednostavni ROI prije dodatnih neobuhvaćenih troškova:', f"{m['roi']:.1f}%")
+   p=next(p for p in props if p['id']==m['property_id'])
+   buyer=next(i for i in investors if i['id']==m['investor_id'])
+   st.write('Izvor oglasa:', p['source'])
+   st.write('Dodatni uvjeti kupca za ručnu provjeru:', buyer.get('notes') or 'Nisu uneseni')
+ st.caption('Rezultati se osvježavaju nakon unosa ili izmjene nekretnine/kupca, nakon paketnog uvoza i pri otvaranju ovog prikaza. Nema automatskog slanja ponuda ni potvrde kupnje.')
 with tabs[5]:
  stages=['Novo','Provjera','Analiza','Investitor identificiran','Ponuda','Ugovor','Zatvoreno']
  if props:
@@ -122,4 +132,5 @@ with tabs[6]:
  st.caption('Ove poveznice su početni izvori. Nije uključeno automatsko dohvaćanje oglasa.')
 with tabs[7]:
  st.info('Karta će prikazivati geokodirane lokacije nakon što se poveže pouzdan geokoder i podaci o nekretninama.')
+
 
