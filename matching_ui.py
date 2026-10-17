@@ -2,12 +2,13 @@
 import json
 from datetime import datetime, timezone
 import streamlit as st
-from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches
+from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name
 
 
 def property_form(c, props, countries):
     selected = st.selectbox('Nova nekretnina ili uređivanje postojeće', [None] + [p['id'] for p in props], format_func=lambda x: 'Nova nekretnina' if x is None else next(p['title'] for p in props if p['id'] == x), key='property_edit')
     p = next((p for p in props if p['id'] == selected), {})
+    if p.get('country'): p=dict(p,country=country_name(p['country']))
     def num(label, field):
         value = p.get(field)
         return st.number_input(label, min_value=0.0, value=float(value) if value is not None else None)
@@ -56,6 +57,7 @@ def property_form(c, props, countries):
 def investor_form(c, investors, countries):
     selected = st.selectbox('Novi kupac ili uređivanje zahtjeva', [None]+[i['id'] for i in investors], format_func=lambda x: 'Novi kupac' if x is None else next(i['name'] for i in investors if i['id']==x), key='investor_edit')
     i = next((i for i in investors if i['id']==selected), {})
+    if i.get('country'): i=dict(i,country=country_name(i['country']))
     criteria = parse_criteria(i)
     with st.form('buyer_' + str(selected)):
         name = st.text_input('Naziv kupca / tvrtke', value=i.get('name') or '')
@@ -64,7 +66,7 @@ def investor_form(c, investors, countries):
         country = st.selectbox('Sjedište', countries, index=countries.index(i['country']) if i.get('country') in countries else 0)
         low = st.number_input('Minimalni ukupni budžet EUR', min_value=0.0, value=float(i.get('min_budget') or 0))
         high = st.number_input('Maksimalni ukupni budžet EUR', min_value=0.0, value=float(i['max_budget']) if i.get('max_budget') else None)
-        prefs = st.multiselect('Zanimljive države', countries, default=[x for x in (i.get('preferred_countries') or '').split(',') if x in countries])
+        prefs = st.multiselect('Zanimljive države', countries, default=[country_name(x) for x in (i.get('preferred_countries') or '').split(',') if country_name(x) in countries])
         types = st.multiselect('Tražene vrste nekretnina', PROPERTY_TYPES, default=[v for v in criteria.get('property_types', []) if v in PROPERTY_TYPES])
         conditions = st.multiselect('Prihvatljivo stanje / obnova / rušenje', CONDITIONS, default=[v for v in criteria.get('conditions', []) if v in CONDITIONS])
         st.caption('Ako prihvaća sve vrste ili sva stanja, označi sve. Prazan odabir znači da zahtjev nije poznat.')

@@ -1,0 +1,48 @@
+name: Dohvat javnih kandidata nekretnina i kupaca
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - discovery.py
+      - sync_discovery.py
+      - matching.py
+      - .github/workflows/discovery.yml
+permissions:
+  contents: write
+  id-token: write
+concurrency:
+  group: discovery-main
+  cancel-in-progress: false
+jobs:
+  scan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dohvati javne izvore bez prijave i ključeva
+        id: discovery
+        continue-on-error: true
+        run: python discovery.py
+      - name: Spremi kandidate i osvježi uparivanje u Supabaseu
+        run: python sync_discovery.py
+      - name: Sačuvaj nalaze i status svih izvora
+        run: |
+          git config user.name 'EU platform source monitor'
+          git config user.email 'source-monitor@users.noreply.github.com'
+          git add data/discovered_candidates.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Osvježi javne kandidate i stanje izvora'
+            git pull --rebase origin main
+            git push origin main
+          fi
+      - name: Označi nepotpun dohvat
+        if: steps.discovery.outcome == 'failure'
+        run: exit 1

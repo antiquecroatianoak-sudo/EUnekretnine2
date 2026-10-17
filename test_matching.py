@@ -14,6 +14,19 @@ class MatchingTests(unittest.TestCase):
         self.buyer = dict(preferred_countries='Hrvatska', min_budget=0., max_budget=200., verified=1)
     def result(self):
         return evaluate(self.prop, dict(self.buyer, criteria_json=json.dumps(self.criteria)))
+    def test_country_codes_match_existing_database_without_rewriting_rows(self):
+        self.prop['country']='HR'
+        self.assertEqual(self.result()['status'],MATCH)
+        self.prop['country']='Hrvatska';self.buyer['preferred_countries']='HR'
+        self.assertEqual(self.result()['status'],MATCH)
+    def test_existing_database_deadline_and_status_are_respected(self):
+        self.prop['bid_deadline_at']=(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()
+        self.assertEqual(self.result()['status'],REJECT)
+        self.prop.pop('bid_deadline_at');self.prop['status']='Rok istekao - potrebna provjera ishoda'
+        self.assertEqual(self.result()['status'],REJECT)
+    def test_null_evidence_date_is_candidate(self):
+        self.criteria['checked_at']=None
+        self.assertEqual(self.result()['status'],CANDIDATE)
     def test_complete_mandate_matches(self):
         result = self.result()
         self.assertEqual(result['status'], MATCH)

@@ -8,6 +8,14 @@ from urllib.parse import urlparse
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
 INACTIVE = {'Prodano', 'Povučeno', 'Rok istekao - ishod nepoznat', 'Zatvoreno'}
+
+COUNTRY_NAMES=dict(zip(
+    ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'],
+    ['Austrija','Belgija','Bugarska','Hrvatska','Cipar','Češka','Danska','Estonija','Finska','Francuska','Njemačka','Grčka','Mađarska','Irska','Italija','Latvija','Litva','Luksemburg','Malta','Nizozemska','Poljska','Portugal','Rumunjska','Slovačka','Slovenija','Španjolska','Švedska']))
+
+def country_name(value):
+    return COUNTRY_NAMES.get(str(value or '').strip().upper(),str(value or '').strip())
+
 MATCH = 'Podudaranje kriterija'
 CANDIDATE = 'Kandidat - potrebna provjera'
 REJECT = 'Ne odgovara kriterijima'
@@ -34,7 +42,9 @@ def valid_url(value):
 
 def fresh_evidence(criteria, today=None):
     try:
-        checked = datetime.fromisoformat(criteria.get('checked_at', '').replace('Z', '+00:00'))
+        value=criteria.get('checked_at')
+        if not isinstance(value,str): return False
+        checked = datetime.fromisoformat(value.replace('Z', '+00:00'))
         age = ((today or datetime.now(timezone.utc)) - checked).total_seconds()
         return checked.tzinfo is not None and 0 <= age <= 90 * 86400 and valid_url(criteria.get('source_url'))
     except (ValueError, TypeError):
@@ -72,7 +82,7 @@ def evaluate(prop, investor):
         missing.append('Ispravni strukturirani kriteriji kupca')
         criteria = {}
     countries = [x.strip() for x in (investor.get('preferred_countries') or '').split(',') if x.strip()]
-    check('Država', bool(countries and prop.get('country')), norm(prop.get('country')) in {norm(x) for x in countries})
+    check('Država', bool(countries and prop.get('country')), norm(country_name(prop.get('country'))) in {norm(country_name(x)) for x in countries})
     total = sum(prop[k] for k in ('price', 'renovation', 'other_costs')) if all(number(prop.get(k)) for k in ('price', 'renovation', 'other_costs')) else None
     low, high = investor.get('min_budget'), investor.get('max_budget')
     budget_known = number(low) and number(high) and high > 0 and high >= low and total is not None
@@ -105,10 +115,14 @@ def evaluate(prop, investor):
     elif prop.get('legal') != 'Uredno' or not valid_url(prop.get('legal_evidence_url')):
         missing.append('Dokaz pravne provjere')
     expired = False
-    if prop.get('available_until'):
-        try: expired = datetime.fromisoformat(prop['available_until']).date() < datetime.now(timezone.utc).date()
+    deadline=prop.get('available_until') or prop.get('bid_deadline_at')
+    if deadline:
+        try:
+            parsed=datetime.fromisoformat(str(deadline).replace('Z','+00:00'))
+            expired=(parsed < datetime.now(timezone.utc)) if parsed.tzinfo else (parsed.date() < datetime.now(timezone.utc).date())
         except (ValueError, TypeError): missing.append('Valjan rok dostupnosti')
-    if prop.get('status') in INACTIVE or expired: rejected.append('Nekretnina više nije aktivna')
+    status=norm(prop.get('status'))
+    if prop.get('status') in INACTIVE or any(status.startswith(prefix) for prefix in ('prodano','povuceno','rok istekao','zatvoreno')) or expired: rejected.append('Nekretnina više nije aktivna')
     status = REJECT if rejected else CANDIDATE if missing else MATCH
     return dict(status=status, score=round(100 * passed / checks) if checks else 0,
                 reasons=reasons, missing=missing, rejected=rejected, total_cost=total, roi=roi)
