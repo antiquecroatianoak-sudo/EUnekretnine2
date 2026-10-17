@@ -6,9 +6,11 @@ on:
   push:
     paths:
       - discovery.py
+      - sync_discovery.py
       - .github/workflows/discovery.yml
 permissions:
   contents: write
+  id-token: write
 concurrency:
   group: discovery-main
   cancel-in-progress: false
@@ -38,6 +40,8 @@ jobs:
             git pull --rebase origin main
             git push origin main
           fi
+      - name: Spremi kandidate i uparivanje u zajedničku bazu
+        run: python sync_discovery.py
       - name: Označi nepotpun dohvat
         if: steps.discovery.outcome == 'failure'
         run: exit 1
