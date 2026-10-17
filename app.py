@@ -35,7 +35,7 @@ with tabs[1]:
    if not title or not source:st.error('Unesi naziv i izvor oglasa.')
    else:c.execute('INSERT INTO properties(country,city,title,price,area,source,legal,renovation,other_costs,estimated_value,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?)',(country,city,title,price,area,source,legal,renovation,other,value or None,datetime.now().isoformat()));c.commit();st.rerun()
  st.subheader('Uvoz provjerenih zapisa')
- st.caption('JSON popis zapisa za pilot: Francuska i Nizozemska. Provjera izvora i aktivnosti oglasa nije pravna provjera.')
+ st.caption('JSON popis zapisa za pilot: Francuska, Nizozemska, Hrvatska i Slovenija. Provjera izvora i aktivnosti oglasa nije pravna provjera.')
  with st.expander('Obavezna polja i pravila uvoza'):
   st.write('country, city, title, source, evidence_url, checked_at (s vremenskom zonom), source_verified=true, listing_active=true, legal, price, area, renovation, other_costs.')
   st.write('Za pravni status Uredno potreban je legal_evidence_url. Za estimated_value potreban je valuation_evidence_url. Duplikati prema izvornom URL-u se preskaču.')
