@@ -1,11 +1,10 @@
-"""Sync to the protected project endpoint using GitHub's short-lived OIDC identity."""
+"""Send verified-format source snapshots using GitHub's short-lived OIDC identity."""
 import json
 import os
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.parse import quote
 from urllib.error import HTTPError
-from matching import evaluate
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/discovery-sync'
 AUDIENCE='eu-property-discovery:izpzsfiqvransehvmuzn'
@@ -13,28 +12,31 @@ AUDIENCE='eu-property-discovery:izpzsfiqvransehvmuzn'
 def request_token(audience=AUDIENCE):
     url=os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']+'&audience='+quote(audience,safe='')
     req=Request(url,headers={'Authorization':'Bearer '+os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']})
-    with urlopen(req,timeout=30) as response:return json.load(response)['value']
+    with urlopen(req,timeout=30) as response:
+        return json.load(response)['value']
 
 def call(token,payload):
-    req=Request(ENDPOINT,data=json.dumps(payload,ensure_ascii=False).encode(),headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'},method='POST')
-    with urlopen(req,timeout=90) as response:return json.load(response)
+    req=Request(ENDPOINT,data=json.dumps(payload,ensure_ascii=False).encode(),
+                headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'},method='POST')
+    with urlopen(req,timeout=90) as response:
+        return json.load(response)
 
 def main():
-    # Negative authorization check: an identity for another audience must be rejected.
-    try:call(request_token(AUDIENCE+':invalid'),{'action':'state'})
+    # Check that a genuine GitHub identity with the wrong audience is rejected.
+    try:
+        call(request_token(AUDIENCE+':invalid'),{'action':'sync'})
     except HTTPError as error:
-        if error.code not in (401,403):raise
-    else:raise RuntimeError('Endpoint accepted an incorrect audience.')
-    snapshot=json.loads(Path('data/discovered_candidates.json').read_text())
-    result=call(request_token(),{'action':'sync','snapshot':snapshot})
-    print('Spremljeno kandidata u zajedničku bazu:',result['candidates'])
-    for attempt in range(2):
-        state=call(request_token(),{'action':'state'})
-        matches=[dict(property_id=p['id'],investor_id=i['id'],result=evaluate(p,i)) for p in state['properties'] for i in state['investors']]
-        try:result=call(request_token(),{'action':'matches','matches':matches,'state_hash':state['state_hash']})
-        except HTTPError as error:
-            if error.code==409 and attempt==0:continue
+        if error.code not in (401,403):
             raise
-        print('Osvježeno parova za uparivanje:',result['pairs']);break
+        print('Provjera pogresne publike: odbijeno.')
+    else:
+        raise RuntimeError('Endpoint accepted an incorrect audience.')
+    snapshot=json.loads(Path('data/discovered_candidates.json').read_text(encoding='utf-8'))
+    result=call(request_token(),{'action':'sync','snapshot':snapshot})
+    print('Spremljeno kandidata u zajednicku bazu:',result['candidates'])
+    print('Broj pracenih izvora:',result['sources'])
+    print('Osvjezeno parova za uparivanje:',result['pairs'])
+    print('Vrijeme sinkronizacije:',result['synced_at'])
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    main()
