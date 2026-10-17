@@ -41,6 +41,21 @@ class PostgresIntegrationTests(unittest.TestCase):
         self.assertEqual(second.execute('SELECT COUNT(*) AS n FROM properties').fetchone()['n'],1)
         self.assertTrue(second.execute("SELECT relrowsecurity FROM pg_class WHERE oid='match_results'::regclass").fetchone()['relrowsecurity'])
         second.close()
+    def test_discovery_candidates_are_separate_and_drafts_are_idempotent(self):
+        from source_store import sync_snapshot, prepare_for_review
+        stamp=datetime.now(timezone.utc).isoformat()
+        candidate=dict(id='test:buyer',source_id='test',kind='buyer',country='Hrvatska',title='TEST javni zahtjev',url='https://example.org/mandate',verified=False,facts={'property_types':['Zemljište']},first_seen=stamp,last_seen=stamp)
+        snapshot=dict(schema_version=1,candidates=[candidate],runs=[])
+        sync_snapshot(self.c,snapshot);sync_snapshot(self.c,snapshot)
+        self.assertEqual(prepare_for_review(self.c,'test:buyer'),prepare_for_review(self.c,'test:buyer'))
+        self.c.commit()
+        self.assertEqual(self.c.execute('SELECT COUNT(*) AS n FROM source_candidates').fetchone()['n'],1)
+        buyer=dict(self.c.execute('SELECT * FROM investors').fetchone())
+        self.assertEqual(buyer['verified'],0);self.assertIsNone(buyer['max_budget'])
+        self.assertEqual(self.c.execute('SELECT COUNT(*) AS n FROM notification_outbox').fetchone()['n'],0)
+        for name in ('source_candidates','discovery_runs'):
+            self.assertTrue(self.c.execute('SELECT relrowsecurity FROM pg_class WHERE oid=?::regclass',(name,)).fetchone()['relrowsecurity'])
+
     def test_import_rolls_back_all_rows_after_database_error(self):
         # A rejecting database constraint must roll back the earlier property insert.
         self.c.execute("ALTER TABLE imports ADD CONSTRAINT reject_test CHECK (source_url <> 'https://example.org/rejected')")

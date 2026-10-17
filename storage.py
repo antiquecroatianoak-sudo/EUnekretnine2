@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS sources(id INTEGER PRIMARY KEY,country TEXT,name TEXT
 CREATE TABLE IF NOT EXISTS activity(id INTEGER PRIMARY KEY,property_id INTEGER,investor_id INTEGER,stage TEXT,notes TEXT,date TEXT);
 CREATE TABLE IF NOT EXISTS imports(id INTEGER PRIMARY KEY,source_url TEXT UNIQUE NOT NULL,checked_at TEXT NOT NULL,evidence_url TEXT NOT NULL,property_id INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS notification_outbox(id INTEGER PRIMARY KEY,property_id INTEGER NOT NULL,created_at TEXT NOT NULL,status TEXT DEFAULT 'Spremno',message TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS source_candidates(id TEXT PRIMARY KEY,source_id TEXT NOT NULL,kind TEXT NOT NULL,title TEXT NOT NULL,country TEXT NOT NULL,url TEXT NOT NULL,body_json TEXT NOT NULL,last_seen TEXT NOT NULL,property_id INTEGER,investor_id INTEGER);
+CREATE TABLE IF NOT EXISTS discovery_runs(source_id TEXT PRIMARY KEY,status TEXT NOT NULL,checked_at TEXT NOT NULL,body_json TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS match_results(property_id INTEGER NOT NULL,investor_id INTEGER NOT NULL,result_json TEXT NOT NULL,updated TEXT NOT NULL,PRIMARY KEY(property_id,investor_id));
 '''
 
@@ -59,9 +61,10 @@ def connect(url=None, path=None):
     upgrade(c, bool(url))
     if url:
         # Results contain private mandates; keep the new table off public Data API access.
-        security = c.execute("SELECT relrowsecurity FROM pg_class WHERE oid='match_results'::regclass").fetchone()
-        if not security['relrowsecurity']:
-            c.execute('ALTER TABLE match_results ENABLE ROW LEVEL SECURITY')
+        for table in ('match_results','source_candidates','discovery_runs'):
+            security = c.execute('SELECT relrowsecurity FROM pg_class WHERE oid=?::regclass',(table,)).fetchone()
+            if not security['relrowsecurity']:
+                c.execute(f'ALTER TABLE {table} ENABLE ROW LEVEL SECURITY')
     c.commit()
     return c
 

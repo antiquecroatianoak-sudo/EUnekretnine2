@@ -42,3 +42,23 @@ Automatsko pronalaženje nekretnina i novih kupaca na internetu, provjera njihov
 ## Automatska provjera izmjena
 
 Workflow `Provjera aplikacije i PostgreSQL uparivanja` pokreće se pri izmjeni main grane i na pull requestu. Izolirana PostgreSQL 17 testna baza koristi TLS i privremene testne podatke, bez pristupa stvarnoj Supabase bazi. Dva integracijska testa provjeravaju uvoz, deduplikaciju, ažuriranje kriterija, RLS nove tablice, ponovljivu nadogradnju i rollback. Bez TEST_POSTGRES_URL preskaču se uz vidljivu oznaku; lokalni prolaz nije potvrda tih PostgreSQL testova. Ovaj workflow provjerava kod; ne pronalazi nove oglase niti pokreće produkcijski sustav.
+
+## Prvi izvori automatskog dohvata (17.10.2026.)
+
+Prvi stvarni dohvat dao je 494 kandidata: 475 redaka nekretnina iz Finina javnog CSV-a s budućim rokom nadmetanja, 4 hrvatska natječaja prodaje, 8 objava španjolskih državnih dražbi, 5 objava izravnih prodaja i 2 javna zahtjeva kupaca. Broj kandidata nije broj potvrđenih aktivnih pojedinačnih nekretnina. Natječaj može obuhvaćati više predmeta, RSS može sadržavati stare objave, a ni budući rok ne isključuje povlačenje prodaje. Pravni status, aktualnost, nedostajući troškovi i interes za konkretnu kupnju nisu automatski potvrđeni.
+
+Izvori:
+- https://ponip.fina.hr/ocevidnik-web/preuzmi/csv (CSV poveznica objavljena u službenom Očevidniku; ID nadmetanja određuje zapis)
+- https://hr-nekretnine.hr/natjecaji/ (filtriraju se prodaje, ne zakup i zapošljavanje)
+- https://www.hacienda.gob.es/_layouts/15/rsssubastas.aspx?hiloid=12
+- https://www.hacienda.gob.es/_layouts/15/rssventasdirectas.aspx?hiloid=15
+- https://gradzilla.hr/trazimo-zemljista/ (zemljišta 300–1500 m² u zoni tramvaja; kartu treba ručno provjeriti, budžet nije objavljen)
+- https://www.immoexpert.hr/ (zemljišta u Zagrebu za gradnju stanova i ureda; budžet nije objavljen)
+
+Ranija poveznica rssabintestatos nije uključena: sadržaj se odnosi na raspodjelu ostavine. Francuski izvor za nekretnine je cessions.immobilier-etat.gouv.fr, a ne prodaje pokretnina Enchères du Domaine; konektor još nije implementiran. Slovenija, Italija, Nizozemska i ostale države još nemaju testirane konektore u ovom dohvatu. Nema općeg automatskog pretraživanja novih tvrtki ili privatnih osoba: prate se dva već pronađena javna zahtjeva.
+
+`python discovery.py` osvježava `data/discovered_candidates.json`. Dohvat je ograničen na registrirane domene, veličinu i vrijeme; poštuje dostupna robots pravila HTML izvora. Javne CSV/RSS izvoze obrađuje izravno. Pri pogrešci zadržava zadnje uspješne zapise s izvornim last_seen i bilježi pogrešku. Pogrešan format ili krivi RSS ne smije dati uspješan prazan rezultat. Nestanak zapisa znači samo da nije u posljednjem dohvatu, a ne da je prodan. Pripremljeni raspored na GitHubu radi svakih šest sati i sprema snapshot u isti privatni repozitorij. GitHub može odgoditi raspored; nije zajamčena točnost pokretanja u minutu. Provjeriti stvarni ishod workflowa prije tvrdnje da je automatizacija aktivna.
+
+Aplikacija pri učitavanju uvozi snapshot u tablice `source_candidates` i `discovery_runs`. Prikaz Izvori pokazuje nalaze, datume, nepoznanice i pogreške. Gumb za pripremu zapisa stvara najviše jedan nacrt po kandidatu, s nepoznatom pravnom provjerom ili nepotvrđenim kupcem. Ne prepisuje ručno uređene zapise. Kandidati sami ne stvaraju obavijesti. Nove tablice imaju RLS u PostgreSQL-u; produkcijska baza nije izmijenjena ovim commitom. Bez aktivne objavljene aplikacije ili drugog procesa povezanog s bazom snapshot ostaje spremljen u GitHubu i ne znači da je udaljena baza već osvježena.
+
+Ovaj raspored može dohvaćati poznate javne izvore neovisno o mobitelu nakon potvrđenog aktiviranja na GitHubu. To nije potvrda da je cijela aplikacija već objavljena ili da automatski ostvaruje prodaje.

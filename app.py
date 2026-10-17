@@ -1,5 +1,7 @@
 import streamlit as st, sqlite3, os, csv, io, json
 from import_verified import validate, run as import_batch
+from pathlib import Path
+from source_store import sync_snapshot, prepare_for_review
 from datetime import datetime
 from matching import MATCH, CANDIDATE, REJECT, refresh_matches, ranked_matches
 from matching_ui import property_form, investor_form
@@ -12,11 +14,21 @@ try:
 except Exception:
  database_url = os.environ.get('DATABASE_URL')
 c=connect(url=database_url)
+snapshot_error=False
+snapshot_path=Path(__file__).with_name('data')/'discovered_candidates.json'
+if snapshot_path.exists():
+ try:
+  sync_snapshot(c,json.loads(snapshot_path.read_text(encoding='utf-8'))); c.commit()
+ except (ValueError,KeyError,TypeError):
+  c.rollback()
+  # Bad discovery input must not prevent use of the existing reviewed database.
+  snapshot_error=True
 if c.execute('SELECT COUNT(*) AS total FROM sources').fetchone()['total']==0:
  sources=[('Francuska','Enchères du Domaine','https://encheres-domaine.gouv.fr/','Državne dražbe'),('Francuska','Enchères Publiques','https://www.encheres-publiques.com/','Dražbe'),('Nizozemska','Openbare Verkoop','https://www.openbareverkoop.nl/','Dražbe'),('Nizozemska','Centraal Insolventieregister','https://www.rechtspraak.nl/registers/insolventieregister','Insolventnost')]
  c.executemany('INSERT INTO sources(country,name,url,category) VALUES(?,?,?,?)',sources);c.commit()
 st.set_page_config(page_title='EU Investicijske prilike',layout='wide')
 st.title('EU Investicijske prilike')
+if globals().get('snapshot_error',False): st.warning('Novu datoteku kandidata nije moguće učitati; postojeći zapisi nisu izmijenjeni.')
 st.caption('Središnja baza: Supabase PostgreSQL' if database_url else 'Lokalna SQLite baza • internetska sinkronizacija nije povezana')
 st.caption('Radni prototip • stvarni podaci tek nakon provjere • bez automatskog slanja poruka')
 tabs=st.tabs(['Nadzorna ploča','Nekretnine','Analiza','Investitori','Podudaranja','Pipeline','Izvori','Karta'])
@@ -128,8 +140,31 @@ with tabs[5]:
    for p in props:
     if p['status']==s:st.write(p['title'], '—',p['country'])
 with tabs[6]:
+ st.subheader('Izvori i kandidati iz automatskog dohvata')
+ if 'source_prepared' in st.session_state: st.success(st.session_state.pop('source_prepared'))
  st.dataframe([dict(r) for r in c.execute('SELECT * FROM sources')],use_container_width=True)
- st.caption('Ove poveznice su početni izvori. Nije uključeno automatsko dohvaćanje oglasa.')
+ runs=[json.loads(r['body_json']) for r in c.execute('SELECT body_json FROM discovery_runs ORDER BY source_id')]
+ if runs:
+  st.dataframe(runs,use_container_width=True)
+  if any(r['status']=='Pogreška' for r in runs): st.warning('Neki izvori nisu dohvaćeni. Zadnji uspješno spremljeni kandidati ostaju dostupni s izvornim datumom dohvata.')
+ candidates=[dict(r) for r in c.execute('SELECT * FROM source_candidates ORDER BY last_seen DESC,id')]
+ st.caption('Kandidati nisu provjerene nekretnine ni potvrđeni kupci. Izostanak iz posljednjeg dohvata nije dokaz da je prodaja završila. Uvršteni izvori zasad pokrivaju dio Hrvatske i Španjolske, a javni zahtjevi kupaca prate se na dvije poznate stranice.')
+ kind=st.selectbox('Vrsta kandidata',['Svi','Nekretnine / natječaji','Zahtjevi kupaca'])
+ filtered_candidates=[r for r in candidates if kind=='Svi' or r['kind']==('property' if kind=='Nekretnine / natječaji' else 'buyer')]
+ st.dataframe([{k:r[k] for k in ('title','country','kind','url','last_seen')} for r in filtered_candidates],use_container_width=True)
+ if filtered_candidates:
+  candidate_id=st.selectbox('Kandidat za pregled',[r['id'] for r in filtered_candidates],format_func=lambda x:next(r['title'] for r in filtered_candidates if r['id']==x))
+  row=next(r for r in filtered_candidates if r['id']==candidate_id)
+  original=json.loads(row['body_json'])
+  st.write('Izvor:',row['url']);st.write('Posljednji dohvat:',row['last_seen'])
+  st.write('Status opažanja:',original.get('observation','Za provjeru'))
+  st.json(original['facts'])
+  st.info('Prije uparivanja dopuni konkretan predmet prodaje ili zahtjev kupca i provjeri aktivnost, budžet, dokumentaciju i uvjete. Natječaj može sadržavati više nekretnina.')
+  if st.button('Pripremi zapis za dopunu'):
+   record_kind,record_id=prepare_for_review(c,candidate_id);c.commit()
+   st.session_state['source_prepared']=f"Zapis {record_id} je pripremljen. Otvori karticu {'Nekretnine' if record_kind=='property' else 'Investitori'} i odaberi ga za uređivanje. Ponovni klik ne stvara duplikat."
+   st.rerun()
+ else:st.info('Još nema spremljenih kandidata za odabrani prikaz.')
 with tabs[7]:
  st.info('Karta će prikazivati geokodirane lokacije nakon što se poveže pouzdan geokoder i podaci o nekretninama.')
 
