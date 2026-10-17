@@ -23,11 +23,13 @@ EXTRA_COLUMNS = {
 
 def upgrade(c, postgres):
     for table, columns in EXTRA_COLUMNS.items():
-        existing = set() if postgres else {r['name'] for r in c.execute('PRAGMA table_info(' + table + ')')}
+        existing = ({r['column_name'] for r in c.execute(
+            'SELECT column_name FROM information_schema.columns WHERE table_schema=current_schema() AND table_name=?', (table,))}
+            if postgres else {r['name'] for r in c.execute('PRAGMA table_info(' + table + ')')})
         for name, definition in columns.items():
-            if postgres:
+            if postgres and name not in existing:
                 c.execute(f'ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {name} {definition}')
-            elif name not in existing:
+            elif not postgres and name not in existing:
                 c.execute(f'ALTER TABLE {table} ADD COLUMN {name} {definition}')
 
 class Postgres:
@@ -57,7 +59,9 @@ def connect(url=None, path=None):
     upgrade(c, bool(url))
     if url:
         # Results contain private mandates; keep the new table off public Data API access.
-        c.execute('ALTER TABLE match_results ENABLE ROW LEVEL SECURITY')
+        security = c.execute("SELECT relrowsecurity FROM pg_class WHERE oid='match_results'::regclass").fetchone()
+        if not security['relrowsecurity']:
+            c.execute('ALTER TABLE match_results ENABLE ROW LEVEL SECURITY')
     c.commit()
     return c
 

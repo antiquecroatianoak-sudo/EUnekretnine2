@@ -18,7 +18,7 @@ class PostgresIntegrationTests(unittest.TestCase):
         self.schema='matching_test_'+uuid.uuid4().hex
         self.admin=psycopg.connect(os.environ['TEST_POSTGRES_URL'],autocommit=True)
         self.admin.execute(sql.SQL('CREATE SCHEMA {}').format(sql.Identifier(self.schema)))
-        self.url=make_conninfo(os.environ['TEST_POSTGRES_URL'],options='-csearch_path='+self.schema)
+        self.url=make_conninfo(os.environ['TEST_POSTGRES_URL'],options='-csearch_path='+self.schema+' -clock_timeout=5000 -cstatement_timeout=15000')
         self.c=connect(url=self.url)
     def tearDown(self):
         from psycopg import sql
