@@ -16,8 +16,8 @@ def validate(item):
     for key in ('country', 'city', 'title', 'source', 'evidence_url', 'checked_at'):
         if not isinstance(item.get(key), str) or not item[key].strip():
             raise ValueError('Nedostaje polje: ' + key)
-    if item['country'] not in ('Francuska', 'Nizozemska'):
-        raise ValueError('Pilot prihvaća Francusku i Nizozemsku.')
+    if item['country'] not in ('Francuska', 'Nizozemska', 'Hrvatska', 'Slovenija'):
+        raise ValueError('Uvoz prihvaća Francusku, Nizozemsku, Hrvatsku i Sloveniju.')
     url(item['source']); url(item['evidence_url'])
     checked = datetime.fromisoformat(item['checked_at'].replace('Z', '+00:00'))
     if checked.tzinfo is None or checked > datetime.now(timezone.utc):
@@ -72,3 +72,4 @@ if __name__ == '__main__':
     c = connect()
     try: print('Integrirano zapisa:', run(c, items))
     finally: c.close()
+
