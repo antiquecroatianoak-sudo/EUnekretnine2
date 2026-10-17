@@ -18,8 +18,16 @@ def request_token(audience=AUDIENCE):
 def call(token,payload):
     req=Request(ENDPOINT,data=json.dumps(payload,ensure_ascii=False).encode(),
                 headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'},method='POST')
-    with urlopen(req,timeout=90) as response:
-        return json.load(response)
+    try:
+        with urlopen(req,timeout=90) as response:
+            return json.load(response)
+    except HTTPError as error:
+        try:
+            body=json.load(error)
+        except (ValueError,TypeError):
+            body={}
+        print('Sync endpoint HTTP:',error.code,'check:',body.get('checks',[]),'error:',body.get('error',''))
+        raise
 
 def main():
     # Check that a genuine GitHub identity with the wrong audience is rejected.
