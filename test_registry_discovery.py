@@ -3,7 +3,8 @@ import io
 import http.client
 import unittest
 from unittest.mock import patch
-from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows
+from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows
+from datetime import datetime,timezone
 
 ROOT='https://www.nepremicnine.net/oglasi-prodaja/'
 SOURCE={'id':40,'url':ROOT,'country':'SI','category':'Oglasnik','name':'Portal'}
@@ -19,6 +20,29 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_dutch_auction_import_excludes_boats_and_auction_premium(self):
+        root='https://www.openbareverkoop.nl/';house=root+'kavel/4516/house';boat=root+'kavel/4517/boat'
+        source=dict(SOURCE,url=root,id=2)
+        rows,state=self.run_source(source,None,Fetch({root:f'<a href="{house}">Tolstraat</a><a href="{boat}">Danimar</a>',house:'<h1>Tolstraat 142, AMSTERDAM</h1><p>Type registergoed Woonhuis. Inzetpremie: € 20.000.</p>',boat:'<h1>Danimar motorjacht</h1><p>Motorschip</p>'}))
+        self.assertEqual(len(rows),1);self.assertIsNone(rows[0]['facts']['asking_price']);self.assertEqual(state['skipped_non_sale'],1)
+    def test_lithuanian_real_estate_filter_and_initial_price(self):
+        root='https://www.evarzytynes.lt/evs/pages/auctions.do';land='https://www.evarzytynes.lt/evs/pages/auction.do?id=1&number=2';car='https://www.evarzytynes.lt/evs/pages/auction.do?id=3&number=4'
+        source=dict(SOURCE,url=root,id=24)
+        html='<h1>Aukciono informacija</h1><p>Parduodamas turtas: Žemės sklypas Bendras turto plotas: 220 a. Pradinė pardavimo kaina: 13 600 Eur Pabaigos data: 2099-10-19 09:00:59</p>'
+        rows,state=self.run_source(source,None,Fetch({root:f'<a href="{land}">Nr. 2</a><a href="{car}">Nr. 4</a>',land:html,car:'<h1>Aukciono informacija</h1><p>Parduodamas turtas: Automobilis Pradinė pardavimo kaina: 4 000 Eur</p>'}))
+        self.assertEqual(len(rows),1);self.assertEqual(rows[0]['facts']['asking_price'],13600);self.assertEqual(state['skipped_non_sale'],1)
+    def test_invimit_ignores_closed_and_expired_sales_and_preserves_unknown_costs(self):
+        header='<tr><th>Procedura</th><th>Stato</th></tr>'
+        def row(date,code):
+            values=['Vendita','',date,code,'Napoli','Via Marechiaro 93','Unità collabente','666,28 mq','€ 600.000','<a href="/docs/'+code+'.pdf">Scheda</a>']
+            return '<tr>'+''.join('<td>'+v+'</td>' for v in values)+'</tr>'
+        s={'id':63,'country':'Italija','url':'https://vetrinaimmobili.invimit.it/'}
+        html='<table>'+header+row('07-12-2026 12:00','ACTIVE')+row('Chiuso','CLOSED')+row('01-01-2020 12:00','EXPIRED')+'</table>'
+        rows=invimit_rows(s,html,datetime(2026,10,18,tzinfo=timezone.utc))
+        self.assertEqual(len(rows),1);self.assertEqual(rows[0]['facts']['asking_price'],600000)
+        self.assertEqual(rows[0]['url'],s['url']+'docs/ACTIVE.pdf');self.assertNotIn('renovation',rows[0]['facts'])
+    def test_changed_invimit_format_is_an_error_not_empty_success(self):
+        with self.assertRaises(ValueError):invimit_rows({'id':63,'country':'Italija','url':'https://vetrinaimmobili.invimit.it/'},'<p>New format</p>',datetime.now(timezone.utc))
     def test_early_hints_read_final_status_and_body(self):
         class Socket:
             def makefile(self,*args):return io.BytesIO(b'HTTP/1.1 103 Early Hints\r\nLink: </a.css>; rel=preload\r\n\r\nHTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK')

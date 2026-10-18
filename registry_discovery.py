@@ -7,6 +7,7 @@ import re
 import socket
 import time
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.request import Request, build_opener, HTTPRedirectHandler, HTTPSHandler
@@ -31,11 +32,15 @@ DETAIL={
  'hemnet.se':r'/bostad/', 'etuovi.com':r'/kohde/', 'kv.ee':r'-\d{6,}',
  'city24.lv':r'/real-estate/.+\d+', 'nieruchomosci-online.pl':r'/[^/]+/\d+\.html',
  'xe.gr':r'/property/d/poliseis-',
+ 'openbareverkoop.nl':r'^/kavel/\d+/',
+ 'evarzytynes.lt':r'^/evs/pages/auction\.do$',
 }
 
 # Scope rules are separate from property price/type filters. They prevent crawling
 # unrelated classifieds, editorial articles, agent directories and rental pages.
 SCOPES={
+ 'openbareverkoop.nl':r'^/(?:kavel/\d+/|kavels(?:/|$))',
+ 'evarzytynes.lt':r'^/evs/pages/auctions?\.do$',
  'willhaben.at':r'^/iad/immobilien(?:/|$)',
  'otodom.pl':r'^/pl/(?:wyniki/sprzedaz/|oferta/)',
  'immoweb.be':r'^/(?:en|fr|nl)/(?:classified/|search/)',
@@ -135,6 +140,49 @@ class Page(HTMLParser):
             href,words,rel=self.anchor; self.links.append((href,' '.join(' '.join(words).split())))
             if 'next' in rel.split():self.next.append(href)
             self.anchor=None
+
+class SaleTable(HTMLParser):
+    def __init__(self,content):
+        super().__init__(convert_charrefs=True);self.rows=[];self.row=None;self.cell=None
+        self.feed(content)
+    def handle_starttag(self,tag,attrs):
+        if tag=='tr':self.row=[]
+        if tag in ('td','th') and self.row is not None:self.cell={'text':[],'links':[]}
+        if tag=='a' and self.cell is not None:self.cell['links'].append(dict(attrs).get('href',''))
+    def handle_data(self,data):
+        if self.cell is not None:self.cell['text'].append(data)
+    def handle_endtag(self,tag):
+        if tag in ('td','th') and self.cell is not None:
+            self.cell['text']=' '.join(' '.join(self.cell['text']).split())
+            self.row.append(self.cell);self.cell=None
+        if tag=='tr' and self.row is not None:
+            self.rows.append(self.row);self.row=None
+
+def invimit_rows(source,content,now):
+    table=SaleTable(content);records=[];recognized=False
+    for cells in table.rows:
+        values=[c['text'] for c in cells]
+        if values[:1]==['Procedura']:
+            recognized=True;continue
+        if len(values)<10 or values[0].casefold()!='vendita':continue
+        if 'chiuso' in (values[1]+' '+values[2]).casefold():continue
+        try:deadline=datetime.strptime(values[2],'%d-%m-%Y %H:%M').replace(tzinfo=ZoneInfo('Europe/Rome'))
+        except ValueError:continue
+        if deadline<=now:continue
+        code,city,address=values[3:6]
+        if not code or not city or not address:continue
+        # The technical sheet is an individual source URL, whereas the table
+        # contains multiple lots. Preserve the table as the live-sale evidence.
+        docs=[urljoin(source['url'],u) for u in cells[9]['links']]
+        docs=[u for u in docs if urlsplit(u).hostname==urlsplit(source['url']).hostname and urlsplit(u).path.lower().endswith('.pdf')]
+        if not docs:continue
+        row=listing_record(source,docs[0],Page('<h1>'+code+' '+city+' '+address+'</h1>'),'property',now.isoformat())
+        row['title']=(code+' — '+city+', '+address)[:240]
+        price=re.fullmatch(r'\s*€\s*([\d.]+(?:,\d+)?)\s*',values[8])
+        row['facts'].update(source_listing_url=source['url'],reference=code,advertised_location=address+', '+city,advertised_use=values[6],advertised_area_text=values[7],currency='EUR',asking_price=float(price[1].replace('.','').replace(',','.')) if price else None,deadline=deadline.isoformat(),availability='Rok je u budućnosti prema javnoj tablici; potrebna je potvrda dostupnosti i dokumentacije',evidence_excerpt='; '.join(values[:9]))
+        records.append(row)
+    if not recognized:raise ValueError('INVIMIT sale-table format changed; no import')
+    return records
 
 def objects(value):
     if isinstance(value,dict):
@@ -244,13 +292,22 @@ def listing_record(source,url,page,kind,now):
 def process(source,state,fetcher,deadline,max_pages=25):
     now=datetime.now(timezone.utc).isoformat(); sid='registry-'+str(source['id']);kind='buyer' if buyer_source(source) else 'property'
     previous=state or {}; root=source['url']; config=source.get('import_config') or {}
+    if hostkey(urlsplit(root).hostname)=='vetrinaimmobili.invimit.it':
+        stamp=datetime.now(timezone.utc)
+        try:
+            rows=invimit_rows(source,fetcher.get(root),stamp)
+            return rows,dict(source_id=sid,status='Uspješno',checked_at=stamp.isoformat(),pending=[],cycle_seen=[root],pages_processed=1,imported_count=len(rows),exhausted=False,coverage_complete=False,scope='Public sale table only',error=None)
+        except Exception as error:
+            return [],dict(source_id=sid,status='Pogreška',checked_at=stamp.isoformat(),pending=[{'url':root,'mode':'index','sale':True}],cycle_seen=[],pages_processed=0,imported_count=0,exhausted=False,coverage_complete=False,error=type(error).__name__+': '+str(error)[:240],error_kind=failure_type(error))
     pattern=DETAIL.get(hostkey(urlsplit(root).hostname))
     if config.get('detail_path_prefixes'):
         pattern='^(?:'+'|'.join(re.escape(p) for p in config['detail_path_prefixes'])+')'
     pending=[dict(item) for item in previous.get('pending',[]) if in_scope(item['url'],root,config)]
     reset_scope=bool(previous.get('pending')) and not pending
     buyer_index=kind=='buyer' and bool(re.search(r'/oglasi-nakup/',root))
-    if not pending:pending=[{'url':u,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(u)) or config.get('sale_scope') is True} for u in (config.get('entry_urls') or [root])]
+    if not pending:pending=[{'url':u,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(u)) or config.get('sale_scope') is True or hostkey(urlsplit(root).hostname) in ('openbareverkoop.nl','evarzytynes.lt')} for u in (config.get('entry_urls') or [root])]
+    if hostkey(urlsplit(root).hostname) in ('openbareverkoop.nl','evarzytynes.lt'):
+        for item in pending:item['sale']=True
     if buyer_index:
         for item in pending:
             if item.get('mode')=='buyer':item['mode']='index'
@@ -279,7 +336,33 @@ def process(source,state,fetcher,deadline,max_pages=25):
                     # do not encode the transaction type. Inspect the detail.
                     if not re.search(r'\bna predaj\b',text,re.I):
                         seen.add(url);skipped_non_sale+=1;continue
-                records.append(listing_record(source,url,page,kind,now));detail_pages+=1
+                host=hostkey(urlsplit(root).hostname)
+                extra={}
+                if host=='openbareverkoop.nl':
+                    if re.search(r'\b(?:motorschip|motorjacht|vaartuig)\b',text,re.I):
+                        seen.add(url);skipped_non_sale+=1;continue
+                    if not re.search(r'\b(?:woonhuis|appartement|villa|garage|winkel|bedrijfspand|perceel|grond|woning)\b',text,re.I):
+                        raise ValueError('No real-estate type on auction detail; adapter needs review')
+                    if re.search(r'Status:\s*(?:ingetrokken|verkocht|afgelast)',text,re.I):
+                        seen.add(url);skipped_non_sale+=1;continue
+                    extra['price_note']='Inzetpremie is an auction premium, not a property asking price; no price inferred.'
+                if host=='evarzytynes.lt':
+                    asset=re.search(r'Parduodamas turtas:\s*(Žemės sklypas|Gyvenamasis namas|Butas|Pastatas|Patalpos|Negyvenamoji patalpa)',text,re.I)
+                    if not asset:
+                        seen.add(url);skipped_non_sale+=1;continue
+                    closing=re.search(r'Pabaigos data:\s*(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)',text)
+                    if closing:
+                        end=datetime.strptime(closing[1],'%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo('Europe/Vilnius'))
+                        if end<=datetime.fromisoformat(now):
+                            seen.add(url);skipped_non_sale+=1;continue
+                        extra['deadline']=end.isoformat()
+                    amount=re.search(r'Pradinė pardavimo kaina:\s*([\d\s\u00a0]+(?:,\d+)?)\s*Eur',text)
+                    if amount:extra.update(asking_price=float(re.sub(r'\s','',amount[1]).replace(',','.')),currency='EUR',price_basis='Pradinė pardavimo kaina – početna cijena')
+                    extra['advertised_property_type']=asset[1]
+                row=listing_record(source,url,page,kind,now);row['facts'].update(extra)
+                if host=='evarzytynes.lt':
+                    row['title']=('Dražba '+dict(parse_qsl(urlsplit(url).query)).get('number','')+' — '+extra['advertised_property_type'])[:240]
+                records.append(row);detail_pages+=1
             else:
                 index_pages+=1
                 queued={x['url'] for x in pending}; links=list(page.links)
