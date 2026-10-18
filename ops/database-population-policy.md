@@ -2,7 +2,9 @@
 
 Ovo je trajni dokument o funkcioniranju aplikacije. Zajedno ga nadopunjavamo kako razvijamo aplikaciju, prema izričitim dogovorenim uputama korisnika. Postojeća pravila ostaju važeća dok ih korisnik ne promijeni; nove dopune bilježimo u isti dokument. Dokument opisuje ponašanje aplikacije i rad s podacima, a ne vizualni izgled. Dogovorene zahtjeve uvijek razlikovati od stvarno implementiranih i provjerenih mogućnosti.
 
-## Popunjavanje i automatsko ažuriranje baza
+## 1. Popunjavanje i automatsko ažuriranje baza — 18.10.2026.
+
+Dogovoreno i potvrđeno 18.10.2026.: baza nekretnina popunjava se konkretnim prodajnim oglasima iz svih država članica EU; baza kupaca konkretnim oglasima potražnje sa službenih oglasnih platformi svih država članica EU. Sve baze automatski se ažuriraju dodavanjem novih, osvježavanjem postojećih i uklanjanjem isteklih ili izbrisanih oglasa s izvora. Ovo je prva stavka trajnog dokumenta; daljnje funkcije dodavat ćemo tijekom razvoja.
 
 Izričita uputa korisnika Luke, 18.10.2026. u 20:05 Europe/Zagreb. Ova uputa određuje način popunjavanja baza i ima prednost pred ranijim proturječnim operativnim napomenama.
 
