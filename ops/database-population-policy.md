@@ -1,0 +1,12 @@
+# Trajna pravila popunjavanja i ažuriranja baza
+
+Izričita uputa korisnika Luke, 18.10.2026. u 20:05 Europe/Zagreb. Ova uputa određuje način popunjavanja baza i ima prednost pred ranijim proturječnim operativnim napomenama.
+
+1. Baza nekretnina popunjava se konkretnim oglasima prodaje nekretnina iz internetskih izvora u svim državama članicama Europske unije.
+2. Baza kupaca popunjava se konkretnim oglasima potražnje za nekretninama sa službenih platformi za oglašavanje kupaca/potražnje u svim državama članicama EU. Sam javni profil tvrtke, imenik investitora ili kategorija portala nije oglas potražnje.
+3. Sve baze ažuriraju se automatski. Ažuriranje uključuje unos novih pronađenih oglasa, osvježavanje postojećih podataka i uklanjanje iz aktivnih baza oglasa koji su istekli ili su obrisani s izvornog oglasnika.
+4. Privremena nedostupnost izvora ili neuspjeli dohvat nisu dokaz da je oglas obrisan. Uklanjanje mora imati dokaz isteka ili uklanjanja izvornog oglasa; takav oglas ne ostaje u aktivnoj ponudi/potražnji niti u aktivnim podudaranjima. Eventualna interna evidencija uklanjanja nije aktivan oglas.
+5. Svaki zapis treba biti vezan uz konkretni izvorni oglas, URL/identifikator i datum provjere; spriječiti duplikate. Nepoznate podatke ne izmišljati. Nedostatak nekog polja ne smije ponovno uzrokovati skrivanje svih stvarnih oglasa iz baza.
+6. Trenutni prioritet je ispravno automatsko popunjavanje i ažuriranje baza. Stara arhivirana uparivanja ne vraćati: korisnik je izričito rekao da će se uparivanja ponovno računati. Zaštite uparivanja ne uklanjati na temelju ove napomene.
+
+Status: ovo je trajno spremljena korisnikova specifikacija, a ne potvrda da su svi dijelovi automatizacije već implementirani ili aktivni. Svaku tvrdnju o automatskom radu provjeriti prema stvarnom rasporedu, izvršenjima i upisima. Pri nastavku najprije pročitati ovu datoteku i ops/display-rollback-2026-10-18.md. Ne ponavljati skrivanje svih zapisa primjenom dodatnih uvjeta izvan ove specifikacije.
