@@ -46,6 +46,15 @@ Deno.serve(async req=>{
    const sources=await sql`select id,country,name,url,category from sources order by id`;
    const runs=await sql`select source_id,body_json from discovery_runs where source_id like 'registry-%'`;
    const states={};for(const r of runs){try{states[r.source_id]=JSON.parse(r.body_json)}catch{}}
+   for(const source of sources){
+    const config=states['registry-config-'+source.id];
+    if(!config)continue;
+    let valid=true;
+    for(const key of ['index_path_prefixes','detail_path_prefixes'])if(config[key]!=null&&(!Array.isArray(config[key])||config[key].length>20||config[key].some(p=>typeof p!=='string'||!p.startsWith('/')||p.length>300)))valid=false;
+    if(config.entry_urls!=null&&(!Array.isArray(config.entry_urls)||config.entry_urls.length>20))valid=false;
+    if(valid){try{for(const u of config.entry_urls||[])validURL(u,source.url)}catch{valid=false}}
+    if(valid)source.import_config=config;
+   }
    return reply({sources,states});
   }
   if(!/^registry-\d+$/.test(body.source_id||''))return reply({error:'Invalid source ID'},400);
@@ -53,9 +62,15 @@ Deno.serve(async req=>{
   if(!source)return reply({error:'Unknown registered source'},400);
   if(body.action==='checkpoint'){
    const s=body.state;
-   if(!s||s.source_id!==body.source_id||!['Uspješno','Pogreška','Nepodržano'].includes(s.status)||!Array.isArray(s.pending)||!Array.isArray(s.cycle_seen)||!Number.isFinite(Date.parse(s.checked_at))||Math.abs(Date.now()-Date.parse(s.checked_at))>3600000)throw Error('Invalid checkpoint');
+   if(!s||s.source_id!==body.source_id||!['Uspješno','Djelomično','Pogreška','Nepodržano'].includes(s.status)||!Array.isArray(s.pending)||!Array.isArray(s.cycle_seen)||!Number.isFinite(Date.parse(s.checked_at))||Math.abs(Date.now()-Date.parse(s.checked_at))>3600000)throw Error('Invalid checkpoint');
    for(const item of s.pending)validURL(item.url,source.url);
    for(const u of s.cycle_seen)validURL(u,source.url);
+   if(!Array.isArray(s.unavailable_urls||[])||(s.unavailable_urls||[]).length>500)throw Error('Invalid unavailable URLs');
+   for(const u of s.unavailable_urls||[]){validURL(u.url,source.url);if(![404,410].includes(u.http_status))throw Error('Invalid unavailable status')}
+   for(const u of s.unavailable_urls||[]){
+    const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
+    await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
+   }
    await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
    return reply({saved:true});
   }
@@ -66,12 +81,18 @@ Deno.serve(async req=>{
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
    let inserted=0,updated=0;
    for(const row of body.candidates){
-    const [existing]=await tx`select * from source_candidates where (url=${row.url} and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
+    const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
     let prior={};try{prior=JSON.parse(existing?.body_json||'{}')}catch{}
     const merged={...prior,...row,id:existing?.id||row.id,source_id:existing?.source_id||row.source_id,country:COUNTRIES[source.country]||({'France':'Francuska'}[source.country])||source.country,first_seen:prior.first_seen||row.first_seen,status:prior.status||'Za provjeru',verified:prior.verified===true};
     // Retain user review fields and prior suggestions. Source evidence is refreshed separately.
     if(prior.match_suggestions)merged.match_suggestions=prior.match_suggestions;
-    merged.facts={...(prior.facts||{}),...row.facts};
+    merged.facts={...(prior.facts||{})};
+    const notObserved=[];
+    for(const [key,value] of Object.entries(row.facts)){
+     if(value==null&&merged.facts[key]!=null)notObserved.push(key);
+     else merged.facts[key]=value;
+    }
+    merged.facts.not_observed_in_latest_fetch=notObserved;
     // Never interpret an import timestamp or a reachable page as confirmed interest/availability.
     merged.verification=assessEvidence(merged);
     merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';

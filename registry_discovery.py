@@ -15,7 +15,7 @@ from sync_discovery import request_token, call as legacy_call
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
-SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη',re.I)
+SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
 DETAIL={
  'njuskalo.hr':r'-oglas-\d+', 'nepremicnine.net':r'/oglasi-(?:prodaja|nakup)/.+_\d+',
@@ -32,9 +32,31 @@ DETAIL={
  'xe.gr':r'/property/d/poliseis-',
 }
 
+# Scope rules are separate from property price/type filters. They prevent crawling
+# unrelated classifieds, editorial articles, agent directories and rental pages.
+SCOPES={
+ 'willhaben.at':r'^/iad/immobilien(?:/|$)',
+ 'otodom.pl':r'^/pl/(?:wyniki/sprzedaz/|oferta/)',
+ 'immoweb.be':r'^/(?:en|fr|nl)/(?:classified/|search/)',
+ 'athome.lu':r'^/(?:vente|annonces-immobilieres)(?:/|$)',
+ 'funda.nl':r'^/(?:en/)?(?:zoeken/koop|detail/koop)',
+ 'daft.ie':r'^/(?:property-for-sale|commercial-properties-for-sale|for-sale|commercial-property-for-sale|new-home-for-sale|new-homes-for-sale)(?:/|$)',
+ 'nepremicnine.net':r'^/oglasi-(?:prodaja|nakup)/',
+}
+LARGE_BATCH_HOSTS={'immoweb.be','athome.lu','propertymarket.com.mt','imot.bg'}
+
+def in_scope(url,root,config=None):
+    p=urlsplit(url);base=urlsplit(root)
+    if canonical(url)==canonical(root):return True
+    prefixes=(config or {}).get('index_path_prefixes',[])+(config or {}).get('detail_path_prefixes',[])
+    if prefixes:return any(p.path.startswith(prefix) for prefix in prefixes)
+    rule=SCOPES.get(hostkey(base.hostname))
+    return not rule or bool(re.search(rule,p.path))
+
 def canonical(url):
     p=urlsplit(url)
-    return urlunsplit((p.scheme,p.netloc.lower(),p.path,urlencode([(k,v) for k,v in parse_qsl(p.query,keep_blank_values=True) if not k.lower().startswith(('utm_','fbclid','gclid'))]),''))
+    path=p.path.rstrip('/') if hostkey(p.hostname or '')=='propertymarket.com.mt' and p.path.startswith('/view/') else p.path
+    return urlunsplit((p.scheme,p.netloc.lower(),path,urlencode([(k,v) for k,v in parse_qsl(p.query,keep_blank_values=True) if not k.lower().startswith(('utm_','fbclid','gclid'))]),''))
 
 def hostkey(host):
     return host.removeprefix('www.').removeprefix('en.')
@@ -94,7 +116,7 @@ def objects(value):
         for v in value:yield from objects(v)
 
 class Fetcher:
-    def __init__(self,root):self.root=root;self.robots={};self.last=0
+    def __init__(self,root):self.root=root;self.robots={};self.last=0;self.minimum_interval=2
     def raw(self,url):
         url=safe_url(url,self.root)
         owner=self
@@ -102,7 +124,7 @@ class Fetcher:
             def redirect_request(self,req,fp,code,msg,headers,newurl):
                 safe_url(newurl,owner.root)
                 return super().redirect_request(req,fp,code,msg,headers,newurl)
-        delay=1-(time.monotonic()-self.last)
+        delay=self.minimum_interval-(time.monotonic()-self.last)
         if delay>0:time.sleep(delay)
         self.last=time.monotonic()
         with build_opener(Redirect()).open(Request(url,headers={'User-Agent':AGENT,'Accept':'text/html,application/xhtml+xml'}),timeout=15) as r:
@@ -119,6 +141,10 @@ class Fetcher:
                 content=''
             parser=RobotFileParser();parser.parse(content.splitlines());self.robots[origin]=parser
         if not self.robots[origin].can_fetch(AGENT,url):raise ValueError('robots.txt disallows this URL')
+        parser=self.robots[origin]
+        delay=parser.crawl_delay(AGENT) or parser.crawl_delay('*') or 0
+        rate=parser.request_rate(AGENT) or parser.request_rate('*')
+        self.minimum_interval=max(2,delay,rate.seconds/rate.requests if rate else 0)
         return self.raw(url)
 
 def api(body,token=None):
@@ -132,6 +158,9 @@ def buyer_source(source):
 def listing_record(source,url,page,kind,now):
     title=(page.meta.get('og:title') or page.meta.get('twitter:title') or ' '.join(page.title)).strip()
     nodes=[v for script in page.scripts for v in objects(script)]
+    if source.get('import_config',{}).get('require_structured_listing') and kind=='property':
+        if not any(set([n.get('@type')] if isinstance(n.get('@type'),str) else n.get('@type',[])) & {'RealEstateListing','Apartment','House','Residence','SingleFamilyResidence'} for n in nodes):
+            raise ValueError('No structured listing title/type; adapter needs review')
     for node in nodes:
         types=node.get('@type',[]);types=[types] if isinstance(types,str) else types
         if any(t in ('RealEstateListing','Apartment','House','Residence','SingleFamilyResidence','Product') for t in types):
@@ -143,6 +172,9 @@ def listing_record(source,url,page,kind,now):
         facts.update(role='Potencijalni kupac ili zastupnik; identitet i interes zahtijevaju provjeru',budget=None,interest='Javna stranica; nije potvrđen interes za konkretnu nekretninu')
     else:
         for node in nodes:
+            node_types=node.get('@type',[])
+            if isinstance(node_types,str):node_types=[node_types]
+            if not any(t in ('RealEstateListing','Apartment','House','Residence','SingleFamilyResidence','Product','Place') for t in node_types):continue
             offers=node.get('offers')
             if isinstance(offers,dict):
                 price=offers.get('price'); currency=offers.get('priceCurrency')
@@ -156,15 +188,25 @@ def listing_record(source,url,page,kind,now):
 
 def process(source,state,fetcher,deadline,max_pages=25):
     now=datetime.now(timezone.utc).isoformat(); sid='registry-'+str(source['id']);kind='buyer' if buyer_source(source) else 'property'
-    previous=state or {}; root=source['url']; pattern=DETAIL.get(hostkey(urlsplit(root).hostname))
-    pending=list(previous.get('pending',[]))
+    previous=state or {}; root=source['url']; config=source.get('import_config') or {}
+    pattern=DETAIL.get(hostkey(urlsplit(root).hostname))
+    if config.get('detail_path_prefixes'):
+        pattern='^(?:'+'|'.join(re.escape(p) for p in config['detail_path_prefixes'])+')'
+    pending=[dict(item) for item in previous.get('pending',[]) if in_scope(item['url'],root,config)]
+    reset_scope=bool(previous.get('pending')) and not pending
     buyer_index=kind=='buyer' and bool(re.search(r'/oglasi-nakup/',root))
-    if not pending:pending=[{'url':root,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(root))}]
-    seen=set(previous.get('cycle_seen',[])) if previous.get('pending') else set()
-    records=[]; pages=0; errors=[]; exhausted=False
+    if not pending:pending=[{'url':u,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(u)) or config.get('sale_scope') is True} for u in (config.get('entry_urls') or [root])]
+    if buyer_index:
+        for item in pending:
+            if item.get('mode')=='buyer':item['mode']='index'
+    pending.sort(key=lambda p:0 if p['mode']=='detail' else 1)
+    seen=set(previous.get('cycle_seen',[])) if previous.get('pending') and not reset_scope else set()
+    records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False
+    failed=list(previous.get('failed_urls',[]));unavailable=[]
     if kind=='property' and not pattern:
         return [],dict(source_id=sid,status='Nepodržano',checked_at=now,pending=pending,cycle_seen=list(seen),pages_processed=0,imported_count=0,exhausted=False,error='No validated detail URL adapter; research automation must supply one')
     while pending and pages<max_pages and time.monotonic()<deadline:
+        if index_pages>=5 and not any(p['mode'] in ('detail','buyer') for p in pending):break
         item=pending.pop(0);url=item['url']
         if url in seen:continue
         try:
@@ -176,8 +218,10 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 # A registered investor page is a potential profile, never a verified mandate.
                 row['facts']['transaction_type']='unconfirmed_acquisition_profile'
                 records.append(row)
-            elif item['mode']=='detail':records.append(listing_record(source,url,page,kind,now))
+            elif item['mode']=='detail':
+                records.append(listing_record(source,url,page,kind,now));detail_pages+=1
             else:
+                index_pages+=1
                 queued={x['url'] for x in pending}; links=list(page.links)
                 for script in page.scripts:
                     for obj in objects(script):
@@ -188,7 +232,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 for href,label in links:
                     try:link=safe_url(urljoin(url,href),root)
                     except (ValueError,OSError):continue
-                    if link in seen or link in queued or RENT.search(link):continue
+                    if link in seen or link in queued or RENT.search(link) or not in_scope(link,root,config):continue
                     if hostkey(urlsplit(root).hostname)=='nepremicnine.net':
                         if kind=='buyer' and '/oglasi-prodaja/' in link:continue
                         if kind=='property' and '/oglasi-nakup/' in link:continue
@@ -202,16 +246,25 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 for href in page.next:
                     try:link=safe_url(urljoin(url,href),root)
                     except (ValueError,OSError):continue
-                    if link not in seen and link not in queued:pending.append({'url':link,'mode':'index','sale':item.get('sale',False)});queued.add(link)
+                    if link not in seen and link not in queued and in_scope(link,root,config):pending.append({'url':link,'mode':'index','sale':item.get('sale',False)});queued.add(link)
                 if not details and not pending:raise ValueError('No supported listing links or next page; completeness is unconfirmed')
             seen.add(url)
             # Import concrete records before exploring more category/filter pages.
             pending.sort(key=lambda p:0 if p['mode']=='detail' else 1)
         except Exception as e:
+            if isinstance(e,HTTPError) and e.code in (404,410):
+                unavailable.append({'url':url,'http_status':e.code,'checked_at':now});seen.add(url);continue
+            if isinstance(e,ValueError) and item['mode']=='detail' and 'title' in str(e):
+                # One malformed/deleted listing must not block the rest of the queue.
+                failed.append({'url':url,'mode':item['mode'],'error':str(e),'checked_at':now});continue
             # Failed URL stays at the front for retry; never advance past a blocked page.
             pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);break
     exhausted=not pending and not errors
-    return records,dict(source_id=sid,status='Pogreška' if errors else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,imported_count=len(records),exhausted=exhausted,partial=bool(pending),error='; '.join(errors) or None,stop_reason='error' if errors else 'complete' if exhausted else 'runtime_or_page_budget')
+    state=dict(source_id=sid,status='Pogreška' if errors else 'Djelomično' if pending or failed else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,index_pages=index_pages,detail_pages=detail_pages,imported_count=len(records),failed_urls=failed,unavailable_urls=unavailable,queue_exhausted=exhausted,exhausted=False,coverage_complete=False,scope='Discovered permitted pages only; not the whole portal',partial=bool(pending or failed),error='; '.join(errors) or None,stop_reason='error' if errors else 'discovered_queue_empty' if exhausted else 'runtime_or_page_budget')
+    if errors and any(term in state['error'] for term in ('403','401','429','robots.txt')):
+        from datetime import timedelta
+        state['retry_after']=(datetime.now(timezone.utc)+timedelta(hours=24)).isoformat()
+    return records,state
 
 def main():
     # Read the entire current registry at each run, including newly discovered sources.
@@ -220,9 +273,16 @@ def main():
     for source in sources:
         if time.monotonic()>=deadline:break
         sid='registry-'+str(source['id'])
-        rows,state=process(source,config['states'].get(sid),Fetcher(source['url']),deadline)
+        retry=config['states'].get(sid,{}).get('retry_after')
+        if retry and datetime.fromisoformat(retry)>datetime.now(timezone.utc):continue
+        budget=150 if hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
+        rows,state=process(source,config['states'].get(sid),Fetcher(source['url']),min(deadline,time.monotonic()+360),max_pages=budget)
         # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
-        for n in range(0,len(rows),100):api({'action':'batch','source_id':sid,'candidates':rows[n:n+100]})
+        inserted=updated=0
+        for n in range(0,len(rows),100):
+            saved=api({'action':'batch','source_id':sid,'candidates':rows[n:n+100]})
+            inserted+=saved.get('inserted',0);updated+=saved.get('updated',0)
+        state.update(inserted_count=inserted,updated_count=updated)
         result=api({'action':'checkpoint','source_id':sid,'state':state})
         print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'checkpoint',result.get('saved'))
     print('Registry pass finished; unvisited sources retain their checkpoints.')
