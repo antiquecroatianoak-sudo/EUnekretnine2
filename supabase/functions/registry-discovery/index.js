@@ -1,6 +1,7 @@
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {COUNTRIES} from './domain.mjs';
+import {assessEvidence} from './verification.mjs';
 const repo='antiquecroatianoak-sudo/EUnekretnine2',audience='eu-property-discovery:izpzsfiqvransehvmuzn';
 const jwks=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -71,6 +72,9 @@ Deno.serve(async req=>{
     // Retain user review fields and prior suggestions. Source evidence is refreshed separately.
     if(prior.match_suggestions)merged.match_suggestions=prior.match_suggestions;
     merged.facts={...(prior.facts||{}),...row.facts};
+    // Never interpret an import timestamp or a reachable page as confirmed interest/availability.
+    merged.verification=assessEvidence(merged);
+    merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';
     if(existing){
      await tx`update source_candidates set title=${merged.title},country=${merged.country},url=${merged.url},body_json=${JSON.stringify(merged)},last_seen=${row.last_seen} where id=${existing.id} and last_seen<=${row.last_seen}`;updated++;
     }else{

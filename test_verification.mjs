@@ -1,0 +1,18 @@
+import {strict as assert} from 'node:assert';
+import {assessEvidence} from './verification.mjs';
+const now=Date.parse('2026-10-18T08:30:00Z');
+const base={url:'https://example.org/listing/123',kind:'property',last_seen:'2026-10-18T08:00:00Z',facts:{}};
+let r=assessEvidence(base,now);
+assert(r.missing.includes('Lokacija iz pojedinačnog oglasa'));
+assert(r.availability.startsWith('Nepotvrđeno'));
+assert(r.legal_status.startsWith('Nije potvrđeno'));
+assert.equal(assessEvidence({...base,facts:{address:'Zagreb'}},now).missing.length,0);
+r=assessEvidence({...base,kind:'buyer'},now);
+assert.equal(r.classification,'Potencijalni kontakt - za provjeru');
+assert.equal(r.missing.length,2);
+r=assessEvidence({...base,kind:'buyer',facts:{entity_name:'Test d.o.o.',identity_source_url:base.url,intent_evidence:'Javno tražimo zemljište',intent_source_url:base.url}},now);
+assert.equal(r.classification,'Dokumentirana javna potražnja - za provjeru');
+assert.equal(r.specific_purchase_interest,'Nepotvrđeno');
+assert(assessEvidence({...base,last_seen:'2020-01-01T00:00:00Z'},now).freshness.startsWith('Potrebna'));
+assert(assessEvidence({...base,last_seen:'2030-01-01T00:00:00Z'},now).freshness.startsWith('Potrebna'));
+console.log('Evidence policy checks passed.');

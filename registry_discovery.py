@@ -150,6 +150,8 @@ def listing_record(source,url,page,kind,now):
                     facts.update(advertised_price=float(price),asking_price=float(price) if currency=='EUR' else None,currency=currency)
             area=node.get('floorSize')
             if isinstance(area,dict):facts['advertised_area']=area
+            address=node.get('address')
+            if isinstance(address,(dict,str)) and address:facts['advertised_location']=address
     return {'id':'registry:'+kind+':'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def process(source,state,fetcher,deadline,max_pages=25):

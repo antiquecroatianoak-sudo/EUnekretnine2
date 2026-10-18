@@ -7,6 +7,8 @@ on:
     paths:
       - discovery.py
       - registry_discovery.py
+      - verification.mjs
+      - test_verification.mjs
       - test_registry_discovery.py
       - sync_discovery.py
       - .github/workflows/discovery.yml
@@ -30,6 +32,8 @@ jobs:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
         run: python -m unittest -v test_registry_discovery
+      - name: Provjeri pravila dokaza i nepotvrđenog interesa
+        run: node test_verification.mjs
       - name: Uvezi aktualni registar i nastavi spremljene stranice
         id: registry
         continue-on-error: true
