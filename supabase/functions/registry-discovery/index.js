@@ -43,10 +43,13 @@ Deno.serve(async req=>{
  try{
   const sql=db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:1,prepare:false,idle_timeout:5,connect_timeout:10});
   if(body.action==='registry'){
+   await sql`select site_private.reconcile_listing_lifecycle()`;
    const sources=await sql`select id,country,name,url,category from sources order by id`;
    const runs=await sql`select source_id,body_json from discovery_runs where source_id like 'registry-%'`;
    const states={};for(const r of runs){try{states[r.source_id]=JSON.parse(r.body_json)}catch{}}
    for(const source of sources){
+    const priorListings=await sql`select c.url from source_candidates c left join site_private.listing_lifecycle l on l.candidate_id=c.id where c.source_id=${'registry-'+source.id} and l.state is distinct from 'expired' order by coalesce(l.checked_at,site_private.safe_stamp(c.last_seen)) nulls first limit 10`;
+    source.recheck_urls=priorListings.map(r=>r.url);
     const config=states['registry-config-'+source.id];
     if(!config)continue;
     let valid=true;
@@ -68,10 +71,12 @@ Deno.serve(async req=>{
    if(!Array.isArray(s.unavailable_urls||[])||(s.unavailable_urls||[]).length>500)throw Error('Invalid unavailable URLs');
    for(const u of s.unavailable_urls||[]){validURL(u.url,source.url);if(![404,410].includes(u.http_status))throw Error('Invalid unavailable status')}
    for(const u of s.unavailable_urls||[]){
+    await sql`select site_private.mark_listing_unavailable(${u.url},${u.http_status},${s.checked_at}::timestamptz)`;
     const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
     await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
    }
    await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
+   await sql`select site_private.reconcile_listing_lifecycle()`;
    return reply({saved:true});
   }
   if(body.action!=='batch')return reply({error:'Unknown action'},400);
@@ -101,7 +106,9 @@ Deno.serve(async req=>{
     }else{
      await tx`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${merged.id},${merged.source_id},${merged.kind},${merged.title},${merged.country},${merged.url},${JSON.stringify(merged)},${merged.last_seen})`;inserted++;
     }
+    await tx`select site_private.sync_source_listing(${merged.id})`;
    }
+   await tx`select site_private.reconcile_listing_lifecycle()`;
    return {inserted,updated};
   });
   return reply({...result,candidates:body.candidates.length});
