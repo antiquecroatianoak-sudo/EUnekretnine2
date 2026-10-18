@@ -16,3 +16,12 @@ Izričita uputa korisnika Luke, 18.10.2026. u 20:05 Europe/Zagreb. Ova uputa odr
 6. Trenutni prioritet je ispravno automatsko popunjavanje i ažuriranje baza. Stara arhivirana uparivanja ne vraćati: korisnik je izričito rekao da će se uparivanja ponovno računati. Zaštite uparivanja ne uklanjati na temelju ove napomene.
 
 Status: ovo je trajno spremljena korisnikova specifikacija, a ne potvrda da su svi dijelovi automatizacije već implementirani ili aktivni. Svaku tvrdnju o automatskom radu provjeriti prema stvarnom rasporedu, izvršenjima i upisima. Pri nastavku najprije pročitati ovu datoteku i ops/display-rollback-2026-10-18.md. Ne ponavljati skrivanje svih zapisa primjenom dodatnih uvjeta izvan ove specifikacije.
+
+
+## Provedba prve stavke — 18.10.2026.
+
+Primijenjeno u bazi i objavljenim servisima: odvojeni unos konkretnih prodajnih oglasa i oglasa potražnje; deduplikacija i ažuriranje podataka izvora uz očuvanje ručnih izmjena; uklanjanje iz aktivnog pregleda po dokumentiranom isteku, HTTP 410 ili ponovljenom HTTP 404 s razmakom od najmanje 24 sata; privremene 401/403/429 pogreške ne uklanjaju oglase. Profil investitora bez konkretnog oglasa potražnje ne promiče se novim unosom kao kupac. Zaštite uparivanja ostaju uključene.
+
+Prilagođen je periodični dohvat tako da ponovno posjećuje i ranije spremljene pojedinačne oglase, uz nastavak pronalaženja novih. Raspored u repozitoriju ostaje svakih šest sati. Dodane su provjere koje prolaze: 31 Python test i transakcijske SQL provjere unosa, duplikata, vrste izvora, 403, 404, 410 i zaštite uparivanja. Obrađeno je 1.805 postojećih kandidata/veza; to nije broj novih oglasa. Provjeren aktivni pregled nakon primjene: 1.513 nekretnina i 69 zapisa kupaca/investitora; te brojke ne znače da su zapisi svi potvrđeni za uparivanje.
+
+Preostala provjera: stvarno završeno periodično izvršavanje s novim kodom. Posljednja provjera GitHub izvršavanja još nije vratila ciklus za novi commit; zato ne tvrditi da novi ciklus već radi ili da su sve države/oglasnici pokriveni funkcionalnim adapterima. Podržani dostupni izvori obrađuju se automatski, a blokirani/nepodržani ostaju posebno evidentirani. Vizualni prikaz u pregledniku nije provjeren u ovom koraku.
