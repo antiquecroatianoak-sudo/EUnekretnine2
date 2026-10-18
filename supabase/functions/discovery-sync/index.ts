@@ -47,7 +47,9 @@ Deno.serve(async req=>{
     if(rows.length)await tx`insert into source_candidates ${tx(rows,'id','source_id','kind','title','country','url','body_json','last_seen')} on conflict(id) do update set title=excluded.title,country=excluded.country,url=excluded.url,body_json=excluded.body_json,last_seen=excluded.last_seen where source_candidates.last_seen<=excluded.last_seen`;
    }
    for(const r of snapshot.runs)await tx`insert into discovery_runs(source_id,status,checked_at,body_json) values(${r.source_id},${r.status},${r.checked_at},${JSON.stringify(r)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
-   const properties=await tx`select * from properties order by id for share`,investors=await tx`select * from investors order by id for share`,updated=new Date().toISOString();
+   for(const row of snapshot.candidates) await tx`select site_private.sync_source_listing(${row.id})`;
+   await tx`select site_private.reconcile_listing_lifecycle()`;
+   const properties=await tx`select * from properties p where site_private.property_eligible(p) order by id for share`,investors=await tx`select * from investors i where site_private.investor_eligible(i) order by id for share`,updated=new Date().toISOString();
    const matches=[];for(const p of properties)for(const i of investors)matches.push({property_id:p.id,investor_id:i.id,result_json:JSON.stringify(evaluate(p,i)),updated});
    for(let n=0;n<matches.length;n+=100){const rows=matches.slice(n,n+100);await tx`insert into match_results ${tx(rows,'property_id','investor_id','result_json','updated')} on conflict(property_id,investor_id) do update set result_json=excluded.result_json,updated=excluded.updated where match_results.result_json is distinct from excluded.result_json`}
    await tx`update notification_outbox n set status='Potrebna ponovna provjera' where n.status='Spremno' and not exists(select 1 from match_results m where m.property_id=n.property_id and m.result_json::jsonb->>'status'=${MATCH})`;
