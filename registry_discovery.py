@@ -287,6 +287,12 @@ def listing_record(source,url,page,kind,now):
             if isinstance(area,dict):facts['advertised_area']=area
             address=node.get('address')
             if isinstance(address,(dict,str)) and address:facts['advertised_location']=address
+            type_map={'Apartment':'Stan','House':'Kuća','SingleFamilyResidence':'Kuća'}
+            for node_type in node_types:
+                if node_type in type_map:facts['property_type']=type_map[node_type]
+            if isinstance(offers,dict) and str(offers.get('availability','')).rsplit('/',1)[-1] in ('SoldOut','Discontinued'):
+                facts['source_listing_state']='removed'
+                facts['source_status_evidence']=str(offers['availability'])
     return {'id':'registry:'+kind+':'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def process(source,state,fetcher,deadline,max_pages=25):
@@ -313,6 +319,13 @@ def process(source,state,fetcher,deadline,max_pages=25):
             if item.get('mode')=='buyer':item['mode']='index'
     pending.sort(key=lambda p:0 if p['mode']=='detail' else 1)
     seen={canonical(u) for u in previous.get('cycle_seen',[])} if previous.get('pending') and not reset_scope else set()
+    # Revisit known individual listings as well as discovering new pages.
+    queued={p['url'] for p in pending}
+    for revisit in reversed(source.get('recheck_urls',[])[:10]):
+        if pattern and re.search(pattern,urlsplit(revisit).path) and in_scope(revisit,root,config):
+            seen.discard(canonical(revisit))
+            if revisit not in queued:
+                pending.insert(0,{'url':revisit,'mode':'detail','sale':True});queued.add(revisit)
     records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False; error_kind=None; skipped_non_sale=0
     failed=list(previous.get('failed_urls',[]));unavailable=[]
     if kind=='property' and not pattern:
@@ -444,4 +457,5 @@ def main():
     print('Registry pass finished; unvisited sources retain their checkpoints.')
 
 if __name__=='__main__':main()
+
 
