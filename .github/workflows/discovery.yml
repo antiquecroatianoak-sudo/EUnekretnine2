@@ -10,6 +10,7 @@ on:
       - verification.mjs
       - test_verification.mjs
       - test_registry_discovery.py
+      - test_population_refresh.py
       - sync_discovery.py
       - .github/workflows/discovery.yml
 permissions:
@@ -31,7 +32,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
-        run: python -m unittest -v test_registry_discovery
+        run: python -m unittest -v test_registry_discovery test_population_refresh
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
         run: node test_verification.mjs
       - name: Uvezi aktualni registar i nastavi spremljene stranice
