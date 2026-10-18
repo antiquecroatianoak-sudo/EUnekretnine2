@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - discovery.py
+      - registry_discovery.py
+      - test_registry_discovery.py
       - sync_discovery.py
       - .github/workflows/discovery.yml
 permissions:
@@ -18,7 +20,7 @@ jobs:
   scan:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,6 +28,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Provjeri nastavak uvoza, duplikate i valute
+        run: python -m unittest -v test_registry_discovery
+      - name: Uvezi aktualni registar i nastavi spremljene stranice
+        id: registry
+        continue-on-error: true
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python registry_discovery.py
       - name: Dohvati javne izvore bez prijave i ključeva
         id: discovery
         continue-on-error: true
@@ -43,5 +53,5 @@ jobs:
       - name: Spremi kandidate i uparivanje u zajedničku bazu
         run: python sync_discovery.py
       - name: Označi nepotpun dohvat
-        if: steps.discovery.outcome == 'failure'
+        if: steps.discovery.outcome == 'failure' || steps.registry.outcome == 'failure'
         run: exit 1
