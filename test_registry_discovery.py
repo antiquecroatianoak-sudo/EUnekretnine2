@@ -1,7 +1,9 @@
 import time
+import io
+import http.client
 import unittest
 from unittest.mock import patch
-from registry_discovery import process, Page, canonical, safe_url, in_scope
+from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows
 
 ROOT='https://www.nepremicnine.net/oglasi-prodaja/'
 SOURCE={'id':40,'url':ROOT,'country':'SI','category':'Oglasnik','name':'Portal'}
@@ -17,6 +19,41 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_early_hints_read_final_status_and_body(self):
+        class Socket:
+            def makefile(self,*args):return io.BytesIO(b'HTTP/1.1 103 Early Hints\r\nLink: </a.css>; rel=preload\r\n\r\nHTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK')
+        response=InterimResponse(Socket());response.begin()
+        self.assertEqual(response.status,200);self.assertEqual(response.read(),b'OK')
+    def test_early_hints_never_turns_denial_into_success(self):
+        class Socket:
+            def makefile(self,*args):return io.BytesIO(b'HTTP/1.1 103 Early Hints\r\n\r\nHTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\n\r\n')
+        response=InterimResponse(Socket());response.begin();self.assertEqual(response.status,403)
+    def test_canonical_duplicate_in_old_checkpoint_is_not_fetched_twice(self):
+        root='https://www.propertymarket.com.mt/'
+        detail=root+'view/sale-123'
+        source=dict(SOURCE,url=root)
+        state={'pending':[{'url':detail+'/','mode':'detail','sale':True},{'url':detail,'mode':'detail','sale':True}]}
+        rows,new=self.run_source(source,state,Fetch({detail:'<h1>House for sale in Malta</h1>'}))
+        self.assertEqual(len(rows),1)
+    def test_one_rejected_candidate_does_not_drop_the_rest(self):
+        from urllib.error import HTTPError
+        good={'kind':'property','url':FIRST,'id':'good'};bad={'kind':'property','url':SECOND,'id':'bad'}
+        def api(body):
+            if any(r['id']=='bad' for r in body['candidates']):raise HTTPError('https://db.example/',400,'Invalid',{},io.BytesIO(b'{"detail":"Invalid candidate"}'))
+            return {'inserted':len(body['candidates'])}
+        state={'checked_at':'2026-10-18T14:00:00+00:00'}
+        inserted,updated=save_rows('registry-40',[good,bad],state,api)
+        self.assertEqual(inserted,1);self.assertEqual(len(state['failed_urls']),1);self.assertEqual(state['status'],'Djelomično')
+    def test_auth_failure_is_not_swallowed(self):
+        from urllib.error import HTTPError
+        def api(body):raise HTTPError('https://db.example/',401,'Unauthorized',{},None)
+        with self.assertRaises(HTTPError):save_rows('registry-40',[{'kind':'property','url':FIRST}],{},api)
+    def test_slovak_homepage_imports_sales_without_importing_rentals(self):
+        root='https://www.nehnutelnosti.sk/';sale=root+'detail/salehash/pekny-byt';rent=root+'detail/renthash/pekny-byt'
+        source=dict(SOURCE,url=root)
+        pages={root:f'<a href="{sale}">Pekný byt</a><a href="{rent}">Iný byt</a>',sale:'<h1>Pekný byt s balkónom</h1><h2>1 izbový byt na predaj</h2>',rent:'<h1>Pekný byt s balkónom</h1><h2>Byt na prenájom</h2>'}
+        rows,state=self.run_source(source,None,Fetch(pages))
+        self.assertEqual([r['url'] for r in rows],[sale]);self.assertEqual(state['skipped_non_sale'],1)
     def run_source(self,source,state,fetcher,max_pages=25):
         with patch('registry_discovery.safe_url',side_effect=lambda u,r:canonical(u)):
             return process(source,state,fetcher,time.monotonic()+10,max_pages)

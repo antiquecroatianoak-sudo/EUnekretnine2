@@ -1,5 +1,6 @@
 """Resumable registry import. No API keys; GitHub OIDC authenticates database writes."""
 import hashlib
+import http.client
 import ipaddress
 import json
 import re
@@ -8,7 +9,7 @@ import time
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
-from urllib.request import Request, build_opener, HTTPRedirectHandler
+from urllib.request import Request, build_opener, HTTPRedirectHandler, HTTPSHandler
 from urllib.error import HTTPError
 from urllib.robotparser import RobotFileParser
 from sync_discovery import request_token, call as legacy_call
@@ -44,6 +45,33 @@ SCOPES={
  'nepremicnine.net':r'^/oglasi-(?:prodaja|nakup)/',
 }
 LARGE_BATCH_HOSTS={'immoweb.be','athome.lu','propertymarket.com.mt','imot.bg'}
+
+class InterimResponse(http.client.HTTPResponse):
+    """Consume informational headers before reading the final HTTP response."""
+    def _read_status(self):
+        for _ in range(10):
+            version,status,reason=super()._read_status()
+            if status not in (102,103):return version,status,reason
+            # parse_headers has the standard library's line/count limits.
+            http.client.parse_headers(self.fp)
+        raise http.client.HTTPException('Too many informational responses')
+
+class InterimHTTPSConnection(http.client.HTTPSConnection):
+    response_class=InterimResponse
+
+class InterimHTTPSHandler(HTTPSHandler):
+    def https_open(self,req):
+        return self.do_open(InterimHTTPSConnection,req,context=self._context)
+
+def failure_type(error):
+    if isinstance(error,HTTPError) and error.code in (401,403):return 'access_blocked'
+    if isinstance(error,HTTPError) and error.code==429:return 'rate_limited'
+    message=str(error).lower()
+    if 'robots.txt' in message:return 'robots_disallowed'
+    if 'access challenge' in message:return 'access_blocked'
+    if 'cross-source' in message:return 'redirect_outside_source'
+    if 'no supported listing' in message:return 'adapter_required'
+    return 'fetch_failed'
 
 def in_scope(url,root,config=None):
     p=urlsplit(url);base=urlsplit(root)
@@ -127,7 +155,7 @@ class Fetcher:
         delay=self.minimum_interval-(time.monotonic()-self.last)
         if delay>0:time.sleep(delay)
         self.last=time.monotonic()
-        with build_opener(Redirect()).open(Request(url,headers={'User-Agent':AGENT,'Accept':'text/html,application/xhtml+xml'}),timeout=15) as r:
+        with build_opener(Redirect(),InterimHTTPSHandler()).open(Request(url,headers={'User-Agent':AGENT,'Accept':'text/html,application/xhtml+xml'}),timeout=15) as r:
             safe_url(r.url,self.root)
             data=r.read(4_000_001)
             if len(data)>4_000_000:raise ValueError('Page exceeds transfer budget')
@@ -151,6 +179,33 @@ def api(body,token=None):
     from urllib.request import urlopen
     req=Request(ENDPOINT,data=json.dumps(body,ensure_ascii=False).encode(),headers={'Authorization':'Bearer '+(token or request_token()),'Content-Type':'application/json'},method='POST')
     with urlopen(req,timeout=90) as r:return json.load(r)
+
+def save_rows(source_id,rows,state,api_call=api):
+    # Old persisted queues may contain both /view/id and /view/id/. Keep one
+    # canonical row per batch so one duplicate cannot reject 100 good records.
+    unique={}
+    for row in rows:unique[(row['kind'],canonical(row['url']))]=row
+    rows=list(unique.values());inserted=updated=0
+    for n in range(0,len(rows),100):
+        batch=rows[n:n+100]
+        try:
+            saved=api_call({'action':'batch','source_id':source_id,'candidates':batch})
+            inserted+=saved.get('inserted',0);updated+=saved.get('updated',0)
+        except HTTPError as error:
+            if error.code!=400:raise
+            # Input rejection is isolated; authentication and server errors
+            # still stop persistence and leave the prior checkpoint intact.
+            for row in batch:
+                try:
+                    saved=api_call({'action':'batch','source_id':source_id,'candidates':[row]})
+                    inserted+=saved.get('inserted',0);updated+=saved.get('updated',0)
+                except HTTPError as item_error:
+                    if item_error.code!=400:raise
+                    detail=item_error.read(2000).decode('utf-8',errors='replace')
+                    state.setdefault('failed_urls',[]).append({'url':row['url'],'mode':'buyer' if row['kind']=='buyer' else 'detail','error':'Database rejected candidate: '+detail[:500],'checked_at':state['checked_at']})
+                    state.update(status='Djelomično',partial=True,coverage_complete=False)
+    state.update(inserted_count=inserted,updated_count=updated)
+    return inserted,updated
 
 def buyer_source(source):
     return bool(re.search(r'kupac|kupci|kupaca|investitor|akvizic|kriteriji|potražnja',source.get('category',''),re.I))
@@ -200,14 +255,14 @@ def process(source,state,fetcher,deadline,max_pages=25):
         for item in pending:
             if item.get('mode')=='buyer':item['mode']='index'
     pending.sort(key=lambda p:0 if p['mode']=='detail' else 1)
-    seen=set(previous.get('cycle_seen',[])) if previous.get('pending') and not reset_scope else set()
-    records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False
+    seen={canonical(u) for u in previous.get('cycle_seen',[])} if previous.get('pending') and not reset_scope else set()
+    records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False; error_kind=None; skipped_non_sale=0
     failed=list(previous.get('failed_urls',[]));unavailable=[]
     if kind=='property' and not pattern:
         return [],dict(source_id=sid,status='Nepodržano',checked_at=now,pending=pending,cycle_seen=list(seen),pages_processed=0,imported_count=0,exhausted=False,error='No validated detail URL adapter; research automation must supply one')
     while pending and pages<max_pages and time.monotonic()<deadline:
         if index_pages>=5 and not any(p['mode'] in ('detail','buyer') for p in pending):break
-        item=pending.pop(0);url=item['url']
+        item=pending.pop(0);url=canonical(item['url'])
         if url in seen:continue
         try:
             url=safe_url(url,root);page=Page(fetcher.get(url));pages+=1
@@ -219,6 +274,11 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 row['facts']['transaction_type']='unconfirmed_acquisition_profile'
                 records.append(row)
             elif item['mode']=='detail':
+                if hostkey(urlsplit(root).hostname)=='nehnutelnosti.sk':
+                    # The home page mixes rentals and sales, and its detail URLs
+                    # do not encode the transaction type. Inspect the detail.
+                    if not re.search(r'\bna predaj\b',text,re.I):
+                        seen.add(url);skipped_non_sale+=1;continue
                 records.append(listing_record(source,url,page,kind,now));detail_pages+=1
             else:
                 index_pages+=1
@@ -237,7 +297,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
                         if kind=='buyer' and '/oglasi-prodaja/' in link:continue
                         if kind=='property' and '/oglasi-nakup/' in link:continue
                     sale=item.get('sale',False) or bool(SALE.search(link))
-                    if re.search(pattern,urlsplit(link).path) and sale:
+                    if re.search(pattern,urlsplit(link).path) and (sale or hostkey(urlsplit(root).hostname)=='nehnutelnosti.sk'):
                         pending.append({'url':link,'mode':'detail','sale':True});queued.add(link);details+=1
                     elif not re.search(pattern,urlsplit(link).path) and SALE.search(link+' '+label):
                         pending.append({'url':link,'mode':'index','sale':sale});queued.add(link)
@@ -258,10 +318,11 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 # One malformed/deleted listing must not block the rest of the queue.
                 failed.append({'url':url,'mode':item['mode'],'error':str(e),'checked_at':now});continue
             # Failed URL stays at the front for retry; never advance past a blocked page.
-            pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);break
+            pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);error_kind=failure_type(e);break
     exhausted=not pending and not errors
     state=dict(source_id=sid,status='Pogreška' if errors else 'Djelomično' if pending or failed else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,index_pages=index_pages,detail_pages=detail_pages,imported_count=len(records),failed_urls=failed,unavailable_urls=unavailable,queue_exhausted=exhausted,exhausted=False,coverage_complete=False,scope='Discovered permitted pages only; not the whole portal',partial=bool(pending or failed),error='; '.join(errors) or None,stop_reason='error' if errors else 'discovered_queue_empty' if exhausted else 'runtime_or_page_budget')
-    if errors and any(term in state['error'] for term in ('403','401','429','robots.txt')):
+    state.update(error_kind=error_kind,skipped_non_sale=skipped_non_sale)
+    if error_kind in ('access_blocked','rate_limited','robots_disallowed'):
         from datetime import timedelta
         state['retry_after']=(datetime.now(timezone.utc)+timedelta(hours=24)).isoformat()
     return records,state
@@ -278,11 +339,7 @@ def main():
         budget=150 if hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
         rows,state=process(source,config['states'].get(sid),Fetcher(source['url']),min(deadline,time.monotonic()+360),max_pages=budget)
         # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
-        inserted=updated=0
-        for n in range(0,len(rows),100):
-            saved=api({'action':'batch','source_id':sid,'candidates':rows[n:n+100]})
-            inserted+=saved.get('inserted',0);updated+=saved.get('updated',0)
-        state.update(inserted_count=inserted,updated_count=updated)
+        save_rows(sid,rows,state)
         result=api({'action':'checkpoint','source_id':sid,'state':state})
         print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'checkpoint',result.get('saved'))
     print('Registry pass finished; unvisited sources retain their checkpoints.')
