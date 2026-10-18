@@ -147,7 +147,7 @@ def listing_record(source,url,page,kind,now):
             if isinstance(offers,dict):
                 price=offers.get('price'); currency=offers.get('priceCurrency')
                 if isinstance(price,(str,int,float)) and str(price).replace('.','',1).isdigit() and isinstance(currency,str) and re.fullmatch('[A-Z]{3}',currency):
-                    facts.update(asking_price=float(price),currency=currency)
+                    facts.update(advertised_price=float(price),asking_price=float(price) if currency=='EUR' else None,currency=currency)
             area=node.get('floorSize')
             if isinstance(area,dict):facts['advertised_area']=area
     return {'id':'registry:'+kind+':'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
@@ -156,7 +156,8 @@ def process(source,state,fetcher,deadline,max_pages=25):
     now=datetime.now(timezone.utc).isoformat(); sid='registry-'+str(source['id']);kind='buyer' if buyer_source(source) else 'property'
     previous=state or {}; root=source['url']; pattern=DETAIL.get(hostkey(urlsplit(root).hostname))
     pending=list(previous.get('pending',[]))
-    if not pending:pending=[{'url':root,'mode':'buyer' if kind=='buyer' else 'index','sale':bool(SALE.search(root))}]
+    buyer_index=kind=='buyer' and bool(re.search(r'/oglasi-nakup/',root))
+    if not pending:pending=[{'url':root,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(root))}]
     seen=set(previous.get('cycle_seen',[])) if previous.get('pending') else set()
     records=[]; pages=0; errors=[]; exhausted=False
     if kind=='property' and not pattern:
@@ -186,6 +187,9 @@ def process(source,state,fetcher,deadline,max_pages=25):
                     try:link=safe_url(urljoin(url,href),root)
                     except (ValueError,OSError):continue
                     if link in seen or link in queued or RENT.search(link):continue
+                    if hostkey(urlsplit(root).hostname)=='nepremicnine.net':
+                        if kind=='buyer' and '/oglasi-prodaja/' in link:continue
+                        if kind=='property' and '/oglasi-nakup/' in link:continue
                     sale=item.get('sale',False) or bool(SALE.search(link))
                     if re.search(pattern,urlsplit(link).path) and sale:
                         pending.append({'url':link,'mode':'detail','sale':True});queued.add(link);details+=1
@@ -199,6 +203,8 @@ def process(source,state,fetcher,deadline,max_pages=25):
                     if link not in seen and link not in queued:pending.append({'url':link,'mode':'index','sale':item.get('sale',False)});queued.add(link)
                 if not details and not pending:raise ValueError('No supported listing links or next page; completeness is unconfirmed')
             seen.add(url)
+            # Import concrete records before exploring more category/filter pages.
+            pending.sort(key=lambda p:0 if p['mode']=='detail' else 1)
         except Exception as e:
             # Failed URL stays at the front for retry; never advance past a blocked page.
             pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);break

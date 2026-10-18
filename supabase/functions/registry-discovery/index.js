@@ -18,6 +18,7 @@ export function validateRows(rows,source){
  for(const r of rows){
   if(typeof r.id!=='string'||!/^registry:(property|buyer):[a-f0-9]{32}$/.test(r.id)||ids.has(r.id)||r.source_id!=='registry-'+source.id||!['property','buyer'].includes(r.kind)||!r.id.startsWith('registry:'+r.kind+':')||r.verified!==false||typeof r.title!=='string'||r.title.length<8||r.title.length>500||!r.facts||Array.isArray(r.facts)||typeof r.facts!=='object')throw Error('Invalid candidate');
   validURL(r.url,source.url);ids.add(r.id);
+  if(source.url.includes('/oglasi-nakup/')&&r.url===source.url)throw Error('Category is not an individual buying request');
   for(const k of ['first_seen','last_seen'])if(typeof r[k]!=='string'||!/(Z|[+-]\d\d:\d\d)$/.test(r[k])||!Number.isFinite(Date.parse(r[k]))||Date.parse(r[k])>Date.now()+60000)throw Error('Invalid timestamp');
   if(Date.parse(r.first_seen)>Date.parse(r.last_seen)||Date.now()-Date.parse(r.last_seen)>86400000)throw Error('Stale candidate');
  }

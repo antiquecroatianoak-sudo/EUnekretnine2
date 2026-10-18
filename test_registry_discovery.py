@@ -57,7 +57,15 @@ class RegistryTests(unittest.TestCase):
         html='<h1>Stan s navedenom cijenom</h1><script type="application/ld+json">{"@type":"Apartment","offers":{"price":"123456","priceCurrency":"CZK"}}</script>'
         fetch=Fetch({ROOT:f'<a href="{FIRST}">Stan</a>',FIRST:html})
         rows,_=self.run_source(SOURCE,None,fetch)
-        self.assertEqual(rows[0]['facts']['currency'],'CZK');self.assertEqual(rows[0]['facts']['asking_price'],123456)
+        self.assertEqual(rows[0]['facts']['currency'],'CZK');self.assertEqual(rows[0]['facts']['advertised_price'],123456)
+        self.assertIsNone(rows[0]['facts']['asking_price'])
+    def test_buyer_category_is_not_imported_as_a_person(self):
+        root='https://www.nepremicnine.net/oglasi-nakup/posest/'
+        detail='https://www.nepremicnine.net/oglasi-nakup/ljubljana-posest_1234567/'
+        source=dict(SOURCE,url=root,category='Javna potražnja kupaca')
+        rows,state=self.run_source(source,None,Fetch({root:f'<a href="{detail}">Potražnja</a>',detail:'<h1>Kupujemo zemljište u Ljubljani</h1>'}))
+        self.assertEqual(len(rows),1);self.assertEqual(rows[0]['url'],detail)
+        self.assertEqual(rows[0]['facts']['transaction_type'],'buy_request')
     def test_url_boundaries_and_private_addresses(self):
         for u in ('http://www.nepremicnine.net/','https://evil.example/','https://user:pass@www.nepremicnine.net/'):
             with self.assertRaises(ValueError):safe_url(u,ROOT)
