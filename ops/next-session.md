@@ -14,3 +14,7 @@ Nastaviti od aktualnog stanja, ne od početka:
 5. Potvrditi upise i podudaranja; ne predstavljati profil kao potvrđenog kupca niti dohvaćen oglas kao potvrđenu dostupnost ili pravnu urednost.
 
 Zakazani uvozi mogu raditi bez otvorenog razgovora. Ova bilješka sama ne pokreće razvoj niti obavijest pri sljedećem otvaranju razgovora. Korisnik ne želi rutinske obavijesti; rezultate provjerava u aplikaciji.
+
+## Dogovor o daljnjem radu — 18.10.2026. u 17:45 (Europe/Zagreb)
+
+Luka želi najprije vidjeti kako postojeća aplikacija stvarno radi i krenuti s uparivanjem. Trenutačno nema dodatnih zahtjeva za funkcionalnosti. Ne proširivati opseg novim funkcijama unaprijed: daljnje dorade temeljiti na konkretnim nedostacima uočenim tijekom korištenja i uparivanja. Nastaviti već odobrenu provjeru postojećeg tijeka (dohvat i ažuriranje stvarnih ponuda i potražnji, automatsko uparivanje i spremanje rezultata) i završetka pokrenutog uvoza. Ovaj dogovor ne potvrđuje da su svi ti koraci već provjereni ili da rade za sve novouvezene zapise.
