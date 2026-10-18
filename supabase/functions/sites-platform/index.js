@@ -17,7 +17,11 @@ async function refresh(tx){
 }
 async function list(tx){
  const tables=['properties','investors','sources','source_candidates','discovery_runs','activity','notification_outbox','match_results'];
- const values=await Promise.all(tables.map(t=>tx`select * from ${tx(t)} order by 1 limit 10000`));
+ const values=await Promise.all(tables.map(t=>{
+ if(t==='properties')return tx`select p.* from properties p where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now()) order by p.id limit 10000`;
+ if(t==='investors')return tx`select i.* from investors i where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed')) order by i.id limit 10000`;
+ return tx`select * from ${tx(t)} order by 1 limit 10000`;
+}));
  return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['loaded_at',new Date().toISOString()]]);
 }
 async function save(tx,table,input,id){
