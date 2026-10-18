@@ -3,7 +3,7 @@ import io
 import http.client
 import unittest
 from unittest.mock import patch
-from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows
+from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows, source_page_budget, main
 from datetime import datetime,timezone
 
 ROOT='https://www.nepremicnine.net/oglasi-prodaja/'
@@ -20,6 +20,26 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_larger_batch_requires_successful_detail_import(self):
+        state={'pending':[{'url':FIRST,'mode':'detail'}],'detail_pages':25,'imported_count':25,'error':None}
+        self.assertEqual(source_page_budget(SOURCE,state),150)
+        self.assertEqual(source_page_budget(SOURCE,dict(state,error='blocked')),25)
+        self.assertEqual(source_page_budget(SOURCE,dict(state,imported_count=0)),25)
+        self.assertEqual(source_page_budget(SOURCE,{}),25)
+    def test_working_backlogs_get_bounded_turns_before_index_only_sources(self):
+        config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2),dict(SOURCE,id=3)],'states':{
+            'registry-1':{'pending':[{'url':ROOT,'mode':'index'}],'checked_at':'2026-10-17','detail_pages':0},
+            'registry-2':{'pending':[{'url':FIRST,'mode':'detail'}],'checked_at':'2026-10-18','detail_pages':25,'imported_count':25},
+            'registry-3':{'pending':[{'url':SECOND,'mode':'detail'}],'checked_at':'2026-10-19','detail_pages':25,'imported_count':25}}}
+        turns=[]
+        def run(source,state,fetcher,deadline,max_pages):
+            turns.append((source['id'],deadline,max_pages))
+            return [],{'checked_at':'2026-10-18','status':'Djelomično','pages_processed':0}
+        with patch('registry_discovery.api',side_effect=lambda b:config if b['action']=='registry' else {'saved':True}),patch('registry_discovery.process',side_effect=run),patch('registry_discovery.time.monotonic',return_value=100),patch('builtins.print'):
+            main()
+        self.assertEqual([t[0] for t in turns],[2,3,1])
+        self.assertEqual(turns[0][1:],(220,150))
+        self.assertEqual(turns[1][1:],(220,150))
     def test_dutch_auction_import_excludes_boats_and_auction_premium(self):
         root='https://www.openbareverkoop.nl/';house=root+'kavel/4516/house';boat=root+'kavel/4517/boat'
         source=dict(SOURCE,url=root,id=2)
@@ -168,3 +188,4 @@ class RegistryTests(unittest.TestCase):
         self.assertFalse(new['coverage_complete'])
 
 if __name__=='__main__':unittest.main()
+

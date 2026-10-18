@@ -410,21 +410,38 @@ def process(source,state,fetcher,deadline,max_pages=25):
         state['retry_after']=(datetime.now(timezone.utc)+timedelta(hours=24)).isoformat()
     return records,state
 
+def working_backlog(state):
+    # A partial result can mean healthy pagination, not a broken adapter.
+    return bool(state.get('pending')) and not state.get('error') and state.get('detail_pages',0)>0
+
+def source_page_budget(source,state):
+    # Lift the small initial probe only after real detail pages were imported.
+    proven=working_backlog(state) and state.get('detail_pages',0)>=25 and state.get('imported_count',0)>=25
+    return 150 if proven or hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
+
 def main():
     # Read the entire current registry at each run, including newly discovered sources.
     config=api({'action':'registry'}); deadline=time.monotonic()+900
-    sources=sorted(config['sources'],key=lambda s:config['states'].get('registry-'+str(s['id']),{}).get('checked_at',''))
+    def priority(source):
+        state=config['states'].get('registry-'+str(source['id']),{})
+        return (0 if working_backlog(state) else 1,state.get('checked_at',''))
+    sources=sorted(config['sources'],key=priority)
     for source in sources:
         if time.monotonic()>=deadline:break
         sid='registry-'+str(source['id'])
-        retry=config['states'].get(sid,{}).get('retry_after')
+        prior=config['states'].get(sid,{})
+        retry=prior.get('retry_after')
         if retry and datetime.fromisoformat(retry)>datetime.now(timezone.utc):continue
-        budget=150 if hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
-        rows,state=process(source,config['states'].get(sid),Fetcher(source['url']),min(deadline,time.monotonic()+360),max_pages=budget)
+        budget=source_page_budget(source,prior)
+        # Shorter resumable turns prevent two large portals from consuming the
+        # entire run while other working sources wait six hours for a turn.
+        seconds=120 if working_backlog(prior) else 360
+        rows,state=process(source,prior,Fetcher(source['url']),min(deadline,time.monotonic()+seconds),max_pages=budget)
         # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
         save_rows(sid,rows,state)
         result=api({'action':'checkpoint','source_id':sid,'state':state})
-        print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'checkpoint',result.get('saved'))
+        print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'inserted',state.get('inserted_count',0),'updated',state.get('updated_count',0),'pending',len(state.get('pending',[])),'stop',state.get('stop_reason'),'checkpoint',result.get('saved'))
     print('Registry pass finished; unvisited sources retain their checkpoints.')
 
 if __name__=='__main__':main()
+
