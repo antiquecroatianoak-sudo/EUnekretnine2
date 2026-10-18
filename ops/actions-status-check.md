@@ -1,0 +1,5 @@
+# Provjera stvarnog statusa uvoza
+
+Ne zaključivati da uvoz nije pokrenut samo iz praznog popisa poslova starog run_id ili praznog fetch_commit_workflow_runs. Provjeriti sve tekuće uvoze repozitorija: GitHub fetch URL https://api.github.com/repos/antiquecroatianoak-sudo/EUnekretnine2/actions/runs?status=in_progress&per_page=10 . Zatim pročitati jobs aktivnog run_id. Za poznati pending run otvoriti njegov https://github.com/antiquecroatianoak-sudo/EUnekretnine2/actions/runs/<id> URL i provjeriti status i run_attempt. Workflow concurrency group discovery-main dopušta jedan aktivan ciklus; drugi čeka. Ne pokretati ponovo prije ove provjere.
+
+18.10.2026. u 20:24 potvrđeno: 39153594595, commit 7a717a8583a4a1484164b979c2ca24b9d6cd2e8a, radi od 20:18:58 Europe/Zagreb, job 117752096591. Testovi uspješni; korak registry import in_progress. Naknadni rerun starog 39141323311 je pending i nema job dok čeka. Supabase registry checkpoint iz 20:22:44 potvrđuje novi stvarni rad. Ti ID-evi su povijesni nalaz, pri svakoj budućoj provjeri ponovo dohvatiti aktualne runove. Korisniku je prethodno netočno rečeno da nema aktivnog ciklusa zbog provjere pogrešnog run_id.
