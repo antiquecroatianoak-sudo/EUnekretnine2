@@ -8,8 +8,7 @@ const key=crypto.subtle.importKey('jwk',PUBLIC_KEY,{name:'RSA-PSS',hash:'SHA-256
 let db;
 function database(){return db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:2,prepare:false,idle_timeout:10,connect_timeout:10})}
 async function refresh(tx){
- const [props,investors]=await Promise.all([tx`select * from properties p where site_private.property_eligible(p) order by id`,tx`select * from investors i where site_private.investor_eligible(i) order by id`]);
- await tx`delete from match_results m where not exists(select 1 from properties p where p.id=m.property_id and site_private.property_eligible(p)) or not exists(select 1 from investors i where i.id=m.investor_id and site_private.investor_eligible(i))`;
+ const [props,investors]=await Promise.all([tx`select * from properties order by id`,tx`select * from investors order by id`]);
  const stamp=new Date().toISOString(), rows=[];
  for(const p of props)for(const i of investors)rows.push({property_id:p.id,investor_id:i.id,result_json:JSON.stringify(evaluate(p,i)),updated:stamp});
  if(rows.length)await tx`insert into match_results ${tx(rows,'property_id','investor_id','result_json','updated')} on conflict(property_id,investor_id) do update set result_json=excluded.result_json,updated=excluded.updated where match_results.result_json is distinct from excluded.result_json`;
@@ -18,12 +17,7 @@ async function refresh(tx){
 }
 async function list(tx){
  const tables=['properties','investors','sources','source_candidates','discovery_runs','activity','notification_outbox','match_results'];
- const values=await Promise.all(tables.map(t=>{
-  if(t==='properties')return tx`select * from properties p where site_private.property_eligible(p) order by id limit 10000`;
-  if(t==='investors')return tx`select * from investors i where site_private.investor_eligible(i) order by id limit 10000`;
-  if(t==='match_results')return tx`select m.* from match_results m join properties p on p.id=m.property_id join investors i on i.id=m.investor_id where site_private.property_eligible(p) and site_private.investor_eligible(i) order by m.property_id,m.investor_id limit 10000`;
-  return tx`select * from ${tx(t)} order by 1 limit 10000`;
- }));
+ const values=await Promise.all(tables.map(t=>tx`select * from ${tx(t)} order by 1 limit 10000`));
  return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['loaded_at',new Date().toISOString()]]);
 }
 async function save(tx,table,input,id){
