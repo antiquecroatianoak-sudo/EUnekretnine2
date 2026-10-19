@@ -20,10 +20,27 @@ from sync_discovery import request_token, call as legacy_call
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
+ADAPTER_REVISION='2026-10-19-demand-redirect-v1'
 SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
 DEMAND=re.compile(r'\b(?:kupujemo|tražimo|iščemo|kupimo)\s+(?:građevinsk\w*\s+|stavbn\w*\s+)?(?:zemlji\w*|nekretnin\w*|stan\w*|kuć\w*|hiš\w*)|\b(?:we\s+(?:buy|seek|are\s+looking\s+for)|wanted|seeking)\s+(?:land|properties|property|sites|development)|\b(?:acquisition|investment)\s+criteria\b|\b(?:ankaufsprofil|ankaufskriterien)\b|\b(?:nous\s+(?:recherchons|achetons)|recherche\s+de)\s+(?:terrains?|biens|immeubles)|\b(?:buscamos|compramos)\s+(?:terrenos?|inmuebles|suelo)|\b(?:cerchiamo|acquistiamo)\s+(?:terreni|immobili)',re.I)
 DEMAND=re.compile(DEMAND.pattern+r'|\b(?:kupujemo|tražimo|iščemo)\s+(?:\w+\s+){0,3}(?:zemljišta|zemljišče|zemljišča|nekretnine)\b|\bzainteresirani smo za kupnju\b|\bgrond gezocht\b|\bankoopcriteria\b|\bkupi[eę]\s+(?:mieszkanie|dom|działk\w*|nieruchomo\w*)',re.I)
+# Observed acquisition wording; these signals create unverified candidates only.
+DEMAND=re.compile(DEMAND.pattern+r'|\bnous\s+(?:achetons|recherchons)\s+(?:(?:des|vos|les|un|une)\s+)?(?:terrains?|biens|immeubles|maisons)\b|\bacquisition\s+(?:de\s+|d[\u0027’])(?:immeubles|terrains)\b|\bjavni\s+poziv\s+za\s+nakup\s+(?:stanovanj|zemljišč|nepremičnin)\b',re.I)
+
+class RejectedRedirect(ValueError):
+    def __init__(self,source,target,reason):
+        # Retain public location diagnostics, never query tokens or credentials.
+        def public_location(url):
+            p=urlsplit(url)
+            return urlunsplit((p.scheme,p.hostname or '',p.path,'',''))[:500]
+        self.details={'from_url':public_location(source),'to_url':public_location(target),'reason':str(reason)[:160]}
+        super().__init__('Cross-source URL rejected: '+self.details['to_url'])
+
+def validate_redirect(source,target,root):
+    try:return safe_url(target,root)
+    except ValueError as error:raise RejectedRedirect(source,target,error) from error
+
 DETAIL={
  'njuskalo.hr':r'-oglas-\d+', 'nepremicnine.net':r'/oglasi-(?:prodaja|nakup)/.+_\d+',
  'immobiliare.it':r'/annunci/\d+', 'idealista.com':r'/inmueble/\d+', 'idealista.pt':r'/imovel/\d+',
@@ -203,7 +220,7 @@ class Fetcher:
         owner=self
         class Redirect(HTTPRedirectHandler):
             def redirect_request(self,req,fp,code,msg,headers,newurl):
-                safe_url(newurl,owner.root)
+                validate_redirect(req.full_url,newurl,owner.root)
                 return super().redirect_request(req,fp,code,msg,headers,newurl)
         delay=self.minimum_interval-(time.monotonic()-self.last)
         if delay>0:time.sleep(delay)
@@ -415,7 +432,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
             seen.discard(canonical(revisit))
             if revisit not in queued:
                 pending.insert(0,{'url':revisit,'mode':'detail','sale':True});queued.add(revisit)
-    records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False; error_kind=None; skipped_non_sale=0
+    records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False; error_kind=None; skipped_non_sale=0; redirect_error=None
     failed=list(previous.get('failed_urls',[]));unavailable=[]
     if kind=='property' and not pattern:
         return [],dict(source_id=sid,status='Nepodržano',checked_at=now,pending=pending,cycle_seen=list(seen),pages_processed=0,imported_count=0,exhausted=False,error='No validated detail URL adapter; research automation must supply one')
@@ -507,10 +524,12 @@ def process(source,state,fetcher,deadline,max_pages=25):
                 # One malformed/deleted listing must not block the rest of the queue.
                 failed.append({'url':url,'mode':item['mode'],'error':str(e),'checked_at':now});continue
             # Failed URL stays at the front for retry; never advance past a blocked page.
+            if isinstance(e,RejectedRedirect):redirect_error=e.details
             pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);error_kind=failure_type(e);break
     exhausted=not pending and not errors
     state=dict(source_id=sid,status='Pogreška' if errors else 'Djelomično' if pending or failed else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,index_pages=index_pages,detail_pages=detail_pages,imported_count=len(records),failed_urls=failed,unavailable_urls=unavailable,queue_exhausted=exhausted,exhausted=False,coverage_complete=False,scope='Discovered permitted pages only; not the whole portal',partial=bool(pending or failed),error='; '.join(errors) or None,stop_reason='error' if errors else 'discovered_queue_empty' if exhausted else 'runtime_or_page_budget')
     state.update(error_kind=error_kind,skipped_non_sale=skipped_non_sale)
+    if redirect_error:state['rejected_redirect']=redirect_error
     if error_kind in ('access_blocked','rate_limited','robots_disallowed'):
         from datetime import timedelta
         state['retry_after']=(datetime.now(timezone.utc)+timedelta(hours=24)).isoformat()
@@ -532,7 +551,9 @@ def main(max_workers=3):
         state=config['states'].get('registry-'+str(source['id']),{})
         # Oldest checkpoints go first: a permanently growing property backlog
         # must not starve buyer sources or sources awaiting another attempt.
-        return (state.get('checked_at',''),0 if working_backlog(state) else 1)
+        recoverable=bool(re.search(r'No explicit public acquisition demand|Cross-source URL rejected',state.get('error') or ''))
+        retry_updated_adapter=recoverable and state.get('adapter_revision')!=ADAPTER_REVISION
+        return (0 if retry_updated_adapter else 1,state.get('checked_at',''),0 if working_backlog(state) else 1)
     sources=sorted(config['sources'],key=priority)
     # Concurrency is across hosts only. Sources on the same host remain serial
     # so added capacity never multiplies a portal's crawl rate.
@@ -553,6 +574,7 @@ def main(max_workers=3):
             # entire run while other working sources wait six hours for a turn.
             seconds=120 if working_backlog(prior) else 360
             rows,state=process(source,prior,Fetcher(source['url']),min(deadline,time.monotonic()+seconds),max_pages=budget)
+            state['adapter_revision']=ADAPTER_REVISION
             # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
             try:
                 save_rows(sid,rows,state)
@@ -579,5 +601,6 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 

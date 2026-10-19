@@ -5,7 +5,7 @@ import unittest
 import json
 import threading
 from unittest.mock import patch
-from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows, source_page_budget, main
+from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows, source_page_budget, main, validate_redirect, RejectedRedirect
 from datetime import datetime,timezone
 
 ROOT='https://www.nepremicnine.net/oglasi-prodaja/'
@@ -22,6 +22,56 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_new_adapter_retries_relevant_failures_first_without_bypassing_cooldown(self):
+        from registry_discovery import ADAPTER_REVISION
+        config={'sources':[dict(SOURCE,id=n) for n in (1,2,3,4)],'states':{
+            'registry-1':{'checked_at':'2026-10-17'},
+            'registry-2':{'checked_at':'2026-10-19','error':'No explicit public acquisition demand'},
+            'registry-3':{'checked_at':'2026-10-19','error':'Cross-source URL rejected','retry_after':'2099-01-01T00:00:00+00:00'},
+            'registry-4':{'checked_at':'2026-10-18','error':'No explicit public acquisition demand','adapter_revision':ADAPTER_REVISION}}}
+        visits=[]
+        def run(source,*args,**kwargs):
+            visits.append(source['id']);return [],{'checked_at':'2026-10-19','status':'Uspješno','pages_processed':0}
+        with patch('registry_discovery.api',side_effect=lambda b:config if b['action']=='registry' else {'saved':True}),patch('registry_discovery.process',side_effect=run),patch('builtins.print'):
+            main(max_workers=1)
+        self.assertEqual(visits,[2,1,4])
+    def test_observed_french_and_slovenian_acquisition_wording(self):
+        phrases=['Nous achetons des terrains constructibles dans le Var',
+                 'Nous achetons vos terrains, même non viabilisés',
+                 'Nous achetons des terrains pour nos futurs programmes',
+                 'Acquisition d’immeubles en pleine propriété en Île-de-France',
+                 'Javni poziv za nakup stanovanj in zemljišč za gradnjo stanovanj v letih 2026 in 2027']
+        source=dict(SOURCE,id=14,category='Investitor - javna akvizicija')
+        for text in phrases:
+            with self.subTest(text=text):
+                rows,state=self.run_source(source,None,Fetch({ROOT:'<h1>'+text+'</h1>'}))
+                self.assertEqual(len(rows),1);self.assertEqual(state['status'],'Uspješno')
+                self.assertFalse(rows[0]['verified']);self.assertIsNone(rows[0]['facts']['budget'])
+                self.assertEqual(rows[0]['facts']['transaction_type'],'unconfirmed_acquisition_profile')
+                self.assertIn(text,rows[0]['facts']['intent_evidence'])
+    def test_generic_french_sales_and_company_pages_are_not_buy_requests(self):
+        source=dict(SOURCE,id=14,category='Investitor - javna akvizicija')
+        for text in ['Nous vendons des terrains','Nos critères d’investissement','Vendez votre terrain avec notre agence','Acquisition de sociétés et entreprises']:
+            rows,state=self.run_source(source,None,Fetch({ROOT:'<h1>'+text+'</h1>'}))
+            self.assertEqual(rows,[])
+    def test_rejected_redirect_records_locations_without_sensitive_query(self):
+        root='https://www.njuskalo.hr/nekretnine'
+        target='https://challenge.example/verify?token=PRIVATE#secret'
+        with self.assertRaises(RejectedRedirect) as caught:validate_redirect(root,target,root)
+        error=caught.exception
+        self.assertEqual(error.details['to_url'],'https://challenge.example/verify')
+        self.assertNotIn('PRIVATE',str(error))
+        source=dict(SOURCE,id=45,url=root)
+        rows,state=self.run_source(source,None,Fetch({root:error}))
+        self.assertEqual(rows,[]);self.assertEqual(state['error_kind'],'redirect_outside_source')
+        self.assertEqual(state['rejected_redirect']['to_url'],'https://challenge.example/verify')
+        self.assertEqual(state['next_url'],root)
+    def test_redirect_to_same_host_is_allowed_but_private_destination_is_not(self):
+        root='https://www.njuskalo.hr/nekretnine'
+        with patch('socket.getaddrinfo',return_value=[(None,None,None,None,('93.184.216.34',443))]):
+            self.assertEqual(validate_redirect(root,'https://njuskalo.hr/prodaja-kuca',root),'https://njuskalo.hr/prodaja-kuca')
+        with patch('socket.getaddrinfo',return_value=[(None,None,None,None,('127.0.0.1',443))]):
+            with self.assertRaises(RejectedRedirect):validate_redirect(root,root,root)
     def test_parallel_capacity_is_across_hosts_not_within_one_host(self):
         sources=[dict(SOURCE,id=1,url='https://a.example/sale'),dict(SOURCE,id=2,url='https://b.example/sale'),dict(SOURCE,id=3,url='https://a.example/other')]
         config={'sources':sources,'states':{}};barrier=threading.Barrier(2);lock=threading.Lock();active={};max_active={};visits=[]
@@ -273,4 +323,5 @@ class RegistryTests(unittest.TestCase):
         self.assertFalse(new['coverage_complete'])
 
 if __name__=='__main__':unittest.main(max_workers=1)
+
 
