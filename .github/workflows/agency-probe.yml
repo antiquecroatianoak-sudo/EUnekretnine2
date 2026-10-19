@@ -1,0 +1,20 @@
+name: Provjera novih agencijskih izvora EU
+on:
+  push:
+    paths:
+      - ops/probe-agency-sources.py
+      - data/agency_sources.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provjeri dostupnost i prilagodbe bez upisa u bazu
+        run: python -u ops/probe-agency-sources.py

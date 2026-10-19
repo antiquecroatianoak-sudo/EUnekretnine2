@@ -1,0 +1,244 @@
+[
+  {
+    "id": 66,
+    "country": "AT",
+    "name": "RE/MAX Austria",
+    "url": "https://www.remax.at/de/immobilien",
+    "category": "Agencija"
+  },
+  {
+    "id": 67,
+    "country": "BE",
+    "name": "ERA Belgium",
+    "url": "https://www.era.be/nl/te-koop",
+    "category": "Agencija",
+    "import_config": {
+      "entry_urls": [
+        "https://www.era.be/nl/te-koop"
+      ],
+      "index_path_prefixes": [
+        "/nl/te-koop"
+      ],
+      "detail_path_prefixes": [
+        "/nl/te-koop/"
+      ],
+      "require_structured_listing": true,
+      "sale_scope": true
+    }
+  },
+  {
+    "id": 68,
+    "country": "BG",
+    "name": "Bulgarian Properties",
+    "url": "https://www.bulgarianproperties.com/",
+    "category": "Agencija"
+  },
+  {
+    "id": 69,
+    "country": "CY",
+    "name": "FOX Realty",
+    "url": "https://foxrealty.com.cy/",
+    "category": "Agencija"
+  },
+  {
+    "id": 70,
+    "country": "CZ",
+    "name": "M&M Reality",
+    "url": "https://www.mmreality.cz/nemovitosti/",
+    "category": "Agencija"
+  },
+  {
+    "id": 71,
+    "country": "DE",
+    "name": "VON POLL Immobilien",
+    "url": "https://www.von-poll.com/de/immobilien",
+    "category": "Agencija"
+  },
+  {
+    "id": 72,
+    "country": "DK",
+    "name": "EDC",
+    "url": "https://www.edc.dk/bolig/",
+    "category": "Agencija"
+  },
+  {
+    "id": 73,
+    "country": "EE",
+    "name": "Uus Maa",
+    "url": "https://uusmaa.ee/en/",
+    "category": "Agencija"
+  },
+  {
+    "id": 74,
+    "country": "ES",
+    "name": "Tecnocasa España",
+    "url": "https://www.tecnocasa.es/",
+    "category": "Agencija"
+  },
+  {
+    "id": 75,
+    "country": "FI",
+    "name": "Kiinteistömaailma",
+    "url": "https://www.kiinteistomaailma.fi/myytavat_asunnot",
+    "category": "Agencija"
+  },
+  {
+    "id": 76,
+    "country": "FR",
+    "name": "Orpi",
+    "url": "https://www.orpi.com/",
+    "category": "Agencija",
+    "import_config": {
+      "entry_urls": [
+        "https://www.orpi.com/"
+      ],
+      "index_path_prefixes": [
+        "/annonces-immobilieres-"
+      ],
+      "detail_path_prefixes": [
+        "/annonce-vente-"
+      ],
+      "require_structured_listing": true,
+      "sale_scope": false
+    }
+  },
+  {
+    "id": 77,
+    "country": "GR",
+    "name": "Grekodom",
+    "url": "https://www.grekodom.com/",
+    "category": "Agencija",
+    "import_config": {
+      "entry_urls": [
+        "https://www.grekodom.com/"
+      ],
+      "index_path_prefixes": [
+        "/RealtyObjects",
+        "/realtyobjects"
+      ],
+      "detail_path_prefixes": [
+        "/realtyobject/"
+      ],
+      "require_structured_listing": true,
+      "sale_scope": false
+    }
+  },
+  {
+    "id": 78,
+    "country": "HR",
+    "name": "Opereta",
+    "url": "https://www.opereta.hr/nekretnine/prodaja",
+    "category": "Agencija",
+    "import_config": {
+      "entry_urls": [
+        "https://www.opereta.hr/nekretnine/prodaja"
+      ],
+      "index_path_prefixes": [
+        "/nekretnine/prodaja"
+      ],
+      "detail_path_prefixes": [
+        "/nekretnina/"
+      ],
+      "require_structured_listing": true,
+      "sale_scope": true
+    }
+  },
+  {
+    "id": 79,
+    "country": "HU",
+    "name": "Duna House",
+    "url": "https://dh.hu/elado-ingatlan",
+    "category": "Agencija"
+  },
+  {
+    "id": 80,
+    "country": "IE",
+    "name": "Sherry FitzGerald",
+    "url": "https://www.sherryfitz.ie/buy",
+    "category": "Agencija"
+  },
+  {
+    "id": 81,
+    "country": "IT",
+    "name": "Tecnocasa Italia",
+    "url": "https://www.tecnocasa.it/",
+    "category": "Agencija"
+  },
+  {
+    "id": 82,
+    "country": "LT",
+    "name": "Ober-Haus Lithuania",
+    "url": "https://www.ober-haus.lt/en/",
+    "category": "Agencija"
+  },
+  {
+    "id": 83,
+    "country": "LU",
+    "name": "INOWAI",
+    "url": "https://www.inowai.com/",
+    "category": "Agencija"
+  },
+  {
+    "id": 84,
+    "country": "LV",
+    "name": "Latio",
+    "url": "https://latio.lv/en/properties",
+    "category": "Agencija"
+  },
+  {
+    "id": 85,
+    "country": "MT",
+    "name": "Frank Salt",
+    "url": "https://franksalt.com.mt/",
+    "category": "Agencija"
+  },
+  {
+    "id": 86,
+    "country": "NL",
+    "name": "Brockhoff",
+    "url": "https://brockhoff.nl/",
+    "category": "Agencija"
+  },
+  {
+    "id": 87,
+    "country": "PL",
+    "name": "Metrohouse",
+    "url": "https://metrohouse.pl/",
+    "category": "Agencija"
+  },
+  {
+    "id": 88,
+    "country": "PT",
+    "name": "RE/MAX Portugal",
+    "url": "https://remax.pt/",
+    "category": "Agencija"
+  },
+  {
+    "id": 89,
+    "country": "RO",
+    "name": "RE/MAX Romania",
+    "url": "https://www.remax.ro/",
+    "category": "Agencija"
+  },
+  {
+    "id": 90,
+    "country": "SE",
+    "name": "Fastighetsbyrån",
+    "url": "https://www.fastighetsbyran.com/sv/sverige",
+    "category": "Agencija"
+  },
+  {
+    "id": 91,
+    "country": "SI",
+    "name": "Stoja",
+    "url": "https://www.stoja-trade.si/en/nepremicnine/prodaja",
+    "category": "Agencija"
+  },
+  {
+    "id": 92,
+    "country": "SK",
+    "name": "RE/MAX Slovakia",
+    "url": "https://www.remax-slovakia.sk/",
+    "category": "Agencija"
+  }
+]
