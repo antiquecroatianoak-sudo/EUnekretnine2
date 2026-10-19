@@ -6,6 +6,8 @@ import json
 import re
 import socket
 import time
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -21,6 +23,7 @@ AGENT='EUPropertyResearch/0.2'
 SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
 DEMAND=re.compile(r'\b(?:kupujemo|tražimo|iščemo|kupimo)\s+(?:građevinsk\w*\s+|stavbn\w*\s+)?(?:zemlji\w*|nekretnin\w*|stan\w*|kuć\w*|hiš\w*)|\b(?:we\s+(?:buy|seek|are\s+looking\s+for)|wanted|seeking)\s+(?:land|properties|property|sites|development)|\b(?:acquisition|investment)\s+criteria\b|\b(?:ankaufsprofil|ankaufskriterien)\b|\b(?:nous\s+(?:recherchons|achetons)|recherche\s+de)\s+(?:terrains?|biens|immeubles)|\b(?:buscamos|compramos)\s+(?:terrenos?|inmuebles|suelo)|\b(?:cerchiamo|acquistiamo)\s+(?:terreni|immobili)',re.I)
+DEMAND=re.compile(DEMAND.pattern+r'|\b(?:kupujemo|tražimo|iščemo)\s+(?:\w+\s+){0,3}(?:zemljišta|zemljišče|zemljišča|nekretnine)\b|\bzainteresirani smo za kupnju\b|\bgrond gezocht\b|\bankoopcriteria\b|\bkupi[eę]\s+(?:mieszkanie|dom|działk\w*|nieruchomo\w*)',re.I)
 DETAIL={
  'njuskalo.hr':r'-oglas-\d+', 'nepremicnine.net':r'/oglasi-(?:prodaja|nakup)/.+_\d+',
  'immobiliare.it':r'/annunci/\d+', 'idealista.com':r'/inmueble/\d+', 'idealista.pt':r'/imovel/\d+',
@@ -295,6 +298,17 @@ def listing_record(source,url,page,kind,now):
             if isinstance(offers,dict) and str(offers.get('availability','')).rsplit('/',1)[-1] in ('SoldOut','Discontinued'):
                 facts['source_listing_state']='removed'
                 facts['source_status_evidence']=str(offers['availability'])
+    if kind=='buyer':
+        demand=DEMAND.search(text)
+        if demand:
+            facts.update(intent_evidence=text[max(0,demand.start()-120):demand.end()+600],intent_source_url=url)
+        # Only take a named entity from a structured organisation on its own
+        # domain. A page title or registry label is not identity evidence.
+        for node in nodes:
+            types=node.get('@type',[]);types=[types] if isinstance(types,str) else types
+            name=node.get('name');entity_url=node.get('url')
+            if set(types)&{'Organization','Corporation','RealEstateAgent'} and isinstance(name,str) and name.strip() and isinstance(entity_url,str) and hostkey(urlsplit(entity_url).hostname or '')==hostkey(urlsplit(url).hostname):
+                facts.update(entity_name=name.strip(),identity_source_url=url);break
     return {'id':'registry:'+kind+':'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def process_biddit(source,previous,fetcher,deadline,max_pages):
@@ -511,7 +525,7 @@ def source_page_budget(source,state):
     proven=working_backlog(state) and state.get('detail_pages',0)>=25 and state.get('imported_count',0)>=25
     return 150 if proven or hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
 
-def main():
+def main(max_workers=3):
     # Read the entire current registry at each run, including newly discovered sources.
     config=api({'action':'registry'}); deadline=time.monotonic()+900
     def priority(source):
@@ -520,32 +534,46 @@ def main():
         # must not starve buyer sources or sources awaiting another attempt.
         return (state.get('checked_at',''),0 if working_backlog(state) else 1)
     sources=sorted(config['sources'],key=priority)
-    persistence_failures=[]
+    # Concurrency is across hosts only. Sources on the same host remain serial
+    # so added capacity never multiplies a portal's crawl rate.
+    groups={}
     for source in sources:
-        if time.monotonic()>=deadline:break
-        sid='registry-'+str(source['id'])
-        prior=config['states'].get(sid,{})
-        retry=prior.get('retry_after')
-        if retry and datetime.fromisoformat(retry)>datetime.now(timezone.utc):continue
-        budget=source_page_budget(source,prior)
-        # Shorter resumable turns prevent two large portals from consuming the
-        # entire run while other working sources wait six hours for a turn.
-        seconds=120 if working_backlog(prior) else 360
-        rows,state=process(source,prior,Fetcher(source['url']),min(deadline,time.monotonic()+seconds),max_pages=budget)
-        # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
-        try:
-            save_rows(sid,rows,state)
-            result=api({'action':'checkpoint','source_id':sid,'state':state})
-        except Exception as error:
-            # Never advance a checkpoint after an incomplete write. Already
-            # saved batches are deduplicated when the old checkpoint is retried.
-            # Authentication failures stop immediately; source-local failures
-            # must not prevent other sources from persisting their findings.
-            if isinstance(error,HTTPError) and error.code in (401,403):raise
-            persistence_failures.append(sid)
-            print(sid,'Persistence failed; previous checkpoint retained:',type(error).__name__)
-            continue
-        print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'inserted',state.get('inserted_count',0),'updated',state.get('updated_count',0),'pending',len(state.get('pending',[])),'stop',state.get('stop_reason'),'checkpoint',result.get('saved'))
+        groups.setdefault(hostkey(urlsplit(source['url']).hostname),[]).append(source)
+    stop=Event()
+    def run_host(host_sources):
+        persistence_failures=[]
+        for source in host_sources:
+            if stop.is_set() or time.monotonic()>=deadline:break
+            sid='registry-'+str(source['id'])
+            prior=config['states'].get(sid,{})
+            retry=prior.get('retry_after')
+            if retry and datetime.fromisoformat(retry)>datetime.now(timezone.utc):continue
+            budget=source_page_budget(source,prior)
+            # Shorter resumable turns prevent two large portals from consuming the
+            # entire run while other working sources wait six hours for a turn.
+            seconds=120 if working_backlog(prior) else 360
+            rows,state=process(source,prior,Fetcher(source['url']),min(deadline,time.monotonic()+seconds),max_pages=budget)
+            # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
+            try:
+                save_rows(sid,rows,state)
+                result=api({'action':'checkpoint','source_id':sid,'state':state})
+            except Exception as error:
+                # Never advance a checkpoint after an incomplete write. Already
+                # saved batches are deduplicated when the old checkpoint is retried.
+                # Authentication failures stop immediately; source-local failures
+                # must not prevent other sources from persisting their findings.
+                if isinstance(error,HTTPError) and error.code in (401,403):
+                    stop.set();raise
+                persistence_failures.append(sid)
+                print(sid,'Persistence failed; previous checkpoint retained:',type(error).__name__)
+                continue
+            print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'inserted',state.get('inserted_count',0),'updated',state.get('updated_count',0),'pending',len(state.get('pending',[])),'stop',state.get('stop_reason'),'checkpoint',result.get('saved'))
+        return persistence_failures
+    persistence_failures=[]
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures=[pool.submit(run_host,group) for group in groups.values()]
+        for future in futures:
+            persistence_failures.extend(future.result())
     print('Registry pass finished; unvisited sources retain their checkpoints.')
     if persistence_failures:
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
