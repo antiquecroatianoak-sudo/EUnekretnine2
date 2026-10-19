@@ -20,6 +20,22 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_persistence_failure_keeps_checkpoint_and_continues_other_sources(self):
+        config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2)],'states':{}}
+        checkpoints=[]
+        def api_call(body):
+            if body['action']=='registry':return config
+            checkpoints.append(body['source_id']);return {'saved':True}
+        state={'checked_at':'2026-10-19','status':'Djelomično','pages_processed':0}
+        with patch('registry_discovery.api',side_effect=api_call),patch('registry_discovery.process',return_value=([],state)),patch('registry_discovery.save_rows',side_effect=[TimeoutError(),(0,0)]),patch('builtins.print'):
+            with self.assertRaisesRegex(RuntimeError,'registry-1'):main()
+        self.assertEqual(checkpoints,['registry-2'])
+    def test_persistence_auth_failure_stops_without_advancing_checkpoint(self):
+        from urllib.error import HTTPError
+        config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2)],'states':{}}
+        with patch('registry_discovery.api',return_value=config) as api_mock,patch('registry_discovery.process',return_value=([],{})),patch('registry_discovery.save_rows',side_effect=HTTPError(ROOT,401,'Unauthorized',{},None)):
+            with self.assertRaises(HTTPError):main()
+        self.assertEqual(api_mock.call_count,1)
     def test_larger_batch_requires_successful_detail_import(self):
         state={'pending':[{'url':FIRST,'mode':'detail'}],'detail_pages':25,'imported_count':25,'error':None}
         self.assertEqual(source_page_budget(SOURCE,state),150)
