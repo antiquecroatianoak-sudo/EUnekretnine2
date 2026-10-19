@@ -2,6 +2,7 @@ import time
 import io
 import http.client
 import unittest
+import json
 from unittest.mock import patch
 from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows, source_page_budget, main
 from datetime import datetime,timezone
@@ -20,6 +21,24 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_biddit_public_json_imports_active_lot_without_javascript(self):
+        root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
+        source=dict(SOURCE,id=27,url=root+'/fr/landing')
+        data={'referenceCode':'301194','publicSaleStatus':'CURRENT','biddingEndDateTime':'2099-10-20T07:30:00Z','startingPrice':109000,'currentPrice':124000,'properties':[{'title':{'nl':'Woning met tuin'},'address':{'countryCode':'BE'}}]}
+        rows,state=self.run_source(source,{'pending':[{'url':url}]},Fetch({root+'/api/eco/biddit-bff/lot/301194':json.dumps(data)}))
+        self.assertEqual(len(rows),1);self.assertEqual(rows[0]['facts']['asking_price'],109000)
+        self.assertFalse(rows[0]['verified']);self.assertEqual(rows[0]['url'],url)
+    def test_biddit_closed_lot_is_not_imported(self):
+        root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
+        source=dict(SOURCE,id=27,url=root+'/fr/landing')
+        data={'referenceCode':'301194','publicSaleStatus':'CLOSED','biddingEndDateTime':'2020-10-20T07:30:00Z'}
+        rows,state=self.run_source(source,{'pending':[{'url':url}]},Fetch({root+'/api/eco/biddit-bff/lot/301194':json.dumps(data)}))
+        self.assertEqual(rows,[]);self.assertEqual(state['pending'],[])
+    def test_biddit_denial_preserves_detail_for_retry(self):
+        root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
+        source=dict(SOURCE,id=27,url=root+'/fr/landing')
+        rows,state=self.run_source(source,{'pending':[{'url':url}]},Fetch({root+'/api/eco/biddit-bff/lot/301194':TimeoutError('unavailable')}))
+        self.assertEqual(rows,[]);self.assertEqual(state['pending'][0]['url'],url);self.assertEqual(state['status'],'Pogreška')
     def test_persistence_failure_keeps_checkpoint_and_continues_other_sources(self):
         config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2)],'states':{}}
         checkpoints=[]
