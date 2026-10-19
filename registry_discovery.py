@@ -334,7 +334,41 @@ def process_biddit(source,previous,fetcher,deadline,max_pages):
         error=type(exc).__name__+': '+str(exc)[:240]
     return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Djelomično' if pending else 'Uspješno',pending=pending,cycle_seen=[],pages_processed=pages,detail_pages=pages,imported_count=len(rows),error=error,error_kind='fetch_failed' if error else None,partial=bool(pending or error),coverage_complete=False,exhausted=False,stop_reason='error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty')
 
+def process_notaires(source,previous,fetcher,deadline,max_pages):
+    now=datetime.now(timezone.utc);stamp=now.isoformat();rows=[];pages=0;error=None
+    page=int((previous or {}).get('next_page') or 1);complete=False
+    base='https://www.immobilier.notaires.fr/pub-services/inotr-www-annonces/v1/annonces'
+    try:
+        while pages<max_pages and time.monotonic()<deadline:
+            evidence=base+'?'+urlencode({'typeTransactions':'VAE','page':page,'parPage':12})
+            data=json.loads(fetcher.get(evidence))
+            if not isinstance(data.get('annonceResumeDto'),list) or not isinstance(data.get('nbPages'),int):
+                raise ValueError('Notaires public listing format changed')
+            batch=[]
+            for item in data['annonceResumeDto']:
+                if item.get('typeTransaction')!='VAE' or item.get('statut')!='LIGNE' or item.get('publiable')!='OUI':continue
+                if any(item.get(k)!='NON' for k in ('bienVendu','bienRetire','venteReportee')):continue
+                when=datetime.fromisoformat(item['seanceDate'].replace('Z','+00:00')) if item.get('seanceDate') else None
+                if not when or when<=now:continue
+                url=item.get('urlDetailAnnonceFr','')
+                if not re.fullmatch(r'https://www\.immobilier\.notaires\.fr/fr/annonce-immo/adjudication/[^?#]+/\d+',url):
+                    raise ValueError('Notaires detail URL format changed')
+                kind={'MAI':'Kuća','APP':'Stan','TER':'Zemljište'}.get(item.get('typeBien'))
+                title=(kind or item.get('typeBien','Nekretnina'))+' — '+str(item.get('communeNom') or item.get('localiteNom') or item['annonceId'])
+                row=listing_record(source,url,Page('<title>Notaires public auction listing</title>'),'property',stamp)
+                row['title']=title[:240]
+                row['facts'].update(asking_price=item.get('prixAffiche'),currency='EUR',advertised_area=item.get('surface'),advertised_location={'addressLocality':item.get('communeNom'),'postalCode':item.get('codePostal'),'addressCountry':'FR'},property_type=kind,auction_at=when.isoformat(),auction_time_kind='auction_start',price_basis='Displayed auction price; total purchase costs unverified',evidence_url=evidence,evidence_excerpt=item.get('descriptionFr','')[:1600],source_listing_state='active',source_status_evidence='LIGNE; publiable=OUI; bienVendu=NON; bienRetire=NON; venteReportee=NON; future seanceDate')
+                batch.append(row)
+            rows.extend(batch);pages+=1
+            if page>=data['nbPages']:
+                complete=True;page=1;break
+            page+=1
+    except Exception as exc:error=type(exc).__name__+': '+str(exc)[:240]
+    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
+
 def process(source,state,fetcher,deadline,max_pages=25):
+    if hostkey(urlsplit(source['url']).hostname)=='immobilier.notaires.fr':
+        return process_notaires(source,state,fetcher,deadline,max_pages)
     if hostkey(urlsplit(source['url']).hostname)=='biddit.be':
         return process_biddit(source,state,fetcher,deadline,max_pages)
     now=datetime.now(timezone.utc).isoformat(); sid='registry-'+str(source['id']);kind='buyer' if buyer_source(source) else 'property'
