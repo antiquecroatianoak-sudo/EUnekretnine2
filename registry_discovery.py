@@ -20,7 +20,7 @@ from sync_discovery import request_token, call as legacy_call
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
-ADAPTER_REVISION='2026-10-19-demand-redirect-v1'
+ADAPTER_REVISION='2026-10-19-demand-redirect-v2'
 SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
 DEMAND=re.compile(r'\b(?:kupujemo|tražimo|iščemo|kupimo)\s+(?:građevinsk\w*\s+|stavbn\w*\s+)?(?:zemlji\w*|nekretnin\w*|stan\w*|kuć\w*|hiš\w*)|\b(?:we\s+(?:buy|seek|are\s+looking\s+for)|wanted|seeking)\s+(?:land|properties|property|sites|development)|\b(?:acquisition|investment)\s+criteria\b|\b(?:ankaufsprofil|ankaufskriterien)\b|\b(?:nous\s+(?:recherchons|achetons)|recherche\s+de)\s+(?:terrains?|biens|immeubles)|\b(?:buscamos|compramos)\s+(?:terrenos?|inmuebles|suelo)|\b(?:cerchiamo|acquistiamo)\s+(?:terreni|immobili)',re.I)
@@ -36,6 +36,9 @@ class RejectedRedirect(ValueError):
             return urlunsplit((p.scheme,p.hostname or '',p.path,'',''))[:500]
         self.details={'from_url':public_location(source),'to_url':public_location(target),'reason':str(reason)[:160]}
         super().__init__('Cross-source URL rejected: '+self.details['to_url'])
+
+# Additional observed, explicit acquisition statements, not generic sales advice.
+DEMAND=re.compile(DEMAND.pattern+r'|\botkupljujemo\s+(?:nekretnine|zemljišta|stanove|kuće)\b|\btous\s+les\s+types\s+de\s+terrains\s+peuvent\s+nous\s+intéresser\b|\bnous\s+évaluons\s+tout\s+le\s+potentiel\s+constructible\s+de\s+votre\s+terrain\s+pour\s+vous\s+faire\s+une\s+offre\s+adaptée\b',re.I)
 
 def validate_redirect(source,target,root):
     try:return safe_url(target,root)
@@ -91,6 +94,7 @@ class InterimHTTPSHandler(HTTPSHandler):
         return self.do_open(InterimHTTPSConnection,req,context=self._context)
 
 def failure_type(error):
+    if isinstance(error,RejectedRedirect) and urlsplit(error.details['to_url']).hostname=='validate.perfdrive.com':return 'access_blocked'
     if isinstance(error,HTTPError) and error.code in (401,403):return 'access_blocked'
     if isinstance(error,HTTPError) and error.code==429:return 'rate_limited'
     message=str(error).lower()

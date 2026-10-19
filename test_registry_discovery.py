@@ -40,7 +40,10 @@ class RegistryTests(unittest.TestCase):
                  'Nous achetons vos terrains, même non viabilisés',
                  'Nous achetons des terrains pour nos futurs programmes',
                  'Acquisition d’immeubles en pleine propriété en Île-de-France',
-                 'Javni poziv za nakup stanovanj in zemljišč za gradnjo stanovanj v letih 2026 in 2027']
+                 'Javni poziv za nakup stanovanj in zemljišč za gradnjo stanovanj v letih 2026 in 2027',
+                 'Otkupljujemo nekretnine u Zagrebu i široj okolici',
+                 'Tous les types de terrains peuvent nous intéresser',
+                 'Nous évaluons tout le potentiel constructible de votre terrain pour vous faire une offre adaptée']
         source=dict(SOURCE,id=14,category='Investitor - javna akvizicija')
         for text in phrases:
             with self.subTest(text=text):
@@ -72,6 +75,12 @@ class RegistryTests(unittest.TestCase):
             self.assertEqual(validate_redirect(root,'https://njuskalo.hr/prodaja-kuca',root),'https://njuskalo.hr/prodaja-kuca')
         with patch('socket.getaddrinfo',return_value=[(None,None,None,None,('127.0.0.1',443))]):
             with self.assertRaises(RejectedRedirect):validate_redirect(root,root,root)
+    def test_njuskalo_validation_redirect_is_blocked_and_gets_cooldown(self):
+        root='https://www.njuskalo.hr/nekretnine'
+        error=RejectedRedirect(root,'https://validate.perfdrive.com/check?token=SECRET',ValueError('Cross-source URL rejected'))
+        rows,state=self.run_source(dict(SOURCE,id=45,url=root),None,Fetch({root:error}))
+        self.assertEqual(rows,[]);self.assertEqual(state['error_kind'],'access_blocked')
+        self.assertIn('retry_after',state);self.assertNotIn('SECRET',str(state))
     def test_parallel_capacity_is_across_hosts_not_within_one_host(self):
         sources=[dict(SOURCE,id=1,url='https://a.example/sale'),dict(SOURCE,id=2,url='https://b.example/sale'),dict(SOURCE,id=3,url='https://a.example/other')]
         config={'sources':sources,'states':{}};barrier=threading.Barrier(2);lock=threading.Lock();active={};max_active={};visits=[]
