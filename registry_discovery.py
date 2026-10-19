@@ -441,6 +441,7 @@ def main():
         # must not starve buyer sources or sources awaiting another attempt.
         return (state.get('checked_at',''),0 if working_backlog(state) else 1)
     sources=sorted(config['sources'],key=priority)
+    persistence_failures=[]
     for source in sources:
         if time.monotonic()>=deadline:break
         sid='registry-'+str(source['id'])
@@ -453,10 +454,22 @@ def main():
         seconds=120 if working_backlog(prior) else 360
         rows,state=process(source,prior,Fetcher(source['url']),min(deadline,time.monotonic()+seconds),max_pages=budget)
         # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
-        save_rows(sid,rows,state)
-        result=api({'action':'checkpoint','source_id':sid,'state':state})
+        try:
+            save_rows(sid,rows,state)
+            result=api({'action':'checkpoint','source_id':sid,'state':state})
+        except Exception as error:
+            # Never advance a checkpoint after an incomplete write. Already
+            # saved batches are deduplicated when the old checkpoint is retried.
+            # Authentication failures stop immediately; source-local failures
+            # must not prevent other sources from persisting their findings.
+            if isinstance(error,HTTPError) and error.code in (401,403):raise
+            persistence_failures.append(sid)
+            print(sid,'Persistence failed; previous checkpoint retained:',type(error).__name__)
+            continue
         print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'inserted',state.get('inserted_count',0),'updated',state.get('updated_count',0),'pending',len(state.get('pending',[])),'stop',state.get('stop_reason'),'checkpoint',result.get('saved'))
     print('Registry pass finished; unvisited sources retain their checkpoints.')
+    if persistence_failures:
+        raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
 
