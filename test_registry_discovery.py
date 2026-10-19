@@ -26,7 +26,7 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(source_page_budget(SOURCE,dict(state,error='blocked')),25)
         self.assertEqual(source_page_budget(SOURCE,dict(state,imported_count=0)),25)
         self.assertEqual(source_page_budget(SOURCE,{}),25)
-    def test_working_backlogs_get_bounded_turns_before_index_only_sources(self):
+    def test_oldest_sources_are_not_starved_by_working_backlogs(self):
         config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2),dict(SOURCE,id=3)],'states':{
             'registry-1':{'pending':[{'url':ROOT,'mode':'index'}],'checked_at':'2026-10-17','detail_pages':0},
             'registry-2':{'pending':[{'url':FIRST,'mode':'detail'}],'checked_at':'2026-10-18','detail_pages':25,'imported_count':25},
@@ -37,8 +37,8 @@ class RegistryTests(unittest.TestCase):
             return [],{'checked_at':'2026-10-18','status':'Djelomično','pages_processed':0}
         with patch('registry_discovery.api',side_effect=lambda b:config if b['action']=='registry' else {'saved':True}),patch('registry_discovery.process',side_effect=run),patch('registry_discovery.time.monotonic',return_value=100),patch('builtins.print'):
             main()
-        self.assertEqual([t[0] for t in turns],[2,3,1])
-        self.assertEqual(turns[0][1:],(220,150))
+        self.assertEqual([t[0] for t in turns],[1,2,3])
+        self.assertEqual(turns[0][1:],(460,25))
         self.assertEqual(turns[1][1:],(220,150))
     def test_dutch_auction_import_excludes_boats_and_auction_premium(self):
         root='https://www.openbareverkoop.nl/';house=root+'kavel/4516/house';boat=root+'kavel/4517/boat'
