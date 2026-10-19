@@ -6,6 +6,7 @@ import json
 import re
 import socket
 import time
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
@@ -296,7 +297,46 @@ def listing_record(source,url,page,kind,now):
                 facts['source_status_evidence']=str(offers['availability'])
     return {'id':'registry:'+kind+':'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
+def process_biddit(source,previous,fetcher,deadline,max_pages):
+    now=datetime.now(timezone.utc);stamp=now.isoformat();root='https://www.biddit.be'
+    pending=[p for p in (previous or {}).get('pending',[]) if re.fullmatch(r'https://www\.biddit\.be/fr/catalog/detail/\d+',p.get('url',''))]
+    rows=[];pages=0;error=None
+    try:
+        if not pending:
+            index=ET.fromstring(fetcher.get(root+'/stg/eco/sitemap_index.xml'))
+            ns={'s':'http://www.sitemaps.org/schemas/sitemap/0.9'}
+            maps=[n.text for n in index.findall('s:sitemap/s:loc',ns) if re.fullmatch(r'https://www\.biddit\.be/stg/eco/fr_sitemap_\d+\.xml',n.text or '')]
+            if not maps:raise ValueError('Biddit sitemap format changed')
+            links=set()
+            for url in maps:
+                if time.monotonic()>=deadline:raise TimeoutError('Sitemap discovery budget exhausted')
+                tree=ET.fromstring(fetcher.get(url))
+                links.update(n.text for n in tree.findall('s:url/s:loc',ns) if re.fullmatch(r'https://www\.biddit\.be/fr/catalog/detail/\d+',n.text or ''))
+            if not links:raise ValueError('No Biddit listing URLs in sitemap')
+            pending=[{'url':u,'mode':'detail','sale':True} for u in sorted(links,key=lambda u:int(u.rsplit('/',1)[-1]),reverse=True)]
+        while pending and pages<max_pages and time.monotonic()<deadline:
+            item=pending[0];code=item['url'].rsplit('/',1)[-1]
+            data=json.loads(fetcher.get(root+'/api/eco/biddit-bff/lot/'+code));pages+=1
+            if str(data.get('referenceCode'))!=code:raise ValueError('Biddit reference mismatch')
+            end=datetime.fromisoformat(data['biddingEndDateTime'].replace('Z','+00:00')) if data.get('biddingEndDateTime') else None
+            if data.get('publicSaleStatus')=='CURRENT' and not data.get('soldTimestamp') and not data.get('withdrawnTimestamp') and end and end>now:
+                props=data.get('properties',[])
+                # One lot may contain several properties: retain one lot, never inflate counts.
+                if not props:raise ValueError('Biddit lot has no property data')
+                prop=props[0];titles=prop.get('title') or {};title=next((titles.get(k) for k in ('fr','nl','de','en') if titles.get(k)),None)
+                if not title:raise ValueError('Biddit lot title missing')
+                row=listing_record(source,item['url'],Page('<title>Biddit public property lot</title>'),'property',stamp)
+                row['title']=title[:240]
+                row['facts'].update(advertised_location=prop.get('address'),deadline=end.isoformat(),asking_price=data.get('startingPrice'),currency='EUR',price_basis='Auction starting price; not current bid or total cost',source_listing_state='active',source_status_evidence='publicSaleStatus=CURRENT; future biddingEndDateTime',evidence_url=root+'/api/eco/biddit-bff/lot/'+code,property_count=len(props),availability='Active public lot at check time; legal status and costs unverified')
+                rows.append(row)
+            pending.pop(0)
+    except Exception as exc:
+        error=type(exc).__name__+': '+str(exc)[:240]
+    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Djelomično' if pending else 'Uspješno',pending=pending,cycle_seen=[],pages_processed=pages,detail_pages=pages,imported_count=len(rows),error=error,error_kind='fetch_failed' if error else None,partial=bool(pending or error),coverage_complete=False,exhausted=False,stop_reason='error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty')
+
 def process(source,state,fetcher,deadline,max_pages=25):
+    if hostkey(urlsplit(source['url']).hostname)=='biddit.be':
+        return process_biddit(source,state,fetcher,deadline,max_pages)
     now=datetime.now(timezone.utc).isoformat(); sid='registry-'+str(source['id']);kind='buyer' if buyer_source(source) else 'property'
     previous=state or {}; root=source['url']; config=source.get('import_config') or {}
     if hostkey(urlsplit(root).hostname)=='vetrinaimmobili.invimit.it':
