@@ -21,6 +21,22 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_notaires_pages_resume_and_exclude_closed_auctions(self):
+        root='https://www.immobilier.notaires.fr';base=root+'/pub-services/inotr-www-annonces/v1/annonces?typeTransactions=VAE&page='
+        source=dict(SOURCE,id=28,url=root+'/fr/vente-aux-encheres-adjudication')
+        item={'annonceId':123,'typeTransaction':'VAE','statut':'LIGNE','publiable':'OUI','bienVendu':'NON','bienRetire':'NON','venteReportee':'NON','seanceDate':'2099-11-25T13:00:00Z','urlDetailAnnonceFr':root+'/fr/annonce-immo/adjudication/terrain/paris-75/123','typeBien':'TER','communeNom':'Paris','prixAffiche':190000}
+        fetch=Fetch({base+'1&parPage=12':json.dumps({'annonceResumeDto':[item,dict(item,bienVendu='OUI')],'nbPages':2}),base+'2&parPage=12':json.dumps({'annonceResumeDto':[dict(item,seanceDate='2020-01-01T00:00:00Z')],'nbPages':2})})
+        rows,state=self.run_source(source,None,fetch,1)
+        self.assertEqual(len(rows),1);self.assertEqual(state['next_page'],2)
+        self.assertFalse(rows[0]['verified']);self.assertNotIn('deadline',rows[0]['facts'])
+        self.assertEqual(rows[0]['facts']['auction_time_kind'],'auction_start')
+        again,state=self.run_source(source,state,fetch,1)
+        self.assertEqual(again,[]);self.assertEqual(state['next_page'],1)
+    def test_notaires_changed_format_keeps_page_for_retry(self):
+        root='https://www.immobilier.notaires.fr';base=root+'/pub-services/inotr-www-annonces/v1/annonces?typeTransactions=VAE&page=2&parPage=12'
+        source=dict(SOURCE,id=28,url=root+'/fr/vente-aux-encheres-adjudication')
+        rows,state=self.run_source(source,{'next_page':2},Fetch({base:'{}'}))
+        self.assertEqual(rows,[]);self.assertEqual(state['next_page'],2);self.assertEqual(state['status'],'Pogreška')
     def test_biddit_public_json_imports_active_lot_without_javascript(self):
         root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
         source=dict(SOURCE,id=27,url=root+'/fr/landing')
