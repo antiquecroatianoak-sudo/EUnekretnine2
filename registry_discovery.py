@@ -19,6 +19,7 @@ ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discove
 AGENT='EUPropertyResearch/0.2'
 SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
+DEMAND=re.compile(r'\b(?:kupujemo|tražimo|iščemo|kupimo)\s+(?:građevinsk\w*\s+|stavbn\w*\s+)?(?:zemlji\w*|nekretnin\w*|stan\w*|kuć\w*|hiš\w*)|\b(?:we\s+(?:buy|seek|are\s+looking\s+for)|wanted|seeking)\s+(?:land|properties|property|sites|development)|\b(?:acquisition|investment)\s+criteria\b|\b(?:ankaufsprofil|ankaufskriterien)\b|\b(?:nous\s+(?:recherchons|achetons)|recherche\s+de)\s+(?:terrains?|biens|immeubles)|\b(?:buscamos|compramos)\s+(?:terrenos?|inmuebles|suelo)|\b(?:cerchiamo|acquistiamo)\s+(?:terreni|immobili)',re.I)
 DETAIL={
  'njuskalo.hr':r'-oglas-\d+', 'nepremicnine.net':r'/oglasi-(?:prodaja|nakup)/.+_\d+',
  'immobiliare.it':r'/annunci/\d+', 'idealista.com':r'/inmueble/\d+', 'idealista.pt':r'/imovel/\d+',
@@ -339,7 +340,11 @@ def process(source,state,fetcher,deadline,max_pages=25):
             text=' '.join(' '.join(page.text).split())
             if re.search(r'captcha|access denied|verify you are human|just a moment',page.meta.get('og:title','')+' '+text[:400],re.I):raise ValueError('Access challenge; no import')
             if item['mode']=='buyer':
+                demand=DEMAND.search(text)
+                if not demand:
+                    raise ValueError('No explicit public acquisition demand; company profile is not a buyer request')
                 row=listing_record(source,url,page,kind,now)
+                row['facts']['demand_excerpt']=text[max(0,demand.start()-120):demand.end()+600]
                 # A registered investor page is a potential profile, never a verified mandate.
                 row['facts']['transaction_type']='unconfirmed_acquisition_profile'
                 records.append(row)
