@@ -437,7 +437,9 @@ def main():
     config=api({'action':'registry'}); deadline=time.monotonic()+900
     def priority(source):
         state=config['states'].get('registry-'+str(source['id']),{})
-        return (0 if working_backlog(state) else 1,state.get('checked_at',''))
+        # Oldest checkpoints go first: a permanently growing property backlog
+        # must not starve buyer sources or sources awaiting another attempt.
+        return (state.get('checked_at',''),0 if working_backlog(state) else 1)
     sources=sorted(config['sources'],key=priority)
     for source in sources:
         if time.monotonic()>=deadline:break
