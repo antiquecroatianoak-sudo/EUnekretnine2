@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-19T06:48:54.798081+00:00",
+  "generated_at": "2026-10-19T07:06:54.127704+00:00",
   "sources": [
     {
       "id": "fina-csv",
@@ -81,37 +81,37 @@
       "source_id": "fina-csv",
       "status": "Uspješno",
       "count": 475,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     },
     {
       "source_id": "hr-state-sales",
       "status": "Uspješno",
       "count": 4,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     },
     {
       "source_id": "es-state-auctions",
       "status": "Uspješno",
       "count": 8,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     },
     {
       "source_id": "es-direct-sales",
       "status": "Uspješno",
       "count": 5,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     },
     {
       "source_id": "gradzilla-demand",
       "status": "Uspješno",
       "count": 1,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     },
     {
       "source_id": "immoexpert-demand",
       "status": "Uspješno",
       "count": 1,
-      "checked_at": "2026-10-19T06:48:54.798081+00:00"
+      "checked_at": "2026-10-19T07:06:54.127704+00:00"
     }
   ],
   "candidates": [
@@ -130,6 +130,23 @@
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
       "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "observation": "Nije u posljednjem dohvatu; ishod nije potvrđen"
+    },
+    {
+      "id": "es-direct-sales:6f1c01db671f92e7e8c559d2",
+      "source_id": "es-direct-sales",
+      "country": "Španjolska",
+      "kind": "property",
+      "title": "Lote 34: parcela n.º 757, polígono 502, paraje \"Agalladeira\", z.c.p. \"Baltar-Tixós\", Ayto. Baltar. Superficie título c.p.7.400 m2; Superficie gráfica 7.872 m2. RC: 32006A502007570000JX. Reg. Propiedad de Xinzo de Limia, finca reg. 12799.\"",
+      "url": "https://www.hacienda.gob.es/es-ES/Areas%20Tematicas/Patrimonio%20del%20Estado/Gestion%20Patrimonial%20del%20Estado/Paginas/VentasDirectas/DEH-OURENSE/Parcela-757-Baltar.aspx",
+      "status": "Za provjeru",
+      "verified": false,
+      "facts": {
+        "published": "Mon, 19 Oct 2026 08:53:48 GMT",
+        "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
+      },
+      "first_seen": "2026-10-19T07:06:54.127704+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -146,7 +163,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -163,7 +180,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -181,7 +198,7 @@
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
       "last_seen": "2026-10-19T06:48:54.798081+00:00",
-      "observation": "Pronađen u posljednjem dohvatu"
+      "observation": "Nije u posljednjem dohvatu; ishod nije potvrđen"
     },
     {
       "id": "es-direct-sales:da27e3024f9f93cc4c63f3f3",
@@ -197,7 +214,24 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
+      "observation": "Pronađen u posljednjem dohvatu"
+    },
+    {
+      "id": "es-direct-sales:f4e5f0b666d7b515fb50c35d",
+      "source_id": "es-direct-sales",
+      "country": "Španjolska",
+      "kind": "property",
+      "title": "Lote 29: parcela n.º 528, polígono 502, paraje \"Cutillo\", z.c.p. \"Baltar-Tixós\", Ayto. Baltar. Superficie título c.p.4.895 m2; Superficie gráfica 5.242 m2. RC: 32006A502005280000JK. Reg. Propiedad de Xinzo de Limia, finca reg. 12794.\"",
+      "url": "https://www.hacienda.gob.es/es-ES/Areas%20Tematicas/Patrimonio%20del%20Estado/Gestion%20Patrimonial%20del%20Estado/Paginas/VentasDirectas/DEH-OURENSE/PARCELA-528-BALTAR.aspx",
+      "status": "Za provjeru",
+      "verified": false,
+      "facts": {
+        "published": "Mon, 19 Oct 2026 08:53:01 GMT",
+        "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
+      },
+      "first_seen": "2026-10-19T07:06:54.127704+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -214,7 +248,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -231,7 +265,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -248,7 +282,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -265,7 +299,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -282,7 +316,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -299,7 +333,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -316,7 +350,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -333,7 +367,7 @@
         "availability": "Potrebna provjera roka i dokumentacije; RSS može sadržavati stare objave."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -354,7 +388,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -375,7 +409,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -396,7 +430,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -417,7 +451,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -438,7 +472,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -459,7 +493,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -480,7 +514,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -501,7 +535,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -522,7 +556,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -543,7 +577,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -564,7 +598,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -585,7 +619,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -606,7 +640,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -627,7 +661,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -648,7 +682,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -669,7 +703,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -690,7 +724,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -711,7 +745,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -732,7 +766,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -753,7 +787,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -774,7 +808,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -795,7 +829,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -816,7 +850,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -837,7 +871,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -858,7 +892,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -879,7 +913,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -900,7 +934,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -921,7 +955,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -942,7 +976,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -963,7 +997,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -984,7 +1018,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1005,7 +1039,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1026,7 +1060,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1047,7 +1081,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1068,7 +1102,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1089,7 +1123,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1110,7 +1144,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1131,7 +1165,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1152,7 +1186,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1173,7 +1207,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1194,7 +1228,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1215,7 +1249,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1236,7 +1270,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1257,7 +1291,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1278,7 +1312,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1299,7 +1333,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1320,7 +1354,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1341,7 +1375,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1362,7 +1396,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1383,7 +1417,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1404,7 +1438,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1425,7 +1459,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1446,7 +1480,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1467,7 +1501,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1488,7 +1522,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1509,7 +1543,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1530,7 +1564,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1551,7 +1585,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1572,7 +1606,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1593,7 +1627,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1614,7 +1648,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1635,7 +1669,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1656,7 +1690,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1677,7 +1711,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1698,7 +1732,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1719,7 +1753,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1740,7 +1774,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1761,7 +1795,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1782,7 +1816,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1803,7 +1837,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1824,7 +1858,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1845,7 +1879,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1866,7 +1900,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1887,7 +1921,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1908,7 +1942,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1929,7 +1963,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1950,7 +1984,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1971,7 +2005,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -1992,7 +2026,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2013,7 +2047,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2034,7 +2068,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2055,7 +2089,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2076,7 +2110,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2097,7 +2131,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2118,7 +2152,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2139,7 +2173,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2160,7 +2194,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2181,7 +2215,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2202,7 +2236,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2223,7 +2257,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2244,7 +2278,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2265,7 +2299,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2286,7 +2320,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2307,7 +2341,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2328,7 +2362,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2349,7 +2383,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2370,7 +2404,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2391,7 +2425,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2412,7 +2446,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2433,7 +2467,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2454,7 +2488,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2475,7 +2509,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2496,7 +2530,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2517,7 +2551,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2538,7 +2572,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2559,7 +2593,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2580,7 +2614,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2601,7 +2635,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2622,7 +2656,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2643,7 +2677,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2664,7 +2698,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2685,7 +2719,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2706,7 +2740,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2727,7 +2761,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2748,7 +2782,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2769,7 +2803,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2790,7 +2824,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2811,7 +2845,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2832,7 +2866,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2853,7 +2887,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2874,7 +2908,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2895,7 +2929,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2916,7 +2950,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2937,7 +2971,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2958,7 +2992,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -2979,7 +3013,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3000,7 +3034,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3021,7 +3055,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3042,7 +3076,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3063,7 +3097,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3084,7 +3118,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3105,7 +3139,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3126,7 +3160,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3147,7 +3181,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3168,7 +3202,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3189,7 +3223,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3210,7 +3244,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3231,7 +3265,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3252,7 +3286,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3273,7 +3307,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3294,7 +3328,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3315,7 +3349,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3336,7 +3370,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3357,7 +3391,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3378,7 +3412,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3399,7 +3433,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3420,7 +3454,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3441,7 +3475,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3462,7 +3496,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3483,7 +3517,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3504,7 +3538,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3525,7 +3559,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3546,7 +3580,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3567,7 +3601,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3588,7 +3622,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3609,7 +3643,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3630,7 +3664,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3651,7 +3685,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3672,7 +3706,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3693,7 +3727,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3714,7 +3748,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3735,7 +3769,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3756,7 +3790,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3777,7 +3811,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3798,7 +3832,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3819,7 +3853,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3840,7 +3874,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3861,7 +3895,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3882,7 +3916,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3903,7 +3937,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3924,7 +3958,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3945,7 +3979,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3966,7 +4000,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -3987,7 +4021,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4008,7 +4042,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4029,7 +4063,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4050,7 +4084,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4071,7 +4105,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4092,7 +4126,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4113,7 +4147,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4134,7 +4168,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4155,7 +4189,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4176,7 +4210,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4197,7 +4231,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4218,7 +4252,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4239,7 +4273,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4260,7 +4294,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4281,7 +4315,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4302,7 +4336,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4323,7 +4357,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4344,7 +4378,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4365,7 +4399,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4386,7 +4420,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4407,7 +4441,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4428,7 +4462,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4449,7 +4483,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4470,7 +4504,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4491,7 +4525,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4512,7 +4546,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4533,7 +4567,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4554,7 +4588,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4575,7 +4609,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4596,7 +4630,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4617,7 +4651,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4638,7 +4672,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4659,7 +4693,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4680,7 +4714,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4701,7 +4735,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4722,7 +4756,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4743,7 +4777,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4764,7 +4798,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4785,7 +4819,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4806,7 +4840,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4827,7 +4861,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4848,7 +4882,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4869,7 +4903,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4890,7 +4924,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4911,7 +4945,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4932,7 +4966,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4953,7 +4987,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4974,7 +5008,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -4995,7 +5029,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5016,7 +5050,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5037,7 +5071,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5058,7 +5092,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5079,7 +5113,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5100,7 +5134,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5121,7 +5155,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5142,7 +5176,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5163,7 +5197,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5184,7 +5218,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5205,7 +5239,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5226,7 +5260,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5247,7 +5281,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5268,7 +5302,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5289,7 +5323,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5310,7 +5344,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5331,7 +5365,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5352,7 +5386,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5373,7 +5407,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5394,7 +5428,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5415,7 +5449,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5436,7 +5470,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5457,7 +5491,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5478,7 +5512,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5499,7 +5533,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5520,7 +5554,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5541,7 +5575,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5562,7 +5596,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5583,7 +5617,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5604,7 +5638,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5625,7 +5659,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5646,7 +5680,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5667,7 +5701,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5688,7 +5722,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5709,7 +5743,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5730,7 +5764,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5751,7 +5785,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5772,7 +5806,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5793,7 +5827,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5814,7 +5848,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5835,7 +5869,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5856,7 +5890,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5877,7 +5911,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5898,7 +5932,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5919,7 +5953,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5940,7 +5974,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5961,7 +5995,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -5982,7 +6016,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6003,7 +6037,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6024,7 +6058,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6045,7 +6079,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6066,7 +6100,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6087,7 +6121,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6108,7 +6142,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6129,7 +6163,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6150,7 +6184,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6171,7 +6205,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6192,7 +6226,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6213,7 +6247,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6234,7 +6268,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6255,7 +6289,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6276,7 +6310,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6297,7 +6331,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6318,7 +6352,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6339,7 +6373,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6360,7 +6394,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6381,7 +6415,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6402,7 +6436,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6423,7 +6457,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6444,7 +6478,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6465,7 +6499,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6486,7 +6520,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6507,7 +6541,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6528,7 +6562,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6549,7 +6583,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6570,7 +6604,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6591,7 +6625,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6612,7 +6646,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6633,7 +6667,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6654,7 +6688,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6675,7 +6709,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6696,7 +6730,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6717,7 +6751,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6738,7 +6772,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6759,7 +6793,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6780,7 +6814,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6801,7 +6835,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6822,7 +6856,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6843,7 +6877,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6864,7 +6898,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6885,7 +6919,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6906,7 +6940,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6927,7 +6961,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6948,7 +6982,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6969,7 +7003,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -6990,7 +7024,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7011,7 +7045,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7032,7 +7066,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7053,7 +7087,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7074,7 +7108,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7095,7 +7129,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7116,7 +7150,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7137,7 +7171,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7158,7 +7192,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7179,7 +7213,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7200,7 +7234,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7221,7 +7255,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7242,7 +7276,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7263,7 +7297,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7284,7 +7318,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7305,7 +7339,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7326,7 +7360,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7347,7 +7381,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7368,7 +7402,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7389,7 +7423,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7410,7 +7444,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7431,7 +7465,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7452,7 +7486,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7473,7 +7507,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7494,7 +7528,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7515,7 +7549,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7536,7 +7570,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7557,7 +7591,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7578,7 +7612,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7599,7 +7633,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7620,7 +7654,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7641,7 +7675,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7662,7 +7696,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7683,7 +7717,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7704,7 +7738,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7725,7 +7759,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7746,7 +7780,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7767,7 +7801,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7788,7 +7822,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7809,7 +7843,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7830,7 +7864,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7851,7 +7885,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7872,7 +7906,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7893,7 +7927,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7914,7 +7948,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7935,7 +7969,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7956,7 +7990,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7977,7 +8011,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -7998,7 +8032,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8019,7 +8053,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8040,7 +8074,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8061,7 +8095,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8082,7 +8116,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8103,7 +8137,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8124,7 +8158,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8145,7 +8179,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8166,7 +8200,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8187,7 +8221,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8208,7 +8242,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8229,7 +8263,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8250,7 +8284,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8271,7 +8305,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8292,7 +8326,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8313,7 +8347,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8334,7 +8368,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8355,7 +8389,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8376,7 +8410,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8397,7 +8431,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8418,7 +8452,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8439,7 +8473,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8460,7 +8494,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8481,7 +8515,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8502,7 +8536,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8523,7 +8557,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8544,7 +8578,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8565,7 +8599,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8586,7 +8620,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8607,7 +8641,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8628,7 +8662,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8649,7 +8683,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8670,7 +8704,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8691,7 +8725,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8712,7 +8746,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8733,7 +8767,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8754,7 +8788,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8775,7 +8809,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8796,7 +8830,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8817,7 +8851,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8838,7 +8872,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8859,7 +8893,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8880,7 +8914,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8901,7 +8935,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8922,7 +8956,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8943,7 +8977,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8964,7 +8998,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -8985,7 +9019,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9006,7 +9040,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9027,7 +9061,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9048,7 +9082,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9069,7 +9103,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9090,7 +9124,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9111,7 +9145,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9132,7 +9166,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9153,7 +9187,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9174,7 +9208,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9195,7 +9229,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9216,7 +9250,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9237,7 +9271,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9258,7 +9292,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9279,7 +9313,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9300,7 +9334,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9321,7 +9355,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9342,7 +9376,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9363,7 +9397,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9384,7 +9418,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9405,7 +9439,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9426,7 +9460,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9447,7 +9481,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9468,7 +9502,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9489,7 +9523,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9510,7 +9544,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9531,7 +9565,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9552,7 +9586,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9573,7 +9607,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9594,7 +9628,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9615,7 +9649,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9636,7 +9670,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9657,7 +9691,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9678,7 +9712,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9699,7 +9733,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9720,7 +9754,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9741,7 +9775,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9762,7 +9796,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9783,7 +9817,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9804,7 +9838,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9825,7 +9859,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9846,7 +9880,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9867,7 +9901,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9888,7 +9922,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9909,7 +9943,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9930,7 +9964,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9951,7 +9985,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9972,7 +10006,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -9993,7 +10027,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10014,7 +10048,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10035,7 +10069,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10056,7 +10090,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10077,7 +10111,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10098,7 +10132,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10119,7 +10153,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10140,7 +10174,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10161,7 +10195,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10182,7 +10216,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10203,7 +10237,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10224,7 +10258,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10245,7 +10279,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10266,7 +10300,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10287,7 +10321,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10308,7 +10342,7 @@
         "evidence_note": "Javni CSV; pronađi zapis prema ID-u nadmetanja. Budući rok nije potvrda da prodaja nije povučena."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10332,7 +10366,7 @@
         "interest": "Javno objavljen opći zahtjev; aktualnost i interes za konkretnu kupnju nisu potvrđeni."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10348,7 +10382,7 @@
         "availability": "Natječaj može obuhvaćati više nekretnina. Rok, pojedinačni predmeti i dokumentacija zahtijevaju provjeru."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10364,7 +10398,7 @@
         "availability": "Natječaj može obuhvaćati više nekretnina. Rok, pojedinačni predmeti i dokumentacija zahtijevaju provjeru."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10380,7 +10414,7 @@
         "availability": "Natječaj može obuhvaćati više nekretnina. Rok, pojedinačni predmeti i dokumentacija zahtijevaju provjeru."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10396,7 +10430,7 @@
         "availability": "Natječaj može obuhvaćati više nekretnina. Rok, pojedinačni predmeti i dokumentacija zahtijevaju provjeru."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     },
     {
@@ -10422,7 +10456,7 @@
         "interest": "Javno objavljen opći zahtjev; aktualnost i interes za konkretnu kupnju nisu potvrđeni."
       },
       "first_seen": "2026-10-17T13:45:09.083262+00:00",
-      "last_seen": "2026-10-19T06:48:54.798081+00:00",
+      "last_seen": "2026-10-19T07:06:54.127704+00:00",
       "observation": "Pronađen u posljednjem dohvatu"
     }
   ]
