@@ -148,8 +148,16 @@ class RegistryTests(unittest.TestCase):
     def test_buyer_profile_never_invents_mandate_or_budget(self):
         source=dict(SOURCE,id=5,category='Investitor - javna akvizicija')
         rows,state=self.run_source(source,None,Fetch({ROOT:'<h1>Tvrtka i poslovne informacije</h1>'}))
+        self.assertEqual(rows,[])
+        self.assertEqual(state['status'],'Pogreška')
+        self.assertIn('No explicit public acquisition demand',state['error'])
+    def test_explicit_demand_preserves_evidence_without_confirming_buyer(self):
+        source=dict(SOURCE,id=5,category='Investitor - javna akvizicija')
+        rows,state=self.run_source(source,None,Fetch({ROOT:'<h1>Kupujemo građevinska zemljišta u Zagrebu</h1>'}))
         self.assertEqual(rows[0]['kind'],'buyer');self.assertIsNone(rows[0]['facts']['budget'])
         self.assertEqual(rows[0]['facts']['transaction_type'],'unconfirmed_acquisition_profile')
+        self.assertIn('Kupujemo građevinska zemljišta',rows[0]['facts']['demand_excerpt'])
+        self.assertFalse(rows[0]['verified'])
     def test_native_currency_is_preserved(self):
         html='<h1>Stan s navedenom cijenom</h1><script type="application/ld+json">{"@type":"Apartment","offers":{"price":"123456","priceCurrency":"CZK"}}</script>'
         fetch=Fetch({ROOT:f'<a href="{FIRST}">Stan</a>',FIRST:html})
