@@ -3,6 +3,7 @@ import io
 import http.client
 import unittest
 import json
+import threading
 from unittest.mock import patch
 from registry_discovery import process, Page, canonical, safe_url, in_scope, InterimResponse, save_rows, invimit_rows, source_page_budget, main
 from datetime import datetime,timezone
@@ -21,6 +22,31 @@ class Fetch:
         return value
 
 class RegistryTests(unittest.TestCase):
+    def test_parallel_capacity_is_across_hosts_not_within_one_host(self):
+        sources=[dict(SOURCE,id=1,url='https://a.example/sale'),dict(SOURCE,id=2,url='https://b.example/sale'),dict(SOURCE,id=3,url='https://a.example/other')]
+        config={'sources':sources,'states':{}};barrier=threading.Barrier(2);lock=threading.Lock();active={};max_active={};visits=[]
+        def run(source,*args,**kwargs):
+            host=source['url'].split('/')[2]
+            with lock:
+                active[host]=active.get(host,0)+1;max_active[host]=max(max_active.get(host,0),active[host]);visits.append(source['id'])
+            if source['id'] in (1,2):barrier.wait(timeout=3)
+            with lock:active[host]-=1
+            return [],{'checked_at':'2026-10-19','status':'Uspješno','pages_processed':0}
+        with patch('registry_discovery.api',side_effect=lambda b:config if b['action']=='registry' else {'saved':True}),patch('registry_discovery.process',side_effect=run),patch('builtins.print'):
+            main(max_workers=3)
+        self.assertEqual(sorted(visits),[1,2,3]);self.assertTrue(all(n==1 for n in max_active.values()))
+    def test_buyer_evidence_fields_use_real_demand_and_same_domain_identity(self):
+        source=dict(SOURCE,id=5,category='Investitor - javna akvizicija')
+        html='<h1>Kupujemo zemljišta u Zagrebu</h1><script type="application/ld+json">{"@type":"Organization","name":"Example Company","url":"https://www.nepremicnine.net/"}</script>'
+        rows,state=self.run_source(source,None,Fetch({ROOT:html}))
+        facts=rows[0]['facts'];self.assertEqual(facts['entity_name'],'Example Company')
+        self.assertEqual(facts['intent_source_url'],ROOT);self.assertIn('Kupujemo zemljišta',facts['intent_evidence'])
+        self.assertFalse(rows[0]['verified'])
+    def test_external_publisher_does_not_become_buyer_identity(self):
+        source=dict(SOURCE,id=5,category='Investitor - javna akvizicija')
+        html='<h1>Kupujemo zemljišta u Zagrebu</h1><script type="application/ld+json">{"@type":"Organization","name":"Website supplier","url":"https://other.example/"}</script>'
+        rows,state=self.run_source(source,None,Fetch({ROOT:html}))
+        self.assertNotIn('entity_name',rows[0]['facts'])
     def test_notaires_pages_resume_and_exclude_closed_auctions(self):
         root='https://www.immobilier.notaires.fr';base=root+'/pub-services/inotr-www-annonces/v1/annonces?typeTransactions=VAE&page='
         source=dict(SOURCE,id=28,url=root+'/fr/vente-aux-encheres-adjudication')
@@ -63,13 +89,13 @@ class RegistryTests(unittest.TestCase):
             checkpoints.append(body['source_id']);return {'saved':True}
         state={'checked_at':'2026-10-19','status':'Djelomično','pages_processed':0}
         with patch('registry_discovery.api',side_effect=api_call),patch('registry_discovery.process',return_value=([],state)),patch('registry_discovery.save_rows',side_effect=[TimeoutError(),(0,0)]),patch('builtins.print'):
-            with self.assertRaisesRegex(RuntimeError,'registry-1'):main()
+            with self.assertRaisesRegex(RuntimeError,'registry-1'):main(max_workers=1)
         self.assertEqual(checkpoints,['registry-2'])
     def test_persistence_auth_failure_stops_without_advancing_checkpoint(self):
         from urllib.error import HTTPError
         config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2)],'states':{}}
         with patch('registry_discovery.api',return_value=config) as api_mock,patch('registry_discovery.process',return_value=([],{})),patch('registry_discovery.save_rows',side_effect=HTTPError(ROOT,401,'Unauthorized',{},None)):
-            with self.assertRaises(HTTPError):main()
+            with self.assertRaises(HTTPError):main(max_workers=1)
         self.assertEqual(api_mock.call_count,1)
     def test_larger_batch_requires_successful_detail_import(self):
         state={'pending':[{'url':FIRST,'mode':'detail'}],'detail_pages':25,'imported_count':25,'error':None}
@@ -87,7 +113,7 @@ class RegistryTests(unittest.TestCase):
             turns.append((source['id'],deadline,max_pages))
             return [],{'checked_at':'2026-10-18','status':'Djelomično','pages_processed':0}
         with patch('registry_discovery.api',side_effect=lambda b:config if b['action']=='registry' else {'saved':True}),patch('registry_discovery.process',side_effect=run),patch('registry_discovery.time.monotonic',return_value=100),patch('builtins.print'):
-            main()
+            main(max_workers=1)
         self.assertEqual([t[0] for t in turns],[1,2,3])
         self.assertEqual(turns[0][1:],(460,25))
         self.assertEqual(turns[1][1:],(220,150))
@@ -246,5 +272,5 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(len(rows),1);self.assertEqual(new['unavailable_urls'][0]['http_status'],404)
         self.assertFalse(new['coverage_complete'])
 
-if __name__=='__main__':unittest.main()
+if __name__=='__main__':unittest.main(max_workers=1)
 
