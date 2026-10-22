@@ -45,6 +45,7 @@ def prepare_for_review(c, candidate_id):
         # Same fields and budget rule as site_private.sync_source_listing.
         criteria={k:v for k,v in facts.items() if k in ('property_types','conditions','cities','regions','min_area','max_area','requires_buildable')}
         criteria.update(source_url=row['url'],checked_at=row['last_seen'])
+        if facts.get('buyer_type')=='public_authority':criteria['buyer_kind']='Javno tijelo'
         # A published deadline or explicit closed state ends the public demand.
         if facts.get('deadline'):criteria['call_deadline']=facts['deadline']
         if facts.get('source_listing_state') in ('expired','removed'):criteria['call_closed']=facts.get('source_status_evidence') or facts['source_listing_state']

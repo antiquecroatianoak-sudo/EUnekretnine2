@@ -1,4 +1,5 @@
 """Exercise the actual Streamlit forms against an isolated temporary database."""
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -75,5 +76,42 @@ class MatchingUITests(unittest.TestCase):
         self.assertEqual(coverage['Država'].nunique(),27)
         self.assertIn('Javni pozivi za zemljište',self.field('selectbox','Vrsta kandidata').options)
         self.assertTrue(any('nikad nije potvrđen posao' in x.value for x in self.app.info))
+    def edit_buyer(self,name,criteria,**columns):
+        """Store a buyer as an import would, then rename it through the real form only."""
+        c=self.original(path=self.db)
+        c.execute("INSERT INTO properties(country,region,title,source,price,renovation,other_costs,property_type,status) VALUES('Irska','Kerry','TEST zemljište','https://example.ie/l/1',90000,0,0,'Zemljište','Novo')")
+        row=dict(name=name,country='Irska',min_budget=None,max_budget=None,preferred_countries='Irska',notes='Javni oglas',verified=0,criteria_json=json.dumps(criteria,ensure_ascii=False));row.update(columns)
+        buyer=c.execute('INSERT INTO investors('+','.join(row)+') VALUES('+','.join('?' for _ in row)+') RETURNING id',tuple(row.values())).fetchone()['id']
+        c.commit();c.close()
+        self.app.run()
+        self.field('selectbox','Novi kupac ili uređivanje zahtjeva').set_value(buyer).run()
+        self.set_field('text_input','Naziv kupca / tvrtke',name+' (uređeno)')
+        self.submit('Spremi kupca i kriterije')
+        self.assertEqual([e.value for e in self.app.error],[])
+        c=self.original(path=self.db);saved=dict(c.execute('SELECT * FROM investors WHERE id=?',(buyer,)).fetchone())
+        pair=next(m for m in ranked_matches(c) if m['investor_id']==buyer);c.close()
+        return saved,json.loads(saved['criteria_json']),pair
+    def test_editing_imported_buyer_keeps_unknown_budget_seat_kind_and_closed_call(self):
+        # Review on 8caa88a: four form behaviours of an imported public buyer.
+        criteria={'property_types':['Zemljište'],'buyer_kind':'Javno tijelo','source_url':'https://www.kerrycoco.ie/eoi/','checked_at':'2026-10-22T09:00:00+00:00',
+                  'call_deadline':'2026-07-10','call_closed':'Objavljeni rok 2026-07-10 je istekao','listing_kind':'public_buy_request','candidate_source_id':'registry:buyer:'+'c'*32}
+        saved,stored,pair=self.edit_buyer('Kerry County Council',criteria,country='US')
+        self.assertEqual(saved['name'],'Kerry County Council (uređeno)')
+        self.assertIsNone(saved['min_budget']);self.assertIsNone(saved['max_budget'])
+        self.assertEqual(saved['country'],'US','a seat outside the EU is not replaced by the first EU state')
+        self.assertEqual(saved['preferred_countries'],'Irska')
+        self.assertEqual(stored['buyer_kind'],'Javno tijelo')
+        for key in ('call_deadline','call_closed','listing_kind','candidate_source_id'):self.assertEqual(stored[key],criteria[key])
+        self.assertEqual(pair['status'],REJECT)
+        self.assertIn('Javni poziv kupca je zatvoren ili istekao',pair['rejected'])
+    def test_known_budget_bounds_are_still_validated(self):
+        c=self.original(path=self.db);c.close()
+        self.set_field('text_input','Naziv kupca / tvrtke','TEST')
+        self.set_field('number_input','Minimalni ukupni budžet EUR',500.)
+        self.set_field('number_input','Maksimalni ukupni budžet EUR',100.)
+        self.field('button','Spremi kupca i kriterije').click().run()
+        self.assertTrue(any('raspon' in e.value for e in self.app.error))
+        c=self.original(path=self.db)
+        self.assertEqual(c.execute('SELECT COUNT(*) AS n FROM investors').fetchone()['n'],0);c.close()
 
 if __name__=='__main__': unittest.main()
