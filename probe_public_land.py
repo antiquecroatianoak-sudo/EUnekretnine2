@@ -3,8 +3,16 @@ import json
 import os
 import sys
 from datetime import datetime, timezone
+import re
 from registry_discovery import Fetcher, Page, failure_type
-from public_land_sources import PUBLIC_LAND_CALLS, public_land_record, load_registry
+from public_land_sources import PUBLIC_LAND_CALLS, DATE, public_land_record, load_registry
+
+def diagnostics(text,config):
+    """Public page wording for review: the call excerpt and every written date with its context."""
+    match=re.search(config['demand'],text,re.I)
+    start=match.start() if match else 0
+    dates=[text[max(0,m.start()-70):m.end()+30] for m in re.finditer(DATE,text)][:12]
+    return {'excerpt':text[max(0,start-150):start+450],'dates':dates}
 
 def registry_entries(registry):
     return {s['url'].rstrip('/'):(code,s) for code,country in registry['countries'].items() for s in country['sources']}
@@ -20,9 +28,9 @@ def probe(registry,fetcher=Fetcher,now=None):
             # Fetcher enforces robots.txt, crawl delay, public HTTPS and same-host redirects.
             page=Page(fetcher(source['url']).get(source['url']))
             text=' '.join(' '.join(page.text).split())
+            result.update(title=' '.join(' '.join(page.title).split())[:200],**diagnostics(text,config))
             facts=public_land_record(source,text,stamp)['facts']
             result.update(result='zatvoren' if facts.get('source_listing_state')=='expired' else 'aktivan',
-                          title=' '.join(' '.join(page.title).split())[:200],
                           **{k:facts.get(k) for k in ('deadline','programme_budget','min_area','source_status_evidence','deadline_evidence','budget_evidence','area_evidence')})
         except Exception as error:
             result.update(result='pogreška',error=type(error).__name__+': '+str(error)[:240],error_kind=failure_type(error))
@@ -40,6 +48,8 @@ def main(out='public_land_probe.json'):
     registry=load_registry();results=probe(registry)
     with open(out,'w',encoding='utf-8') as f:json.dump({'checked_at':datetime.now(timezone.utc).isoformat(),'results':results},f,ensure_ascii=False,indent=1)
     table=summary(results);print(table,flush=True)
+    for r in results:
+        print('Diagnostic',r['url'],json.dumps({k:r.get(k) for k in ('title','excerpt','dates')},ensure_ascii=False),flush=True)
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:f.write('## Stvarni dohvat javnih poziva (bez upisa u bazu)\n\n'+table+'\n')
     # A regression on an already imported source must be visible; new sources only report.
