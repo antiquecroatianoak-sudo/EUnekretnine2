@@ -65,5 +65,15 @@ class MatchingUITests(unittest.TestCase):
         c=self.original(path=self.db)
         self.assertEqual(c.execute('SELECT COUNT(*) AS n FROM properties').fetchone()['n'],0)
         c.close()
+    def test_public_buyer_coverage_lists_all_27_states_equally(self):
+        self.assertEqual(list(self.app.exception),[])
+        metric=next(m for m in self.app.metric if m.label=='Države s testiranim javnim kupcem')
+        self.assertTrue(metric.value.endswith('/27'))
+        self.assertFalse(any('Prioritet' in m.label for m in self.app.metric))
+        coverage=next(d.value for d in self.app.dataframe if 'Najbolji status' in d.value.columns)
+        self.assertEqual(len(coverage),27)
+        self.assertEqual(coverage['Država'].nunique(),27)
+        self.assertIn('Javni pozivi za zemljište',self.field('selectbox','Vrsta kandidata').options)
+        self.assertTrue(any('nikad nije potvrđen posao' in x.value for x in self.app.info))
 
 if __name__=='__main__': unittest.main()

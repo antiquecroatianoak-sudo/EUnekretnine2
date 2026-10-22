@@ -45,3 +45,7 @@ jobs:
         env:
           TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test?sslmode=require
         run: python -m unittest discover -p 'test_*.py'
+      - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
+        run: |
+          node test_verification.mjs
+          node test_public_land.mjs

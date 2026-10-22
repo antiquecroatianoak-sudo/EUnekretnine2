@@ -7,7 +7,7 @@ from matching import MATCH, CANDIDATE, REJECT, refresh_matches, ranked_matches
 from matching_ui import property_form, investor_form
 DB=os.path.join(os.path.dirname(__file__),'eu_platform.db')
 EU=['Austrija','Belgija','Bugarska','Hrvatska','Cipar','Češka','Danska','Estonija','Finska','Francuska','Njemačka','Grčka','Mađarska','Irska','Italija','Latvija','Litva','Luksemburg','Malta','Nizozemska','Poljska','Portugal','Rumunjska','Slovačka','Slovenija','Španjolska','Švedska']
-PRIORITY=['Francuska','Nizozemska','Hrvatska','Slovenija','Litva','Austrija','Belgija']
+from public_land_sources import load_registry, coverage_rows
 from storage import connect
 try:
  database_url = os.environ.get('DATABASE_URL') or st.secrets.get('DATABASE_URL')
@@ -34,8 +34,10 @@ st.caption('Radni prototip • stvarni podaci tek nakon provjere • bez automat
 tabs=st.tabs(['Nadzorna ploča','Nekretnine','Analiza','Investitori','Podudaranja','Pipeline','Izvori','Karta'])
 props=[dict(r) for r in c.execute('SELECT * FROM properties ORDER BY id DESC')];investors=[dict(r) for r in c.execute('SELECT * FROM investors ORDER BY id DESC')]
 with tabs[0]:
- a,b,d,e=st.columns(4);a.metric('Nekretnine',len(props));b.metric('Pravno provjerene',sum(p['legal']=='Uredno' for p in props));d.metric('Investitori',len(investors));e.metric('Prioritetne države',len(PRIORITY))
- st.write('Prioritet:',', '.join(PRIORITY));
+ try: coverage=coverage_rows(load_registry())
+ except (OSError,ValueError,KeyError): coverage=[]
+ a,b,d,e=st.columns(4);a.metric('Nekretnine',len(props));b.metric('Pravno provjerene',sum(p['legal']=='Uredno' for p in props));d.metric('Investitori',len(investors));e.metric('Države s testiranim javnim kupcem',f"{sum(r['Testiran uvoz']>0 for r in coverage)}/{len(EU)}")
+ st.write('Obuhvat: svih 27 država članica EU ravnopravno, bez geografskog prioriteta. Pokrivenost po državi je u kartici Izvori.')
  st.caption('Pravna provjera modela: čeka se odgovor HGK / Your Europe Advice 478010.')
  pending=[dict(r) for r in c.execute("SELECT * FROM notification_outbox ORDER BY id DESC")]
  if pending:
@@ -113,6 +115,7 @@ with tabs[4]:
  refresh_matches(c); c.commit()
  matches=ranked_matches(c)
  st.caption('Ocjena je udio zadovoljenih strukturiranih kriterija, nije vjerojatnost prodaje. Potvrda kriterija nije potvrda interesa za konkretnu nekretninu. Napomene i dokumentaciju treba ručno provjeriti.')
+ st.info(f'„{CANDIDATE}” znači da nijedan poznati kriterij nije prekršen, ali nešto nedostaje (npr. nepoznat budžet ili rok). Takav par nikad nije potvrđen posao. „{MATCH}” traži sve kriterije i dokaze. Poznati nepodudarni kriteriji i istekli rokovi daju „{REJECT}”.')
  statuses=st.multiselect('Prikaži rezultate', [MATCH,CANDIDATE,REJECT],default=[MATCH,CANDIDATE])
  selected_property=st.selectbox('Nekretnina za uparivanje', [None]+[p['id'] for p in props],format_func=lambda x: 'Sve nekretnine' if x is None else next(p['title'] for p in props if p['id']==x))
  selected_buyer=st.selectbox('Kupac za uparivanje', [None]+[i['id'] for i in investors],format_func=lambda x: 'Svi kupci' if x is None else next(i['name'] for i in investors if i['id']==x))
@@ -142,16 +145,26 @@ with tabs[5]:
 with tabs[6]:
  st.subheader('Izvori i kandidati iz automatskog dohvata')
  if 'source_prepared' in st.session_state: st.success(st.session_state.pop('source_prepared'))
+ st.markdown('#### Javni kupci zemljišta — svih 27 država')
+ if coverage:
+  st.caption('Država, grad, općina ili javni fond koji javno traži zemljište. Pronađen ili konfiguriran izvor nije isto što i testiran uvoz; prodaja javnog zemljišta i zatvoreni pozivi nisu potražnja. Evidencija ne tvrdi potpunu pokrivenost.')
+  st.dataframe(coverage,use_container_width=True,hide_index=True,column_config={'Izvori':st.column_config.TextColumn(width='large'),'Stanje i nedostaci':st.column_config.TextColumn(width='large')})
+ else: st.warning('Evidencija javnih izvora nije dostupna.')
  st.dataframe([dict(r) for r in c.execute('SELECT * FROM sources')],use_container_width=True)
  runs=[json.loads(r['body_json']) for r in c.execute('SELECT body_json FROM discovery_runs ORDER BY source_id')]
  if runs:
   st.dataframe(runs,use_container_width=True)
   if any(r['status']=='Pogreška' for r in runs): st.warning('Neki izvori nisu dohvaćeni. Zadnji uspješno spremljeni kandidati ostaju dostupni s izvornim datumom dohvata.')
  candidates=[dict(r) for r in c.execute('SELECT * FROM source_candidates ORDER BY last_seen DESC,id')]
- st.caption('Kandidati nisu provjerene nekretnine ni potvrđeni kupci. Izostanak iz posljednjeg dohvata nije dokaz da je prodaja završila. Uvršteni izvori zasad pokrivaju dio Hrvatske i Španjolske, a javni zahtjevi kupaca prate se na dvije poznate stranice.')
- kind=st.selectbox('Vrsta kandidata',['Svi','Nekretnine / natječaji','Zahtjevi kupaca'])
- filtered_candidates=[r for r in candidates if kind=='Svi' or r['kind']==('property' if kind=='Nekretnine / natječaji' else 'buyer')]
- st.dataframe([{k:r[k] for k in ('title','country','kind','url','last_seen')} for r in filtered_candidates],use_container_width=True)
+ st.caption('Kandidati nisu provjerene nekretnine ni potvrđeni kupci. Izostanak iz posljednjeg dohvata nije dokaz da je prodaja završila. Pokrivenost javnih kupaca po državama prikazana je u tablici iznad.')
+ def public_call(r):
+  return json.loads(r['body_json']).get('facts',{}).get('buyer_type')=='public_authority'
+ def call_state(r):
+  facts=json.loads(r['body_json']).get('facts',{})
+  return 'Zatvoren / istekao' if facts.get('source_listing_state')=='expired' else 'Otvoren pri dohvatu' if public_call(r) else ''
+ kind=st.selectbox('Vrsta kandidata',['Svi','Nekretnine / natječaji','Zahtjevi kupaca','Javni pozivi za zemljište'])
+ filtered_candidates=[r for r in candidates if kind=='Svi' or (public_call(r) if kind=='Javni pozivi za zemljište' else r['kind']==('property' if kind=='Nekretnine / natječaji' else 'buyer'))]
+ st.dataframe([{**{k:r[k] for k in ('title','country','kind','url','last_seen')},'poziv':call_state(r)} for r in filtered_candidates],use_container_width=True)
  if filtered_candidates:
   candidate_id=st.selectbox('Kandidat za pregled',[r['id'] for r in filtered_candidates],format_func=lambda x:next(r['title'] for r in filtered_candidates if r['id']==x))
   row=next(r for r in filtered_candidates if r['id']==candidate_id)

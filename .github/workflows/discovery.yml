@@ -10,6 +10,8 @@ on:
       - public_land_sources.py
       - verify_public_land_import.py
       - test_public_land_sources.py
+      - data/public_land_registry.json
+      - test_public_land.mjs
       - verification.mjs
       - test_verification.mjs
       - test_registry_discovery.py
@@ -35,8 +37,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Testiraj prepoznavanje službenih javnih kupaca
-        run: python -m unittest -v test_public_land_sources
-      - name: Uvezi tri službena poziva i provjeri uparivanje
+        run: |
+          python -m unittest -v test_public_land_sources
+          node test_public_land.mjs
+      - name: Uvezi registrirane službene pozive i provjeri uparivanje
         env:
           PYTHONUNBUFFERED: '1'
         run: python verify_public_land_import.py

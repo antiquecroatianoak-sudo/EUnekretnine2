@@ -67,6 +67,7 @@ def validate_criteria(criteria):
 
 def evaluate(prop, investor):
     criteria = parse_criteria(investor)
+    call = {k: criteria.get(k) for k in ('call_closed', 'call_deadline')} if not criteria.get('_invalid') else {}
     reasons, missing, rejected = [], [], []
     passed, checks = 0, 0
     def check(label, known, fits):
@@ -123,6 +124,12 @@ def evaluate(prop, investor):
         except (ValueError, TypeError): missing.append('Valjan rok dostupnosti')
     status=norm(prop.get('status'))
     if prop.get('status') in INACTIVE or any(status.startswith(prefix) for prefix in ('prodano','povuceno','rok istekao','zatvoreno')) or expired: rejected.append('Nekretnina više nije aktivna')
+    # A public buyer's call that closed or passed its published deadline is no longer demand.
+    call_closed = bool(call.get('call_closed'))
+    if call.get('call_deadline'):
+        try: call_closed = call_closed or datetime.fromisoformat(str(call['call_deadline'])[:10]).date() < datetime.now(timezone.utc).date()
+        except ValueError: missing.append('Valjan rok javnog poziva kupca')
+    if call_closed: rejected.append('Javni poziv kupca je zatvoren ili istekao')
     status = REJECT if rejected else CANDIDATE if missing else MATCH
     return dict(status=status, score=round(100 * passed / checks) if checks else 0,
                 reasons=reasons, missing=missing, rejected=rejected, total_cost=total, roi=roi)
