@@ -14,7 +14,7 @@ Obuhvat je svih 27 država članica ravnopravno, bez geografskog prioriteta. Evi
 
 ## Provjera i uvoz
 1. Pull request: `public-land-probe.yml` stvarno dohvaća svaki konfigurirani poziv uz robots.txt, razmak između zahtjeva i ograničenje na isti host. Ne koristi OIDC, tajne ni bazu. Izvještaj je u sažetku posla i artefaktu `public-land-probe`.
-2. Novi izvor ulazi u bazu tek nakon pregleda: `ops/register-public-land-sources.sql` (nije primijenjen).
+2. Novi izvor ulazi u bazu tek nakon pregleda i uspješnog stvarnog dohvata, upisom u `public.sources` (zasebna odluka). Stanje 22.10.2026.: nijedan novi izvor nije predložen — Donegal vraća stranicu za prijavu umjesto sadržaja (`blokiran`), a Kerryjeva stranica ne objavljuje rok, koji je prema pretrazi istekao.
 3. Na main grani `public-land-check` uvozi samo registrirane izvore. Već uvezeni izvori moraju ostati registrirani; konfigurirani neregistrirani izvori ispisuju se kao neuvezeni, bez pogreške.
 
 ## Objava funkcija

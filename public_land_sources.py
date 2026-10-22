@@ -25,14 +25,8 @@ PUBLIC_LAND_CALLS = {
         'demand': r'Javni poziv za nakup stanovanj in zemljišč za gradnjo stanovanj v letih 2026 in 2027',
         'purpose': 'Housing and development land; full public call conditions require review',
     },
-    # Configured from the councils' published page titles. The first real fetch
-    # happens in the read-only public-land probe, before any database import.
-    'https://donegalcoco.ie/en/services/housing/housing-delivery-and-supply/expressions-of-interest-land-and-property-for-social-housing': {
-        'country': 'IE', 'entity': 'Donegal County Council', 'authority_level': 'local',
-        'demand': r'Expressions? of Interest:?\s*Land and Property for Social Housing',
-        'purpose': 'Land suitable for immediate residential development for social housing in County Donegal',
-        'regions': ['Donegal'],
-    },
+    # Real fetch (run 39776595003): the page states no deadline; the call document
+    # reportedly closed 10.7.2026, so it is monitored but not registered for import.
     'https://www.kerrycoco.ie/expression-of-interest-in-turnkey-units-land-with-development-potential': {
         'country': 'IE', 'entity': 'Kerry County Council', 'authority_level': 'local',
         'demand': r'Expressions? of Interest in Turnkey Units\s*/?\s*(?:and/or\s+)?Land with Development Potential',
@@ -62,8 +56,8 @@ MONTHS = {
     'januari': 1, 'februari': 2, 'maart': 3, 'mei': 5, 'augustus': 8,
 }
 DATE = (r'(?:(?P<iso>\d{4}-\d{2}-\d{2})'
-        r'|(?P<d>\d{1,2})\.\s*(?P<m>\d{1,2})\.\s*(?P<y>\d{4})'
-        r'|(?P<dw>\d{1,2})(?:st|nd|rd|th)?\.?\s+(?:of\s+)?(?P<mw>[^\W\d_]+),?\s+(?P<yw>\d{4}))')
+        r'|(?<!\d)(?P<d>\d{1,2})\.\s*(?P<m>\d{1,2})\.\s*(?P<y>\d{4})'
+        r'|(?<!\d)(?P<dw>\d{1,2})(?:st|nd|rd|th)?\.?\s+(?:of\s+)?(?P<mw>[^\W\d_]+),?\s+(?P<yw>\d{4}))')
 # A date counts as a deadline only directly after deadline wording, so a
 # publication or update date elsewhere on the page is never read as a deadline.
 DEADLINE = re.compile(r'(?:closing date|deadline|no later than|not later than|submitted by|received by|returned by|due by'

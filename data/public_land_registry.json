@@ -172,7 +172,7 @@
   "IE": {
    "name": "Irska",
    "searched_at": "2026-10-22",
-   "summary": "Tri službena poziva su stvarno uvezena u bazu. Dva nova poziva županija su konfigurirana i čekaju stvarnu provjeru. Kerryjev objavljeni rok (10.7.2026.) prema pretrazi je istekao.",
+   "summary": "Tri službena poziva (LDA, Galway) su stvarno uvezena i ponovno dohvaćena 22.10.2026. Donegalova stranica stvarnom dohvatu vraća stranicu za prijavu umjesto sadržaja. Kerryjev poziv je prepoznat, ali stranica ne objavljuje rok; prema pretrazi je istekao 10.7.2026., pa nije predložen za uvoz.",
    "sources": [
     {
      "url": "https://lda.ie/projects/private-land-acquisition",
@@ -190,7 +190,14 @@
       "at": "2026-10-22T09:39:13Z",
       "result": "Uspješno; 1 zapis; checkpoint spremljen"
      },
-     "last_fetch_check": null,
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+     },
      "notes": "Kriteriji (lokacija, gustoća, planska dozvola) su u dokumentaciji programa."
     },
     {
@@ -209,7 +216,14 @@
       "at": "2026-10-22T09:39:02Z",
       "result": "Uspješno; 1 zapis; checkpoint spremljen"
      },
-     "last_fetch_check": null,
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+     },
      "notes": "Raniji poziv imao je rok 20.6.2024.; stranica i dalje poziva vlasnike stambeno zoniranog zemljišta."
     },
     {
@@ -217,24 +231,38 @@
      "institution": "Donegal County Council",
      "authority_level": "local",
      "source_type": "stalni_program",
-     "support_status": "konfiguriran_ceka_provjeru",
-     "configured": true,
+     "support_status": "blokiran",
+     "configured": false,
      "registry_id": null,
      "last_import_check": null,
-     "last_fetch_check": null,
-     "notes": "Zemljište prikladno za odmah stambenu gradnju; cijenu predlaže vlasnik. Izvor nije registriran u bazi."
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Umjesto sadržaja vraćena je Meraki stranica za prijavu (JavaScript); poziv nije vidljiv"
+     },
+     "notes": "Stvarni dohvat ne vidi sadržaj stranice; zaštita se ne zaobilazi. Kriteriji prema pretrazi: zemljište prikladno za odmah stambenu gradnju, cijenu predlaže vlasnik."
     },
     {
      "url": "https://www.kerrycoco.ie/expression-of-interest-in-turnkey-units-land-with-development-potential/",
      "institution": "Kerry County Council",
      "authority_level": "local",
      "source_type": "javni_poziv",
-     "support_status": "konfiguriran_ceka_provjeru",
+     "support_status": "dohvat_testiran",
      "configured": true,
      "registry_id": null,
      "last_import_check": null,
-     "last_fetch_check": null,
-     "notes": "Rok 10.7.2026. prema pretrazi; očekuje se zapis označen kao istekao. Izvor nije registriran u bazi."
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Poziv prepoznat; stranica ne objavljuje rok"
+     },
+     "notes": "Rok 10.7.2026. prema pretrazi je u dokumentaciji poziva, ne na stranici. Ne registrirati za uvoz bez ručne provjere dokumenta jer bi se istekao poziv prikazao kao aktivna potražnja."
     },
     {
      "url": "https://offaly.ie/?p=2063",
@@ -339,7 +367,7 @@
   "SI": {
    "name": "Slovenija",
    "searched_at": "2026-10-22",
-   "summary": "Javni poziv Stanovanjskog sklada RS za 2026. i 2027. stvarno je uvezen u bazu.",
+   "summary": "Javni poziv Stanovanjskog sklada RS za 2026. i 2027. stvarno je uvezen i ponovno dohvaćen 22.10.2026.; rok i iznos nisu na stranici nego u dokumentaciji poziva.",
    "sources": [
     {
      "url": "https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027",
@@ -357,7 +385,14 @@
       "at": "2026-10-22T09:38:51Z",
       "result": "Uspješno; 1 zapis; checkpoint spremljen"
      },
-     "last_fetch_check": null,
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+     },
      "notes": "Poziv obuhvaća stanove i zemljišta za gradnju stanova u cijeloj Sloveniji."
     }
    ]

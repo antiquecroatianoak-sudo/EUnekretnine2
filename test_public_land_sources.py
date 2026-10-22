@@ -12,7 +12,6 @@ NOW='2026-10-22T12:00:00+00:00'
 PHRASES={'https://lda.ie/projects/private-land-acquisition':'The ongoing land acquisition programme supports housing.',
          'https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition':'We invite landowners to sell residential zoned lands.',
          'https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027':'Javni poziv za nakup stanovanj in zemljišč za gradnjo stanovanj v letih 2026 in 2027',
-         'https://donegalcoco.ie/en/services/housing/housing-delivery-and-supply/expressions-of-interest-land-and-property-for-social-housing':'Expression of Interest: Land and Property for Social Housing',
          'https://www.kerrycoco.ie/expression-of-interest-in-turnkey-units-land-with-development-potential':'Expression of Interest in Turnkey Units / Land with Development Potential'}
 KERRY='https://www.kerrycoco.ie/expression-of-interest-in-turnkey-units-land-with-development-potential/'
 
@@ -62,6 +61,15 @@ class PublicLandTests(unittest.TestCase):
         self.assertIsNone(facts['deadline']);self.assertIsNone(facts['budget'])
         self.assertNotIn('min_area',facts);self.assertNotIn('programme_budget',facts)
         self.assertIn('Budžet po lokaciji nije objavljen',facts['review_required'])
+    def test_year_ranges_and_blocked_pages_do_not_create_facts(self):
+        url='https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027'
+        # Observed page wording: a year range is not a date, and no deadline is published.
+        facts=record(url,PHRASES[url]+' Program v letih 2024 in 2025 je zaključen. Rok je v letih 2026 in 2027.')['facts']
+        self.assertIsNone(facts['deadline'])
+        # A page that served a login interstitial instead of content is not configured.
+        registry=load_registry()
+        donegal=next(s for s in registry['countries']['IE']['sources'] if 'donegalcoco' in s['url'])
+        self.assertEqual(donegal['support_status'],'blokiran');self.assertNotIn(donegal['url'],PUBLIC_LAND_CALLS)
     def test_published_terms_are_kept_with_evidence(self):
         url='https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027'
         facts=record(url,PHRASES[url]+'. Višina sredstev: 13,3 milijonov EUR. Zemljišča najmanj 0,5 ha. Ponudbe najkasneje do 31. 12. 2027.')['facts']
