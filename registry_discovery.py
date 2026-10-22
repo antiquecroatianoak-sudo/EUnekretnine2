@@ -17,6 +17,7 @@ from urllib.request import Request, build_opener, HTTPRedirectHandler, HTTPSHand
 from urllib.error import HTTPError
 from urllib.robotparser import RobotFileParser
 from sync_discovery import request_token, call as legacy_call
+from public_land_sources import PUBLIC_LAND_CALLS, public_land_record
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
@@ -402,6 +403,15 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
     return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
 
 def process(source,state,fetcher,deadline,max_pages=25):
+    if source['url'].rstrip('/') in PUBLIC_LAND_CALLS:
+        stamp=datetime.now(timezone.utc).isoformat();sid='registry-'+str(source['id'])
+        try:
+            page=Page(fetcher.get(source['url']))
+            text=' '.join(' '.join(page.text).split())
+            row=public_land_record(source,text,stamp)
+            return [row],dict(source_id=sid,status='Uspješno',checked_at=stamp,pending=[],cycle_seen=[source['url']],pages_processed=1,imported_count=1,exhausted=False,coverage_complete=False,scope='Reviewed official public land acquisition call only',error=None)
+        except Exception as error:
+            return [],dict(source_id=sid,status='Pogreška',checked_at=stamp,pending=[],cycle_seen=[],pages_processed=0,imported_count=0,exhausted=False,coverage_complete=False,error=type(error).__name__+': '+str(error)[:240],error_kind=failure_type(error))
     if hostkey(urlsplit(source['url']).hostname)=='immobilier.notaires.fr':
         return process_notaires(source,state,fetcher,deadline,max_pages)
     if hostkey(urlsplit(source['url']).hostname)=='biddit.be':
@@ -605,6 +615,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
