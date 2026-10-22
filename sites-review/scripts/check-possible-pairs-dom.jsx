@@ -4,7 +4,8 @@
 //   esbuild <sites-review>/app/platform.tsx --bundle --platform=node --format=esm --jsx=automatic \
 //     --alias:@/lib=<sites-review>/lib --external:react --external:react-dom --external:lucide-react --outfile=app.mjs
 //   esbuild check-possible-pairs-dom.jsx --bundle --platform=node --format=esm --jsx=automatic \
-//     --external:jsdom --external:react --external:react-dom --external:./app.mjs --outfile=check.mjs && node check.mjs
+//     --external:jsdom --external:react --external:react-dom --external:./app.mjs --external:./domain-server.mjs --outfile=check.mjs
+//   cp <repo>/supabase/functions/sites-platform/domain.mjs domain-server.mjs && node check.mjs
 import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:true});
@@ -57,4 +58,27 @@ await act(async()=>{entry.click()});
 assert.equal($$('.match-card').length,0);
 assert.equal($('select[aria-label="Status podudaranja"]').value,'Kandidat - potrebna provjera');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate.');
+// 3. Audit 6342938279 point 1: a public buyer with a US seat and unknown budget can be saved unchanged.
+const posts=[];
+const kerry={id:12,name:'Kerry County Council',country:'US',min_budget:null,max_budget:null,preferred_countries:'Irska',notes:'Javni oglas',verified:0,
+ criteria_json:JSON.stringify({property_types:['Zemljište'],buyer_kind:'Javno tijelo',call_closed:'Rok istekao',call_deadline:'2026-07-10'})};
+document.body.innerHTML='<div id="root"></div>';
+globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({id:12})}}
+ const d=dataset(true);d.investors=[...d.investors,kerry];return {ok:true,json:async()=>d}};
+root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Investitori')).click()});
+const card=$$('.buyer-card').find(c=>c.textContent.includes('Kerry County Council'));
+await act(async()=>{card.querySelector('.card-button').click()});
+assert.equal($('input[name="country"]').value,'US','seat outside the EU is shown, not replaced');
+assert.equal($('select[name="buyer_kind"]').value,'Javno tijelo');
+assert.equal($('input[name="min_budget"]').value,'');assert.equal($('input[name="max_budget"]').value,'');
+await act(async()=>{$$('button').find(b=>b.textContent.includes('Spremi promjene')).click()});
+await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+const record=posts.find(p=>p.action==='save_investor')?.record;
+assert(record,'save request sent');
+assert.equal(record.country,'US');assert.equal(record.min_budget,null);assert.equal(record.max_budget,null);
+const kept=JSON.parse(record.criteria_json);assert.equal(kept.call_closed,'Rok istekao');assert.equal(kept.buyer_kind,'Javno tijelo');
+const {investorInput}=await import('./domain-server.mjs');
+assert.equal(investorInput(record).max_budget,null,'the server-side validation accepts the same record');
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged.');

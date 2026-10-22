@@ -49,3 +49,5 @@ jobs:
         run: |
           node test_verification.mjs
           node test_public_land.mjs
+          node test_domain_input.mjs
+          node sites-review/scripts/test-platform-view.mjs

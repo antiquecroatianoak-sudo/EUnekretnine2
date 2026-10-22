@@ -58,11 +58,14 @@ export function propertyInput(input){
 }
 export function investorInput(input){
  const out={};for(const k of ['name','country','preferred_countries','notes']){if(typeof input[k]!=='string'||input[k].length>8000)throw Error('Nevaljano polje: '+k);out[k]=input[k].trim()}
- if(!out.name||!Object.values(COUNTRIES).includes(country(out.country)))throw Error('Unesi naziv kupca i državu EU.');
- if(!num(input.min_budget)||!num(input.max_budget)||input.max_budget<=0||input.max_budget<input.min_budget)throw Error('Unesi valjan raspon budžeta.');
+ // The seat may be outside the EU; EU interest is preferred_countries and stays separate.
+ if(!out.name||!out.country||out.country.length>80)throw Error('Unesi naziv kupca i sjedište.');
+ // Unknown budget stays NULL; only known bounds are validated.
+ const low=input.min_budget??null,high=input.max_budget??null;
+ if((low!=null&&!num(low))||(high!=null&&(!num(high)||high<=0))||(low!=null&&high!=null&&high<low))throw Error('Unesi valjan raspon budžeta ili ostavi nepoznat iznos prazan.');
  const c=criteria(input);validateCriteria(c);if(c._invalid)throw Error('Nevaljani kriteriji.');
  if(c.checked_at&&(!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at)||!Number.isFinite(Date.parse(c.checked_at))||Date.parse(c.checked_at)>Date.now()))throw Error('Datum provjere nije valjan.');
  if(![0,1,false,true].includes(input.verified))throw Error('Nevaljana potvrda zahtjeva.');
  if(input.verified&&(!validUrl(c.source_url)||!c.checked_at||!out.preferred_countries||!c.property_types?.length||!c.conditions?.length))throw Error('Za potvrđen zahtjev navedi izvor, datum i kriterije.');
- return {...out,min_budget:input.min_budget,max_budget:input.max_budget,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
+ return {...out,min_budget:low,max_budget:high,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
 }
