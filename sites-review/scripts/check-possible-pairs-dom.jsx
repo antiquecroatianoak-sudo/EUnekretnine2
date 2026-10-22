@@ -31,7 +31,9 @@ let root=await mount(true);
 let entry=button('Mogući parovi');assert(entry,'button on overview');
 assert.equal(entry.querySelector('.nav-count').textContent,'2');
 assert.match(entry.getAttribute('aria-label'),/2 za provjeru/);
-assert(document.body.textContent.includes('Potvrđena podudaranja'),'confirmed matches labelled separately');
+// Criteria matches stay "Podudaranja kriterija": evaluate never confirms a buyer's interest.
+assert(document.body.textContent.includes('Podudaranja kriterija')&&document.body.textContent.includes('Interes kupca još nije potvrđen'));
+assert(!document.body.textContent.includes('Potvrđena podudaranja'),'no label suggests confirmed interest');
 await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Podudaranja')).click()});
 await setValue($('input[aria-label="Pretraživanje"]'),'split');
 await setValue($('select[aria-label="Država"]'),'Hrvatska');
@@ -124,4 +126,4 @@ await act(async()=>{$$('button').find(b=>b.textContent==='Kopiraj opis').click()
 await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert.equal(copied,summary);assert(document.body.textContent.includes('Ništa nije poslano'));assert.equal(posts.length,0,'nothing is sent');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer summary previewed, identifier-free, copied after review, not sent.');
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer summary previewed, identifier-free, copied after review, not sent.');
