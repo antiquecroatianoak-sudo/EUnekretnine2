@@ -90,3 +90,6 @@ Ovaj raspored može dohvaćati poznate javne izvore neovisno o mobitelu nakon po
 - `data/public_land_registry.json` za svaku državu bilježi pronađene službene izvore, status (uvoz testiran, konfiguriran, pronađen, zatvoren, izvan opsega) i zadnju stvarnu provjeru. Države bez otvorenog poziva navedene su izričito, bez glumljenja pokrivenosti.
 - Uvoz javnih poziva bilježi rok, programski iznos i površinu samo kad su objavljeni; zatvoren ili istekao poziv isključuje parove preko postojećeg lifecyclea. Nepoznat budžet ostaje kandidat, nikad potvrđen posao.
 - Pull request pokreće stvarni dohvat bez upisa u bazu (`public-land-probe.yml`). Detalji: `ops/public-land-sources.md`.
+
+## Trajni cilj: potencijalni parovi (22.10.2026.)
+Predloženi parovi nekretnina i kupaca trajno se evidentiraju kao potencijalni parovi s razlozima, neslaganjima, nedostajućim parametrima i zadacima provjere. Potvrda traži dokaz za svaki nedostajući podatak i stvaran interes. Razlikuju se podudaranje kriterija, potvrđen interes i realiziran posao, a pitanja i anonimizirani opis za kupca samo se pripremaju, bez slanja. Cilj, procjena postojećeg stanja i plan koraka: `ops/potential-pairs.md`.
