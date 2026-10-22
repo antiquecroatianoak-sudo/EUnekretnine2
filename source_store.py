@@ -1,7 +1,8 @@
 """Keep automatically discovered candidates separate from reviewed opportunities."""
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from matching import valid_url, number, refresh_matches
+from public_land_sources import keep_closed_state
 
 
 def sync_snapshot(c, snapshot):
@@ -16,7 +17,12 @@ def sync_snapshot(c, snapshot):
         for key in ('first_seen','last_seen'):
             if datetime.fromisoformat(row[key]).tzinfo is None: raise ValueError('Nedostaje vremenska zona dohvata.')
         if not isinstance(row.get('facts'),dict): raise ValueError('Nedostaju izvorne činjenice kandidata.')
+    now=datetime.now(timezone.utc)
     for row in snapshot['candidates']:
+        prior=c.execute('SELECT body_json FROM source_candidates WHERE id=?',(row['id'],)).fetchone()
+        if prior:
+            # Same rule as merge.mjs: missing data in a new fetch never reopens a closed call.
+            row={**row,'facts':keep_closed_state(json.loads(prior['body_json']).get('facts',{}),row['facts'],now)}
         c.execute('INSERT INTO source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,country=excluded.country,url=excluded.url,body_json=excluded.body_json,last_seen=excluded.last_seen WHERE source_candidates.last_seen<=excluded.last_seen',
                   (row['id'],row['source_id'],row['kind'],row['title'],row['country'],row['url'],json.dumps(row,ensure_ascii=False),row['last_seen']))
     for run in snapshot.get('runs',[]):

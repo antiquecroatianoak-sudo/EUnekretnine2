@@ -125,9 +125,12 @@ def evaluate(prop, investor):
     status=norm(prop.get('status'))
     if prop.get('status') in INACTIVE or any(status.startswith(prefix) for prefix in ('prodano','povuceno','rok istekao','zatvoreno')) or expired: rejected.append('Nekretnina više nije aktivna')
     # A public buyer's call that closed or passed its published deadline is no longer demand.
-    call_closed = bool(call.get('call_closed'))
-    if call.get('call_deadline'):
-        try: call_closed = call_closed or datetime.fromisoformat(str(call['call_deadline'])[:10]).date() < datetime.now(timezone.utc).date()
+    # The latest linked source state counts, like the database lifecycle; the investor row stays untouched.
+    linked = investor.get('_call_facts') or {}
+    call_closed = bool(call.get('call_closed')) or linked.get('source_listing_state') in ('expired', 'removed')
+    for deadline in (call.get('call_deadline'), linked.get('deadline')):
+        if not deadline: continue
+        try: call_closed = call_closed or datetime.fromisoformat(str(deadline)[:10]).date() < datetime.now(timezone.utc).date()
         except ValueError: missing.append('Valjan rok javnog poziva kupca')
     if call_closed: rejected.append('Javni poziv kupca je zatvoren ili istekao')
     status = REJECT if rejected else CANDIDATE if missing else MATCH
@@ -138,6 +141,10 @@ def refresh_matches(c):
     """Refresh latest results without committing the caller's transaction."""
     props = [dict(r) for r in c.execute('SELECT * FROM properties')]
     investors = [dict(r) for r in c.execute('SELECT * FROM investors')]
+    linked = {r['investor_id']: json.loads(r['body_json']).get('facts', {}) for r in c.execute(
+        'SELECT investor_id,body_json FROM source_candidates WHERE investor_id IS NOT NULL')}
+    for investor in investors:
+        investor['_call_facts'] = linked.get(investor['id'])
     for prop in props:
         for investor in investors:
             result = evaluate(prop, investor)

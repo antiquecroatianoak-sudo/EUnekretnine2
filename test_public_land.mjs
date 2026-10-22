@@ -1,7 +1,7 @@
 import {strict as assert} from 'node:assert';
 import {suggestion} from './supabase/functions/discovery-sync/suggestions.mjs';
 import {CANDIDATE} from './supabase/functions/discovery-sync/domain.mjs';
-import {mergeCandidate} from './supabase/functions/registry-discovery/merge.mjs';
+import {mergeCandidate,reopens} from './supabase/functions/registry-discovery/merge.mjs';
 const now=Date.parse('2026-10-22T12:00:00Z'),day=new Date(now).toISOString().slice(0,10);
 // A public authority imported from an official call: no budget is published.
 const buyer={id:1,name:'Galway County Council — javna potražnja za zemljištem',preferred_countries:'Irska',min_budget:null,max_budget:null,verified:0,
@@ -45,8 +45,22 @@ assert.equal(m.country,'Irska');
 // Not published in the latest fetch: kept and reported, never silently erased.
 assert.equal(m.facts.deadline,'2026-07-10');
 assert(m.facts.not_observed_in_latest_fetch.includes('deadline'));
-// An explicit state replaces the earlier closure, so a reopened call is not stuck as expired.
-assert.equal(m.facts.source_listing_state,'active');
+// Regression (review on 8caa88a): a closed call is not reopened by missing data.
+assert.equal(m.facts.source_listing_state,'expired','an "active" claim without new evidence is ignored');
+const unknown={...row,facts:{...row.facts,source_listing_state:null,call_currency:'Program objavljen; aktualnost konkretnog poziva nepoznata'}};
+let k=mergeCandidate(existing,unknown,source,now);
+assert.equal(k.facts.source_listing_state,'expired');
+assert.equal(k.facts.call_currency,'Poziv zatvoren ili istekao','a closed record is never relabelled as unknown');
+assert.equal(k.facts.deadline,'2026-07-10');
+assert.equal(k.status,'Provjereno ručno');
+// Reopening needs an explicit active state with a future deadline and its evidence.
+const reopened={...row,facts:{...row.facts,deadline:'2027-04-30',reopen_evidence:'returned by 5pm on Friday 30th April 2027',source_listing_state:'active',call_currency:'Poziv otvoren: objavljen budući rok'}};
+k=mergeCandidate(existing,reopened,source,now);
+assert.equal(k.facts.source_listing_state,'active');
+assert.equal(k.facts.deadline,'2027-04-30');
+assert.equal(mergeCandidate(existing,{...reopened,facts:{...reopened.facts,deadline:'2026-09-01'}},source,now).facts.source_listing_state,'expired','a past deadline is not reopening');
+assert.equal(mergeCandidate(existing,{...reopened,facts:{...reopened.facts,reopen_evidence:null}},source,now).facts.source_listing_state,'expired','no evidence, no reopening');
+assert(reopens(reopened.facts,now)&&!reopens(row.facts,now));
 // A new record never arrives verified.
 assert.equal(mergeCandidate(null,row,source,now).verified,false);
 console.log('Public land matching and merge checks passed.');

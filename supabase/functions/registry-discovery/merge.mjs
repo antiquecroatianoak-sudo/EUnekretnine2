@@ -1,5 +1,12 @@
 import {COUNTRIES} from './domain.mjs';
 import {assessEvidence} from './verification.mjs';
+const CLOSURE_KEYS=['source_listing_state','source_status_evidence','call_currency','availability'];
+// Same rule as public_land_sources.reopens: only an explicit active state with a
+// future deadline is new evidence that a closed call reopened.
+export function reopens(facts,now=Date.now()){
+ const d=String(facts.deadline||''),end=Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(d)?d+'T23:59:59Z':d);
+ return facts.source_listing_state==='active'&&!!facts.reopen_evidence&&Number.isFinite(end)&&end>=now;
+}
 // Merge a fetched candidate into the stored record. Review fields, first_seen and
 // earlier evidence are kept; a field missing from the new fetch is reported, not erased.
 export function mergeCandidate(existing,row,source,now=Date.now()){
@@ -14,6 +21,14 @@ export function mergeCandidate(existing,row,source,now=Date.now()){
   else merged.facts[key]=value;
  }
  merged.facts.not_observed_in_latest_fetch=notObserved;
+ // A closed call stays closed until a fetch brings new evidence; missing data is not reopening.
+ const before=prior.facts||{};
+ if(['expired','removed'].includes(before.source_listing_state)&&!reopens(row.facts,now)){
+  for(const key of CLOSURE_KEYS)if(key in before)merged.facts[key]=before[key];
+  // Older closed records predate these labels; the new fetch must not describe them as unknown.
+  merged.facts.call_currency=before.call_currency||'Poziv zatvoren ili istekao';
+  merged.facts.availability=before.availability||'Poziv je zatvoren ili mu je objavljeni rok istekao; nije aktivna potražnja.';
+ }
  // Never interpret an import timestamp or a reachable page as confirmed interest/availability.
  merged.verification=assessEvidence(merged,now);
  merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';

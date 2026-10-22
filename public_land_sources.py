@@ -131,15 +131,48 @@ def published_terms(text, today):
                      area_evidence=text[max(0, area.start()-60):area.end()+60])
     closed = CLOSED.search(text)
     if closed:
-        terms.update(source_listing_state='expired', source_status_evidence=text[max(0, closed.start()-60):closed.end()+60])
+        terms.update(source_listing_state='expired', call_currency=CALL_CLOSED,
+                     source_status_evidence=text[max(0, closed.start()-60):closed.end()+60])
     elif terms.get('deadline') and date.fromisoformat(terms['deadline']) < today:
-        terms.update(source_listing_state='expired',
+        terms.update(source_listing_state='expired', call_currency=CALL_CLOSED,
                      source_status_evidence='Objavljeni rok '+terms['deadline']+' je istekao: '+terms['deadline_evidence'])
+    elif terms.get('deadline'):
+        # Only a published future deadline is evidence that the call is open (or reopened).
+        terms.update(source_listing_state='active', call_currency=CALL_OPEN, reopen_evidence=terms['deadline_evidence'],
+                     source_status_evidence='Objavljen budući rok '+terms['deadline']+': '+terms['deadline_evidence'])
     else:
-        # Explicit, so a reopened call replaces an earlier 'expired' fact on merge.
-        terms.update(source_listing_state='active',
-                     source_status_evidence='Poziv opažen bez oznake zatvaranja i bez isteklog objavljenog roka')
+        # A programme page without a deadline or closing notice proves neither state.
+        terms.update(call_currency=CALL_UNKNOWN)
     return terms
+
+
+CALL_OPEN = 'Poziv otvoren: objavljen budući rok'
+CALL_CLOSED = 'Poziv zatvoren ili istekao'
+CALL_UNKNOWN = 'Program objavljen; aktualnost konkretnog poziva nepoznata'
+CLOSURE_KEYS = ('source_listing_state', 'source_status_evidence', 'call_currency', 'availability')
+
+
+def reopens(facts, now):
+    """A closed call reopens only with new evidence: an explicit active state and a future deadline."""
+    deadline = facts.get('deadline')
+    try:
+        future = bool(deadline) and date.fromisoformat(str(deadline)[:10]) >= now.date()
+    except ValueError:
+        future = False
+    return facts.get('source_listing_state') == 'active' and bool(facts.get('reopen_evidence')) and future
+
+
+def keep_closed_state(prior, facts, now):
+    """Same rule as merge.mjs: a fetch without new evidence never turns a closed call into demand."""
+    if prior.get('source_listing_state') in ('expired', 'removed') and not reopens(facts, now):
+        facts = {**facts, **{k: prior[k] for k in CLOSURE_KEYS if k in prior}}
+        # Older closed records predate these labels; the new fetch must not describe them as unknown.
+        facts['call_currency'] = prior.get('call_currency') or CALL_CLOSED
+        facts['availability'] = prior.get('availability') or 'Poziv je zatvoren ili mu je objavljeni rok istekao; nije aktivna potražnja.'
+        for key in ('deadline', 'deadline_evidence'):
+            if facts.get(key) is None and prior.get(key) is not None:
+                facts[key] = prior[key]
+    return facts
 
 
 def public_land_record(source, text, now=None):
@@ -164,13 +197,17 @@ def public_land_record(source, text, now=None):
         'intent_evidence': excerpt, 'evidence_excerpt': excerpt,
         'property_types': ['Zemljište'], 'purpose': config['purpose'],
         'budget': None, 'deadline': None,
-        'availability': 'Javni poziv opažen; aktualni rok i potpuni uvjeti zahtijevaju pregled dokumentacije.',
+        'availability': 'Program javne kupnje objavljen; aktualnost konkretnog poziva i uvjeti zahtijevaju pregled dokumentacije.',
         'interest': 'Javna potražnja; interes za pojedinačnu nekretninu nije potvrđen.',
+        # Not observed unless the page states it; null never overwrites an earlier closure on merge.
+        'source_listing_state': None,
     }
     # The existing lifecycle closes pairs from deadline / source_listing_state.
     facts.update(published_terms(text, datetime.fromisoformat(stamp).date()))
     if facts.get('source_listing_state') == 'expired':
         facts['availability'] = 'Poziv je zatvoren ili mu je objavljeni rok istekao; nije aktivna potražnja.'
+    elif facts.get('source_listing_state') == 'active':
+        facts['availability'] = 'Poziv otvoren prema objavljenom budućem roku; uvjeti zahtijevaju pregled dokumentacije.'
     review = [('deadline', 'Rok i otvorenost poziva'), (None, 'Potpuni lokacijski i urbanistički uvjeti'),
               (None, 'Ovlaštenje ponuditelja'), (None, 'Uvjeti sudjelovanja i dokumentacija'),
               ('budget', 'Budžet po lokaciji nije objavljen')]

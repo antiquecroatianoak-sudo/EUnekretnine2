@@ -411,7 +411,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
             print('Public source diagnostic',sid,'title', ' '.join(page.title)[:160], 'text sample',text[:240],flush=True)
             row=public_land_record(source,text,stamp)
             # A closed call is still recorded, so the lifecycle can expire its existing pairs.
-            return [row],dict(source_id=sid,status='Uspješno',checked_at=stamp,pending=[],cycle_seen=[source['url']],pages_processed=1,imported_count=1,exhausted=False,coverage_complete=False,scope='Reviewed official public land acquisition call only',call_state=row['facts']['source_listing_state'],error=None)
+            return [row],dict(source_id=sid,status='Uspješno',checked_at=stamp,pending=[],cycle_seen=[source['url']],pages_processed=1,imported_count=1,exhausted=False,coverage_complete=False,scope='Reviewed official public land acquisition call only',call_state=row['facts']['call_currency'],error=None)
         except Exception as error:
             return [],dict(source_id=sid,status='Pogreška',checked_at=stamp,pending=[],cycle_seen=[],pages_processed=0,imported_count=0,exhausted=False,coverage_complete=False,error=type(error).__name__+': '+str(error)[:240],error_kind=failure_type(error))
     if hostkey(urlsplit(source['url']).hostname)=='immobilier.notaires.fr':

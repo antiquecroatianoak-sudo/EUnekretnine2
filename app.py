@@ -161,7 +161,8 @@ with tabs[6]:
   return json.loads(r['body_json']).get('facts',{}).get('buyer_type')=='public_authority'
  def call_state(r):
   facts=json.loads(r['body_json']).get('facts',{})
-  return 'Zatvoren / istekao' if facts.get('source_listing_state')=='expired' else 'Otvoren pri dohvatu' if public_call(r) else ''
+  if facts.get('source_listing_state') in ('expired','removed'): return 'Zatvoren / istekao'
+  return facts.get('call_currency') or ('Aktualnost poziva nepoznata' if public_call(r) else '')
  kind=st.selectbox('Vrsta kandidata',['Svi','Nekretnine / natječaji','Zahtjevi kupaca','Javni pozivi za zemljište'])
  filtered_candidates=[r for r in candidates if kind=='Svi' or (public_call(r) if kind=='Javni pozivi za zemljište' else r['kind']==('property' if kind=='Nekretnine / natječaji' else 'buyer'))]
  st.dataframe([{**{k:r[k] for k in ('title','country','kind','url','last_seen')},'poziv':call_state(r)} for r in filtered_candidates],use_container_width=True)

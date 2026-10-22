@@ -5,7 +5,7 @@ from public_land_sources import PUBLIC_LAND_CALLS, public_land_record, load_regi
 from probe_public_land import probe, summary
 from source_store import sync_snapshot, prepare_for_review
 from storage import connect
-from matching import ranked_matches, CANDIDATE, REJECT
+from matching import ranked_matches, refresh_matches, CANDIDATE, REJECT
 
 EU={'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'}
 NOW='2026-10-22T12:00:00+00:00'
@@ -28,7 +28,8 @@ class PublicLandTests(unittest.TestCase):
             self.assertIsNone(row['facts']['budget'])
             self.assertIsNone(row['facts']['deadline'])
             self.assertEqual(row['facts']['buyer_type'],'public_authority')
-            self.assertEqual(row['facts']['source_listing_state'],'active')
+            self.assertIsNone(row['facts']['source_listing_state'])
+            self.assertEqual(row['facts']['call_currency'],'Program objavljen; aktualnost konkretnog poziva nepoznata')
             self.assertEqual(row['id'],record(url,text)['id'])
     def test_government_sales_and_generic_pages_are_rejected(self):
         url=next(iter(PUBLIC_LAND_CALLS));source={'id':101,'url':url,'country':'IE'}
@@ -78,6 +79,41 @@ class PublicLandTests(unittest.TestCase):
         # A programme total is never the buyer's per-site budget.
         self.assertIsNone(facts['budget'])
         for key in ('deadline_evidence','budget_evidence','area_evidence'):self.assertTrue(facts[key])
+    def test_closed_call_needs_new_evidence_to_become_demand_again(self):
+        """Regression (review on 8caa88a): a fetch without a deadline is not evidence of reopening."""
+        c=connect(path=':memory:')
+        c.execute("INSERT INTO properties(country,region,title,source,price,renovation,other_costs,property_type,status) VALUES('Irska','Kerry','Zemljište Tralee','https://example.ie/l/1',90000,0,0,'Zemljište','Novo')")
+        call=PHRASES[KERRY.rstrip('/')]
+        def fetch(text):
+            row=record(KERRY,text);row['country']='Irska'
+            row['last_seen']=datetime.now(timezone.utc).isoformat()
+            sync_snapshot(c,{'schema_version':1,'candidates':[row],'runs':[]});refresh_matches(c)
+            stored=json.loads(c.execute('SELECT body_json FROM source_candidates WHERE id=?',(row['id'],)).fetchone()['body_json'])['facts']
+            return row['id'],stored
+        cid,facts=fetch(call)
+        self.assertIsNone(facts['source_listing_state'])
+        _,buyer=prepare_for_review(c,cid)
+        status=lambda:next(m for m in ranked_matches(c) if m['investor_id']==buyer)
+        self.assertEqual(status()['status'],CANDIDATE)
+        # Manual review on the draft must survive every later fetch.
+        c.execute("UPDATE investors SET notes='Ručno provjereno 22.10.' WHERE id=?",(buyer,))
+        _,facts=fetch(call+' Completed forms must be returned by 5pm on Friday 10th July 2026.')
+        self.assertEqual((facts['source_listing_state'],facts['deadline']),('expired','2026-07-10'))
+        self.assertEqual(status()['status'],REJECT)
+        # The deadline disappears from the page: still closed, deadline evidence kept.
+        _,facts=fetch(call)
+        self.assertEqual(facts['source_listing_state'],'expired')
+        self.assertEqual(facts['call_currency'],'Poziv zatvoren ili istekao')
+        self.assertEqual(facts['deadline'],'2026-07-10')
+        self.assertEqual(status()['status'],REJECT)
+        self.assertIn('Javni poziv kupca je zatvoren ili istekao',status()['rejected'])
+        # Only a newly published future deadline reopens it.
+        _,facts=fetch(call+' Completed forms must be returned by 5pm on Friday 30th April 2027.')
+        self.assertEqual((facts['source_listing_state'],facts['deadline']),('active','2027-04-30'))
+        self.assertTrue(facts['reopen_evidence'])
+        self.assertEqual(status()['status'],CANDIDATE)
+        self.assertEqual(c.execute('SELECT notes FROM investors WHERE id=?',(buyer,)).fetchone()['notes'],'Ručno provjereno 22.10.')
+        c.close()
     def test_registry_covers_all_27_members_without_claiming_untested_imports(self):
         registry=load_registry()
         self.assertEqual(set(registry['countries']),EU)
@@ -107,7 +143,7 @@ class PublicLandTests(unittest.TestCase):
                 raise ValueError('robots.txt disallows this URL')
         results={r['url'].rstrip('/'):r for r in probe(load_registry(),fetcher=Fake,now=NOW)}
         self.assertEqual(set(results),set(PUBLIC_LAND_CALLS))
-        self.assertEqual(results['https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition']['result'],'aktivan')
+        self.assertEqual(results['https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition']['result'],'nepoznata aktualnost')
         self.assertEqual(results[KERRY.rstrip('/')]['result'],'zatvoren')
         blocked=results['https://lda.ie/projects/private-land-acquisition']
         self.assertEqual((blocked['result'],blocked['error_kind']),('pogreška','robots_disallowed'))

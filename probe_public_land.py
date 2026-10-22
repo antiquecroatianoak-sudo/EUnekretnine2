@@ -30,7 +30,8 @@ def probe(registry,fetcher=Fetcher,now=None):
             text=' '.join(' '.join(page.text).split())
             result.update(title=' '.join(' '.join(page.title).split())[:200],**diagnostics(text,config))
             facts=public_land_record(source,text,stamp)['facts']
-            result.update(result='zatvoren' if facts.get('source_listing_state')=='expired' else 'aktivan',
+            state=facts.get('source_listing_state')
+            result.update(result={'expired':'zatvoren','active':'otvoren'}.get(state,'nepoznata aktualnost'),call_currency=facts.get('call_currency'),
                           **{k:facts.get(k) for k in ('deadline','programme_budget','min_area','source_status_evidence','deadline_evidence','budget_evidence','area_evidence')})
         except Exception as error:
             result.update(result='pogreška',error=type(error).__name__+': '+str(error)[:240],error_kind=failure_type(error))
@@ -41,7 +42,7 @@ def summary(results):
     lines=['| Država | Institucija | Rezultat | Rok | Programski iznos EUR | Min. površina m² | Napomena |','|---|---|---|---|---|---|---|']
     for r in results:
         lines.append('| {} | {} | {} | {} | {} | {} | {} |'.format(r['country'],r['institution'],r['result'],r.get('deadline') or '—',
-            r.get('programme_budget') or '—',r.get('min_area') or '—',(r.get('error') or r.get('source_status_evidence') or '').replace('|','/')[:160]))
+            r.get('programme_budget') or '—',r.get('min_area') or '—',(r.get('error') or r.get('source_status_evidence') or r.get('call_currency') or '').replace('|','/')[:160]))
     return '\n'.join(lines)
 
 def main(out='public_land_probe.json'):

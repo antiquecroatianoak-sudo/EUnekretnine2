@@ -196,7 +196,7 @@
       "workflow": "public-land-probe.yml (samo čitanje)",
       "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
       "at": "2026-10-22T12:13:58Z",
-      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
      },
      "notes": "Kriteriji (lokacija, gustoća, planska dozvola) su u dokumentaciji programa."
     },
@@ -222,7 +222,7 @@
       "workflow": "public-land-probe.yml (samo čitanje)",
       "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
       "at": "2026-10-22T12:13:58Z",
-      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
      },
      "notes": "Raniji poziv imao je rok 20.6.2024.; stranica i dalje poziva vlasnike stambeno zoniranog zemljišta."
     },
@@ -391,7 +391,7 @@
       "workflow": "public-land-probe.yml (samo čitanje)",
       "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
       "at": "2026-10-22T12:13:58Z",
-      "result": "aktivan; rok i iznos nisu objavljeni na stranici"
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
      },
      "notes": "Poziv obuhvaća stanove i zemljišta za gradnju stanova u cijeloj Sloveniji."
     }
