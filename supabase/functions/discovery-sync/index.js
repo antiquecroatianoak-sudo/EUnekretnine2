@@ -48,7 +48,10 @@ Deno.serve(async req=>{
     if(rows.length)await tx`insert into source_candidates ${tx(rows,'id','source_id','kind','title','country','url','body_json','last_seen')} on conflict(id) do update set title=excluded.title,country=excluded.country,url=excluded.url,body_json=excluded.body_json,last_seen=excluded.last_seen where source_candidates.last_seen<=excluded.last_seen`;
    }
    for(const r of snapshot.runs)await tx`insert into discovery_runs(source_id,status,checked_at,body_json) values(${r.source_id},${r.status},${r.checked_at},${JSON.stringify(r)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
-   for(const row of snapshot.candidates) await tx`select site_private.sync_source_listing(${row.id})`;
+   for(let n=0;n<snapshot.candidates.length;n+=100){
+    const ids=snapshot.candidates.slice(n,n+100).map(row=>row.id);
+    await tx`select site_private.sync_source_listing(cid) from unnest(${ids}::text[]) as cid`;
+   }
    await tx`select site_private.reconcile_listing_lifecycle()`;
    const pairs=await refreshSuggestions(tx),updated=new Date().toISOString();
    return {candidates:snapshot.candidates.length,sources:snapshot.runs.length,pairs,synced_at:updated};
