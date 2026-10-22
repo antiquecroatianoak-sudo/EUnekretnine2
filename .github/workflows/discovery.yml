@@ -8,6 +8,7 @@ on:
       - discovery.py
       - registry_discovery.py
       - public_land_sources.py
+      - verify_public_land_import.py
       - test_public_land_sources.py
       - verification.mjs
       - test_verification.mjs
@@ -18,11 +19,31 @@ on:
 permissions:
   contents: write
   id-token: write
-concurrency:
-  group: discovery-main
-  cancel-in-progress: false
 jobs:
+  public-land-check:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    concurrency:
+      group: public-land-check
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testiraj prepoznavanje službenih javnih kupaca
+        run: python -m unittest -v test_public_land_sources
+      - name: Uvezi tri službena poziva i provjeri uparivanje
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python verify_public_land_import.py
   scan:
+    concurrency:
+      group: discovery-main
+      cancel-in-progress: false
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 35
