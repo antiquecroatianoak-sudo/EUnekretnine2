@@ -31,7 +31,7 @@ Izričita uputa vlasnika, 22.10.2026. (komentar 6342865014 na PR #2). Vrijedi za
 - **Bez slanja i otkrivanja:** nikome se ne šalju poruke niti otkrivaju podaci bez konkretnog odobrenja primatelja, sadržaja i kanala.
 - **Bez novih plaćenih integracija.**
 
-## Procjena postojeće implementacije (repozitorij na `fe3890a`)
+## Procjena postojeće implementacije (repozitorij na `fe3890a`, dopunjeno na `e99d45d`)
 | Zahtjev | Postoji | Nedostaje |
 |---|---|---|
 | Usporedba po parametrima | `evaluate` u Pythonu (`matching.py`) i JS-u (`domain.mjs`, `suggestions.mjs`): razlozi (`reasons`), nedostajući podaci (`missing`), neslaganja (`rejected`) | — |
@@ -57,6 +57,16 @@ Izričita uputa vlasnika, 22.10.2026. (komentar 6342865014 na PR #2). Vrijedi za
    - Prilozi su isključeni dok se ne provjere.
    - Regresije curenja identifikatora.
 6. **Gumb „Mogući parovi”** prelazi na trajnu evidenciju; broj i popis ostaju iz istog izvora.
+
+## Stanje provedbe (22.10.2026., audit 6342938279)
+- `fab8cdd`: Sites obrazac i aktivni `investorInput` prihvaćaju nepoznat budžet (NULL) i sjedište izvan EU-a. EU interes ostaje zaseban. Profil „Javno tijelo” se čuva.
+- `6bb9f65`: dokaziva provjera dodatnih uvjeta (`notes_check`, `source_conditions_check`), s datumom, dokazom i otiskom sadržaja (isti u `domain.mjs` i `matching.py`). Bilješke se ne brišu, a svaka promjena teksta vraća ručnu provjeru.
+- `e99d45d`: siguran opis za kupca (`sites-review/lib/teaser.mjs`): samo dopuštena polja, provjera curenja, pregled prije kopiranja, bez slanja.
+- **Blokirano, točke 3 i 4 audita:** API i detalj para (pitanja, odgovori, dokaz, status), potvrda interesa i realizacija odvojene od `i.verified` i `MATCH`, te trajna povijest para. Prema issueu #1, `match_review_tasks` je izravno primijenjena funkcija baze. Ona, kao i veze `match_results`, nije u repozitoriju, a ovo okruženje nema pristup bazi. Gradnja bez stvarne sheme mogla bi duplicirati ili prekinuti postojeće provjere. Treba pokrenuti `ops/pair-review-schema-export.sql` (samo čitanje) i rezultat prenijeti u repozitorij. Nakon toga slijedi aditivna migracija s regresijama za očuvanje ručnih provjera, nepotvrđene odgovore koji ne zatvaraju provjeru i to da ponovni izračun ne briše povijest.
+- Mjesta koja mijenja trajna evidencija:
+  - `refreshSuggestions` (`supabase/functions/discovery-sync/refresh-suggestions.mjs`) briše parove kojima se `updated` razlikuje od zadnjeg izračuna;
+  - `refresh` u `sites-platform/index.js` prepisuje rezultat;
+  - `reconcile_listing_lifecycle` arhivira u `excluded_match_history` samo istekle i uklonjene parove.
 
 ## Ograničenja
 - Ništa od navedenog ne šalje poruke niti otkriva podatke.
