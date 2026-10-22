@@ -104,4 +104,24 @@ assert.equal(noteCheck.digest,server.digest('Samo uz prugu'));assert(!('notes_co
 assert(server.checkValid(noteCheck,'Samo uz prugu')&&!server.checkValid(noteCheck,'Samo uz prugu i Trešnjevka'));
 server.investorInput(noteRecord);
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text.');
+// 5. Audit 6342938279 point 5: buyer summary is previewed, copied only after review, never sent.
+posts.length=0;let copied=null;
+Object.defineProperty(globalThis.navigator,'clipboard',{value:{writeText:async t=>{copied=t}},configurable:true});
+document.body.innerHTML='<div id="root"></div>';
+globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({})}}
+ const d=dataset(true);d.properties[0]={...d.properties[0],title:'Zemljište Galway Oranmore Road 12',source:'https://www.daft.ie/x/5412345',city:'Oranmore',property_type:'Zemljište',area:6120,price:243500};return {ok:true,json:async()=>d}};
+root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+await act(async()=>{button('Mogući parovi').click()});
+const galway=$$('.match-card').find(c=>c.textContent.includes('Oranmore Road'));
+await act(async()=>{[...galway.querySelectorAll('button')].find(b=>b.textContent==='Opis za kupca').click()});
+const summary=$('textarea[aria-label="Opis za kupca"]').value;
+assert(summary.includes('Okvirna lokacija: Galway, Irska')&&summary.includes('Površina: oko 6.100 m²'));
+for(const secret of ['Oranmore','Road','daft','5412345','243.500'])assert(!summary.includes(secret),'leaked '+secret);
+const copyButton=$$('button').find(b=>b.textContent==='Kopiraj opis');
+assert.equal(copyButton.disabled,true,'copy needs a review first');
+await act(async()=>{$('input[name="teaser_reviewed"]').click()});
+await act(async()=>{$$('button').find(b=>b.textContent==='Kopiraj opis').click()});
+await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+assert.equal(copied,summary);assert(document.body.textContent.includes('Ništa nije poslano'));assert.equal(posts.length,0,'nothing is sent');
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer summary previewed, identifier-free, copied after review, not sent.');
