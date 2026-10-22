@@ -1,0 +1,60 @@
+// Real click check of the "Mogući parovi" entry in the rendered Dashboard (jsdom).
+// Not part of the app build and not added to package.json. To run, in a folder with
+// react@19.2.6, react-dom@19.2.6, lucide-react@1.31.0, jsdom@26.1.0 and esbuild installed:
+//   esbuild <sites-review>/app/platform.tsx --bundle --platform=node --format=esm --jsx=automatic \
+//     --alias:@/lib=<sites-review>/lib --external:react --external:react-dom --external:lucide-react --outfile=app.mjs
+//   esbuild check-possible-pairs-dom.jsx --bundle --platform=node --format=esm --jsx=automatic \
+//     --external:jsdom --external:react --external:react-dom --external:./app.mjs --outfile=check.mjs && node check.mjs
+import {JSDOM} from 'jsdom';
+import assert from 'node:assert/strict';
+const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:true});
+Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,Event:dom.window.Event,IS_REACT_ACT_ENVIRONMENT:true});
+const {createRoot}=await import('react-dom/client');const {act}=await import('react');
+const {default:Dashboard}=await import('./app.mjs');
+const r=(status,score)=>JSON.stringify({status,score,reasons:[],missing:[],rejected:[]});
+function dataset(withCandidates){return {properties:[{id:1,title:'Zemljište Galway',country:'Irska',region:'Galway'},{id:2,title:'Stan Split',country:'Hrvatska',city:'Split'},{id:3,title:'Kuća Ljubljana',country:'Slovenija'}],
+ investors:[{id:10,name:'Galway County Council'},{id:11,name:'Investitor d.o.o.'}],sources:[],source_candidates:[],discovery_runs:[],
+ match_results:[...(withCandidates?[{property_id:1,investor_id:10,result_json:r('Kandidat - potrebna provjera',60)},{property_id:3,investor_id:11,result_json:r('Kandidat - potrebna provjera',40)}]:[]),
+  {property_id:2,investor_id:11,result_json:r('Podudaranje kriterija',100)},{property_id:2,investor_id:10,result_json:r('Ne odgovara kriterijima',20)}]};}
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const button=text=>$$('button').find(b=>b.textContent.includes(text));
+const setValue=async(el,v)=>{await act(async()=>{const set=Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el),'value').set;set.call(el,v);el.dispatchEvent(new window.Event(el.tagName==='SELECT'?'change':'input',{bubbles:true}))})};
+async function mount(withCandidates){
+ document.body.innerHTML='<div id="root"></div>';
+ globalThis.fetch=async()=>({ok:true,json:async()=>dataset(withCandidates)});
+ const root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+ return root;
+}
+// 1. Count on the overview and a click after stale filters on the matches page.
+let root=await mount(true);
+let entry=button('Mogući parovi');assert(entry,'button on overview');
+assert.equal(entry.querySelector('.nav-count').textContent,'2');
+assert.match(entry.getAttribute('aria-label'),/2 za provjeru/);
+assert(document.body.textContent.includes('Potvrđena podudaranja'),'confirmed matches labelled separately');
+await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Podudaranja')).click()});
+await setValue($('input[aria-label="Pretraživanje"]'),'split');
+await setValue($('select[aria-label="Država"]'),'Hrvatska');
+await setValue($('select[aria-label="Status podudaranja"]'),'Podudaranje kriterija');
+assert.equal($$('.match-card').length,1,'stale filters show only the confirmed match');
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal($('h1').textContent,'Podudaranja');
+assert.equal($('select[aria-label="Status podudaranja"]').value,'Kandidat - potrebna provjera');
+assert.equal($('input[aria-label="Pretraživanje"]').value,'');
+assert.equal($('select[aria-label="Država"]').value,'Sve države');
+assert.deepEqual($$('.match-card h3').map(h=>h.textContent),['Zemljište Galway','Kuća Ljubljana']);
+assert(!$$('.match-card .pill').some(p=>p.textContent==='Podudaranje kriterija'),'no confirmed match in the candidate view');
+// From the overview too.
+await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Pregled')).click()});
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal($$('.match-card').length,2);
+await act(async()=>root.unmount());
+// 2. Zero candidates: count 0, the list is empty and never falls back to other statuses.
+root=await mount(false);
+entry=button('Mogući parovi');
+assert.equal(entry.querySelector('.nav-count').textContent,'0');
+assert.match(entry.title,/nema mogućih parova/);
+await act(async()=>{entry.click()});
+assert.equal($$('.match-card').length,0);
+assert.equal($('select[aria-label="Status podudaranja"]').value,'Kandidat - potrebna provjera');
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate.');

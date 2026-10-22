@@ -1,4 +1,12 @@
-import {MATCH,CANDIDATE,REJECT} from './domain.mjs';
+import {MATCH,CANDIDATE,REJECT,country} from './domain.mjs';
+// Possible pairs are stored candidates only; they are never shown as confirmed matches.
+export const possiblePairs=matches=>matches.filter(m=>m.status===CANDIDATE);
+// The "Mogući parovi" entry point: earlier filters must not hide any candidate.
+export const possiblePairsFilters=()=>({tab:'Podudaranja',matchStatus:CANDIDATE,query:'',filterCountry:'Sve države',page:1});
+export function filterMatches(matches,{query='',filterCountry='Sve države',matchStatus='Svi rezultati'}={}){
+ const search=v=>JSON.stringify(v).toLocaleLowerCase('hr').includes(query.toLocaleLowerCase('hr'));
+ return matches.filter(m=>search([m.property.title,m.property.city,m.property.region,country(m.property.country),m.investor.name])&&(filterCountry==='Sve države'||country(m.property.country)===filterCountry)&&(matchStatus==='Svi rezultati'||m.status===matchStatus));
+}
 export function jsonObject(value){
  try {const parsed=typeof value==='string'?JSON.parse(value):value;return parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{}}catch{return {}}
 }
