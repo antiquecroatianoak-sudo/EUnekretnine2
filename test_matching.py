@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from matching import evaluate, refresh_matches, ranked_matches, MATCH, REJECT, CANDIDATE
+from matching import evaluate, refresh_matches, ranked_matches, digest, MATCH, REJECT, CANDIDATE
 from storage import connect
 
 class MatchingTests(unittest.TestCase):
@@ -32,6 +32,25 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(result['status'], MATCH)
         self.assertEqual(result['total_cost'], 170)
         self.assertEqual(result['score'], 100)
+    def test_note_needs_dated_check_of_exact_text_not_deletion(self):
+        # Audit 6342938279 point 2, reproduced: valid criteria and evidence + a note => candidate.
+        self.buyer['notes']='Uvjeti provjereni'
+        self.assertEqual(self.result()['status'],CANDIDATE)
+        self.assertIn('Dodatni uvjeti iz napomena za ručnu provjeru',self.result()['missing'])
+        stamp=(datetime.now(timezone.utc)-timedelta(days=1)).isoformat()
+        self.criteria['notes_check']=dict(digest=digest('Uvjeti provjereni'),checked_at=stamp,evidence='Potvrđeno e-poštom 21.10.')
+        self.assertEqual(self.result()['status'],MATCH)
+        self.assertEqual(digest('  Uvjeti\nprovjereni '),digest('Uvjeti provjereni'))
+        self.buyer['notes']='Uvjeti provjereni; samo uz prugu'
+        self.assertEqual(self.result()['status'],CANDIDATE,'changed note invalidates the check')
+        self.buyer['notes']='Uvjeti provjereni'
+        self.criteria['notes_check']['checked_at']=(datetime.now(timezone.utc)-timedelta(days=91)).isoformat()
+        self.assertEqual(self.result()['status'],CANDIDATE,'check older than 90 days')
+        self.criteria['notes_check'].update(checked_at=stamp,evidence=' ')
+        self.assertEqual(self.result()['status'],CANDIDATE,'no evidence, no check')
+        # Same fingerprints as digest() in domain.mjs.
+        for text,value in [('','811c9dc5'),('Uvjeti provjereni','aa411872'),('Šibenik – zemljište ≥ 1.000 m²','72db6e92')]:
+            self.assertEqual(digest(text),value)
     def test_budget_uses_all_costs_not_asking_price(self):
         self.buyer['max_budget'] = 120
         self.assertEqual(self.result()['status'], REJECT)

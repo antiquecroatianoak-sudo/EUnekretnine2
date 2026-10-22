@@ -1,4 +1,4 @@
-import {evaluate,criteria,country,norm,validUrl,num,TYPES,CANDIDATE,REJECT} from './domain.mjs';
+import {evaluate,criteria,country,norm,validUrl,num,TYPES,CANDIDATE,REJECT,checkValid,sourceConditions} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -37,9 +37,11 @@ export function suggestion(p,i,now=Date.now()){
  if(num(i.max_budget)&&num(p.price)&&p.price>i.max_budget)return null;
  if(result.total_cost!==null&&num(i.max_budget)&&result.total_cost>i.max_budget)return null;
  const legacy=originalTypes.some((v,n)=>v!==mapped[n]);
- if(legacy||mapped.some(v=>!v))result.missing.push('Provjera izvornog opisa vrste i namjene nekretnine');
- if(raw.preferred_locations?.length||raw.locations?.length)result.missing.push('Provjera izvornih lokacijskih uvjeta kupca');
- if(raw.required_criteria?.length||raw.required?.property_type)result.missing.push('Provjera dodatnih izvornih uvjeta kupca');
+ // A dated check with evidence covers the original wording until that wording changes.
+ const sourceChecked=checkValid(raw.source_conditions_check,sourceConditions(raw),now);
+ if(!sourceChecked&&(legacy||mapped.some(v=>!v)))result.missing.push('Provjera izvornog opisa vrste i namjene nekretnine');
+ if(!sourceChecked&&(raw.preferred_locations?.length||raw.locations?.length))result.missing.push('Provjera izvornih lokacijskih uvjeta kupca');
+ if(!sourceChecked&&(raw.required_criteria?.length||raw.required?.property_type))result.missing.push('Provjera dodatnih izvornih uvjeta kupca');
  const stamp=Date.parse(p.source_checked_on||'');
  if(!Number.isFinite(stamp)||stamp>now||now-stamp>30*86400000)result.missing.push('Aktualnost izvora nekretnine nije potvrđena unutar 30 dana');
  if(!['Aktivno','Provjereno','Novo - aktivna dražba'].includes(p.status))result.missing.push('Potrebna potvrda aktivnosti oglasa');

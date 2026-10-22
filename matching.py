@@ -50,6 +50,26 @@ def fresh_evidence(criteria, today=None):
     except (ValueError, TypeError):
         return False
 
+def digest(value):
+    """FNV-1a over UTF-16 units of whitespace-normalised text; equal to digest() in domain.mjs."""
+    text = ' '.join(str(value if value is not None else '').split())
+    units = text.encode('utf-16-le')
+    h = 0x811c9dc5
+    for i in range(0, len(units), 2):
+        h = ((h ^ int.from_bytes(units[i:i + 2], 'little')) * 0x01000193) & 0xffffffff
+    return format(h, '08x')
+
+def check_valid(check, text, now=None):
+    """A recorded check counts only for the exact checked text, within 90 days and with evidence."""
+    if not isinstance(check, dict) or not isinstance(check.get('evidence'), str) or not check['evidence'].strip():
+        return False
+    try:
+        checked = datetime.fromisoformat(str(check.get('checked_at')).replace('Z', '+00:00'))
+        age = ((now or datetime.now(timezone.utc)) - checked).total_seconds()
+    except (ValueError, TypeError):
+        return False
+    return checked.tzinfo is not None and 0 <= age <= 90 * 86400 and check.get('digest') == digest(text)
+
 def validate_criteria(criteria):
     for key, allowed in [('property_types', PROPERTY_TYPES), ('conditions', CONDITIONS)]:
         values = criteria.get(key, [])
@@ -109,7 +129,7 @@ def evaluate(prop, investor):
         check('Minimalni jednostavni ROI', roi is not None and valid_url(prop.get('valuation_evidence_url')), roi is not None and roi >= criteria['min_roi'])
     if not investor.get('verified') or not fresh_evidence(criteria):
         missing.append('Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana')
-    if (investor.get('notes') or '').strip():
+    if (investor.get('notes') or '').strip() and not check_valid(criteria.get('notes_check'), investor.get('notes')):
         missing.append('Dodatni uvjeti iz napomena za ručnu provjeru')
     if not valid_url(prop.get('source')): missing.append('Izvor oglasa')
     if prop.get('legal') == 'Komplikacije': rejected.append('Pravne komplikacije')

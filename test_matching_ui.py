@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 from datetime import datetime, timezone
 import storage
-from matching import ranked_matches, MATCH, REJECT
+from matching import ranked_matches, refresh_matches, MATCH, REJECT
 from streamlit.testing.v1 import AppTest
 
 class MatchingUITests(unittest.TestCase):
@@ -104,6 +104,26 @@ class MatchingUITests(unittest.TestCase):
         for key in ('call_deadline','call_closed','listing_kind','candidate_source_id'):self.assertEqual(stored[key],criteria[key])
         self.assertEqual(pair['status'],REJECT)
         self.assertIn('Javni poziv kupca je zatvoren ili istekao',pair['rejected'])
+    def test_note_check_is_recorded_for_exact_text_and_note_is_kept(self):
+        criteria={'property_types':['Zemljište'],'conditions':['Neizgrađeno'],'source_url':'https://example.ie/eoi','checked_at':datetime.now(timezone.utc).isoformat()}
+        c=self.original(path=self.db)
+        c.execute("INSERT INTO properties(country,title,source,price,renovation,other_costs,property_type,condition,status,legal,legal_evidence_url) VALUES('Irska','TEST zemljište','https://example.ie/l/1',90000,0,0,'Zemljište','Neizgrađeno','Novo','Uredno','https://example.ie/legal')")
+        buyer=c.execute("INSERT INTO investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) VALUES('TEST kupac','Irska',0,100000,'Irska','Samo uz prugu',1,?) RETURNING id",(json.dumps(criteria),)).fetchone()['id']
+        c.commit();c.close();self.app.run()
+        self.field('selectbox','Novi kupac ili uređivanje zahtjeva').set_value(buyer).run()
+        self.field('checkbox','Dodatni uvjeti iz trenutne bilješke provjereni su uz dokaz').check()
+        self.field('button','Spremi kupca i kriterije').click().run()
+        self.assertTrue(any('dokaz' in e.value for e in self.app.error),'a check without evidence is refused')
+        self.field('checkbox','Dodatni uvjeti iz trenutne bilješke provjereni su uz dokaz').check()
+        self.set_field('text_input','Dokaz provjere dodatnih uvjeta (izvor, kanal, datum)','E-pošta ureda 21.10.')
+        self.submit('Spremi kupca i kriterije')
+        c=self.original(path=self.db);row=dict(c.execute('SELECT notes,criteria_json FROM investors WHERE id=?',(buyer,)).fetchone())
+        self.assertEqual(row['notes'],'Samo uz prugu')
+        self.assertEqual(json.loads(row['criteria_json'])['notes_check']['evidence'],'E-pošta ureda 21.10.')
+        self.assertEqual(next(m for m in ranked_matches(c) if m['investor_id']==buyer)['status'],MATCH)
+        # Editing the note afterwards brings the manual check back.
+        c.execute("UPDATE investors SET notes='Samo uz prugu i Trešnjevka' WHERE id=?",(buyer,));refresh_matches(c);c.commit()
+        self.assertIn('Dodatni uvjeti iz napomena za ručnu provjeru',next(m for m in ranked_matches(c) if m['investor_id']==buyer)['missing']);c.close()
     def test_known_budget_bounds_are_still_validated(self):
         c=self.original(path=self.db);c.close()
         self.set_field('text_input','Naziv kupca / tvrtke','TEST')

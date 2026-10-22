@@ -81,4 +81,27 @@ const kept=JSON.parse(record.criteria_json);assert.equal(kept.call_closed,'Rok i
 const {investorInput}=await import('./domain-server.mjs');
 assert.equal(investorInput(record).max_budget,null,'the server-side validation accepts the same record');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged.');
+// 4. Audit 6342938279 point 2: a note check needs evidence and is bound to the exact note text.
+posts.length=0;
+document.body.innerHTML='<div id="root"></div>';
+const noted={...kerry,id:13,name:'Investitor s bilješkom',country:'Irska',notes:'Samo uz prugu',criteria_json:JSON.stringify({property_types:['Zemljište']})};
+globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({id:13})}}
+ const d=dataset(true);d.investors=[...d.investors,noted];return {ok:true,json:async()=>d}};
+root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Investitori')).click()});
+await act(async()=>{$$('.buyer-card').find(c=>c.textContent.includes('Investitor s bilješkom')).querySelector('.card-button').click()});
+assert(document.body.textContent.includes('Dodatni uvjeti još nisu provjereni'));
+await act(async()=>{$('input[name="notes_confirm"]').click()});
+await act(async()=>{$('form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}))});
+assert(document.body.textContent.includes('upiši bilješku i dokaz provjere'),'no evidence, no check');assert.equal(posts.length,0);
+await setValue($('input[name="notes_evidence"]'),'E-pošta ureda 21.10.');
+await act(async()=>{$$('button').find(b=>b.textContent.includes('Spremi promjene')).click()});
+await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+const noteRecord=posts.find(p=>p.action==='save_investor').record,noteCheck=JSON.parse(noteRecord.criteria_json).notes_check;
+const server=await import('./domain-server.mjs');
+assert.equal(noteRecord.notes,'Samo uz prugu');assert.equal(noteCheck.evidence,'E-pošta ureda 21.10.');
+assert.equal(noteCheck.digest,server.digest('Samo uz prugu'));assert(!('notes_confirm' in noteRecord)&&!('notes_evidence' in noteRecord),'draft-only fields are not sent');
+assert(server.checkValid(noteCheck,'Samo uz prugu')&&!server.checkValid(noteCheck,'Samo uz prugu i Trešnjevka'));
+server.investorInput(noteRecord);
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, confirmed separate; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text.');

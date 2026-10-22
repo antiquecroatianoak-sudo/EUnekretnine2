@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timezone
 import streamlit as st
-from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name
+from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name, digest, check_valid
 
 
 def property_form(c, props, countries):
@@ -84,6 +84,13 @@ def investor_form(c, investors, countries):
         buildable = st.checkbox('Traži dokazanu mogućnost planirane gradnje', value=bool(criteria.get('requires_buildable')))
         notes = st.text_area('Dodatni uvjeti / napomene', value=i.get('notes') or '')
         st.caption('Dodatni uvjeti iz napomena provjeravaju se ručno; ne ulaze u automatsku ocjenu.')
+        # A dated check with evidence covers exactly this note text; any later change needs a new check.
+        if notes.strip() and check_valid(criteria.get('notes_check'), notes):
+            st.caption('Provjera dodatnih uvjeta vrijedi: ' + criteria['notes_check']['checked_at'][:10] + ' · ' + criteria['notes_check']['evidence'])
+        elif criteria.get('notes_check'):
+            st.caption('Ranija provjera ne vrijedi: bilješka je promijenjena ili je provjera starija od 90 dana.')
+        notes_confirm = st.checkbox('Dodatni uvjeti iz trenutne bilješke provjereni su uz dokaz', value=False)
+        notes_evidence = st.text_input('Dokaz provjere dodatnih uvjeta (izvor, kanal, datum)', value='')
         source = st.text_input('URL dokaza zahtjeva kupca', value=criteria.get('source_url') or '')
         checked = st.text_input('Datum provjere zahtjeva (YYYY-MM-DD)', value=(criteria.get('checked_at') or '')[:10])
         verified = st.checkbox('Zahtjev i kriteriji kupca potvrđeni su na navedenom izvoru', value=bool(i.get('verified')))
@@ -94,9 +101,11 @@ def investor_form(c, investors, countries):
                 stamp = datetime.strptime(checked, '%Y-%m-%d').replace(tzinfo=timezone.utc).isoformat() if checked else None
                 if stamp and datetime.fromisoformat(stamp).date() > datetime.now(timezone.utc).date(): raise ValueError('Datum provjere ne smije biti u budućnosti.')
                 if verified and (not source or not stamp or not prefs or not types or not conditions): raise ValueError('Za potvrđen zahtjev navedi izvor, datum, države, vrste i prihvatljiva stanja.')
+                if notes_confirm and (not notes.strip() or not notes_evidence.strip()): raise ValueError('Za provjeru dodatnih uvjeta upiši bilješku i dokaz provjere.')
                 # Change only the fields this form manages; source keys such as call state stay.
                 criteria = {k: v for k, v in criteria.items() if k != '_invalid'}
                 criteria.update(buyer_kind=buyer_kind,property_types=types,conditions=conditions,cities=[v.strip() for v in cities.split(',') if v.strip()],regions=[v.strip() for v in regions.split(',') if v.strip()],min_area=mina,max_area=maxa,min_roi=minroi,requires_buildable=buildable,source_url=source.strip(),checked_at=stamp)
+                if notes_confirm: criteria['notes_check'] = dict(digest=digest(notes), checked_at=datetime.now(timezone.utc).isoformat(), evidence=notes_evidence.strip())
                 validate_criteria(criteria)
                 fields = dict(name=name.strip(),country=country,min_budget=low,max_budget=high,preferred_countries=','.join(prefs),notes=notes,verified=int(verified),criteria_json=json.dumps(criteria,ensure_ascii=False))
                 if selected is None:

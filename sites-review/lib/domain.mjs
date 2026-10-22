@@ -7,6 +7,15 @@ export const norm=v=>String(v||'').toLocaleLowerCase('hr').normalize('NFKD').rep
 export const num=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
 export const validUrl=v=>{try{return typeof v==='string'&&['https:','http:'].includes(new URL(v).protocol)}catch{return false}};
 export const criteria=i=>{try{const c=typeof i.criteria_json==='string'?JSON.parse(i.criteria_json):i.criteria_json||{};return c&&typeof c==='object'&&!Array.isArray(c)?c:{_invalid:true}}catch{return {_invalid:true}}};
+// Content fingerprint: FNV-1a over UTF-16 units of whitespace-normalised text (same as matching.digest).
+export function digest(v){const s=String(v??'').replace(/\s+/g,' ').trim();let h=0x811c9dc5;for(let k=0;k<s.length;k++){h^=s.charCodeAt(k);h=Math.imul(h,0x01000193)>>>0}return h.toString(16).padStart(8,'0')}
+// A recorded check counts only for the exact checked text, within 90 days and with evidence.
+export function checkValid(check,text,now=Date.now()){
+ if(!check||typeof check!=='object')return false;const t=Date.parse(check.checked_at);
+ return check.digest===digest(text)&&/(Z|[+-]\d\d:\d\d)$/.test(check.checked_at||'')&&Number.isFinite(t)&&t<=now&&now-t<=90*86400000&&typeof check.evidence==='string'&&check.evidence.trim().length>0;
+}
+// Original source wording that the structured criteria cannot express.
+export const sourceConditions=c=>JSON.stringify([c.property_types??null,c.preferred_locations??null,c.locations??null,c.required_criteria??null,c.required??null]);
 export function validateCriteria(c){
  for(const [k,allowed] of [['property_types',TYPES],['conditions',CONDITIONS]])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>!allowed.includes(v)))throw Error('Nepoznati kriteriji: '+k);
  for(const k of ['cities','regions'])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>typeof v!=='string'||!v.trim()))throw Error('Lokacije moraju biti popis naziva.');
@@ -32,7 +41,7 @@ export function evaluate(p,i,now=Date.now()){
  if(c.min_roi!=null)check('Minimalni jednostavni ROI',roi!==null&&validUrl(p.valuation_evidence_url),roi!==null&&roi>=c.min_roi);
  const checked=Date.parse(c.checked_at),age=now-checked;
  if(!i.verified||!Number.isFinite(checked)||!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at||'')||age<0||age>90*86400000||!validUrl(c.source_url))missing.push('Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana');
- if(String(i.notes||'').trim())missing.push('Dodatni uvjeti iz napomena za ručnu provjeru');
+ if(String(i.notes||'').trim()&&!checkValid(c.notes_check,i.notes,now))missing.push('Dodatni uvjeti iz napomena za ručnu provjeru');
  if(!validUrl(p.source))missing.push('Izvor oglasa');
  if(p.legal==='Komplikacije')rejected.push('Pravne komplikacije');else if(p.legal!=='Uredno'||!validUrl(p.legal_evidence_url))missing.push('Dokaz pravne provjere');
  const deadline=p.available_until||p.bid_deadline_at;let expired=false;
@@ -64,6 +73,8 @@ export function investorInput(input){
  const low=input.min_budget??null,high=input.max_budget??null;
  if((low!=null&&!num(low))||(high!=null&&(!num(high)||high<=0))||(low!=null&&high!=null&&high<low))throw Error('Unesi valjan raspon budžeta ili ostavi nepoznat iznos prazan.');
  const c=criteria(input);validateCriteria(c);if(c._invalid)throw Error('Nevaljani kriteriji.');
+ for(const k of ['notes_check','source_conditions_check']){const v=c[k];if(v==null)continue;const t=Date.parse(v?.checked_at);
+  if(typeof v!=='object'||!/^[0-9a-f]{8}$/.test(v.digest||'')||!/(Z|[+-]\d\d:\d\d)$/.test(v.checked_at||'')||!Number.isFinite(t)||t>Date.now()+60000||typeof v.evidence!=='string'||!v.evidence.trim()||v.evidence.length>2000)throw Error('Nevaljana provjera dodatnih uvjeta.')}
  if(c.checked_at&&(!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at)||!Number.isFinite(Date.parse(c.checked_at))||Date.parse(c.checked_at)>Date.now()))throw Error('Datum provjere nije valjan.');
  if(![0,1,false,true].includes(input.verified))throw Error('Nevaljana potvrda zahtjeva.');
  if(input.verified&&(!validUrl(c.source_url)||!c.checked_at||!out.preferred_countries||!c.property_types?.length||!c.conditions?.length))throw Error('Za potvrđen zahtjev navedi izvor, datum i kriterije.');
