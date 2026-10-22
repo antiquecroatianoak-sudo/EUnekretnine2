@@ -34,7 +34,10 @@ class PostgresIntegrationTests(unittest.TestCase):
         self.assertEqual(run(self.c,[item]),0)
         self.assertEqual(ranked_matches(self.c)[0]['status'],MATCH)
         self.assertTrue(self.c.raw.pgconn.ssl_in_use)
+        # A known budget below the cost is informative only (owner correction 6344490047).
         self.c.execute('UPDATE investors SET max_budget=120'); refresh_matches(self.c); self.c.commit()
+        self.assertEqual(ranked_matches(self.c)[0]['status'],MATCH)
+        self.c.execute('UPDATE investors SET criteria_json=?',(json.dumps(dict(criteria,conditions=['Useljivo'])),)); refresh_matches(self.c); self.c.commit()
         self.assertEqual(ranked_matches(self.c)[0]['status'],REJECT)
         self.assertEqual(self.c.execute('SELECT status FROM notification_outbox').fetchone()['status'],'Potrebna ponovna provjera')
         second=connect(url=self.url)

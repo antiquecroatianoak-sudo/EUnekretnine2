@@ -1,4 +1,4 @@
-import {evaluate,criteria,country,norm,validUrl,num,TYPES,CANDIDATE,REJECT,checkValid,sourceConditions} from './domain.mjs';
+import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -16,7 +16,7 @@ const aliases=new Map([
 const type=v=>TYPES.includes(v)?v:aliases.get(norm(v));
 const object=v=>{try{const o=JSON.parse(v);return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch{return {}}};
 
-export function suggestion(p,i,now=Date.now()){
+export function suggestion(p,i,now=Date.now(),pairChecks={}){
  const raw=criteria(i),notes=object(i.notes);if(raw._invalid)return null;
  const c={...raw,source_url:raw.source_url||raw.evidence_url||notes.official_url,
   checked_at:raw.checked_at||notes.checked_at};
@@ -32,21 +32,25 @@ export function suggestion(p,i,now=Date.now()){
  const countries=String(i.preferred_countries||'').trim()||
   (Array.isArray(raw.preferred_countries)?raw.preferred_countries.join(','):'');
  if(!countries||!countries.split(',').map(v=>norm(country(v))).includes(norm(country(p.country))))return null;
- const result=evaluate({...p,property_type:ptype},{...i,preferred_countries:countries,criteria_json:c},now);
+ const result=evaluate({...p,property_type:ptype},{...i,preferred_countries:countries,criteria_json:c},now,pairChecks);
  if(result.status===REJECT)return null;
- if(num(i.max_budget)&&num(p.price)&&p.price>i.max_budget)return null;
- if(result.total_cost!==null&&num(i.max_budget)&&result.total_cost>i.max_budget)return null;
+ // A known budget is informative only (evaluate notes it); an unknown or undisclosed one never drops a pair.
  const legacy=originalTypes.some((v,n)=>v!==mapped[n]);
- // A dated check with evidence covers the original wording until that wording changes.
+ // A dated check with evidence confirms the original wording until it changes. Whether this
+ // property meets those conditions is a separate, pair-specific check bound to its facts.
  const sourceChecked=checkValid(raw.source_conditions_check,sourceConditions(raw),now);
- if(!sourceChecked&&(legacy||mapped.some(v=>!v)))result.missing.push('Provjera izvornog opisa vrste i namjene nekretnine');
- if(!sourceChecked&&(raw.preferred_locations?.length||raw.locations?.length))result.missing.push('Provjera izvornih lokacijskih uvjeta kupca');
- if(!sourceChecked&&(raw.required_criteria?.length||raw.required?.property_type))result.missing.push('Provjera dodatnih izvornih uvjeta kupca');
+ for(const [applies,wording,fulfilment] of [
+  [legacy||mapped.some(v=>!v),'Provjera izvornog opisa vrste i namjene nekretnine','Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'],
+  [raw.preferred_locations?.length||raw.locations?.length,'Provjera izvornih lokacijskih uvjeta kupca','Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'],
+  [raw.required_criteria?.length||raw.required?.property_type,'Provjera dodatnih izvornih uvjeta kupca','Ispunjenje dodatnih izvornih uvjeta kupca za ovu nekretninu']]){
+  if(!applies)continue;
+  if(!sourceChecked)gap(result,wording,'buyer');
+  else if(!checkValid(pairChecks[fulfilment],pairText(sourceConditions(raw),p),now))gap(result,fulfilment,'pair');
+ }
  const stamp=Date.parse(p.source_checked_on||'');
- if(!Number.isFinite(stamp)||stamp>now||now-stamp>30*86400000)result.missing.push('Aktualnost izvora nekretnine nije potvrđena unutar 30 dana');
- if(!['Aktivno','Provjereno','Novo - aktivna dražba'].includes(p.status))result.missing.push('Potrebna potvrda aktivnosti oglasa');
+ if(!Number.isFinite(stamp)||stamp>now||now-stamp>30*86400000)gap(result,'Aktualnost izvora nekretnine nije potvrđena unutar 30 dana','property');
+ if(!['Aktivno','Provjereno','Novo - aktivna dražba'].includes(p.status))gap(result,'Potrebna potvrda aktivnosti oglasa','property');
  if(p.auction_at&&Date.parse(p.auction_at)<now)return null;
- result.missing=[...new Set(result.missing)];
- if(result.missing.length)result.status=CANDIDATE;
+ settle(result);
  return result;
 }

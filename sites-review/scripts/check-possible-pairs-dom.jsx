@@ -115,9 +115,14 @@ globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 await act(async()=>{button('Mogući parovi').click()});
 const galway=$$('.match-card').find(c=>c.textContent.includes('Oranmore Road'));
-await act(async()=>{[...galway.querySelectorAll('button')].find(b=>b.textContent==='Opis za kupca').click()});
+await act(async()=>{[...galway.querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
+// Review 6344298344 point 5: the free-text region field is not used; a region needs explicit confirmation.
+assert($('textarea[aria-label="Opis za kupca"]').value.includes('Okvirna lokacija: Irska\n'));
+await setValue($('input[name="teaser_region"]'),'County Galway');
+assert($('textarea[aria-label="Opis za kupca"]').value.includes('Okvirna lokacija: Irska\n'),'typing alone does not confirm');
+await act(async()=>{$('input[name="teaser_region_confirmed"]').click()});
 const summary=$('textarea[aria-label="Opis za kupca"]').value;
-assert(summary.includes('Okvirna lokacija: Galway, Irska')&&summary.includes('Površina: oko 6.100 m²'));
+assert(summary.includes('Okvirna lokacija: County Galway, Irska')&&summary.includes('Površina: 6.100 – 6.200 m²'));
 for(const secret of ['Oranmore','Road','daft','5412345','243.500'])assert(!summary.includes(secret),'leaked '+secret);
 const copyButton=$$('button').find(b=>b.textContent==='Kopiraj opis');
 assert.equal(copyButton.disabled,true,'copy needs a review first');
@@ -126,4 +131,4 @@ await act(async()=>{$$('button').find(b=>b.textContent==='Kopiraj opis').click()
 await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert.equal(copied,summary);assert(document.body.textContent.includes('Ništa nije poslano'));assert.equal(posts.length,0,'nothing is sent');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer summary previewed, identifier-free, copied after review, not sent.');
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer presentation previewed, region only after confirmation, identifier-free, copied after review, not sent.');

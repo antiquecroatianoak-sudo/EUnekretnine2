@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 from datetime import datetime, timezone
 import storage
-from matching import ranked_matches, refresh_matches, MATCH, REJECT
+from matching import ranked_matches, refresh_matches, MATCH, REJECT, CANDIDATE, PAIR_CONDITION
 from streamlit.testing.v1 import AppTest
 
 class MatchingUITests(unittest.TestCase):
@@ -54,7 +54,9 @@ class MatchingUITests(unittest.TestCase):
         c=self.original(path=self.db)
         results=ranked_matches(c)
         self.assertEqual(len(results),1)
-        self.assertEqual(results[0]['status'],REJECT)
+        # Owner correction 6344490047: a known budget below the cost is shown, not a rejection.
+        self.assertEqual(results[0]['status'],MATCH)
+        self.assertEqual(results[0]['info'],['Ukupni trošak iznad navedenog budžeta kupca (informativno)'])
         self.assertEqual(c.execute('SELECT COUNT(*) AS n FROM investors').fetchone()['n'],1)
         c.close()
     def test_property_without_legal_evidence_cannot_claim_clear(self):
@@ -120,7 +122,11 @@ class MatchingUITests(unittest.TestCase):
         c=self.original(path=self.db);row=dict(c.execute('SELECT notes,criteria_json FROM investors WHERE id=?',(buyer,)).fetchone())
         self.assertEqual(row['notes'],'Samo uz prugu')
         self.assertEqual(json.loads(row['criteria_json'])['notes_check']['evidence'],'E-pošta ureda 21.10.')
-        self.assertEqual(next(m for m in ranked_matches(c) if m['investor_id']==buyer)['status'],MATCH)
+        # The wording is confirmed; whether this listing meets it stays a separate pair check (review 6344298344).
+        pair=next(m for m in ranked_matches(c) if m['investor_id']==buyer)
+        self.assertEqual(pair['status'],CANDIDATE)
+        self.assertIn(PAIR_CONDITION,pair['gaps']['pair'])
+        self.assertNotIn('Dodatni uvjeti iz napomena za ručnu provjeru',pair['missing'])
         # Editing the note afterwards brings the manual check back.
         c.execute("UPDATE investors SET notes='Samo uz prugu i Trešnjevka' WHERE id=?",(buyer,));refresh_matches(c);c.commit()
         self.assertIn('Dodatni uvjeti iz napomena za ručnu provjeru',next(m for m in ranked_matches(c) if m['investor_id']==buyer)['missing']);c.close()

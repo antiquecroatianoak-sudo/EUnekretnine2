@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const copies=['supabase/functions/sites-platform/domain.mjs','supabase/functions/discovery-sync/domain.mjs','supabase/functions/registry-discovery/domain.mjs','sites-review/lib/domain.mjs'];
 const text=f=>readFileSync(new URL(f,import.meta.url),'utf8').trimEnd();
 for(const f of copies.slice(1))assert.equal(text(f),text(copies[0]),f+' differs from '+copies[0]);
-const {investorInput,evaluate,CANDIDATE,MATCH}=await import('./supabase/functions/sites-platform/domain.mjs');
+const {investorInput,evaluate,CANDIDATE,MATCH,PHASE,PAIR_CONDITION,pairText}=await import('./supabase/functions/sites-platform/domain.mjs');
 const base={name:'Kerry County Council',country:'Irska',preferred_countries:'Irska',notes:'',verified:0,
  criteria_json:JSON.stringify({property_types:['Zemljište'],buyer_kind:'Javno tijelo',call_deadline:'2026-07-10',call_closed:'Rok istekao',listing_kind:'public_buy_request'})};
 // Audit 6342938279 point 1: unknown budget stays NULL, a seat outside the EU is kept.
@@ -18,13 +18,22 @@ for(const bad of [{min_budget:500,max_budget:100},{max_budget:0},{min_budget:-1}
  assert.throws(()=>investorInput({...base,...bad}),/budžet/);
 assert.throws(()=>investorInput({...base,country:''}),/sjedište/);
 assert.throws(()=>investorInput({...base,country:'x'.repeat(81)}),/sjedište/);
-// EU interest, not the seat, decides the property country; an unknown budget is never a match.
-const land={country:'Irska',property_type:'Zemljište',source:'https://example.ie/l/1',price:90000,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal'};
+// EU interest, not the seat, decides the property country. Owner correction 6344490047/6344511552:
+// the buyer's budget is optional and never a condition; the property's price stays a core fact.
+const land={id:7,country:'Irska',property_type:'Zemljište',source:'https://example.ie/l/1',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal'};
 const buyer={...base,country:'US',min_budget:null,max_budget:null,verified:1,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString()})};
 let r=evaluate({...land,condition:'Neizgrađeno'},buyer);
-assert.equal(r.status,CANDIDATE);assert(r.reasons.includes('Država'));assert(r.missing.includes('Ukupni trošak unutar budžeta'));
-r=evaluate({...land,condition:'Neizgrađeno'},{...buyer,min_budget:0,max_budget:100000});
-assert.equal(r.status,MATCH,'with a known budget the same pair can match');
+assert.equal(r.status,MATCH,'an undisclosed budget does not block a complete pair');assert(r.reasons.includes('Država'));
+assert.equal(r.phase,PHASE.REAL);assert(!r.missing.length&&!r.info.length);
+r=evaluate({...land,condition:'Neizgrađeno'},{...buyer,min_budget:0,max_budget:50000});
+assert.equal(r.status,MATCH,'a known budget below the price is informative, not a rejection');
+assert.deepEqual(r.info,['Ukupni trošak iznad navedenog budžeta kupca (informativno)']);
+r=evaluate({...land,price:null,condition:'Neizgrađeno'},buyer);
+assert.equal(r.phase,PHASE.PROPERTY);assert.deepEqual(r.gaps.property,['Cijena nekretnine']);
+r=evaluate({...land,area:null,condition:'Neizgrađeno'},buyer);
+assert.deepEqual(r.gaps.property,['Površina nekretnine'],'unknown area is a property gap, never zero');
+r=evaluate({...land,condition:'Za obnovu'},buyer);
+assert.equal(r.status,'Ne odgovara kriterijima','a cheap price never replaces a condition mismatch');
 assert(!evaluate({...land,country:'Hrvatska',condition:'Neizgrađeno'},buyer).reasons.includes('Država'),'the US seat does not widen EU interest');
 
 // Audit 6342938279 point 2: a note is checked once with evidence, not deleted, and the check expires with any change.
@@ -36,8 +45,19 @@ const check=(text,age=day,evidence='Telefonski potvrđeno s uredom, zapisnik 22.
 assert.equal(evaluate(full,mandate(''),now).status,MATCH);
 r=evaluate(full,mandate('Uvjeti provjereni'),now);
 assert.equal(r.status,CANDIDATE,'reproduced: an unchecked note blocks the match');assert(r.missing.includes('Dodatni uvjeti iz napomena za ručnu provjeru'));
-assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now).status,MATCH,'a dated check with evidence of this exact note');
-assert.equal(evaluate(full,mandate('Uvjeti  provjereni\n',check('Uvjeti provjereni')),now).status,MATCH,'whitespace is not a change');
+// Review 6344298344 point 1: checking the note's wording confirms what the buyer asks for, not that
+// this property meets it. The pair stays open until a check bound to this pair's facts exists.
+r=evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now);
+assert.equal(r.status,CANDIDATE);assert.deepEqual(r.missing,[PAIR_CONDITION]);assert.deepEqual(r.gaps.pair,[PAIR_CONDITION]);
+assert.equal(r.phase,PHASE.BUYER,'the property itself is complete');
+const pairCheck=(p,text='Uvjeti provjereni',age=day)=>({[PAIR_CONDITION]:{digest:digest(pairText(text,p)),checked_at:new Date(now-age).toISOString(),evidence:'Prodavatelj dostavio situacijski nacrt 22.10.; udaljenost od pruge 120 m'}});
+assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck(full)).status,MATCH,'pair-specific evidence closes the item');
+assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck({...full,id:8})).status,CANDIDATE,'evidence for another property does not count');
+assert.equal(evaluate({...full,area:5000},mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck(full)).status,CANDIDATE,'a property change invalidates the pair evidence');
+assert.equal(evaluate(full,mandate('Uvjeti provjereni; samo jug',check('Uvjeti provjereni; samo jug')),now,pairCheck(full)).status,CANDIDATE,'a changed condition invalidates the pair evidence');
+assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,{[PAIR_CONDITION]:{...pairCheck(full)[PAIR_CONDITION],evidence:''}}).status,CANDIDATE,'no evidence, no pair check');
+assert.equal(digest(pairText('Samo uz prugu',{id:7,country:'Irska',region:'Galway',area:6120,price:90000.5,title:'Šuma – 1 ha',legal:'Uredno',auction_at:null})),'3fe7dfad','same as matching.pair_text');
+assert.equal(evaluate(full,mandate('Uvjeti  provjereni\n',check('Uvjeti provjereni')),now).missing[0],PAIR_CONDITION,'whitespace is not a change of the note');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni; samo uz prugu',check('Uvjeti provjereni')),now).status,CANDIDATE,'changed note invalidates the check');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni',91*day)),now).status,CANDIDATE,'check older than 90 days');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni',day,' ')),now).status,CANDIDATE,'no evidence, no check');
@@ -55,6 +75,12 @@ const sbuyer=extra=>({...buyer,min_budget:0,max_budget:100000,notes:'',criteria_
 assert(suggestion(listing,sbuyer({}),now).missing.includes('Provjera izvornih lokacijskih uvjeta kupca'));
 const sourceCheck={source_conditions_check:{digest:digest(sourceConditions(sourceRaw)),checked_at:new Date(now-day).toISOString(),evidence:'Karta izvornog poziva pregledana 21.10.'}};
 r=suggestion(listing,sbuyer(sourceCheck),now);
-assert(!r.missing.includes('Provjera izvornih lokacijskih uvjeta kupca'));assert.equal(r.status,MATCH);
+assert(!r.missing.includes('Provjera izvornih lokacijskih uvjeta kupca'));
+// Reproduced review 6344298344: a global check of "Uz tramvajsku prugu" used to make every candidate a match.
+const fulfil='Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu';
+assert.equal(r.status,CANDIDATE);assert.deepEqual(r.gaps.pair,[fulfil]);
+const sc={[fulfil]:{digest:digest(pairText(sourceConditions(sourceRaw),listing)),checked_at:new Date(now-day).toISOString(),evidence:'Karta: parcela 150 m od pruge, provjereno 22.10.'}};
+assert.equal(suggestion(listing,sbuyer(sourceCheck),now,sc).status,MATCH,'only evidence for this property closes it');
+assert.equal(suggestion({...listing,id:9},sbuyer(sourceCheck),now,sc).status,CANDIDATE,'another property stays open');
 assert(suggestion(listing,sbuyer({...sourceCheck,preferred_locations:['Uz tramvajsku prugu','Samo Trešnjevka']}),now).missing.includes('Provjera izvornih lokacijskih uvjeta kupca'),'changed source wording needs a new check');
-console.log('Domain input checks passed: NULL budget, global seat, EU interest, identical copies, dated condition checks.');
+console.log('Domain input checks passed: optional budget, global seat, EU interest, identical copies, pair-specific condition checks.');

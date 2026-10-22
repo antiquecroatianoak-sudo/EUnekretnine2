@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from matching import evaluate, refresh_matches, ranked_matches, digest, MATCH, REJECT, CANDIDATE
+from matching import evaluate, refresh_matches, ranked_matches, digest, pair_text, MATCH, REJECT, CANDIDATE, PHASE, PAIR_CONDITION
 from storage import connect
 
 class MatchingTests(unittest.TestCase):
@@ -12,8 +12,8 @@ class MatchingTests(unittest.TestCase):
         self.prop = dict(country='Hrvatska', city='Zagreb', region='Grad Zagreb', property_type='Zgrada', condition='Za rušenje', price=100., renovation=50., other_costs=20., area=1000., estimated_value=250., source='https://example.org/property', legal='Uredno', legal_evidence_url='https://example.org/legal', valuation_evidence_url='https://example.org/valuation', buildable='Da', planning_evidence_url='https://example.org/planning', status='Novo')
         self.criteria = dict(property_types=['Zgrada'], conditions=['Za rušenje'], cities=['zagreb'], regions=['Grad Zagreb'], min_area=500., max_area=1500., requires_buildable=True, min_roi=20., source_url='https://example.org/mandate', checked_at=datetime.now(timezone.utc).isoformat())
         self.buyer = dict(preferred_countries='Hrvatska', min_budget=0., max_budget=200., verified=1)
-    def result(self):
-        return evaluate(self.prop, dict(self.buyer, criteria_json=json.dumps(self.criteria)))
+    def result(self, pair_checks=None):
+        return evaluate(self.prop, dict(self.buyer, criteria_json=json.dumps(self.criteria)), pair_checks)
     def test_country_codes_match_existing_database_without_rewriting_rows(self):
         self.prop['country']='HR'
         self.assertEqual(self.result()['status'],MATCH)
@@ -39,7 +39,16 @@ class MatchingTests(unittest.TestCase):
         self.assertIn('Dodatni uvjeti iz napomena za ručnu provjeru',self.result()['missing'])
         stamp=(datetime.now(timezone.utc)-timedelta(days=1)).isoformat()
         self.criteria['notes_check']=dict(digest=digest('Uvjeti provjereni'),checked_at=stamp,evidence='Potvrđeno e-poštom 21.10.')
-        self.assertEqual(self.result()['status'],MATCH)
+        # Review 6344298344 point 1: the wording check does not show that this property meets the condition.
+        self.assertEqual(self.result()['missing'],[PAIR_CONDITION])
+        self.assertEqual(self.result()['phase'],PHASE['BUYER'])
+        self.prop['id']=7
+        pair={PAIR_CONDITION:dict(digest=digest(pair_text('Uvjeti provjereni',self.prop)),checked_at=stamp,evidence='Situacijski nacrt prodavatelja 22.10.')}
+        self.assertEqual(self.result(pair)['status'],MATCH)
+        self.assertEqual(self.result(dict(pair))['phase'],PHASE['REAL'])
+        self.prop['area']=900.
+        self.assertEqual(self.result(pair)['status'],CANDIDATE,'a property change invalidates the pair evidence')
+        self.prop['area']=1000.
         self.assertEqual(digest('  Uvjeti\nprovjereni '),digest('Uvjeti provjereni'))
         self.buyer['notes']='Uvjeti provjereni; samo uz prugu'
         self.assertEqual(self.result()['status'],CANDIDATE,'changed note invalidates the check')
@@ -51,9 +60,19 @@ class MatchingTests(unittest.TestCase):
         # Same fingerprints as digest() in domain.mjs.
         for text,value in [('','811c9dc5'),('Uvjeti provjereni','aa411872'),('Šibenik – zemljište ≥ 1.000 m²','72db6e92')]:
             self.assertEqual(digest(text),value)
+        # pair_text() serialises like pairText() in domain.mjs (float 6120.0 as 6120).
+        prop=dict(id=7,country='Irska',region='Galway',area=6120.,price=90000.5,title='Šuma – 1 ha',legal='Uredno',auction_at=None)
+        self.assertEqual(digest(pair_text('Samo uz prugu',prop)),'3fe7dfad')
     def test_budget_uses_all_costs_not_asking_price(self):
+        # Owner correction 6344490047: a known budget is informative, never a rejection or a gap.
         self.buyer['max_budget'] = 120
-        self.assertEqual(self.result()['status'], REJECT)
+        result = self.result()
+        self.assertEqual(result['status'], MATCH)
+        self.assertEqual(result['info'], ['Ukupni trošak iznad navedenog budžeta kupca (informativno)'], 'all costs, not only the asking price')
+        self.buyer.update(min_budget=None, max_budget=None)
+        self.assertEqual(self.result()['status'], MATCH, 'an undisclosed budget does not block a complete pair')
+        self.prop['price'] = None
+        self.assertIn('Cijena nekretnine', self.result()['gaps']['property'], 'the property price stays a core fact')
     def test_wrong_type_or_condition_rejects(self):
         for field, value in [('property_type','Kuća'), ('condition','Useljivo'), ('country','Slovenija'), ('city','Split'), ('region','Istarska'), ('area',100.)]:
             with self.subTest(field=field):
@@ -102,7 +121,7 @@ class MatchingTests(unittest.TestCase):
         refresh_matches(c)
         self.assertEqual(ranked_matches(c)[0]['status'],MATCH)
         c.execute("INSERT INTO notification_outbox(property_id,created_at,message) VALUES(1,'test','test')")
-        c.execute('UPDATE investors SET max_budget=10')
+        c.execute('UPDATE investors SET criteria_json=?',(json.dumps(dict(self.criteria,conditions=['Useljivo'])),))
         refresh_matches(c); refresh_matches(c)
         self.assertEqual(len(ranked_matches(c)),1)
         self.assertEqual(ranked_matches(c)[0]['status'],REJECT)

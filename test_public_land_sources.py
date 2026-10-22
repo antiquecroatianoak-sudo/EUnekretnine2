@@ -165,7 +165,7 @@ class PublicLandTests(unittest.TestCase):
         self.assertEqual(open_buyer['verified'],0)
         pairs={m['investor_id']:m for m in ranked_matches(c)}
         self.assertEqual(pairs[open_id]['status'],CANDIDATE)
-        self.assertIn('Ukupni trošak unutar budžeta',pairs[open_id]['missing'])
+        self.assertFalse([v for v in pairs[open_id]['missing'] if 'budžet' in v],'an unknown budget is never a gap')
         self.assertEqual(pairs[closed_id]['status'],REJECT)
         self.assertIn('Javni poziv kupca je zatvoren ili istekao',pairs[closed_id]['rejected'])
         self.assertEqual(json.loads(open_buyer['criteria_json'])['property_types'],['Zemljište'])
