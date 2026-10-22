@@ -56,7 +56,7 @@ assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni'
 assert.equal(evaluate({...full,area:5000},mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck(full)).status,CANDIDATE,'a property change invalidates the pair evidence');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni; samo jug',check('Uvjeti provjereni; samo jug')),now,pairCheck(full)).status,CANDIDATE,'a changed condition invalidates the pair evidence');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,{[PAIR_CONDITION]:{...pairCheck(full)[PAIR_CONDITION],evidence:''}}).status,CANDIDATE,'no evidence, no pair check');
-assert.equal(digest(pairText('Samo uz prugu',{id:7,country:'Irska',region:'Galway',area:6120,price:90000.5,title:'Šuma – 1 ha',legal:'Uredno',auction_at:null})),'3fe7dfad','same as matching.pair_text');
+assert.equal(digest(pairText('Samo uz prugu',{id:7,country:'Irska',region:'Galway',area:6120,price:90000.5,title:'Šuma – 1 ha',legal:'Uredno',auction_at:null})),'4e3b120b','same as matching.pair_text');
 assert.equal(evaluate(full,mandate('Uvjeti  provjereni\n',check('Uvjeti provjereni')),now).missing[0],PAIR_CONDITION,'whitespace is not a change of the note');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni; samo uz prugu',check('Uvjeti provjereni')),now).status,CANDIDATE,'changed note invalidates the check');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni',91*day)),now).status,CANDIDATE,'check older than 90 days');
@@ -83,4 +83,16 @@ const sc={[fulfil]:{digest:digest(pairText(sourceConditions(sourceRaw),listing))
 assert.equal(suggestion(listing,sbuyer(sourceCheck),now,sc).status,MATCH,'only evidence for this property closes it');
 assert.equal(suggestion({...listing,id:9},sbuyer(sourceCheck),now,sc).status,CANDIDATE,'another property stays open');
 assert(suggestion(listing,sbuyer({...sourceCheck,preferred_locations:['Uz tramvajsku prugu','Samo Trešnjevka']}),now).missing.includes('Provjera izvornih lokacijskih uvjeta kupca'),'changed source wording needs a new check');
+// Question drafts (never sent) and the latest-answer rule for pair checks.
+const {questionDraft,pairCheckMap,conditionText}=await import('./supabase/functions/sites-platform/domain.mjs');
+assert.equal(questionDraft('Dokaz pravne provjere','property').addressed_to,'Prodavatelj');
+assert.match(questionDraft('Cijena nekretnine','property').body,/početna ili minimalna ponuda/);
+assert.equal(questionDraft('Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana','buyer').addressed_to,'Kupac');
+assert.match(questionDraft(PAIR_CONDITION,'pair').body,/bez podataka o kupcu/);
+assert.equal(conditionText(PAIR_CONDITION,{notes:'Samo uz prugu'}),'Samo uz prugu');assert.equal(conditionText('Dokaz pravne provjere',{}),null);
+const answer=(id,status,at)=>({id,property_id:7,investor_id:'10',requirement:PAIR_CONDITION,status,digest:'aa411872',evidence:'E',recorded_at:at});
+assert.equal(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z')]).get('7-10')[PAIR_CONDITION].digest,'aa411872');
+assert.equal(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(2,'Odbačeno','2026-10-21T10:00:00Z')]).get('7-10'),undefined,'a later rejected answer withdraws the check');
+assert.equal(pairCheckMap([answer(1,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).size,0,'an unverified answer never counts');
+assert(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(2,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).get('7-10'),'nor does it withdraw a verification');
 console.log('Domain input checks passed: optional budget, global seat, EU interest, identical copies, pair-specific condition checks.');

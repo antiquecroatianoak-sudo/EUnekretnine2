@@ -62,7 +62,7 @@ class MatchingTests(unittest.TestCase):
             self.assertEqual(digest(text),value)
         # pair_text() serialises like pairText() in domain.mjs (float 6120.0 as 6120).
         prop=dict(id=7,country='Irska',region='Galway',area=6120.,price=90000.5,title='Šuma – 1 ha',legal='Uredno',auction_at=None)
-        self.assertEqual(digest(pair_text('Samo uz prugu',prop)),'3fe7dfad')
+        self.assertEqual(digest(pair_text('Samo uz prugu',prop)),'4e3b120b')
     def test_budget_uses_all_costs_not_asking_price(self):
         # Owner correction 6344490047: a known budget is informative, never a rejection or a gap.
         self.buyer['max_budget'] = 120

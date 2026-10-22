@@ -111,9 +111,11 @@ posts.length=0;let copied=null;
 Object.defineProperty(globalThis.navigator,'clipboard',{value:{writeText:async t=>{copied=t}},configurable:true});
 document.body.innerHTML='<div id="root"></div>';
 globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({})}}
- const d=dataset(true);d.properties[0]={...d.properties[0],title:'Zemljište Galway Oranmore Road 12',source:'https://www.daft.ie/x/5412345',city:'Oranmore',property_type:'Zemljište',area:6120,price:243500};return {ok:true,json:async()=>d}};
+ const d=dataset(true);d.properties[1]={...d.properties[1],title:'Zemljište Galway Oranmore Road 12',country:'Irska',source:'https://www.daft.ie/x/5412345',city:'Oranmore',region:'Galway',property_type:'Zemljište',area:6120,price:243500,price_basis:'Asking price'};return {ok:true,json:async()=>d}};
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
-await act(async()=>{button('Mogući parovi').click()});
+await act(async()=>{button('Podudaranja').click()});
+// A presentation is prepared only from a real opportunity (owner 6344490047), not from a possible pair.
+assert($$('.match-card').filter(c=>[...c.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije')).every(c=>c.textContent.includes('Podudaranje kriterija')));
 const galway=$$('.match-card').find(c=>c.textContent.includes('Oranmore Road'));
 await act(async()=>{[...galway.querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
 // Review 6344298344 point 5: the free-text region field is not used; a region needs explicit confirmation.
@@ -122,7 +124,7 @@ await setValue($('input[name="teaser_region"]'),'County Galway');
 assert($('textarea[aria-label="Opis za kupca"]').value.includes('Okvirna lokacija: Irska\n'),'typing alone does not confirm');
 await act(async()=>{$('input[name="teaser_region_confirmed"]').click()});
 const summary=$('textarea[aria-label="Opis za kupca"]').value;
-assert(summary.includes('Okvirna lokacija: County Galway, Irska')&&summary.includes('Površina: 6.100 – 6.200 m²'));
+assert(summary.includes('Okvirna lokacija: County Galway, Irska')&&summary.includes('Površina: 6.100 – 6.200 m²')&&summary.includes('Tražena cijena: 200.000 – 250.000 €'));
 for(const secret of ['Oranmore','Road','daft','5412345','243.500'])assert(!summary.includes(secret),'leaked '+secret);
 const copyButton=$$('button').find(b=>b.textContent==='Kopiraj opis');
 assert.equal(copyButton.disabled,true,'copy needs a review first');
@@ -131,4 +133,41 @@ await act(async()=>{$$('button').find(b=>b.textContent==='Kopiraj opis').click()
 await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert.equal(copied,summary);assert(document.body.textContent.includes('Ništa nije poslano'));assert.equal(posts.length,0,'nothing is sent');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; buyer presentation previewed, region only after confirmation, identifier-free, copied after review, not sent.');
+// 6. Pair detail: task -> question draft -> answer with evidence; nothing is sent, only stored through the API.
+posts.length=0;document.body.innerHTML='<div id="root"></div>';
+const gapsResult=JSON.stringify({status:'Kandidat - potrebna provjera',phase:'Mogući par – dopuna podataka o nekretnini',score:60,reasons:['Država','Vrsta nekretnine'],missing:['Dokaz pravne provjere','Ispunjenje dodatnih uvjeta kupca za ovu nekretninu'],rejected:[],info:['Ukupni trošak iznad navedenog budžeta kupca (informativno)'],
+ gaps:{property:['Dokaz pravne provjere'],buyer:[],pair:['Ispunjenje dodatnih uvjeta kupca za ovu nekretninu']}});
+globalThis.fetch=async(url,options={})=>{
+ if(options.method==='POST'){const b=JSON.parse(options.body);posts.push(b);
+  if(b.action==='pair')return {ok:true,json:async()=>({record:{first_seen_at:'2026-10-22T10:00:00Z',in_latest_calculation:true},history:[{id:1,recorded_at:'2026-10-22T10:00:00Z',event:'Prvi izračun',phase:'Mogući par – dopuna podataka o nekretnini'}],
+   tasks:[{requirement:'Dokaz pravne provjere',status:'Otvoreno'},{requirement:'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu',status:'Otvoreno'}],answers:[],stages:[],current:{result_json:gapsResult}})};
+  if(b.action==='pair_answer'&&b.verified&&!b.evidence)return {ok:false,json:async()=>({error:'Za provjeren odgovor potrebni su dokaz, izvor i datum.'})};
+  return {ok:true,json:async()=>({id:1})}}
+ const d=dataset(true);d.match_results[0].result_json=gapsResult;return {ok:true,json:async()=>d}};
+root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+await act(async()=>{button('Mogući parovi').click()});
+const pairCard=$$('.match-card').find(c=>c.textContent.includes('Zemljište Galway'));
+assert(![...pairCard.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije'),'no presentation from a possible pair');
+await act(async()=>{[...pairCard.querySelectorAll('button')].find(b=>b.textContent==='Detalj para').click()});
+await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+assert.deepEqual(posts.at(-1),{action:'pair',property_id:1,investor_id:10});
+const dialog=$('[role="dialog"]');
+for(const t of ['Podaci o nekretnini (pitanja prodavatelju)','Provjera za ovaj par','Podudaranje kriterija nije potvrđen interes','Ukupni trošak iznad navedenog budžeta kupca (informativno)'])assert(dialog.textContent.includes(t),t);
+assert.equal($$('button').find(b=>b.textContent==='Zabilježi fazu uz dokaz').disabled,true,'no interest stage for a possible pair');
+await act(async()=>{$$('button').filter(b=>b.textContent==='Nacrt pitanja')[0].click()});
+const draftText=$('textarea[aria-label="Nacrt pitanja"]').value;
+assert(draftText.includes('zemljišne knjige')&&!draftText.includes('Galway County Council'),'seller question never names the buyer');
+await act(async()=>{$$('button').find(b=>b.textContent==='Spremi nacrt').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+assert.deepEqual(posts.find(b=>b.action==='pair_question'),{action:'pair_question',property_id:1,investor_id:10,requirement:'Dokaz pravne provjere',addressed_to:'Prodavatelj',body:draftText});
+await act(async()=>{$$('button').filter(b=>b.textContent==='Upiši odgovor')[1].click()});
+await setValue($('textarea[aria-label="Odgovor"]'),'Parcela je 120 m od pruge.');
+await act(async()=>{$('input[name="answer_verified"]').click()});
+await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+assert(document.body.textContent.includes('potrebni su dokaz, izvor i datum'),'the server refusal is shown');
+await setValue($('input[name="evidence"]'),'Situacijski nacrt');await setValue($('input[name="source"]'),'Prodavatelj');
+await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+const answer=posts.filter(b=>b.action==='pair_answer').at(-1);
+assert.equal(answer.requirement,'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu');assert.equal(answer.verified,true);assert.equal(answer.evidence,'Situacijski nacrt');
+assert(posts.every(b=>['pair','pair_question','pair_answer'].includes(b.action)),'only storing actions, no sending');
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts and answers with evidence only.');

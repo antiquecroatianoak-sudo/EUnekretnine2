@@ -1,4 +1,4 @@
-import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle} from './domain.mjs';
+import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -39,11 +39,9 @@ export function suggestion(p,i,now=Date.now(),pairChecks={}){
  // A dated check with evidence confirms the original wording until it changes. Whether this
  // property meets those conditions is a separate, pair-specific check bound to its facts.
  const sourceChecked=checkValid(raw.source_conditions_check,sourceConditions(raw),now);
- for(const [applies,wording,fulfilment] of [
-  [legacy||mapped.some(v=>!v),'Provjera izvornog opisa vrste i namjene nekretnine','Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'],
-  [raw.preferred_locations?.length||raw.locations?.length,'Provjera izvornih lokacijskih uvjeta kupca','Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'],
-  [raw.required_criteria?.length||raw.required?.property_type,'Provjera dodatnih izvornih uvjeta kupca','Ispunjenje dodatnih izvornih uvjeta kupca za ovu nekretninu']]){
-  if(!applies)continue;
+ const applies=[legacy||mapped.some(v=>!v),raw.preferred_locations?.length||raw.locations?.length,raw.required_criteria?.length||raw.required?.property_type];
+ for(const [n,[wording,fulfilment]] of SOURCE_CONDITIONS.entries()){
+  if(!applies[n])continue;
   if(!sourceChecked)gap(result,wording,'buyer');
   else if(!checkValid(pairChecks[fulfilment],pairText(sourceConditions(raw),p),now))gap(result,fulfilment,'pair');
  }

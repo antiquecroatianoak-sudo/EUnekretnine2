@@ -10,12 +10,25 @@ Izričita uputa vlasnika, 22.10.2026. (komentar 6342865014 na PR #2). Vrijedi za
    - sve nedostajuće potrebne parametre;
    - zadatke provjere.
 3. Gumb „Mogući parovi” otvara tu evidenciju.
-4. Par prelazi u potvrđen tek nakon prikupljanja i provjere svih nužnih nedostajućih podataka i stvarnog interesa. Za svaki odgovor bilježe se dokaz, izvor, datum i status.
-5. Razlikuju se tri stupnja koji se ne spajaju:
-   - **podudaranje kriterija**;
-   - **potvrđen interes**;
-   - **realiziran posao**.
-6. Nedostajući podaci nikad ne postaju nule ni potvrđene činjenice.
+4. Nedostajući podaci nikad ne postaju nule ni potvrđene činjenice.
+
+## Faze para (korekcija vlasnika 6344490047 i 6344511552, nadjačava starije značenje)
+Faze se ne spajaju i svaka ima vlastiti dokaz.
+1. **Mogući par – dopuna podataka o nekretnini.** Iz mogućeg para priprema se nacrt pitanja prodavatelju radi dopune podataka o nekretnini.
+2. **Nekretnina provjerena – usklađivanje s potrebama kupca.** Podaci nekretnine su potpuni i provjereni. Otvorene su još samo stavke kupca ili para.
+3. **Stvarna prilika – interes kupca još nije potvrđen.** Potpuna i provjerena nekretnina odgovara dokumentiranim potrebama kupca. U bazi je to status `Podudaranje kriterija`, a ne potvrđen interes.
+4. **Nacrt prezentacije** samo za stvarnu priliku, za tog kupca. Tek se njome traži stvarni interes.
+5. **Potvrđen interes** zaseban je zapis s dokazom. Nakon njega dolazi **realiziran posao**, također s dokazom.
+
+### Pravila
+- **Budžet kupca nije uvjet spajanja** ni razlog zadržavanja u nepotpunima. Kupac ga ne mora otkriti. Poznati budžet je samo informativan (`info`) i ne izmišlja se.
+- **Cijena nekretnine ostaje temeljni podatak**, uz lokaciju, veličinu, stanje i druge kriterije. Bez cijene nekretnina nije potpuna.
+- **Cijena se prikazuje uz osnovu:** tražena cijena ili početna/minimalna ponuda na dražbi, uz poznate troškove. Konačni iznos se ne izmišlja. Dražbena početna ponuda ne uspoređuje se kao konačna cijena.
+- **Povoljnost ne nadomješta kriterije:** jeftina cijena ne nadomješta neslaganje lokacije, namjene ili stanja. Ne tvrdi se „najjeftinije na tržištu” bez dokaza.
+- **Provjera stvarne namjene, lokacije i pravnog stanja ostaje,** kao i poznata neslaganja tih kriterija.
+- **Uvjeti kupca provjeravaju se u dva koraka.** Provjera teksta uvjeta kupca potvrđuje samo **sadržaj zahtjeva**. Ispunjava li ga konkretna nekretnina, zasebna je stavka para. Zatvara je samo provjeren odgovor s dokazom vezan uz tekst uvjeta i činjenice te nekretnine. Svaka promjena nekretnine ili uvjeta poništava dokaz.
+- **Ništa se ne šalje automatski.** Pitanja i prezentacija su nacrti za pregled.
+- **Rang povoljnosti nije uveden.** Kad se uvede, ide odvojeno od odgovaranja potrebama, provjerenosti i interesa: samo usporedive ponude iste vrste, iste osnove cijene i istog područja.
 
 ## Proces dopune
 - **Ciljana pitanja:** pripremaju se pitanja prodavatelju i/ili kupcu, s evidencijom odgovora (dokaz, izvor, datum, status).
@@ -58,15 +71,36 @@ Izričita uputa vlasnika, 22.10.2026. (komentar 6342865014 na PR #2). Vrijedi za
    - Regresije curenja identifikatora.
 6. **Gumb „Mogući parovi”** prelazi na trajnu evidenciju; broj i popis ostaju iz istog izvora.
 
-## Stanje provedbe (22.10.2026., audit 6342938279)
-- `fab8cdd`: Sites obrazac i aktivni `investorInput` prihvaćaju nepoznat budžet (NULL) i sjedište izvan EU-a. EU interes ostaje zaseban. Profil „Javno tijelo” se čuva.
-- `6bb9f65`: dokaziva provjera dodatnih uvjeta (`notes_check`, `source_conditions_check`), s datumom, dokazom i otiskom sadržaja (isti u `domain.mjs` i `matching.py`). Bilješke se ne brišu, a svaka promjena teksta vraća ručnu provjeru.
-- `e99d45d`: siguran opis za kupca (`sites-review/lib/teaser.mjs`): samo dopuštena polja, provjera curenja, pregled prije kopiranja, bez slanja.
-- **Blokirano, točke 3 i 4 audita:** API i detalj para (pitanja, odgovori, dokaz, status), potvrda interesa i realizacija odvojene od `i.verified` i `MATCH`, te trajna povijest para. Prema issueu #1, `match_review_tasks` je izravno primijenjena funkcija baze. Ona, kao i veze `match_results`, nije u repozitoriju, a ovo okruženje nema pristup bazi. Gradnja bez stvarne sheme mogla bi duplicirati ili prekinuti postojeće provjere. Treba pokrenuti `ops/pair-review-schema-export.sql` (samo čitanje) i rezultat prenijeti u repozitorij. Nakon toga slijedi aditivna migracija s regresijama za očuvanje ručnih provjera, nepotvrđene odgovore koji ne zatvaraju provjeru i to da ponovni izračun ne briše povijest.
-- Mjesta koja mijenja trajna evidencija:
-  - `refreshSuggestions` (`supabase/functions/discovery-sync/refresh-suggestions.mjs`) briše parove kojima se `updated` razlikuje od zadnjeg izračuna;
-  - `refresh` u `sites-platform/index.js` prepisuje rezultat;
-  - `reconcile_listing_lifecycle` arhivira u `excluded_match_history` samo istekle i uklonjene parove.
+## Stanje provedbe
+- **Audit 6342938279.** `fab8cdd` (nepoznat budžet NULL, sjedište izvan EU), `6bb9f65` (provjera teksta uvjeta), `e99d45d` (opis za kupca), `ca87cf0` (oznaka „Podudaranja kriterija”).
+- **Objavljeno (ChatGPT, 22.10.):** samo gumb „Mogući parovi” (`fe3890a` + `ca87cf0`), u kanonskom Sites izvoru `c29e0922`. Promjene `sites-review/` ovdje ne mijenjaju objavljenu aplikaciju. Pri prijenosu treba sačuvati već objavljeni gumb.
+- **Dio A, `92c2713`, pregled 6344298344** (bez baze):
+  - uvjeti po paru;
+  - neobavezan budžet;
+  - faze i `gaps` (nekretnina / kupac / par);
+  - u nacrtu prezentacije: pravne komplikacije, osnova cijene i dražba, pošten interval površine, regija samo uz potvrdu.
+- **Dio B, trajna evidencija prema stvarnoj shemi** (`ops/pair-review-schema-2026-10-22.json`):
+  - `ops/pair-records.sql`, aditivno i ponovljivo:
+    - `pair_records` i `pair_history`: par se ne briše pri ponovnom izračunu nego se označi;
+    - `pair_answers`: nacrt pitanja i odgovori s dokazom, izvorom i datumom; zapisi se samo dodaju;
+    - `pair_stages`: potvrđen interes, povučen interes i realizacija, s čuvarom redoslijeda;
+    - `pair_task_archive`: zadaci para koji ispadne vraćaju se s ručnim statusima.
+  - Zamjena dviju postojećih funkcija istog potpisa:
+    - `sync_match_review_tasks` čuva ručne statuse (izvorna je svaki upsert vraćala na „Otvoreno”), a „Provjereno” koje je i dalje nedostatak ponovno otvara s razlogom;
+    - `investor_eligible` ne traži budžet.
+  - API u `sites-platform`: `pair`, `pair_question`, `pair_answer`, `pair_stage`. `refresh` i `refreshSuggestions` primjenjuju samo provjerene odgovore.
+  - Sites kopija: „Detalj para” (zadatak → nacrt pitanja → odgovor s dokazom → provjera, faze, povijest); „Nacrt prezentacije” samo za stvarnu priliku.
+- **Testovi:**
+  - `ops/test-pair-records.sql` (rollback, može se pokrenuti i na produkciji nakon migracije);
+  - `test_pair_records.py` gradi bazu iz izvezene sheme i pokreće migraciju, regresije i `test_pair_api.mjs` (pravi `dispatch` i `refreshSuggestions`);
+  - DOM provjera tijeka.
+- **Redoslijed objave** (nakon neovisnog pregleda):
+  1. `ops/pair-records.sql`, pa `ops/test-pair-records.sql`;
+  2. Edge funkcije `sites-platform` i `discovery-sync`, jer čitaju `site_private.pair_answers`, a bez migracije bi svako spremanje palo;
+  3. Sites izvor.
+- **Poznato:**
+  - `ops/test-verification-policy.sql` već je prije ove promjene upisivao `{"status":"TEST"}`, koji stvarni `guard_verified_pair` odbija; ta datoteka ne odgovara izvezenoj produkcijskoj funkciji;
+  - `site_private.safe_json`, `safe_stamp` i `title_property_type` nisu u izvozu; testovi koriste minimalne zamjene.
 
 ## Ograničenja
 - Ništa od navedenog ne šalje poruke niti otkriva podatke.

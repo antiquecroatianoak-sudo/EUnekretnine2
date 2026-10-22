@@ -100,7 +100,9 @@ def _fact(value):
 
 def pair_text(requirement, prop):
     """The buyer's condition wording plus the property facts it was checked against (as pairText in domain.mjs)."""
-    return json.dumps([str(requirement if requirement is not None else '')] + [_fact(prop.get(k)) for k in PAIR_FACTS], ensure_ascii=False, separators=(',', ':'))
+    # The id is compared as text, as the database driver returns bigint ids as strings in domain.mjs.
+    values = [str(prop['id']) if k == 'id' and prop.get('id') is not None else _fact(prop.get(k)) for k in PAIR_FACTS]
+    return json.dumps([str(requirement if requirement is not None else '')] + values, ensure_ascii=False, separators=(',', ':'))
 
 def evaluate(prop, investor, pair_checks=None):
     pair_checks = pair_checks or {}

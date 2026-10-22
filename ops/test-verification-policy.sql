@@ -13,8 +13,9 @@ begin
  i:=jsonb_populate_record(null::public.investors,jsonb_build_object('id',2000000000,'name','TEST rollback','verified',1,'min_budget',0,'max_budget',200000,'preferred_countries','HR','criteria_json',jsonb_build_object('source_url','https://example.org/demand','checked_at',now(),'property_types',jsonb_build_array('Stan'),'conditions',jsonb_build_array('Useljivo'))::text));
  assert site_private.investor_eligible(i),'complete investor';
  i.verified:=0; assert not site_private.investor_eligible(i),'unverified investor rejected';
- i.verified:=1; i.max_budget:=null; assert not site_private.investor_eligible(i),'missing budget rejected';
- i.max_budget:=200000; i.criteria_json:='{broken'; assert not site_private.investor_eligible(i),'malformed criteria rejected';
+ i.verified:=1; i.max_budget:=null; assert site_private.investor_eligible(i),'unknown budget is optional after ops/pair-records.sql (owner 6344490047)';
+ i.min_budget:=500; i.max_budget:=100; assert not site_private.investor_eligible(i),'invalid known budget range rejected';
+ i.min_budget:=0; i.max_budget:=200000; i.criteria_json:='{broken'; assert not site_private.investor_eligible(i),'malformed criteria rejected';
  i.criteria_json:=jsonb_build_object('source_url','https://example.org/demand','checked_at',now(),'property_types',jsonb_build_array('Stan'),'conditions',jsonb_build_array('Useljivo'))::text;
  insert into public.properties select p.*;
  insert into public.investors select i.*;

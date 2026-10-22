@@ -1,5 +1,5 @@
 import postgres from 'npm:postgres@3.4.7';
-import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num} from './domain.mjs';
+import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap} from './domain.mjs';
 const PUBLIC_KEY={"kty":"RSA","n":"zftp10EPtvkqY_g46ytE0Mx6r2Y9cFyoMSEUn19hAEGIkeVFahS2m-j_O5fLUYt4b3tNvgGUOK-v92DhNwEdlYU8nSJa3Qlr2uEMCo_N-rQdwhjMc12fJBOQHDB4MCTF3MuydWIeyniALAhASW5DyjN4nUnT8C97ztPLnCXghTrQU8B4rUGASSPTbuq5sLBXRHfbkPaRnBHxjJLfE84gfn9huLyS4-tft3VsOBBejGZctrRj0ZdVmd-btmMifm7eVjVfPahHO9k5WjLBR3iuh6eiJlWDyKRKhmZQXt07QGG0MqFMEfveZqtsbUU5hNjwechw_1a_wgF77JcwhTn6-Q","e":"AQAB"};
 const AUDIENCE='appgprj_6ad3d11946fc8191bd34af0ad4f2cdd8';
 const enc=new TextEncoder();
@@ -7,10 +7,12 @@ const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers
 const key=crypto.subtle.importKey('jwk',PUBLIC_KEY,{name:'RSA-PSS',hash:'SHA-256'},false,['verify']);
 let db;
 function database(){return db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:2,prepare:false,idle_timeout:10,connect_timeout:10})}
+// Latest recorded answer per pair item; only a verified one with a content digest closes a pair-specific item.
+const pairChecks=async tx=>pairCheckMap(await tx`select id,property_id,investor_id,requirement,status,digest,evidence,recorded_at from site_private.pair_answers where kind='Odgovor'`);
 async function refresh(tx){
- const [props,investors]=await Promise.all([tx`select * from properties order by id`,tx`select * from investors order by id`]);
- const stamp=new Date().toISOString(), rows=[];
- for(const p of props)for(const i of investors)rows.push({property_id:p.id,investor_id:i.id,result_json:JSON.stringify(evaluate(p,i)),updated:stamp});
+ const [props,investors,checks]=await Promise.all([tx`select * from properties order by id`,tx`select * from investors order by id`,pairChecks(tx)]);
+ const stamp=new Date().toISOString(), rows=[], now=Date.now();
+ for(const p of props)for(const i of investors)rows.push({property_id:p.id,investor_id:i.id,result_json:JSON.stringify(evaluate(p,i,now,checks.get(p.id+'-'+i.id))),updated:stamp});
  if(rows.length)await tx`insert into match_results ${tx(rows,'property_id','investor_id','result_json','updated')} on conflict(property_id,investor_id) do update set result_json=excluded.result_json,updated=excluded.updated where match_results.result_json is distinct from excluded.result_json`;
  await tx`update notification_outbox n set status='Potrebna ponovna provjera' where n.status='Spremno' and not exists(select 1 from match_results m where m.property_id=n.property_id and m.result_json::jsonb->>'status'=${MATCH})`;
  return rows.length;
@@ -45,7 +47,62 @@ async function prepare(tx,id){
  }
  return {kind:r.kind,id:result[0].id};
 }
+const pairId=v=>{const n=Number(v);if(!Number.isSafeInteger(n)||n<=0)throw Error('Nevaljana oznaka para.');return n};
+const text=(v,max,label)=>{if(typeof v!=='string'||!v.trim()||v.length>max)throw Error('Nedostaje ili je predug podatak: '+label+'.');return v.trim()};
+const optional=(v,max,label)=>v==null||v===''?null:text(v,max,label);
+// Permanent pair record with its history, review tasks, answers and stages (read only).
+async function pair(tx,a){
+ const p=pairId(a.property_id),i=pairId(a.investor_id);
+ const [record,history,tasks,answers,stages,current]=await Promise.all([
+  tx`select * from site_private.pair_records where property_id=${p} and investor_id=${i}`,
+  tx`select * from site_private.pair_history where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 100`,
+  tx`select requirement,status,status_reason,verification_method,checked_at,evidence,updated_at from site_private.match_review_tasks where property_id=${p} and investor_id=${i} order by requirement`,
+  tx`select * from site_private.pair_answers where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 200`,
+  tx`select * from site_private.pair_stages where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc`,
+  tx`select result_json,updated from match_results where property_id=${p} and investor_id=${i}`]);
+ return {record:record[0]||null,history,tasks,answers,stages,current:current[0]||null};
+}
+// A question is only a draft: it is stored for review and never sent from here.
+async function pairQuestion(tx,a){
+ const p=pairId(a.property_id),i=pairId(a.investor_id),requirement=text(a.requirement,500,'stavka'),body=text(a.body,8000,'pitanje');
+ if(!['Prodavatelj','Kupac','Interni izvor'].includes(a.addressed_to))throw Error('Odaberi kome je pitanje namijenjeno.');
+ if(!(await tx`select 1 from site_private.match_review_tasks where property_id=${p} and investor_id=${i} and requirement=${requirement}`).length)throw Error('Stavka provjere nije pronađena za ovaj par.');
+ const r=await tx`insert into site_private.pair_answers(property_id,investor_id,requirement,kind,addressed_to,body,status,recorded_by) values(${p},${i},${requirement},'Nacrt pitanja',${a.addressed_to},${body},'Nacrt','Sites') returning id`;
+ await tx`update site_private.match_review_tasks set status='U provjeri',status_reason='Pripremljen nacrt pitanja (nije poslan).',updated_at=now() where property_id=${p} and investor_id=${i} and requirement=${requirement} and status='Otvoreno'`;
+ return {id:r[0].id};
+}
+// An answer changes the pair only when it is verified with evidence, source and date.
+async function pairAnswer(tx,a){
+ const p=pairId(a.property_id),i=pairId(a.investor_id),requirement=text(a.requirement,500,'stavka'),body=text(a.body,8000,'odgovor');
+ const status=a.verified===true?'Provjereno':a.discard===true?'Odbačeno':'Zaprimljeno - nije provjereno';
+ const evidence=optional(a.evidence,2000,'dokaz'),source=optional(a.source,2000,'izvor'),channel=optional(a.channel,200,'kanal');
+ const day=a.answered_on==null||a.answered_on===''?null:String(a.answered_on);
+ if(day&&(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||day>new Date().toISOString().slice(0,10)))throw Error('Datum odgovora mora biti valjan i ne u budućnosti.');
+ if(status==='Provjereno'&&(!evidence||!source||!day))throw Error('Za provjeren odgovor potrebni su dokaz, izvor i datum.');
+ const [prop]=await tx`select * from properties where id=${p}`,[inv]=await tx`select * from investors where id=${i}`;
+ if(!prop||!inv)throw Error('Par nije pronađen.');
+ if(!(await tx`select 1 from site_private.match_review_tasks where property_id=${p} and investor_id=${i} and requirement=${requirement}`).length)throw Error('Stavka provjere nije pronađena za ovaj par.');
+ // Pair-specific conditions are bound to the condition text and this property's current facts.
+ const condition=conditionText(requirement,inv),fingerprint=condition!=null&&status==='Provjereno'?digest(pairText(condition,prop)):null;
+ const r=await tx`insert into site_private.pair_answers(property_id,investor_id,requirement,kind,body,evidence,source,channel,answered_on,status,digest,recorded_by) values(${p},${i},${requirement},'Odgovor',${body},${evidence},${source},${channel},${day},${status},${fingerprint},'Sites') returning id`;
+ const [taskStatus,reason]=status==='Provjereno'?(fingerprint?['Provjereno',null]:['U provjeri','Odgovor provjeren; stavka se zatvara tek kad se podatak upiše u zapis nekretnine ili kupca.']):
+  status==='Odbačeno'?['Otvoreno','Odgovor odbačen.']:['U provjeri','Odgovor zaprimljen, još nije provjeren.'];
+ await tx`update site_private.match_review_tasks set status=${taskStatus},status_reason=${reason},checked_at=${status==='Provjereno'?new Date():null},evidence=${status==='Provjereno'?evidence:null},updated_at=now() where property_id=${p} and investor_id=${i} and requirement=${requirement}`;
+ await refresh(tx);return {id:r[0].id};
+}
+// Confirmed interest and a closed deal are recorded only by a person, with evidence; the database guards the order.
+async function pairStage(tx,a){
+ const p=pairId(a.property_id),i=pairId(a.investor_id);
+ if(!['Potvrđen interes','Interes povučen','Realiziran posao'].includes(a.stage))throw Error('Nevaljana faza para.');
+ const day=String(a.stage_on||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||day>new Date().toISOString().slice(0,10))throw Error('Datum mora biti valjan i ne u budućnosti.');
+ const r=await tx`insert into site_private.pair_stages(property_id,investor_id,stage,evidence,source,stage_on,recorded_by) values(${p},${i},${a.stage},${text(a.evidence,2000,'dokaz')},${text(a.source,2000,'izvor')},${day},'Sites') returning id`;
+ return {id:r[0].id};
+}
 async function dispatch(tx,a){
+ if(a.action==='pair')return await pair(tx,a);
+ if(a.action==='pair_question')return await pairQuestion(tx,a);
+ if(a.action==='pair_answer')return await pairAnswer(tx,a);
+ if(a.action==='pair_stage')return await pairStage(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};
  if(a.action==='save_property'||a.action==='save_investor'){
@@ -86,7 +143,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(a.action==='read')return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(a.action==='read'||a.action==='pair')return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}

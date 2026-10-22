@@ -28,10 +28,51 @@ export function validateCriteria(c){
 export const PAIR_FACTS=['id','country','region','city','title','property_type','condition','area','price','price_basis','renovation','other_costs','legal','legal_evidence_url','buildable','planning_evidence_url','source','available_until','bid_deadline_at','auction_at','risk_notes'];
 const fact=v=>v==null?null:typeof v==='number'?v:v instanceof Date?v.toISOString():String(v);
 // Text a pair check covers: the buyer's condition wording plus the property facts it was checked against.
-export const pairText=(requirement,p)=>JSON.stringify([String(requirement??''),...PAIR_FACTS.map(k=>fact(p[k]))]);
+// The id is compared as text because the database driver returns bigint ids as strings.
+export const pairText=(requirement,p)=>JSON.stringify([String(requirement??''),...PAIR_FACTS.map(k=>k==='id'&&p.id!=null?String(p.id):fact(p[k]))]);
 // Separate stages of a pair; computed matching never reaches confirmed interest or a closed deal.
 export const PHASE={REJECT:'Ne odgovara potrebama kupca',PROPERTY:'Mogući par – dopuna podataka o nekretnini',BUYER:'Nekretnina provjerena – usklađivanje s potrebama kupca',REAL:'Stvarna prilika – interes kupca još nije potvrđen'};
 export const PAIR_CONDITION='Ispunjenje dodatnih uvjeta kupca za ovu nekretninu';
+// Original buyer conditions reported by suggestions(): [wording to confirm, fulfilment for one property].
+export const SOURCE_CONDITIONS=[['Provjera izvornog opisa vrste i namjene nekretnine','Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'],
+ ['Provjera izvornih lokacijskih uvjeta kupca','Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'],
+ ['Provjera dodatnih izvornih uvjeta kupca','Ispunjenje dodatnih izvornih uvjeta kupca za ovu nekretninu']];
+// The condition text a pair-specific item is checked against; null for items closed by updating a record.
+export function conditionText(label,i){
+ if(label===PAIR_CONDITION)return String(i.notes||'');
+ return SOURCE_CONDITIONS.some(([,f])=>f===label)?sourceConditions(criteria(i)):null;
+}
+// The latest verified or rejected answer per pair and item decides; a later rejection withdraws a verification,
+// an unverified answer changes nothing.
+export function pairCheckMap(rows){
+ const out=new Map(),seen=new Set();
+ for(const r of [...rows].sort((a,b)=>Date.parse(b.recorded_at)-Date.parse(a.recorded_at)||Number(b.id)-Number(a.id))){
+  if(r.status!=='Provjereno'&&r.status!=='Odbačeno')continue;
+  const pair=r.property_id+'-'+r.investor_id,key=pair+'\n'+r.requirement;if(seen.has(key))continue;seen.add(key);
+  if(r.status!=='Provjereno'||!r.digest)continue;
+  if(!out.has(pair))out.set(pair,{});
+  out.get(pair)[r.requirement]={digest:r.digest,checked_at:new Date(r.recorded_at).toISOString(),evidence:r.evidence};
+ }
+ return out;
+}
+// Draft questions only: the system never sends them. A question to the seller never names the buyer.
+const QUESTIONS=[[/^Cijena nekretnine$/,'Koja je tražena cijena nekretnine i što uključuje (porezi, pristojbe, drugi troškovi)? Ako se prodaje na dražbi, koja je početna ili minimalna ponuda?'],
+ [/^Površina/,'Kolika je površina nekretnine ili zemljišta prema službenoj evidenciji (m²)?'],
+ [/pravne/,'Možete li dostaviti izvadak iz zemljišne knjige ili drugi dokument o vlasništvu, teretima i eventualnim sporovima?'],
+ [/gradnje/,'Koja je namjena prema važećem prostornom planu i postoje li lokacijska ili građevinska dozvola?'],
+ [/Aktualnost|aktivnosti oglasa|rok dostupnosti/,'Je li nekretnina još uvijek dostupna i do kada vrijedi ponuda ili rok za ponude?'],
+ [/^Stanje/,'U kakvom je stanju nekretnina (useljiva, za obnovu, za rušenje, neizgrađena)?'],
+ [/^Vrsta nekretnine$/,'O kojoj se vrsti nekretnine radi i kako je upisana u službenim evidencijama?'],
+ [/^(Grad|Regija|Država)$/,'U kojoj se općini i regiji nekretnina nalazi?'],
+ [/ROI/,'Postoji li procjena tržišne vrijednosti ili dokumentirani troškovi obnove?'],
+ [/^Ispunjenje/,'Molimo podatke o lokaciji, okruženju i namjeni nekretnine potrebne za provjeru dodatnih uvjeta (konkretan uvjet upisati ručno, bez podataka o kupcu).']];
+const BUYER_QUESTIONS=[[/napomena|izvorn/,'Možete li potvrditi točan sadržaj svojih dodatnih uvjeta (lokacija, namjena, ostalo) i od kada vrijede?'],
+ [/zahtjev kupca|kriteriji/,'Možete li potvrditi trenutne kriterije traženja (države, vrste nekretnina, stanje, površina) i izvor zahtjeva?'],
+ [/javnog poziva/,'Je li javni poziv još otvoren i do kada?']];
+export function questionDraft(label,side){
+ const list=side==='buyer'?BUYER_QUESTIONS:QUESTIONS;
+ return {addressed_to:side==='buyer'?'Kupac':/Izvor oglasa/.test(label)?'Interni izvor':'Prodavatelj',body:(list.find(([re])=>re.test(label))?.[1])||'Molimo dodatne podatke potrebne za provjeru: '+label+'.'};
+}
 // Records an open item on the property, buyer or pair side; missing keeps the combined order.
 export function gap(r,label,side){r.missing.push(label);r.gaps[side].push(label)}
 export function settle(r){
