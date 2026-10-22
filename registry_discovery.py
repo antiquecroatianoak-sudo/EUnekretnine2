@@ -408,6 +408,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
         try:
             page=Page(fetcher.get(source['url']))
             text=' '.join(' '.join(page.text).split())
+            print('Public source diagnostic',sid,'title', ' '.join(page.title)[:160], 'text sample',text[:240],flush=True)
             row=public_land_record(source,text,stamp)
             return [row],dict(source_id=sid,status='Uspješno',checked_at=stamp,pending=[],cycle_seen=[source['url']],pages_processed=1,imported_count=1,exhausted=False,coverage_complete=False,scope='Reviewed official public land acquisition call only',error=None)
         except Exception as error:
