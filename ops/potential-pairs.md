@@ -1,4 +1,4 @@
-> Ažuriranje 23.10.2026.: lokalni paket ispravaka i aktualni rezultati nalaze se u `ops/review-fixes-2026-10-23.md`. Starije bilješke o nedostajućem rangu i testnim zamjenama opisuju prethodni SHA. Novi paket još nije prenesen na GitHub niti objavljen.
+> Ažuriranje 23.10.2026.: ispravci pregleda 6344298344 i 6361220363 nalaze se na grani PR-a (`3af1428`, `1170b5d` i ispravak uskladivanja s bazom niže). Pojedinosti su u `ops/review-fixes-2026-10-23.md`. Ništa nije objavljeno.
 
 # Trajni cilj: evidencija potencijalnih parova
 
@@ -100,9 +100,19 @@ Faze se ne spajaju i svaka ima vlastiti dokaz.
   1. `ops/pair-records.sql`, pa `ops/test-pair-records.sql`;
   2. Edge funkcije `sites-platform` i `discovery-sync`, jer čitaju `site_private.pair_answers`, a bez migracije bi svako spremanje palo;
   3. Sites izvor.
-- **Poznato:**
-  - `ops/test-verification-policy.sql` već je prije ove promjene upisivao `{"status":"TEST"}`, koji stvarni `guard_verified_pair` odbija; ta datoteka ne odgovara izvezenoj produkcijskoj funkciji;
-  - `site_private.safe_json`, `safe_stamp` i `title_property_type` nisu u izvozu; testovi koriste minimalne zamjene.
+- **Pregled 6361220363 (usklađivanje s bazom):** evaluator primjenjuje ista pravila kao `property_eligible` i `investor_eligible`:
+  - svježina izvora do 30 dana;
+  - dopušten status oglasa;
+  - obavezan grad;
+  - zapis kriterija kupca u standardnom obliku.
+  Ono što bi baza odbila više se ne izračunava kao stvarna prilika, nego ostaje kandidat sa zadatkom dopune.
+  - Provjera izvora upisuje se samo izričito: API `source_check` i obrazac u „Detalju para” (Streamlit: datum i dokaz). Traži se datum koji nije u budućnosti i dokaz, a dokaz se bilježi u `activity`. Obično spremanje nikad ne postavlja datum.
+  - Ako čuvar ipak odbije izračunatu stvarnu priliku, par se sprema kao kandidat sa stavkom „Baza nije prihvatila stvarnu priliku…”. Rang povoljnosti računa se samo nad spremljenim stvarnim prilikama.
+  - Lokalni uvoz s dokazom aktivnosti i datumom (`import_verified.py`) upisuje status „Aktivno” i datum provjere iz uvoza.
+- **Testovi i shema (stanje 23.10.):**
+  - Izvoz sheme sadrži stvarne `safe_json`, `safe_stamp` i `title_property_type`, pa testovi više nemaju zamjene.
+  - `ops/test-verification-policy.sql` koristi stvarni status kandidata i pokreće se u testu migracije.
+  - DOM provjera i test serverske rute pokreću se u CI-ju (`ops/run-dom-check.sh`).
 
 ## Ograničenja
 - Ništa od navedenog ne šalje poruke niti otkriva podatke.

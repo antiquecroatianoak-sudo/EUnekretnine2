@@ -30,8 +30,10 @@ class MatchingUITests(unittest.TestCase):
     def add_property(self):
         for label,value in [('Grad','Zagreb'),('Naziv nekretnine','TEST kuća'),('URL izvornog oglasa','https://example.org/property'),('URL dokaza pravne provjere','https://example.org/legal')]:
             self.set_field('text_input',label,value)
-        for label,value in [('Vrsta nekretnine','Kuća'),('Stanje / namjena radova','Za obnovu'),('Pravni status','Uredno')]:
+        for label,value in [('Vrsta nekretnine','Kuća'),('Stanje / namjena radova','Za obnovu'),('Pravni status','Uredno'),('Status oglasa','Aktivno')]:
             self.set_field('selectbox',label,value)
+        self.set_field('text_input','Nova provjera izvora: datum (YYYY-MM-DD, prazno = bez promjene)',datetime.now(timezone.utc).date().isoformat())
+        self.set_field('text_input','Dokaz provjere izvora (kanal, što je potvrđeno)','Oglas otvoren 23.10., aktivan')
         for label,value in [('Tražena cijena EUR',100.),('Površina m²',100.),('Procjena obnove / rušenja i radova EUR',50.),('Ostali troškovi EUR',20.)]:
             self.set_field('number_input',label,value)
         self.submit('Spremi nekretninu')

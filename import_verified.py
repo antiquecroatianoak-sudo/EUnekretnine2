@@ -53,14 +53,16 @@ def run(c, items):
             if c.execute('SELECT id FROM imports WHERE source_url=?', (item['source'],)).fetchone(): continue
             if c.execute('SELECT id FROM properties WHERE source=?', (item['source'],)).fetchone(): continue
             fields = ('country','city','title','price','area','source','legal','renovation','other_costs','estimated_value','property_type','condition','region','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until')
-            p = c.execute('INSERT INTO properties('+','.join(fields)+',updated) VALUES('+','.join('?' for _ in range(len(fields)+1))+') RETURNING id', tuple(item.get(f) for f in fields)+(item['checked_at'],)).fetchone()
+            # The import itself is the evidenced check: active listing, verified source, evidence URL and its date.
+            p = c.execute('INSERT INTO properties('+','.join(fields)+',updated,status,source_checked_on) VALUES('+','.join('?' for _ in range(len(fields)+3))+') RETURNING id',
+                          tuple(item.get(f) for f in fields)+(item['checked_at'],'Aktivno',item['checked_at'][:10])).fetchone()
             property_id = p['id']
             # Retain the complete submitted evidence in the audit log.
             c.execute('INSERT INTO activity(property_id,stage,notes,date) VALUES(?,?,?,?)', (property_id,'Uvoz provjerenog zapisa',json.dumps(item,ensure_ascii=False),item['checked_at']))
             c.execute('INSERT INTO imports(source_url,checked_at,evidence_url,property_id) VALUES(?,?,?,?)', (item['source'],item['checked_at'],item['evidence_url'],property_id))
             if item['legal'] == 'Uredno' and item.get('estimated_value') is not None:
                 cost = sum(item[f] for f in ('price','renovation','other_costs'))
-                matches = [dict(r) for r in c.execute('SELECT * FROM investors WHERE verified=1') if evaluate(dict(item, status='Novo'), dict(r))['status'] == MATCH]
+                matches = [dict(r) for r in c.execute('SELECT * FROM investors WHERE verified=1') if evaluate(dict(item, id=property_id, status='Aktivno', source_checked_on=item['checked_at'][:10]), dict(r))['status'] == MATCH]
                 if matches:
                     message = json.dumps({'title':item['title'],'total_cost':cost,'estimated_difference':item['estimated_value']-cost,'potential_investor_ids':[r['id'] for r in matches]},ensure_ascii=False)
                     c.execute('INSERT INTO notification_outbox(property_id,created_at,message) VALUES(?,?,?)',(property_id,item['checked_at'],message))

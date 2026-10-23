@@ -1,5 +1,5 @@
 import postgres from 'npm:postgres@3.4.7';
-import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap} from './domain.mjs';
+import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES} from './domain.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
 const PUBLIC_KEY={"kty":"RSA","n":"zftp10EPtvkqY_g46ytE0Mx6r2Y9cFyoMSEUn19hAEGIkeVFahS2m-j_O5fLUYt4b3tNvgGUOK-v92DhNwEdlYU8nSJa3Qlr2uEMCo_N-rQdwhjMc12fJBOQHDB4MCTF3MuydWIeyniALAhASW5DyjN4nUnT8C97ztPLnCXghTrQU8B4rUGASSPTbuq5sLBXRHfbkPaRnBHxjJLfE84gfn9huLyS4-tft3VsOBBejGZctrRj0ZdVmd-btmMifm7eVjVfPahHO9k5WjLBR3iuh6eiJlWDyKRKhmZQXt07QGG0MqFMEfveZqtsbUU5hNjwechw_1a_wgF77JcwhTn6-Q","e":"AQAB"};
 const AUDIENCE='appgprj_6ad3d11946fc8191bd34af0ad4f2cdd8';
@@ -87,6 +87,17 @@ async function pairAnswer(tx,a){
  await tx`update site_private.match_review_tasks set status=${taskStatus},status_reason=${reason},checked_at=${status==='Provjereno'?new Date():null},evidence=${status==='Provjereno'?evidence:null},updated_at=now() where property_id=${p} and investor_id=${i} and requirement=${requirement}`;
  await refresh(tx);return {id:r[0].id};
 }
+// An explicit, evidenced check of the property's source listing. Ordinary saves never set this date;
+// the evidence is kept in the activity log because properties has no evidence column.
+async function sourceCheck(tx,a){
+ const p=pairId(a.property_id),day=String(a.checked_on||''),evidence=text(a.evidence,2000,'dokaz provjere izvora');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||new Date(day).toISOString().slice(0,10)!==day||day>new Date().toISOString().slice(0,10))throw Error('Datum provjere izvora mora biti valjan i ne u budućnosti.');
+ if(a.status!=null&&!ACTIVE_STATUSES.includes(a.status))throw Error('Potvrđeni status mora biti jedan od: '+ACTIVE_STATUSES.join(', ')+'.');
+ const rows=a.status!=null?await tx`update properties set source_checked_on=${day},status=${a.status} where id=${p} returning id`:await tx`update properties set source_checked_on=${day} where id=${p} returning id`;
+ if(!rows.length)throw Error('Nekretnina nije pronađena.');
+ await tx`insert into activity(property_id,stage,notes,date) values(${p},'Provjera',${'Provjera izvora oglasa '+day+(a.status?' (status: '+a.status+')':'')+': '+evidence},${new Date().toISOString()})`;
+ await refresh(tx);return {id:p};
+}
 // Confirmed interest and a closed deal are recorded only by a person, with evidence; the database guards the order.
 async function pairStage(tx,a){
  await refresh(tx);
@@ -101,6 +112,7 @@ async function dispatch(tx,a){
  if(a.action==='pair_question')return await pairQuestion(tx,a);
  if(a.action==='pair_answer')return await pairAnswer(tx,a);
  if(a.action==='pair_stage')return await pairStage(tx,a);
+ if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};
  if(a.action==='save_property'||a.action==='save_investor'){

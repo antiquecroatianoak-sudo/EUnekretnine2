@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timezone
 import streamlit as st
-from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name, digest, check_valid
+from matching import PROPERTY_TYPES, CONDITIONS, ACTIVE_STATUSES, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name, digest, check_valid
 
 
 def property_form(c, props, countries):
@@ -36,6 +36,13 @@ def property_form(c, props, countries):
         buildable = st.selectbox('Mogućnost planirane gradnje potvrđena', planning_options, index=planning_options.index(p.get('buildable')) if p.get('buildable') in planning_options else 0)
         planning = st.text_input('URL dokaza mogućnosti gradnje', value=p.get('planning_evidence_url') or '')
         until = st.text_input('Rok dostupnosti / dražbe (YYYY-MM-DD, prazno ako nepoznato)', value=p.get('available_until') or '')
+        statuses = ['Novo', 'Provjera'] + ACTIVE_STATUSES
+        if p.get('status') and p['status'] not in statuses: statuses.append(p['status'])
+        status = st.selectbox('Status oglasa', statuses, index=statuses.index(p.get('status')) if p.get('status') in statuses else 0)
+        # An explicit, evidenced check of the source; an ordinary save never sets today's date.
+        st.caption('Zadnja provjera izvora: ' + (str(p.get('source_checked_on')) if p.get('source_checked_on') else 'nije zabilježena') + '. Stvarna prilika traži provjeru unutar 30 dana.')
+        checked_on = st.text_input('Nova provjera izvora: datum (YYYY-MM-DD, prazno = bez promjene)', value='')
+        checked_evidence = st.text_input('Dokaz provjere izvora (kanal, što je potvrđeno)', value='')
         if st.form_submit_button('Spremi nekretninu'):
             try:
                 if not title.strip() or not valid_url(source): raise ValueError('Unesi naziv i valjan URL izvornog oglasa.')
@@ -45,11 +52,18 @@ def property_form(c, props, countries):
                 if value is not None and not valuation: raise ValueError('Za tržišnu procjenu potreban je URL dokaza.')
                 if buildable == 'Da' and not planning: raise ValueError('Za potvrđenu gradnju potreban je URL dokaza.')
                 if until: datetime.strptime(until, '%Y-%m-%d')
-                fields = dict(country=country, city=city.strip(), region=region.strip(), title=title.strip(), property_type=None if kind=='Nepoznato' else kind, condition=None if condition=='Nepoznato' else condition, price=price, area=area, renovation=renovation, other_costs=other, estimated_value=value, source=source.strip(), legal=legal, legal_evidence_url=legal_source.strip() or None, valuation_evidence_url=valuation.strip() or None, buildable=buildable, planning_evidence_url=planning.strip() or None, available_until=until or None, updated=datetime.now(timezone.utc).isoformat())
+                if checked_on or checked_evidence:
+                    if not checked_on or not checked_evidence.strip(): raise ValueError('Za provjeru izvora potrebni su datum i dokaz.')
+                    if datetime.strptime(checked_on, '%Y-%m-%d').date() > datetime.now(timezone.utc).date(): raise ValueError('Datum provjere izvora ne može biti u budućnosti.')
+                fields = dict(country=country, city=city.strip(), region=region.strip(), title=title.strip(), property_type=None if kind=='Nepoznato' else kind, condition=None if condition=='Nepoznato' else condition, price=price, area=area, renovation=renovation, other_costs=other, estimated_value=value, source=source.strip(), legal=legal, legal_evidence_url=legal_source.strip() or None, valuation_evidence_url=valuation.strip() or None, buildable=buildable, planning_evidence_url=planning.strip() or None, available_until=until or None, status=status, updated=datetime.now(timezone.utc).isoformat())
+                if checked_on: fields['source_checked_on'] = checked_on
                 if selected is None:
                     c.execute('INSERT INTO properties('+','.join(fields)+') VALUES('+','.join('?' for _ in fields)+')', tuple(fields.values()))
                 else:
                     c.execute('UPDATE properties SET '+','.join(k+'=?' for k in fields)+' WHERE id=?', tuple(fields.values())+(selected,))
+                if checked_on:
+                    target = selected if selected is not None else c.execute('SELECT MAX(id) AS id FROM properties').fetchone()['id']
+                    c.execute('INSERT INTO activity(property_id,stage,notes,date) VALUES(?,?,?,?)', (target, 'Provjera izvora oglasa', checked_on + ': ' + checked_evidence.strip(), datetime.now(timezone.utc).isoformat()))
                 refresh_matches(c); c.commit(); st.rerun()
             except ValueError as error: st.error(str(error))
 
