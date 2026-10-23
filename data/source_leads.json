@@ -1,5 +1,265 @@
 {
- "leads": [],
+ "counts": {
+  "blokirano": 1,
+  "kandidat_nekretnine": 1,
+  "nedostupno": 4,
+  "nije_relevantno": 3,
+  "novo": 1,
+  "robots_zabrana": 1
+ },
+ "leads": [
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Trouver un bureau",
+     "found_on": "https://www.bouygues-immobilier.com/terrains-batir",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.bouygues-immobilier-corporate.com/activites/immobilier-dentreprise-et-hotellerie"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "bouygues-immobilier-corporate.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 16
+   },
+   "status": "nije_relevantno",
+   "title": "Immobilier d’Entreprise et Hôtellerie | Bouygues immobilier Immobilier d’Entreprise et Hôtellerie"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://jobs.smartrecruiters.com/",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Jobs",
+     "found_on": "https://www.immoweb.be/en/classified/house/for-sale/gembloux/5030/21906116",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://careers.smartrecruiters.com/AVIVGroup/immoweb"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "careers.smartrecruiters.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://tradedoubler.com/",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Finansowanie: Oblicz ratę dla tej nieruchomości z ING. RRSO 6,09% na dzień 12.10.2026",
+     "found_on": "https://www.otodom.pl/pl/oferta/smardzewska-8-mieszkanie-1-pok-a-a-1-4-3-ID4wTyz",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://clk.tradedoubler.com/click"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "clk.tradedoubler.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "HTTP 404",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.donauimmo.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/neuwertiges-bauernhaus-mit-grosszuegigen-nebengebaeuden-perfekt-fuer-pferdehaltung-2079005049/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.donauimmo.at/objekt/15030124"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "donauimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Property Acquisition/Leasing Preliminary Assessment",
+     "found_on": "https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://forms.office.com/pages/responsepage.aspx"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "forms.office.com",
+   "kinds": [
+    "buyer"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "robots_zabrana"
+  },
+  {
+   "check_note": "HTTP 403",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "DE",
+   "evidence": [
+    {
+     "anchor": "Immowelt.de",
+     "found_on": "https://www.immoweb.be/en/classified/house/for-sale/gembloux/5030/21906116",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.immowelt.de/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "immowelt.de",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "blokirano"
+  },
+  {
+   "check_note": "HTTP 405",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.cp-ag.at/en/contact/project-purchase/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.kununu.com/at/cp-immobilien2"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "kununu.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "HR",
+   "evidence": [
+    {
+     "anchor": "Real estate design",
+     "found_on": "https://www.opereta.hr/nekretnine/prodaja",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://opereta-projektiranje.hr/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "opereta-projektiranje.hr",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": "Opereta projektiranje d.o.o."
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/landhausidylle-mit-moeglicher-tierhaltung-2145036060/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.raiffeisen-immobilien.at/de/immobilien"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "raiffeisen-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "signals": {
+    "areas": 24,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 22,
+    "property_words": 26
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobilien | Raiffeisen Immobilien Immobilien"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "WWW.SMKIMMO.AT",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/mistelbach/uriger-charme-mit-besonderem-flair-1290355524/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.smkimmo.at/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "smkimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 40
+   },
+   "status": "nije_relevantno",
+   "title": "Ihr Immobilienmakler mit 22 jähriger Immobilienmarkterfahrung! Ihr Immobilienmakler mit über 22 jähriger Immobilienmarkterfahrung"
+  },
+  {
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Property Information Checklist",
+     "found_on": "https://lda.ie/projects/private-land-acquisition",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://view.officeapps.live.com/op/view.aspx"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "view.officeapps.live.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "novo"
+  }
+ ],
  "schema_version": 1,
- "updated_at": "2026-10-23T16:44:58.574837+00:00"
+ "updated_at": "2026-10-23T18:29:56.556629+00:00",
+ "verified_at": "2026-10-23T18:29:56.667281+00:00"
 }
