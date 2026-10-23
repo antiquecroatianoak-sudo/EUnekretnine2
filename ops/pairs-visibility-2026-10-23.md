@@ -19,7 +19,7 @@ Ovaj dokument se ažurira sa svakim commitom ove grane. Status „u tijeku” zn
 | A | Površina −15 % / +25 % (nadomješta ±25 % iz 6364306499), uz izričitu tvrdu granicu kupca | `areaFit` u svim kopijama `domain.mjs`, `area_fit` u `matching.py`; `suggestion()` (i stari `min_area_m2`); Sites obrazac i Streamlit obrazac (`area_hard`). SQL čuvari ne provjeravaju površinu, pa tu nema promjene. | `test_domain_input.mjs`, `test_matching.py`, `test_matching_ui.py`, DOM 3 | izvedeno |
 | B | Otkrivanje novih izvora za oba toka, ili precizno dokumentirana prepreka | `source_leads.py` (novi), `registry_discovery.py` (`observe`, `record_observed`), `discovery.yml` (korak provjere i spremanje `data/source_leads.json`), `ops/source-leads.md` | `test_source_leads.py` (5 testova); stvarni prolaz moguć tek na `main` | izvedeno, uz dokumentirane prepreke (nema tražilice bez ključa ili plaćene usluge; uključivanje izvora je ručno) |
 | C | Odgođena poslovna faza, zadano isključena i reverzibilna | `sites-platform/index.js` (`settings()` iz `BUSINESS_PHASE`, u `read` i `pairs`), `platform.tsx` (`TeaserPreview businessPhase`) | `test_pair_api.mjs` (zadano isključeno, uključivanje bez promjene podataka), DOM 5 | izvedeno |
-| D | `ops/potential-pairs.md` usklađen s PR-om #2 i #3 te Sitesom v7; povijesno stanje označeno | dokumentacija | — | u tijeku |
+| D | `ops/potential-pairs.md` usklađen s PR-om #2 i #3 te Sitesom v7; povijesno stanje označeno; audit niže | `ops/potential-pairs.md`, `ops/review-fixes-2026-10-23.md`, ovaj dokument | — (dokumentacija) | izvedeno |
 
 ## V — nalaz o vidljivosti (bez pristupa produkciji)
 Uzrok praznog prikaza ne mogu reproducirati bez produkcije. Kod je imao tri slabe točke koje do njega mogu dovesti; ovaj paket uklanja svaku.
@@ -63,3 +63,18 @@ Pregledatelj to može pokrenuti na produkciji bez izlaganja zapisa. Ništa se ne
   3. stvarni interes kupca, zabilježen s dokazom;
   4. predaja agenciji i ugovor o proviziji s agencijom.
   Ovo nije pravna potvrda niti odobrenje potpisivanja.
+
+## D — audit stanja koda (grana na zadnjem commitu ovog PR-a)
+| Područje | Gdje | Test | Status ili nalaz |
+|---|---|---|---|
+| Vlasništvo podataka i dokazi | `investorInput`/`propertyInput`; `checkValid`; `pair_answers` (zapisi se samo dodaju); `source_check` | `test_domain_input.mjs`, `test_pair_api.mjs`, `test-pair-records.sql` | U redu: dokaz, izvor i datum su obvezni; ništa se ne izmišlja. |
+| Vrsta, stanje, lokacija | `evaluate`/`check`; `suggestion()` (aliasi vrsta) | `test_matching.py`, `test_public_land.mjs` | U redu. Lijevak (`pair_diagnostics`) mjeri koliko nekretnina nema prepoznatu vrstu. **Nalaz za produkciju:** ako taj broj bude velik, to je glavni razlog malog broja parova. Rješava se dopunom vrste iz izvora (normalizacija u adapterima), ne pogađanjem. |
+| Normalizacija i deduplikacija | `registry_discovery.canonical`, `merge.mjs`, `source_store.sync_snapshot`, `source_leads.merge` | `test_registry_discovery.py`, `test_public_land.mjs`, `test_source_leads.py` | U redu. |
+| Svježina | `sourceFresh` (30 dana), `storedBuyerEligible` (90 dana), `reconcile_listing_lifecycle` | `test_matching.py`, `test_domain_input.mjs`, `test_pair_api.mjs` | U redu: istek vraća kandidata uz sačuvanu povijest. |
+| Ručni podaci i povijest | `sync_match_review_tasks` (zamijenjena), `pair_records`/`pair_history`/`pair_task_archive`, `keep_closed_state` | `test-pair-records.sql`, `test_pair_api.mjs` | U redu. |
+| Greška naspram praznog prikaza | `fetchJson`, `loadPairs`, `pairsExplanation` | DOM 7a–7d | **Ispravljeno u ovom PR-u.** |
+| Broj i popis | `possiblePairs`, `pairsView`, `pairsUnknown` | `test-platform-view.mjs`, DOM 1 i 7 | Isti niz za broj i popis; nepoznat broj prikazuje se kao „?”. |
+| Skraćeni popisi | `LIMITS`, `counts`, `truncated`, `sources` | `test_pair_api.mjs` | **Ispravljeno u ovom PR-u:** skraćeni popis se više ne prikazuje kao potpun. |
+| Sigurnost API-ja | `route.ts` (prijava, isti origin, popis dopuštenih radnji), potpis RSA-PSS u `sites-platform`, `site_private` s RLS-om | `test-platform-route.mjs` | U redu. Nove radnje samo čitaju ili su postojeće. `pair_diagnostics` vraća samo brojeve. |
+| Poslovna faza | `settings().business_phase` | `test_pair_api.mjs`, DOM 5 | Zadano isključeno. |
+| Otkrivanje novih izvora | `source_leads.py` | `test_source_leads.py` | Tragovi s dokazom; uključivanje izvora je ručno. Prepreke su u `ops/source-leads.md`. |
