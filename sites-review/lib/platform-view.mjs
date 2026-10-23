@@ -35,16 +35,19 @@ export function sourceProgress(run){
  if(pending)counts.push(`${pending} poveznica čeka nastavak`);
  return {state,summary:counts.join(' · '),continuing:run.status==='Djelomično'&&pending>0&&!state.error};
 }
-// Stored pairs from the separate `pairs` read. Pairs whose property or buyer is outside the visible lists stay
-// out of the list (as before) but are counted, so a hidden pair is never silently lost.
-export function pairsView(resp){
+// Stored pairs from the separate `pairs` read (complete: every linked record was fetched by id) or from the full
+// read (records may be outside its row caps). Pairs whose property or buyer is outside the visible lists, missing,
+// or whose stored result is malformed stay out of the list but are counted with a reason; none is silently lost.
+const validResult=r=>[MATCH,CANDIDATE,REJECT].includes(r.status)&&Number.isFinite(r.score)&&['reasons','missing','rejected'].every(k=>Array.isArray(r[k]));
+export function pairsView(resp,{complete=true}={}){
  if(!resp)return {matches:[],hidden:[]};
  const visible=rows=>(rows||[]).filter(r=>r.visible!==false);
  const matches=storedMatches({properties:visible(resp.properties),investors:visible(resp.investors),match_results:resp.match_results});
  const p=new Map((resp.properties||[]).map(r=>[String(r.id),r])),i=new Map((resp.investors||[]).map(r=>[String(r.id),r]));
+ const absent=complete?'više ne postoji':'nije u učitanim podacima';
  const hidden=(resp.match_results||[]).flatMap(m=>{
   const prop=p.get(String(m.property_id)),inv=i.get(String(m.investor_id));
-  const reason=!prop?'nekretnina više ne postoji':!inv?'kupac više ne postoji':prop.visible===false?'nekretnina je istekla ili uklonjena iz izvora':inv.visible===false?'zahtjev kupca je istekao ili uklonjen iz izvora':null;
+  const reason=!validResult(jsonObject(m.result_json))?'spremljeni rezultat nema valjanu strukturu':!prop?'nekretnina '+absent:!inv?'kupac '+absent:prop.visible===false?'nekretnina je istekla ili uklonjena iz izvora':inv.visible===false?'zahtjev kupca je istekao ili uklonjen iz izvora':null;
   return reason?[{property_id:m.property_id,investor_id:m.investor_id,reason}]:[];
  });
  return {matches,hidden,totals:resp.totals||null,loaded_at:resp.loaded_at};

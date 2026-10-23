@@ -19,6 +19,13 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(self.count('notification_outbox'),1)
         self.assertEqual(run(self.c,[self.item]),0)
         self.assertEqual(self.count('properties'),1)
+    def test_every_eu_member_state_and_no_other_country(self):
+        # 6369690655 point 1: EU27 on equal terms; a code is normalised to the name.
+        for n,country in enumerate(['Portugal','LT','Švedska']):
+            self.assertEqual(run(self.c,[dict(self.item,country=country,source=f'https://example.org/eu/{n}')]),1)
+        self.assertEqual({r['country'] for r in self.c.execute('SELECT country FROM properties')},{'Portugal','Litva','Švedska'})
+        for country in ('Norveška','Švicarska','US'):
+            with self.assertRaises(ValueError): run(self.c,[dict(self.item,country=country,source='https://example.org/no')])
     def test_unknown_legal_never_notifies(self):
         self.item['legal']='Nepoznato'
         run(self.c,[self.item])

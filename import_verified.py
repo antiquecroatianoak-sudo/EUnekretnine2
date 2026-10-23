@@ -5,7 +5,7 @@ import math
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 from storage import connect
-from matching import PROPERTY_TYPES, CONDITIONS, MATCH, evaluate, refresh_matches
+from matching import PROPERTY_TYPES, CONDITIONS, MATCH, COUNTRY_NAMES, country_name, evaluate, refresh_matches
 
 def url(value):
     parsed = urlparse(value)
@@ -17,8 +17,10 @@ def validate(item):
     for key in ('country', 'city', 'title', 'source', 'evidence_url', 'checked_at'):
         if not isinstance(item.get(key), str) or not item[key].strip():
             raise ValueError('Nedostaje polje: ' + key)
-    if item['country'] not in ('Francuska', 'Nizozemska', 'Hrvatska', 'Slovenija'):
-        raise ValueError('Uvoz prihvaća Francusku, Nizozemsku, Hrvatsku i Sloveniju.')
+    # EU27 on equal terms (6369690655); a code or name of a member state, never a non-EU country.
+    if country_name(item['country']) not in COUNTRY_NAMES.values():
+        raise ValueError('Uvoz prihvaća nekretnine u svih 27 država članica EU.')
+    item['country'] = country_name(item['country'])
     url(item['source']); url(item['evidence_url'])
     checked = datetime.fromisoformat(item['checked_at'].replace('Z', '+00:00'))
     if checked.tzinfo is None or checked > datetime.now(timezone.utc):

@@ -147,11 +147,39 @@ try{
  // C: the deferred business phase is off unless explicitly configured; switching it changes no data.
  assert.equal(full.settings.business_phase,false);assert.equal(pv.settings.business_phase,false);
  process.env.TEST_BUSINESS_PHASE='on';assert.equal((await run({action:'pairs'})).settings.business_phase,true);delete process.env.TEST_BUSINESS_PHASE;
+ // 6369690655 point 2: buyer drafts keep every criterion, an unknown budget and the seat, without inventing EU interest.
+ const cand=(id,facts,country='HR',title='TEST kupac '+id)=>sql`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${id},'test','buyer',${title},${country},${'https://example.org/b/'+id},${JSON.stringify({facts})},${new Date().toISOString()})`;
+ await cand('test:buyer:global',{seat_country:'US',preferred_countries:['Hrvatska','SI'],property_types:['Zemljište'],preferred_locations:['Uz more'],required_criteria:['Građevinska dozvola'],min_area:2000},'US');
+ await cand('test:buyer:profile',{property_types:['Zgrada']},'DE');
+ await cand('test:buyer:call',{buyer_type:'public_authority',listing_kind:'public_buy_request',deadline:'2027-04-30',budget:25000000,budget_unit:'EUR/m2',property_types:['Zemljište']},'IE');
+ const drafts={};for(const id of ['test:buyer:global','test:buyer:profile','test:buyer:call']){const r=await run({action:'prepare',id});drafts[id]=(await sql`select * from investors where id=${r.id}`)[0]}
+ let g=drafts['test:buyer:global'],gc=JSON.parse(g.criteria_json);
+ assert.equal(g.country,'US','the seat is kept');assert.equal(g.preferred_countries,'Hrvatska,Slovenija','EU interest comes from the source');
+ assert.equal(g.min_budget,null);assert.equal(g.max_budget,null,'an unknown budget is NULL, never 0');
+ assert.deepEqual([gc.preferred_locations,gc.required_criteria,gc.min_area,gc.candidate_source_id],[['Uz more'],['Građevinska dozvola'],2000,'test:buyer:global'],'extra criteria and provenance are kept');
+ g=drafts['test:buyer:profile'];assert.equal(g.preferred_countries,'','a profile without stated interest gets none from its seat');assert.equal(JSON.parse(g.criteria_json).interest_basis,'Interes za države EU nije naveden u izvoru');
+ g=drafts['test:buyer:call'];gc=JSON.parse(g.criteria_json);
+ assert.equal(g.preferred_countries,'Irska','a public buy request is located where it is published');assert.equal(g.max_budget,null,'a per-m² figure is not a budget');
+ assert.deepEqual([gc.buyer_kind,gc.call_deadline,gc.listing_kind],['Javno tijelo','2027-04-30','public_buy_request']);
+ assert.equal(String((await run({action:'prepare',id:'test:buyer:global'})).id),String(drafts['test:buyer:global'].id),'prepared once');
+ // 6369690655 point 1: import accepts every EU member state and rejects a property outside the EU.
+ const item=(country,n)=>({title:'TEST uvoz '+n,country,city:'Lisboa',source:'https://example.pt/l/'+n,evidence_url:'https://example.pt/e/'+n,checked_at:new Date(Date.now()-60000).toISOString(),source_verified:true,listing_active:true,price:150000,area:80,renovation:0,other_costs:0,legal:'Nepoznato'});
+ assert.equal((await run({action:'import',items:[item('Portugal',1)]})).inserted,1);
+ assert.equal((await run({action:'import',items:[item('LT',2)]})).inserted,1,'a member-state code is accepted');
+ await assert.rejects(run({action:'import',items:[item('Norveška',3)]}),/državu EU|država|EU/);
  // Counts-only diagnostics explain the gap between all property × buyer pairs and stored candidates.
  const diag=await run({action:'pair_diagnostics'});
  const f=diag.funnel,sum=Object.values(f.suggested).reduce((a,b)=>a+b,0)+Object.values(f.excluded).reduce((a,b)=>a+b,0)+f.country_mismatch;
  assert.equal(sum,f.pairs,'every pair is either suggested, excluded with a reason or outside the buyer countries');
  assert.equal(Object.values(f.suggested).reduce((a,b)=>a+b,0),diag.stored.total,'suggested pairs equal stored pairs after a refresh');
  assert(!JSON.stringify(diag).includes('example.ie'),'diagnostics contain counts, not records');
+ // Evidence for review (6369690655): the real API responses of this run, interpreted by the same view code as the
+ // dashboard. With PAIRS_RESPONSE_OUT set, they are saved for the DOM check, which renders them.
+ {const {pairsView,possiblePairs}=await import('./sites-review/lib/platform-view.mjs');
+  const real={read:await run({action:'read'}),pairs:await run({action:'pairs'})};
+  const dbCandidates=(await sql`select count(*)::int as n from match_results m join properties p on p.id=m.property_id where m.result_json::jsonb->>'status'=${CANDIDATE} and (p.bid_deadline_at is null or p.bid_deadline_at>now())`)[0].n;
+  assert(dbCandidates>0,'the run has stored candidates to show');
+  assert.equal(possiblePairs(pairsView(JSON.parse(JSON.stringify(real.pairs))).matches).length,dbCandidates,'every stored visible candidate reaches the list');
+  if(process.env.PAIRS_RESPONSE_OUT)writeFileSync(process.env.PAIRS_RESPONSE_OUT,JSON.stringify({...real,expected_candidates:dbCandidates}));}
  console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair, explicit source check without budget, expiry back to candidate, guard refusal kept visible and excluded from ranking.');
 }finally{await sql.end()}

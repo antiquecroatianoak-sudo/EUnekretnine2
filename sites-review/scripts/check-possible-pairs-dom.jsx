@@ -23,12 +23,13 @@ const setValue=async(el,v)=>{await act(async()=>{const set=Object.getOwnProperty
 // Each test section installs a mock of the full read and of storing actions. The installed mock is wrapped so
 // responses also offer text() (the dashboard parses text to report invalid bodies), and the separate `pairs` read
 // is answered from the same mocked dataset without being recorded as a storing action.
-let mockFetch,pairsMode='ok';
+let mockFetch,pairsMode='ok',realResponse=null;
 const respond=r=>({status:r.ok?200:500,...r,text:r.text||(async()=>JSON.stringify(await r.json()))});
 Object.defineProperty(globalThis,'fetch',{configurable:true,set:v=>{mockFetch=v},get:()=>async(url,options={})=>{
  let body=null;try{body=JSON.parse(options.body||'null')}catch{}
  if(options.method==='POST'&&body?.action==='pairs'){
   if(pairsMode==='fail')return respond({ok:false,status:504,json:async()=>({error:'Gateway timeout'})});
+  if(pairsMode==='real')return respond({ok:true,json:async()=>realResponse.pairs});
   const d=await (await mockFetch(url,{})).json();
   return respond({ok:true,json:async()=>({match_results:d.match_results,properties:d.properties,investors:d.investors,totals:{properties:d.properties.length,investors:d.investors.length}})});
  }
@@ -255,4 +256,15 @@ root=await split(true,true,withHidden);
 await act(async()=>{button('Mogući parovi').click()});
 assert.equal($$('.match-card').length,1);assert(document.body.textContent.includes('1 skriveno jer nekretnina je istekla ili uklonjena iz izvora'));
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted.');
+// 8. Real API responses from test_pair_api.mjs (CI passes PAIRS_RESPONSE): the dashboard shows every stored candidate.
+const {existsSync,readFileSync}=await import('node:fs');
+let realChecked=false;
+if(process.env.PAIRS_RESPONSE&&existsSync(process.env.PAIRS_RESPONSE)){
+ realResponse=JSON.parse(readFileSync(process.env.PAIRS_RESPONSE,'utf8'));
+ root=await mountWith(async(url,options={})=>options.method==='POST'?{ok:true,json:async()=>({})}:{ok:true,json:async()=>realResponse.read},'real');
+ assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,String(realResponse.expected_candidates));
+ await act(async()=>{button('Mogući parovi').click()});
+ assert.equal($$('.match-card').length,realResponse.expected_candidates,'rendered from the real API response');
+ await act(async()=>root.unmount());realChecked=true;
+}
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted'+(realChecked?'; real API response rendered with every stored candidate.':' (real API response not supplied).'));

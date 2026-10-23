@@ -1,5 +1,5 @@
 import postgres from 'npm:postgres@3.4.7';
-import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES} from './domain.mjs';
+import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
 import {pairFunnel} from './suggestions.mjs';
 const PUBLIC_KEY={"kty":"RSA","n":"zftp10EPtvkqY_g46ytE0Mx6r2Y9cFyoMSEUn19hAEGIkeVFahS2m-j_O5fLUYt4b3tNvgGUOK-v92DhNwEdlYU8nSJa3Qlr2uEMCo_N-rQdwhjMc12fJBOQHDB4MCTF3MuydWIeyniALAhASW5DyjN4nUnT8C97ztPLnCXghTrQU8B4rUGASSPTbuq5sLBXRHfbkPaRnBHxjJLfE84gfn9huLyS4-tft3VsOBBejGZctrRj0ZdVmd-btmMifm7eVjVfPahHO9k5WjLBR3iuh6eiJlWDyKRKhmZQXt07QGG0MqFMEfveZqtsbUU5hNjwechw_1a_wgF77JcwhTn6-Q","e":"AQAB"};
@@ -78,8 +78,8 @@ async function prepare(tx,id){
   result=await tx`insert into properties(country,title,source,price,renovation,other_costs,legal,status,updated) values(${r.country},${r.title},${r.url},${num(f.asking_price)?f.asking_price:null},null,null,'Nepoznato','Provjera',${r.last_seen}) returning id`;
   await tx`update source_candidates set property_id=${result[0].id} where id=${id}`;
  }else{
-  const c=Object.fromEntries(Object.entries(f).filter(([k])=>['property_types','cities','min_area','max_area','requires_buildable'].includes(k)));c.source_url=r.url;c.checked_at=r.last_seen;
-  result=await tx`insert into investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) values(${r.title},${r.country},0,null,${r.country},${'Javni zahtjev; provjeri budžet, lokaciju i sve uvjete. '+(f.location_note||'')+' '+(f.development_note||'')},0,${JSON.stringify(c)}) returning id`;
+  const b=buyerDraft(r,f);
+  result=await tx`insert into investors ${tx(b,'name','country','min_budget','max_budget','preferred_countries','notes','verified','criteria_json')} returning id`;
   await tx`update source_candidates set investor_id=${result[0].id} where id=${id}`;
  }
  return {kind:r.kind,id:result[0].id};
@@ -179,7 +179,8 @@ async function dispatch(tx,a){
   if(!Array.isArray(a.items)||!a.items.length||a.items.length>1000)throw Error('Potreban je popis od 1 do 1000 zapisa.');
   for(const p of a.items){
    propertyInput(p);for(const k of ['city','evidence_url','checked_at'])if(typeof p[k]!=='string'||!p[k].trim())throw Error('Nedostaje '+k);
-   if(!['Francuska','Nizozemska','Hrvatska','Slovenija'].includes(p.country)||!validUrl(p.evidence_url)||!/(Z|[+-]\d\d:\d\d)$/.test(p.checked_at)||!Number.isFinite(Date.parse(p.checked_at))||Date.parse(p.checked_at)>Date.now()||p.source_verified!==true||p.listing_active!==true)throw Error('Uvoz zahtijeva provjerene izvore, aktivnost i valjan datum.');
+   // EU27 on equal terms (6369690655 point 1); the country must be an EU member state.
+   if(!Object.values(COUNTRIES).includes(country(p.country))||!validUrl(p.evidence_url)||!/(Z|[+-]\d\d:\d\d)$/.test(p.checked_at)||!Number.isFinite(Date.parse(p.checked_at))||Date.parse(p.checked_at)>Date.now()||p.source_verified!==true||p.listing_active!==true)throw Error('Uvoz zahtijeva provjerene izvore, aktivnost i valjan datum.');
    if(!['price','area','renovation','other_costs'].every(k=>num(p[k])))throw Error('U uvozu su obavezni provjereni iznosi i površina.');
   }
   let inserted=0;for(const p of a.items){if((await tx`select id from properties where source=${p.source} union all select property_id from imports where source_url=${p.source} limit 1`).length)continue;

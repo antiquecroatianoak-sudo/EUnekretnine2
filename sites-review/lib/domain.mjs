@@ -171,6 +171,27 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  if(['prodano','povuceno','rok istekao','zatvoreno'].some(v=>norm(p.status).startsWith(v))||expired)rejected.push('Nekretnina više nije aktivna');
  return settle({...r,score:checks?Math.round(100*passed/checks):0,total_cost:total,roi});
 }
+// Buyer draft from a discovered source candidate (6369690655 point 2). Every known criterion and call fact is kept;
+// an unknown budget stays NULL (never 0); the seat is not the EU interest. Interest comes only from the source:
+// published preferred countries, or the location of a public buy request (as site_private.sync_source_listing).
+export const BUYER_FACTS=['property_types','conditions','cities','regions','min_area','max_area','requires_buildable','area_hard','preferred_locations','locations','required_criteria','required','original_property_types','min_area_m2','max_area_m2'];
+const euCountry=v=>Object.values(COUNTRIES).includes(country(v))?country(v):null;
+export function buyerDraft(r,f={}){
+ const c=Object.fromEntries(BUYER_FACTS.filter(k=>f[k]!=null).map(k=>[k,f[k]]));
+ Object.assign(c,{source_url:r.url,checked_at:r.last_seen,candidate_source_id:r.id});
+ if(f.buyer_type==='public_authority')c.buyer_kind='Javno tijelo';
+ if(f.listing_kind)c.listing_kind=f.listing_kind;
+ if(f.deadline)c.call_deadline=f.deadline;
+ if(['expired','removed'].includes(f.source_listing_state))c.call_closed=f.source_status_evidence||f.source_listing_state;
+ const listed=(Array.isArray(f.preferred_countries)?f.preferred_countries:String(f.preferred_countries||'').split(',')).map(euCountry).filter(Boolean);
+ const publicDemand=['buy_request','public_buy_request'].includes(f.transaction_type)||f.listing_kind==='public_buy_request'||f.buyer_type==='public_authority';
+ const interest=[...new Set(listed.length?listed:publicDemand&&euCountry(r.country)?[euCountry(r.country)]:[])];
+ c.interest_basis=listed.length?'Države navedene u izvoru':interest.length?'Lokacija objavljene potražnje':'Interes za države EU nije naveden u izvoru';
+ // A per-m² price or a programme total is not the buyer's budget.
+ const budget=num(f.budget)&&!['EUR/m2','EUR/m²','€/m²'].includes(f.budget_unit)&&!('unit_budget' in f)?f.budget:null;
+ return {name:r.title,country:country(f.seat_country||f.headquarters_country||r.country),min_budget:null,max_budget:budget,preferred_countries:interest.join(','),
+  notes:('Javni zahtjev; provjeri lokaciju i sve uvjete. '+(f.location_note||'')+' '+(f.development_note||'')).trim(),verified:0,criteria_json:JSON.stringify(c)};
+}
 export function propertyInput(input){
  const out={};const texts=['price_basis','country','city','region','title','property_type','condition','source','legal','status','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','risk_notes'];
  for(const k of texts)if(k in input){if(input[k]!=null&&typeof input[k]!=='string')throw Error('Nevaljano polje: '+k);out[k]=input[k]?.trim()||null;if(out[k]?.length>4000)throw Error('Predug podatak: '+k)}

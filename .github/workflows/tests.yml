@@ -47,6 +47,7 @@ jobs:
         env:
           TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test?sslmode=require
           PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
+          PAIRS_RESPONSE_OUT: ${{ runner.temp }}/pairs-response.json
         run: python -m unittest discover -p 'test_*.py'
       - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
         run: |
@@ -56,6 +57,8 @@ jobs:
           node sites-review/scripts/test-platform-view.mjs
           node sites-review/scripts/test-teaser.mjs
       - name: Pregled sučelja i odvojeni negativan ishod odgovora
+        env:
+          PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json
         run: |
           npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
           bash ops/run-dom-check.sh "$RUNNER_TEMP/dom"

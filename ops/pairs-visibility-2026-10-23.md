@@ -78,3 +78,28 @@ Pregledatelj to može pokrenuti na produkciji bez izlaganja zapisa. Ništa se ne
 | Sigurnost API-ja | `route.ts` (prijava, isti origin, popis dopuštenih radnji), potpis RSA-PSS u `sites-platform`, `site_private` s RLS-om | `test-platform-route.mjs` | U redu. Nove radnje samo čitaju ili su postojeće. `pair_diagnostics` vraća samo brojeve. |
 | Poslovna faza | `settings().business_phase` | `test_pair_api.mjs`, DOM 5 | Zadano isključeno. |
 | Otkrivanje novih izvora | `source_leads.py` | `test_source_leads.py` | Tragovi s dokazom; uključivanje izvora je ručno. Prepreke su u `ops/source-leads.md`. |
+
+## Matrica prihvata (6369690655)
+Statusi:
+- **implementirano:** kod je u ovoj grani;
+- **testirano:** postoji automatski test;
+- **objavljeno:** u produkciji prema pregledu ChatGPT-a; za ovu granu ništa još nije objavljeno;
+- **blokirano:** postoji stvarna prepreka.
+
+| Zahtjev | Datoteke | Stvarni test | Status |
+|---|---|---|---|
+| Dvije trajne baze (`properties`, `investors`), provenijencija i svježina | `buyerDraft`/`buyer_draft` (`candidate_source_id`, `source_url`, `checked_at`), `source_check`, `sourceFresh`, `pair_records` | `test_pair_api.mjs` (prepare, source_check, istek), `test_public_land_sources.py` | implementirano, testirano; dio iz PR-a #2 i #3 objavljen |
+| Novo otkrivanje izvora odvojeno od osvježavanja poznatih | `source_leads.py` (zasebna datoteka i status), `registry_discovery.py` (samo prikuplja tragove) | `test_source_leads.py` | implementirano, testirano; prvi stvarni prolaz moguć tek na `main`; tražilica blokirana (nema je bez ključa ili plaćene usluge) |
+| EU27 nekretnine ravnopravno | uvoz u `sites-platform` i `import_verified.py`; `propertyInput` | `test_pair_api.mjs` (Portugal, LT, odbijena Norveška), `test_import.py` (Portugal, LT, Švedska; odbijene Norveška, Švicarska, US) | implementirano, testirano |
+| Globalni kupci s dokumentiranim EU interesom | `buyerDraft` (sjedište ≠ interes; interes samo iz izvora ili lokacije javnog poziva), `investorInput` | `test_pair_api.mjs` (US sjedište, interes HR i SI; profil bez interesa; javni poziv IE), `test_domain_input.mjs` | implementirano, testirano |
+| Lokacija, vrsta, stanje, površina −15 %/+25 % i tvrdi uvjeti | `evaluate`, `areaFit`/`area_fit`, `area_hard` | `test_domain_input.mjs`, `test_matching.py`, `test_matching_ui.py`, DOM 3 | implementirano, testirano |
+| Budžet neobavezan; cijena i usporediv rang važni | `evaluate` (`info`), `rankAffordability` (samo nad spremljenim zapisima) | `test_domain_input.mjs`, `test_pair_api.mjs` (rang 1/2, odbijeni upis ne mijenja rang) | implementirano, testirano; rang objavljen s PR-om #3 |
+| Nepotpuni kandidati vidljivi sa zadacima | `gaps`, `match_review_tasks`, `pairs`, Detalj para | `test_pair_api.mjs`, DOM 6 i 7 | implementirano, testirano |
+| Povijest, ručne izmjene, deduplikacija | `pair_history`, `pair_task_archive`, `sync_match_review_tasks`, `merge.mjs`, `prepare` (jednom) | `test-pair-records.sql`, `test_pair_api.mjs`, `test_public_land.mjs` | implementirano, testirano; SQL objavljen s PR-om #2 |
+| Broj, popis i greška nasuprot nuli | `pairs`, `pairsView` (uključuje nevaljane i neučitane zapise), `pairsExplanation`, `fetchJson`, „?” | `test-platform-view.mjs`, DOM 7a–7f, **DOM 8: stvarni odgovor API-ja iz `test_pair_api.mjs` prikazan sa svim spremljenim kandidatima** | implementirano, testirano |
+| Ograničenje od 10 000 redaka: potpunost i veze | `LIMITS`, `counts`, `truncated`, `sources` (stranice); `pairs` dohvaća vezane zapise po id-u | `test_pair_api.mjs` | implementirano, testirano |
+| Privatnost i API | `route.ts` (prijava, origin, popis dopuštenih radnji), potpis, `site_private` s RLS-om; `pair_diagnostics` vraća samo brojeve | `test-platform-route.mjs`, `test_pair_api.mjs` | implementirano, testirano |
+| Odgođena poslovna faza | `BUSINESS_PHASE` (zadano isključeno) | `test_pair_api.mjs`, DOM 5 | implementirano, testirano |
+| Provjera na produkciji | — | — | blokirano za ovu sesiju: nema pristupa produkcijskoj bazi ni Sites gatewayu. `pair_diagnostics` i stvarna veličina odgovora mjere se nakon objave. |
+
+**Poznato ograničenje.** SQL `site_private.sync_source_listing` za javne pozive i dalje kopira samo 7 ključeva kriterija. Proširenje bi tražilo novu migraciju, koja je izvan ovog PR-a. Prijedlog je otvoren za pregled.
