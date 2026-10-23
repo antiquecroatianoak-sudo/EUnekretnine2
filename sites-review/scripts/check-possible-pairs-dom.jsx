@@ -122,12 +122,13 @@ assert.equal(noteCheck.digest,server.digest('Samo uz prugu'));assert(!('notes_co
 assert(server.checkValid(noteCheck,'Samo uz prugu')&&!server.checkValid(noteCheck,'Samo uz prugu i Trešnjevka'));
 server.investorInput(noteRecord);
 await act(async()=>root.unmount());
+let businessSettings={business_phase:false};
 // 5. Audit 6342938279 point 5: buyer summary is previewed, copied only after review, never sent.
 posts.length=0;let copied=null;
 Object.defineProperty(globalThis.navigator,'clipboard',{value:{writeText:async t=>{copied=t}},configurable:true});
 document.body.innerHTML='<div id="root"></div>';
 globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({})}}
- const d=dataset(true);d.properties[1]={...d.properties[1],title:'Zemljište Galway Oranmore Road 12',country:'Irska',source:'https://www.daft.ie/x/5412345',city:'Oranmore',region:'Galway',property_type:'Zemljište',area:6120,price:243500,price_basis:'Asking price'};return {ok:true,json:async()=>d}};
+ const d=dataset(true);d.properties[1]={...d.properties[1],title:'Zemljište Galway Oranmore Road 12',country:'Irska',source:'https://www.daft.ie/x/5412345',city:'Oranmore',region:'Galway',property_type:'Zemljište',area:6120,price:243500,price_basis:'Asking price'};d.settings=businessSettings;return {ok:true,json:async()=>d}};
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 await act(async()=>{button('Podudaranja').click()});
 // A presentation is prepared only from a real opportunity (owner 6344490047), not from a possible pair.
@@ -142,6 +143,18 @@ await act(async()=>{$('input[name="teaser_region_confirmed"]').click()});
 const summary=$('textarea[aria-label="Opis za kupca"]').value;
 assert(summary.includes('Okvirna lokacija: County Galway, Irska')&&summary.includes('Površina: 6.100 – 6.200 m²')&&summary.includes('Tražena cijena: 200.000 – 250.000 €'));
 for(const secret of ['Oranmore','Road','daft','5412345','243.500'])assert(!summary.includes(secret),'leaked '+secret);
+// C (6364306499): the business phase is off by default; the draft is internal and cannot be copied for sending.
+assert(document.body.textContent.includes('Poslovna faza je odgođena'));
+await act(async()=>{$('input[name="teaser_reviewed"]').click()});
+assert.equal($$('button').find(b=>b.textContent==='Kopiraj opis').disabled,true,'copy for sending stays off until the business starts');
+await act(async()=>{$('input[name="teaser_reviewed"]').click()});
+// Switched on (reversible configuration, no data change): copying is possible after review.
+await act(async()=>root.unmount());businessSettings={business_phase:true};
+root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
+await act(async()=>{button('Podudaranja').click()});
+await act(async()=>{[...$$('.match-card').find(c=>c.textContent.includes('Oranmore Road')).querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
+await setValue($('input[name="teaser_region"]'),'County Galway');await act(async()=>{$('input[name="teaser_region_confirmed"]').click()});
+assert(!document.body.textContent.includes('Poslovna faza je odgođena'));
 const copyButton=$$('button').find(b=>b.textContent==='Kopiraj opis');
 assert.equal(copyButton.disabled,true,'copy needs a review first');
 await act(async()=>{$('input[name="teaser_reviewed"]').click()});

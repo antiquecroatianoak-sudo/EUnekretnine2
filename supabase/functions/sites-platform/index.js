@@ -11,6 +11,10 @@ let db;
 function database(){return db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:2,prepare:false,idle_timeout:10,connect_timeout:10})}
 // Manual refresh, record edits and discovery use the same rules and transaction lock.
 const refresh=refreshSuggestions;
+// Deferred business phase (6364306499 C): preparing presentations for buyers, seller contact and agency hand-over
+// stay off until the owner starts the business. Reversible with BUSINESS_PHASE=on; it changes no data and never
+// sends anything (this function has no sending path); internal review and manual entry are never blocked.
+const settings=()=>({business_phase:Deno.env.get('BUSINESS_PHASE')==='on'});
 // Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
 const PROPERTY_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())`;
 const INVESTOR_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed'))`;
@@ -30,7 +34,7 @@ async function list(tx){
   (select count(*) from sources)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
   (select count(*) from activity)::int as activity,(select count(*) from notification_outbox)::int as notification_outbox,(select count(*) from match_results)::int as match_results`;
  const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
- return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['truncated',truncated],['loaded_at',new Date().toISOString()]]);
+ return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['truncated',truncated],['settings',settings()],['loaded_at',new Date().toISOString()]]);
 }
 // Stored pairs with only the records they link to: small, independent of the full read, and explicit about
 // pairs whose property or buyer is outside the visible lists (they are reported, never silently dropped).
@@ -41,7 +45,7 @@ async function pairsRead(tx){
   tx`select p.*,(${tx.unsafe(PROPERTY_VISIBLE)}) as visible from properties p where p.id=any(${pids}::bigint[])`,
   tx`select i.*,(${tx.unsafe(INVESTOR_VISIBLE)}) as visible from investors i where i.id=any(${iids}::bigint[])`,
   tx`select (select count(*) from properties)::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
- return {match_results:rows,properties,investors,totals,loaded_at:new Date().toISOString()};
+ return {match_results:rows,properties,investors,totals,settings:settings(),loaded_at:new Date().toISOString()};
 }
 // Paged source candidates for the Izvori tab (newest first).
 async function sourcesPage(tx,a){

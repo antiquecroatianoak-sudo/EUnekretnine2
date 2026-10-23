@@ -5,7 +5,7 @@ import {readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 const {default:postgres}=await import(pathToFileURL(process.env.PG_MODULE).href);
 const dir=new URL('./supabase/functions/sites-platform/',import.meta.url),copy=new URL('.pair-api-test.mjs',dir);
-globalThis.Deno={env:{get:()=>process.env.PAIR_DB_URL},serve:()=>{}};
+globalThis.Deno={env:{get:k=>k==='SUPABASE_DB_URL'?process.env.PAIR_DB_URL:process.env['TEST_'+k]},serve:()=>{}};
 writeFileSync(copy,readFileSync(new URL('index.js',dir),'utf8').replace("from 'npm:postgres@3.4.7'",'from '+JSON.stringify(pathToFileURL(process.env.PG_MODULE).href))+'\nexport {dispatch};');
 let dispatch;try{({dispatch}=await import(copy.href))}finally{rmSync(copy)}
 const {digest,PAIR_CONDITION,MATCH,CANDIDATE,PHASE}=await import('./supabase/functions/sites-platform/domain.mjs');
@@ -144,6 +144,9 @@ try{
  assert.equal(page.total,7);assert.deepEqual(page.source_candidates.map(c=>c.id),['test:page:4','test:page:3','test:page:2'],'newest first, stable paging');
  await assert.rejects(run({action:'sources',offset:-1}),/Nevaljana stranica/);
  full=await run({action:'read'});assert.equal(full.counts.source_candidates,7);
+ // C: the deferred business phase is off unless explicitly configured; switching it changes no data.
+ assert.equal(full.settings.business_phase,false);assert.equal(pv.settings.business_phase,false);
+ process.env.TEST_BUSINESS_PHASE='on';assert.equal((await run({action:'pairs'})).settings.business_phase,true);delete process.env.TEST_BUSINESS_PHASE;
  // Counts-only diagnostics explain the gap between all property × buyer pairs and stored candidates.
  const diag=await run({action:'pair_diagnostics'});
  const f=diag.funnel,sum=Object.values(f.suggested).reduce((a,b)=>a+b,0)+Object.values(f.excluded).reduce((a,b)=>a+b,0)+f.country_mismatch;

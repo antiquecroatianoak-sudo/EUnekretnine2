@@ -18,7 +18,7 @@ Ovaj dokument se ažurira sa svakim commitom ove grane. Status „u tijeku” zn
 | V3 | Stvarna nula ima objašnjenje; nepotpun kandidat ostaje vidljiv sa zadacima | `platform-view.mjs` (`pairsExplanation`), `platform.tsx` | `test-platform-view.mjs`, DOM 7d; kandidat sa zadacima već u `test_pair_api.mjs` (6361220363) | izvedeno |
 | A | Površina −15 % / +25 % (nadomješta ±25 % iz 6364306499), uz izričitu tvrdu granicu kupca | `areaFit` u svim kopijama `domain.mjs`, `area_fit` u `matching.py`; `suggestion()` (i stari `min_area_m2`); Sites obrazac i Streamlit obrazac (`area_hard`). SQL čuvari ne provjeravaju površinu, pa tu nema promjene. | `test_domain_input.mjs`, `test_matching.py`, `test_matching_ui.py`, DOM 3 | izvedeno |
 | B | Otkrivanje novih izvora za oba toka, ili precizno dokumentirana prepreka | `registry_discovery.py`, `discovery.yml` | — | u tijeku |
-| C | Odgođena poslovna faza, zadano isključena i reverzibilna | `platform.tsx`, `index.js` | — | u tijeku |
+| C | Odgođena poslovna faza, zadano isključena i reverzibilna | `sites-platform/index.js` (`settings()` iz `BUSINESS_PHASE`, u `read` i `pairs`), `platform.tsx` (`TeaserPreview businessPhase`) | `test_pair_api.mjs` (zadano isključeno, uključivanje bez promjene podataka), DOM 5 | izvedeno |
 | D | `ops/potential-pairs.md` usklađen s PR-om #2 i #3 te Sitesom v7; povijesno stanje označeno | dokumentacija | — | u tijeku |
 
 ## V — nalaz o vidljivosti (bez pristupa produkciji)
@@ -50,3 +50,16 @@ Pregledatelj to može pokrenuti na produkciji bez izlaganja zapisa. Ništa se ne
 - **Odstupanje:** `area_deviation` (postotak, jedna decimala) i tekst u `info`, i unutar i izvan tolerancije.
 - **Nepoznata, nula, negativna ili nebrojčana površina** nikad nije 0. Ostaje otvorena stavka „Površina” na strani nekretnine.
 - **Ostali kriteriji** (vrsta, stanje, lokacija, pravni status, aktivnost) i dalje vrijede. Sama površina nije dokaz podudaranja.
+
+## C — odgođena poslovna faza (6364306499)
+- **Zadano isključeno.** Uključuje se tek varijablom okoline Edge funkcije `BUSINESS_PHASE=on`, i to tek s početkom poslovanja. Isključuje se uklanjanjem varijable. Podaci i povijest se ne mijenjaju.
+- **Dok je isključeno:**
+  - nacrt prezentacije i dalje se može otvoriti i pregledati interno, ali kopiranje za slanje je onemogućeno i prikazana je napomena;
+  - interni pregled, „Detalj para”, nacrti pitanja (koji se samo spremaju), odgovori s dokazom i ručni unos rade normalno.
+- **Slanje ne postoji ni kad je faza uključena.** Sustav nema nijedan put slanja poruka ili e-pošte.
+- **Kasniji proces, samo kao opis, bez koda i bez slanja:**
+  1. dopuna podataka od prodavatelja;
+  2. prezentacija kupcu bez točne lokacije, kontakta, poveznice i identifikatora;
+  3. stvarni interes kupca, zabilježen s dokazom;
+  4. predaja agenciji i ugovor o proviziji s agencijom.
+  Ovo nije pravna potvrda niti odobrenje potpisivanja.
