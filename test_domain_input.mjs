@@ -50,7 +50,7 @@ assert.equal(r.status,CANDIDATE,'reproduced: an unchecked note blocks the match'
 r=evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now);
 assert.equal(r.status,CANDIDATE);assert.deepEqual(r.missing,[PAIR_CONDITION]);assert.deepEqual(r.gaps.pair,[PAIR_CONDITION]);
 assert.equal(r.phase,PHASE.BUYER,'the property itself is complete');
-const pairCheck=(p,text='Uvjeti provjereni',age=day)=>({[PAIR_CONDITION]:{digest:digest(pairText(text,p)),checked_at:new Date(now-age).toISOString(),evidence:'Prodavatelj dostavio situacijski nacrt 22.10.; udaljenost od pruge 120 m'}});
+const pairCheck=(p,text='Uvjeti provjereni',age=day)=>({[PAIR_CONDITION]:{digest:digest(pairText(text,p)),checked_at:new Date(now-age).toISOString(),outcome:'zadovoljava',evidence:'Prodavatelj dostavio situacijski nacrt 22.10.; udaljenost od pruge 120 m'}});
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck(full)).status,MATCH,'pair-specific evidence closes the item');
 assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck({...full,id:8})).status,CANDIDATE,'evidence for another property does not count');
 assert.equal(evaluate({...full,area:5000},mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,pairCheck(full)).status,CANDIDATE,'a property change invalidates the pair evidence');
@@ -79,7 +79,7 @@ assert(!r.missing.includes('Provjera izvornih lokacijskih uvjeta kupca'));
 // Reproduced review 6344298344: a global check of "Uz tramvajsku prugu" used to make every candidate a match.
 const fulfil='Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu';
 assert.equal(r.status,CANDIDATE);assert.deepEqual(r.gaps.pair,[fulfil]);
-const sc={[fulfil]:{digest:digest(pairText(sourceConditions(sourceRaw),listing)),checked_at:new Date(now-day).toISOString(),evidence:'Karta: parcela 150 m od pruge, provjereno 22.10.'}};
+const sc={[fulfil]:{digest:digest(pairText(sourceConditions(sourceRaw),listing)),checked_at:new Date(now-day).toISOString(),outcome:'zadovoljava',evidence:'Karta: parcela 150 m od pruge, provjereno 22.10.'}};
 assert.equal(suggestion(listing,sbuyer(sourceCheck),now,sc).status,MATCH,'only evidence for this property closes it');
 assert.equal(suggestion({...listing,id:9},sbuyer(sourceCheck),now,sc).status,CANDIDATE,'another property stays open');
 assert(suggestion(listing,sbuyer({...sourceCheck,preferred_locations:['Uz tramvajsku prugu','Samo Trešnjevka']}),now).missing.includes('Provjera izvornih lokacijskih uvjeta kupca'),'changed source wording needs a new check');
@@ -96,3 +96,28 @@ assert.equal(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(
 assert.equal(pairCheckMap([answer(1,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).size,0,'an unverified answer never counts');
 assert(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(2,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).get('7-10'),'nor does it withdraw a verification');
 console.log('Domain input checks passed: optional budget, global seat, EU interest, identical copies, pair-specific condition checks.');
+
+// Negative, unknown and legacy outcome-less evidence cannot create a real opportunity.
+const good=pairCheck(full);
+assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,{[PAIR_CONDITION]:{...good[PAIR_CONDITION],outcome:'ne zadovoljava'}}).status,'Ne odgovara kriterijima');
+for(const outcome of [undefined,'nepoznato'])assert.equal(evaluate(full,mandate('Uvjeti provjereni',check('Uvjeti provjereni')),now,{[PAIR_CONDITION]:{...good[PAIR_CONDITION],outcome}}).status,CANDIDATE);
+assert.equal(evaluate(listing,sbuyer(sourceCheck),now).status,CANDIDATE,'direct evaluation must enforce original source locations');
+for(const name of ['suggestions.mjs','refresh-suggestions.mjs'])assert.equal(text('supabase/functions/sites-platform/'+name),text('supabase/functions/discovery-sync/'+name),'manual and automatic refresh modules stay identical');
+const {rankAffordability}=await import('./supabase/functions/sites-platform/domain.mjs');
+const ps=[{...listing,id:101,city:'Galway',price:100000,area:1000,price_basis:'asking_price'},{...listing,id:102,city:'Galway',price:90000,area:1000,price_basis:'asking_price'},
+ {...listing,id:103,city:'Galway',price:10000,area:1000,price_basis:'auction_starting_bid'},{...listing,id:104,city:'Dublin',price:10000,area:1000,price_basis:'asking_price'},
+ {...listing,id:105,city:'Galway',price:1000,area:1000,price_basis:'asking_price'}];
+const ranked=rankAffordability(ps.map(p=>({property_id:p.id,investor_id:1,result_json:JSON.stringify({status:p.id===105?CANDIDATE:MATCH})})),ps).map(r=>JSON.parse(r.result_json).affordability);
+assert.equal(ranked[1].rank,1);assert.equal(ranked[0].rank,2);assert.equal(ranked[0].compared,2);
+for(const n of [2,3,4])assert.equal(ranked[n].rank,null,'auction, different city and incomplete pair are not comparable');
+
+// Ten real groups with public sources; they remain unverified profiles, not invented mandates.
+const globalCases=JSON.parse(readFileSync(new URL('./data/global_investor_review_cases.json',import.meta.url),'utf8'));
+assert.equal(globalCases.cases.length,10);
+for(const actual of globalCases.cases){
+ const imported=investorInput(actual);assert.equal(imported.country,actual.country);assert.equal(imported.min_budget,null);assert.equal(imported.max_budget,null);assert.equal(imported.verified,0);
+ assert.notEqual(evaluate(full,imported).status,MATCH,actual.name+' is not a confirmed demand');
+ // An identical synthetic mandate must behave identically regardless of this real group seat.
+ assert.equal(evaluate(full,{...buyer,country:actual.country}).status,evaluate(full,buyer).status,actual.name+' seat must not restrict EU interests');
+}
+console.log('Ten sourced global-group input regressions passed; current mandates and individual-property interest remain unverified.');

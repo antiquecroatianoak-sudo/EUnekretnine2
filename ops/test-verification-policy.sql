@@ -19,12 +19,12 @@ begin
  i.criteria_json:=jsonb_build_object('source_url','https://example.org/demand','checked_at',now(),'property_types',jsonb_build_array('Stan'),'conditions',jsonb_build_array('Useljivo'))::text;
  insert into public.properties select p.*;
  insert into public.investors select i.*;
- insert into public.match_results(property_id,investor_id,result_json,updated) values(p.id,i.id,'{"status":"TEST"}',now()::text);
+ insert into public.match_results(property_id,investor_id,result_json,updated) values(p.id,i.id,'{"status":"Kandidat - potrebna provjera","reasons":["Država","Vrsta nekretnine"],"missing":["Dokaz pravne provjere"],"rejected":[]}',now()::text);
  select count(*) into n from public.match_results where property_id=p.id and investor_id=i.id;
  assert n=1,'valid pair accepted';
  update public.properties set status='Provjera' where id=p.id;
  update public.match_results set result_json='{"status":"SHOULD NOT WRITE"}' where property_id=p.id and investor_id=i.id;
- assert (select result_json='{"status":"TEST"}' from public.match_results where property_id=p.id and investor_id=i.id),'invalid update blocked';
+ assert (select result_json='{"status":"Kandidat - potrebna provjera","reasons":["Država","Vrsta nekretnine"],"missing":["Dokaz pravne provjere"],"rejected":[]}' from public.match_results where property_id=p.id and investor_id=i.id),'invalid update blocked';
  delete from public.match_results where property_id=p.id and investor_id=i.id;
  insert into public.match_results(property_id,investor_id,result_json,updated) values(p.id,i.id,'{"status":"SHOULD NOT WRITE"}',now()::text);
  assert not exists(select 1 from public.match_results where property_id=p.id and investor_id=i.id),'invalid insert blocked';

@@ -43,7 +43,7 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(self.result()['missing'],[PAIR_CONDITION])
         self.assertEqual(self.result()['phase'],PHASE['BUYER'])
         self.prop['id']=7
-        pair={PAIR_CONDITION:dict(digest=digest(pair_text('Uvjeti provjereni',self.prop)),checked_at=stamp,evidence='Situacijski nacrt prodavatelja 22.10.')}
+        pair={PAIR_CONDITION:dict(digest=digest(pair_text('Uvjeti provjereni',self.prop)),checked_at=stamp,outcome='zadovoljava',evidence='Situacijski nacrt prodavatelja 22.10.')}
         self.assertEqual(self.result(pair)['status'],MATCH)
         self.assertEqual(self.result(dict(pair))['phase'],PHASE['REAL'])
         self.prop['area']=900.

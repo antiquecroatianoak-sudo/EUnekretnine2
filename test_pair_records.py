@@ -9,15 +9,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SCHEMA = json.loads((ROOT / 'ops' / 'pair-review-schema-2026-10-22.json').read_text())
-# Helpers the exported functions call but the export does not contain; minimal stand-ins for tests only.
-STUBS = """
-create function site_private.safe_json(v text) returns jsonb language plpgsql immutable set search_path to '' as
- $$begin return v::jsonb; exception when others then return '{}'::jsonb; end$$;
-create function site_private.safe_stamp(v text) returns timestamptz language plpgsql stable set search_path to '' as
- $$begin return v::timestamptz; exception when others then return null; end$$;
-create function site_private.title_property_type(v text) returns text language sql immutable set search_path to '' as $$select null::text$$;
-"""
-
 def build_schema(cur):
     cur.execute('create schema site_private')
     tables = {}
@@ -34,7 +25,6 @@ def build_schema(cur):
     for c in sorted(SCHEMA['constraints'], key=lambda c: 'FOREIGN' in c['definition']):
         table = c['table_name'] if '.' in c['table_name'] else 'public.' + c['table_name']
         cur.execute(f'alter table {table} add constraint {c["conname"]} {c["definition"].replace("REFERENCES match_results", "REFERENCES public.match_results")}')
-    cur.execute(STUBS)
     for f in SCHEMA['functions']:
         cur.execute(f['definition'])
     for t in SCHEMA['triggers']:
@@ -63,6 +53,7 @@ class PairRecordsMigrationTests(unittest.TestCase):
     def test_regressions_and_repeatable_apply(self):
         self.run_file('pair-records.sql')
         self.run_file('test-pair-records.sql')
+        self.run_file('test-verification-policy.sql')
         # Re-applying keeps existing records and does not duplicate the initial history.
         self.c.execute("insert into site_private.pair_records(property_id,investor_id,status,result_json) values(1,2,'Kandidat - potrebna provjera','{}')")
         self.c.execute("insert into site_private.pair_answers(property_id,investor_id,requirement,kind,body,status,recorded_by) values(1,2,'Izvor oglasa','Nacrt pitanja','Pitanje','Nacrt','test')")

@@ -1,0 +1,166 @@
+{
+  "checked_on": "2026-10-23",
+  "purpose": "Ten real non-EU-headquartered groups for seat/input regression. Source review confirms group identity and real-estate activity only; legal contracting entity, current acquisition mandate, individual-property interest and budget are NOT established. Not a production import.",
+  "cases": [
+    {
+      "name": "GIC",
+      "country": "SG",
+      "head_office_evidence_url": "https://www.gic.com.sg/contact-us/",
+      "activity_evidence_url": "https://www.gic.com.sg/thinkspace/investment-strategies/building-at-scale-in-europe/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.gic.com.sg/thinkspace/investment-strategies/building-at-scale-in-europe/",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "CPP Investments",
+      "country": "CA",
+      "head_office_evidence_url": "https://www.cppinvestments.com/wp-content/uploads/attachments/CPP-Investments-F2025-Annual-Report-English.pdf",
+      "activity_evidence_url": "https://www.cppinvestments.com/newsroom/cpp-investments-commits-e460-million-to-nido-living-supporting-its-expansion-within-europe-through-the-acquisition-of-livensa-living/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.cppinvestments.com/newsroom/cpp-investments-commits-e460-million-to-nido-living-supporting-its-expansion-within-europe-through-the-acquisition-of-livensa-living/",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Mapletree",
+      "country": "SG",
+      "head_office_evidence_url": "https://en.mapletree.com.sg/about-us",
+      "activity_evidence_url": "https://www.mapletree.com.sg/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.mapletree.com.sg/",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Blackstone",
+      "country": "US",
+      "head_office_evidence_url": "https://www.blackstone.com/the-firm/our-offices/",
+      "activity_evidence_url": "https://www.blackstone.com/our-businesses/real-estate/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.blackstone.com/our-businesses/real-estate/",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Brookfield Asset Management",
+      "country": "US",
+      "head_office_evidence_url": "https://bam.brookfield.com/",
+      "activity_evidence_url": "https://www.brookfield.com/about-us/capabilities/real-estate",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.brookfield.com/about-us/capabilities/real-estate",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Hines",
+      "country": "US",
+      "head_office_evidence_url": "https://www.hines.com/contact",
+      "activity_evidence_url": "https://www.hines.com/locations/europe",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.hines.com/locations/europe",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Greystar",
+      "country": "US",
+      "head_office_evidence_url": "https://www.greystar.com/contact-us/regional-offices",
+      "activity_evidence_url": "https://www.greystar.com/business/regions/europe",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.greystar.com/business/regions/europe",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "KKR",
+      "country": "US",
+      "head_office_evidence_url": "https://www.kkr.com/contact",
+      "activity_evidence_url": "https://www.kkr.com/invest/real-estate",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.kkr.com/invest/real-estate",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "Starwood Capital Group",
+      "country": "US",
+      "head_office_evidence_url": "https://www.starwoodcapital.com/contact-us/",
+      "activity_evidence_url": "https://www.starwoodcapital.com/what-we-do/investments/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.starwoodcapital.com/what-we-do/investments/",
+        "property_types": [],
+        "conditions": []
+      }
+    },
+    {
+      "name": "ICG",
+      "country": "UK",
+      "head_office_evidence_url": "https://www.icgam.com/who-we-are/our-offices/united-kingdom/",
+      "activity_evidence_url": "https://www.icgam.com/what-we-do/real-assets/real-estate/",
+      "verified": 0,
+      "min_budget": null,
+      "max_budget": null,
+      "preferred_countries": "",
+      "notes": "Profil za provjeru. Trenutni zahtjev i interes za pojedinu nekretninu nisu potvrđeni.",
+      "criteria_json": {
+        "source_url": "https://www.icgam.com/what-we-do/real-assets/real-estate/",
+        "property_types": [],
+        "conditions": []
+      }
+    }
+  ]
+}

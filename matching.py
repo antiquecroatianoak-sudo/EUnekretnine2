@@ -91,6 +91,14 @@ PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'cond
 PHASE = dict(REJECT='Ne odgovara potrebama kupca', PROPERTY='Mogući par – dopuna podataka o nekretnini',
              BUYER='Nekretnina provjerena – usklađivanje s potrebama kupca', REAL='Stvarna prilika – interes kupca još nije potvrđen')
 PAIR_CONDITION = 'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu'
+SOURCE_CONDITIONS = [
+ ('Provjera izvornog opisa vrste i namjene nekretnine', 'Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'),
+ ('Provjera izvornih lokacijskih uvjeta kupca', 'Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'),
+ ('Provjera dodatnih izvornih uvjeta kupca', 'Ispunjenje dodatnih izvornih uvjeta kupca za ovu nekretninu')]
+
+def source_conditions(c):
+    return json.dumps([c.get(k) for k in ('property_types','preferred_locations','locations','required_criteria','required')],ensure_ascii=False,separators=(',', ':'))
+
 
 def _fact(value):
     if value is None or isinstance(value, str): return value
@@ -161,7 +169,21 @@ def evaluate(prop, investor, pair_checks=None):
     # Checking the wording of the buyer's notes confirms what they ask for, not that this property meets it.
     if (investor.get('notes') or '').strip():
         if not check_valid(criteria.get('notes_check'), investor.get('notes')): gap('Dodatni uvjeti iz napomena za ručnu provjeru', 'buyer')
-        elif not check_valid(pair_checks.get(PAIR_CONDITION), pair_text(investor.get('notes'), prop)): gap(PAIR_CONDITION, 'pair')
+        else:
+            evidence = pair_checks.get(PAIR_CONDITION) or {}
+            if not check_valid(evidence, pair_text(investor.get('notes'), prop)) or evidence.get('outcome') not in ('zadovoljava', 'ne zadovoljava'): gap(PAIR_CONDITION, 'pair')
+            elif evidence['outcome'] == 'ne zadovoljava': rejected.append(PAIR_CONDITION)
+    source_text = source_conditions(criteria)
+    applies = [any(v not in PROPERTY_TYPES for v in criteria.get('property_types', [])),
+               bool(criteria.get('preferred_locations') or criteria.get('locations')),
+               bool(criteria.get('required_criteria') or criteria.get('required'))]
+    for applies_here, (wording, fulfilment) in zip(applies, SOURCE_CONDITIONS):
+        if not applies_here: continue
+        if not check_valid(criteria.get('source_conditions_check'), source_text): gap(wording, 'buyer')
+        else:
+            evidence = pair_checks.get(fulfilment) or {}
+            if not check_valid(evidence, pair_text(source_text, prop)) or evidence.get('outcome') not in ('zadovoljava', 'ne zadovoljava'): gap(fulfilment, 'pair')
+            elif evidence['outcome'] == 'ne zadovoljava': rejected.append(fulfilment)
     if not valid_url(prop.get('source')): gap('Izvor oglasa', 'property')
     if prop.get('legal') == 'Komplikacije': rejected.append('Pravne komplikacije')
     elif prop.get('legal') != 'Uredno' or not valid_url(prop.get('legal_evidence_url')):

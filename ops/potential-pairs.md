@@ -1,3 +1,5 @@
+> Ažuriranje 23.10.2026.: lokalni paket ispravaka i aktualni rezultati nalaze se u `ops/review-fixes-2026-10-23.md`. Starije bilješke o nedostajućem rangu i testnim zamjenama opisuju prethodni SHA. Novi paket još nije prenesen na GitHub niti objavljen.
+
 # Trajni cilj: evidencija potencijalnih parova
 
 Izričita uputa vlasnika, 22.10.2026. (komentar 6342865014 na PR #2). Vrijedi za sve buduće dorade. Ovo dopunjuje postojeći sustav; ne stvara se paralelna aplikacija ni duplikat baze bez razloga.

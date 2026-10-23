@@ -56,6 +56,7 @@ create table if not exists site_private.pair_answers(
  check(kind<>'Nacrt pitanja' or status='Nacrt'),
  check(status<>'Provjereno' or (nullif(trim(evidence),'') is not null and nullif(trim(source),'') is not null and answered_on is not null))
 );
+alter table site_private.pair_answers add column if not exists outcome text not null default 'nepoznato' check(outcome in ('zadovoljava','ne zadovoljava','nepoznato'));
 create index if not exists pair_answers_pair on site_private.pair_answers(property_id,investor_id,requirement,recorded_at);
 -- Confirmed interest and a closed deal are separate stages with their own evidence; matching never sets them.
 create table if not exists site_private.pair_stages(

@@ -164,10 +164,11 @@ await setValue($('textarea[aria-label="Odgovor"]'),'Parcela je 120 m od pruge.')
 await act(async()=>{$('input[name="answer_verified"]').click()});
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert(document.body.textContent.includes('potrebni su dokaz, izvor i datum'),'the server refusal is shown');
+await setValue($('select[name="outcome"]'),'ne zadovoljava');
 await setValue($('input[name="evidence"]'),'Situacijski nacrt');await setValue($('input[name="source"]'),'Prodavatelj');
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 const answer=posts.filter(b=>b.action==='pair_answer').at(-1);
-assert.equal(answer.requirement,'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu');assert.equal(answer.verified,true);assert.equal(answer.evidence,'Situacijski nacrt');
+assert.equal(answer.requirement,'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu');assert.equal(answer.verified,true);assert.equal(answer.evidence,'Situacijski nacrt');assert.equal(answer.outcome,'ne zadovoljava','verification and fulfilment are separate UI fields');
 assert(posts.every(b=>['pair','pair_question','pair_answer'].includes(b.action)),'only storing actions, no sending');
 await act(async()=>root.unmount());
 console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts and answers with evidence only.');

@@ -29,7 +29,7 @@ order by 1,2;
 select n.nspname,p.oid::regprocedure as signature,pg_get_functiondef(p.oid) as definition
 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
 where n.nspname in ('public','site_private')
-  and (p.proname ~ '(match_review|review_task|fill_property_type|fill_investor_criteria|sync_source_listing|reconcile_listing_lifecycle|guard_verified|property_eligible|investor_eligible)')
+  and (p.proname ~ '(match_review|review_task|fill_property_type|fill_investor_criteria|sync_source_listing|reconcile_listing_lifecycle|safe_json|safe_stamp|title_property_type|guard_verified|property_eligible|investor_eligible)')
 order by 1,2;
 
 -- 5. Row-level security and grants (the pair API must stay server-side only).

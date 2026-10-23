@@ -1,4 +1,4 @@
-import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS} from './domain.mjs';
+import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS,checkCondition} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -32,23 +32,13 @@ export function suggestion(p,i,now=Date.now(),pairChecks={}){
  const countries=String(i.preferred_countries||'').trim()||
   (Array.isArray(raw.preferred_countries)?raw.preferred_countries.join(','):'');
  if(!countries||!countries.split(',').map(v=>norm(country(v))).includes(norm(country(p.country))))return null;
- const result=evaluate({...p,property_type:ptype},{...i,preferred_countries:countries,criteria_json:c},now,pairChecks);
+ const result=evaluate({...p,property_type:ptype},{...i,preferred_countries:countries,criteria_json:c},now,pairChecks,raw);
  if(result.status===REJECT)return null;
  // A known budget is informative only (evaluate notes it); an unknown or undisclosed one never drops a pair.
- const legacy=originalTypes.some((v,n)=>v!==mapped[n]);
- // A dated check with evidence confirms the original wording until it changes. Whether this
- // property meets those conditions is a separate, pair-specific check bound to its facts.
- const sourceChecked=checkValid(raw.source_conditions_check,sourceConditions(raw),now);
- const applies=[legacy||mapped.some(v=>!v),raw.preferred_locations?.length||raw.locations?.length,raw.required_criteria?.length||raw.required?.property_type];
- for(const [n,[wording,fulfilment]] of SOURCE_CONDITIONS.entries()){
-  if(!applies[n])continue;
-  if(!sourceChecked)gap(result,wording,'buyer');
-  else if(!checkValid(pairChecks[fulfilment],pairText(sourceConditions(raw),p),now))gap(result,fulfilment,'pair');
- }
  const stamp=Date.parse(p.source_checked_on||'');
  if(!Number.isFinite(stamp)||stamp>now||now-stamp>30*86400000)gap(result,'Aktualnost izvora nekretnine nije potvrđena unutar 30 dana','property');
  if(!['Aktivno','Provjereno','Novo - aktivna dražba'].includes(p.status))gap(result,'Potrebna potvrda aktivnosti oglasa','property');
  if(p.auction_at&&Date.parse(p.auction_at)<now)return null;
  settle(result);
- return result;
+ return result.status===REJECT?null:result;
 }

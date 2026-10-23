@@ -1,7 +1,7 @@
 name: Provjera aplikacije i PostgreSQL uparivanja
 on:
   push:
-    branches: [main]
+    branches: [main, claude/eu-public-land-27]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -55,3 +55,7 @@ jobs:
           node test_domain_input.mjs
           node sites-review/scripts/test-platform-view.mjs
           node sites-review/scripts/test-teaser.mjs
+      - name: Pregled sučelja i odvojeni negativan ishod odgovora
+        run: |
+          npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+          bash ops/run-dom-check.sh "$RUNNER_TEMP/dom"
