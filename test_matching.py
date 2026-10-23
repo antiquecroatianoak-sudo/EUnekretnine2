@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from matching import evaluate, refresh_matches, ranked_matches, digest, pair_text, MATCH, REJECT, CANDIDATE, PHASE, PAIR_CONDITION, SOURCE_FRESH, ACTIVE_CHECK, ACTIVE_STATUSES, BUYER_RECORD
+from matching import evaluate, refresh_matches, ranked_matches, digest, pair_text, MATCH, REJECT, CANDIDATE, PHASE, PAIR_CONDITION, SOURCE_FRESH, ACTIVE_CHECK, ACTIVE_STATUSES, BUYER_RECORD, area_fit
 from storage import connect
 
 class MatchingTests(unittest.TestCase):
@@ -45,6 +45,29 @@ class MatchingTests(unittest.TestCase):
         # Mirrors investor_eligible on the stored criteria.
         self.criteria['checked_at'] = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         self.assertIn(BUYER_RECORD, self.result()['gaps']['buyer'])
+    def test_area_tolerance_minus_15_plus_25_and_hard_limit(self):
+        # 6366561469: target 1000 m² accepts 850–1250 m² inclusive; equal to areaFit() in domain.mjs.
+        target = dict(min_area=1000, max_area=1000)
+        for area in (850, 850.0000001, 1000, 1250, 1249.999): self.assertTrue(area_fit(area, target)['fits'], area)
+        for area in (849, 849.99, 1251, 1250.0001, 10.): self.assertFalse(area_fit(area, target)['fits'], area)
+        self.assertEqual(area_fit(850, target)['deviation'], -15); self.assertEqual(area_fit(1250, target)['deviation'], 25)
+        for unknown in (None, 0, -5, '900', True): self.assertIsNone(area_fit(unknown, target))
+        self.assertTrue(area_fit(425, dict(min_area=500, max_area=1500))['fits']); self.assertFalse(area_fit(424, dict(min_area=500, max_area=1500))['fits'])
+        self.assertTrue(area_fit(1875, dict(min_area=500, max_area=1500))['fits']); self.assertFalse(area_fit(1876, dict(min_area=500, max_area=1500))['fits'])
+        self.assertTrue(area_fit(1e7, dict(min_area=1000))['fits']); self.assertTrue(area_fit(1, dict(max_area=1000))['fits'])
+        self.assertFalse(area_fit(999, dict(target, area_hard=True))['fits']); self.assertTrue(area_fit(1000, dict(target, area_hard=True))['fits'])
+        self.assertTrue(area_fit(283.3305, dict(min_area=333.33))['fits']); self.assertFalse(area_fit(283.33, dict(min_area=333.33))['fits'])
+        self.criteria.update(min_area=1000., max_area=1000.)
+        self.prop['area'] = 880.
+        result = self.result()
+        self.assertEqual(result['status'], MATCH); self.assertEqual(result['area_deviation'], -12)
+        self.assertIn('Površina −12 % od tražene granice, unutar tolerancije −15 %/+25 %', result['info'])
+        self.prop['area'] = 800.
+        self.assertEqual(self.result()['rejected'], ['Površina'])
+        self.prop['area'] = 880.; self.criteria['area_hard'] = True
+        self.assertEqual(self.result()['rejected'], ['Površina'])
+        self.criteria['area_hard'] = 'da'
+        self.assertIn('Ispravni strukturirani kriteriji kupca', self.result()['missing'])
     def test_null_evidence_date_is_candidate(self):
         self.criteria['checked_at']=None
         self.assertEqual(self.result()['status'],CANDIDATE)

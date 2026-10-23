@@ -16,7 +16,7 @@ Ovaj dokument se ažurira sa svakim commitom ove grane. Status „u tijeku” zn
 | V1 | Mogući parovi vidljivi čak i kad pun `read` ne uspije ili je prevelik; greška nije prazan rezultat | `sites-platform/index.js` (`pairs`, `sources`, `read` s `counts`/`truncated`), `route.ts`, `platform.tsx` (`fetchJson`, `loadPairs`, `matchSection`) | `test_pair_api.mjs` (pairs/read/sources), DOM 7a–7c, test rute | izvedeno |
 | V2 | Dijagnostika: koliko parova nastaje, zašto se isključuju (opravdano ili gubitak) i koliko ih je skriveno filtrom | `suggestions.mjs` (`EXCLUDED`, `why`, `pairFunnel`), `index.js` (`pair_diagnostics`), `platform-view.mjs` (`pairsView`, `funnelRows`) | `test_public_land.mjs`, `test_pair_api.mjs` (zbroj = svi parovi, samo brojevi), `test-platform-view.mjs`, DOM 7e–7f | izvedeno |
 | V3 | Stvarna nula ima objašnjenje; nepotpun kandidat ostaje vidljiv sa zadacima | `platform-view.mjs` (`pairsExplanation`), `platform.tsx` | `test-platform-view.mjs`, DOM 7d; kandidat sa zadacima već u `test_pair_api.mjs` (6361220363) | izvedeno |
-| A | Površina −15 % / +25 % (nadomješta ±25 % iz 6364306499), uz izričitu tvrdu granicu kupca | Python, sve kopije `domain.mjs`, UI | — | u tijeku |
+| A | Površina −15 % / +25 % (nadomješta ±25 % iz 6364306499), uz izričitu tvrdu granicu kupca | `areaFit` u svim kopijama `domain.mjs`, `area_fit` u `matching.py`; `suggestion()` (i stari `min_area_m2`); Sites obrazac i Streamlit obrazac (`area_hard`). SQL čuvari ne provjeravaju površinu, pa tu nema promjene. | `test_domain_input.mjs`, `test_matching.py`, `test_matching_ui.py`, DOM 3 | izvedeno |
 | B | Otkrivanje novih izvora za oba toka, ili precizno dokumentirana prepreka | `registry_discovery.py`, `discovery.yml` | — | u tijeku |
 | C | Odgođena poslovna faza, zadano isključena i reverzibilna | `platform.tsx`, `index.js` | — | u tijeku |
 | D | `ops/potential-pairs.md` usklađen s PR-om #2 i #3 te Sitesom v7; povijesno stanje označeno | dokumentacija | — | u tijeku |
@@ -40,3 +40,13 @@ Za stvarnu analizu „58 kandidata na 9 657 nekretnina i 74 kupca”: radnja `pa
 - spremljen kao kandidat ili stvarna prilika.
 
 Pregledatelj to može pokrenuti na produkciji bez izlaganja zapisa. Ništa se ne izmišlja niti pretvara u priliku radi broja.
+
+## A — semantika površine (6366561469; ±25 % iz 6364306499 je nadomješteno)
+- **Jedna ciljna površina** (`min_area = max_area = T`): prihvaća se `[0,85·T, 1,25·T]`, uključivo. Za 1000 m² to je 850–1250 m²; 849 i 1251 su izvan.
+- **Raspon** `[min, max]`: prihvaća se `[0,85·min, 1,25·max]`.
+- **Samo donja granica:** `≥ 0,85·min`. **Samo gornja granica:** `≤ 1,25·max`.
+- **`area_hard: true`:** kupčeve granice ostaju tvrde, bez tolerancije. Postavlja se samo izričito u obrascu i nikad se ne pretpostavlja.
+- **Usporedba:** skalirana (`površina·100` prema `granica·85` ili `granica·125`, uz relativni epsilon 1e-12), pa točne granice ne ovise o zaokruživanju.
+- **Odstupanje:** `area_deviation` (postotak, jedna decimala) i tekst u `info`, i unutar i izvan tolerancije.
+- **Nepoznata, nula, negativna ili nebrojčana površina** nikad nije 0. Ostaje otvorena stavka „Površina” na strani nekretnine.
+- **Ostali kriteriji** (vrsta, stanje, lokacija, pravni status, aktivnost) i dalje vrijede. Sama površina nije dokaz podudaranja.

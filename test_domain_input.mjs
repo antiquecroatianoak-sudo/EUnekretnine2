@@ -110,6 +110,36 @@ assert.equal(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z')]).get('
 assert.equal(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(2,'Odbačeno','2026-10-21T10:00:00Z')]).get('7-10'),undefined,'a later rejected answer withdraws the check');
 assert.equal(pairCheckMap([answer(1,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).size,0,'an unverified answer never counts');
 assert(pairCheckMap([answer(1,'Provjereno','2026-10-20T10:00:00Z'),answer(2,'Zaprimljeno - nije provjereno','2026-10-21T10:00:00Z')]).get('7-10'),'nor does it withdraw a verification');
+// Area tolerance (6366561469, replaces ±25 % from 6364306499): −15 % below the lower, +25 % above the upper bound.
+{const {areaFit}=await import('./supabase/functions/sites-platform/domain.mjs');
+ const T={min_area:1000,max_area:1000};
+ for(const a of [850,850.0000001,1000,1250,1249.999])assert.equal(areaFit(a,T).fits,true,String(a));
+ for(const a of [849,849.99,849.9999999,1251,1250.0001,10])assert.equal(areaFit(a,T).fits,false,String(a));
+ assert.equal(areaFit(850,T).deviation,-15);assert.equal(areaFit(1250,T).deviation,25);assert.equal(areaFit(1000,T).deviation,0);
+ assert.equal(areaFit(null,T),null,'unknown area is not 0');assert.equal(areaFit(0,T),null);assert.equal(areaFit(-5,T),null);assert.equal(areaFit('900',T),null);
+ // A range widens both ends; one-sided bounds widen only their side.
+ assert(areaFit(425,{min_area:500,max_area:1500}).fits&&areaFit(1875,{min_area:500,max_area:1500}).fits&&!areaFit(424,{min_area:500,max_area:1500}).fits&&!areaFit(1876,{min_area:500,max_area:1500}).fits);
+ assert(areaFit(850,{min_area:1000}).fits&&!areaFit(849,{min_area:1000}).fits&&areaFit(1e7,{min_area:1000}).fits);
+ assert(areaFit(1250,{max_area:1000}).fits&&!areaFit(1251,{max_area:1000}).fits&&areaFit(1,{max_area:1000}).fits);
+ // An explicit hard limit of the buyer is never widened.
+ assert(!areaFit(999,{...T,area_hard:true}).fits&&areaFit(1000,{...T,area_hard:true}).fits&&!areaFit(1001,{...T,area_hard:true}).fits);
+ // Decimal targets: no rounding at the exact limits.
+ assert(areaFit(283.3305,{min_area:333.33}).fits&&!areaFit(283.33,{min_area:333.33}).fits);
+ // In evaluate: the deviation is shown, other criteria still apply, area alone is no match.
+ const plot={...land,condition:'Neizgrađeno',area:880},want=extra=>({...buyer,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString(),min_area:1000,max_area:1000,...extra})});
+ let res=evaluate(plot,want());
+ assert.equal(res.status,MATCH);assert(res.reasons.includes('Površina'));assert.equal(res.area_deviation,-12);
+ assert(res.info.includes('Površina −12 % od tražene granice, unutar tolerancije −15 %/+25 %'));
+ res=evaluate({...plot,area:800},want());assert.equal(res.status,'Ne odgovara kriterijima');assert.deepEqual(res.rejected,['Površina']);
+ assert(res.info.includes('Površina −20 % od tražene granice, izvan tolerancije −15 %/+25 %'));
+ res=evaluate(plot,want({area_hard:true}));assert.deepEqual(res.rejected,['Površina']);assert(res.info.some(v=>v.includes('izvan tvrde granice kupca')));
+ res=evaluate({...plot,condition:'Za obnovu'},want());assert(res.rejected.includes('Stanje / obnova / rušenje'),'tolerance on area does not relax other criteria');
+ res=evaluate({...plot,area:null},want());assert.equal(res.status,CANDIDATE);assert(res.gaps.property.includes('Površina'),'unknown area is an open item, not 0');
+ assert.throws(()=>investorInput({...base,criteria_json:JSON.stringify({area_hard:'da'})}),/tvrde granice površine/);
+ // The discovery path (suggestion with legacy min_area_m2) uses the same rule.
+ const {suggestion}=await import('./supabase/functions/discovery-sync/suggestions.mjs');
+ const legacy={...buyer,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString(),min_area_m2:1000,max_area_m2:1000})};
+ assert.equal(suggestion({...plot,area:1250,status:'Aktivno'},legacy).area_deviation,25);assert.equal(suggestion({...plot,area:1251,status:'Aktivno'},legacy),null);}
 console.log('Domain input checks passed: optional budget, global seat, EU interest, identical copies, pair-specific condition checks.');
 
 // Negative, unknown and legacy outcome-less evidence cannot create a real opportunity.

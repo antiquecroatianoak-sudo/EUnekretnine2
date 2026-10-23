@@ -84,6 +84,7 @@ def validate_criteria(criteria):
     if criteria.get('min_area') is not None and criteria.get('max_area') is not None and criteria['min_area'] > criteria['max_area']:
         raise ValueError('Maksimalna površina mora biti veća ili jednaka minimalnoj.')
     if criteria.get('requires_buildable', False) not in (True, False): raise ValueError('Nevaljan uvjet gradnje.')
+    if criteria.get('area_hard', False) not in (True, False): raise ValueError('Nevaljana oznaka tvrde granice površine.')
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
 
 # Property facts a pair-specific check is bound to; equal to PAIR_FACTS in domain.mjs.
@@ -143,6 +144,24 @@ def pair_text(requirement, prop):
     values = [str(prop['id']) if k == 'id' and prop.get('id') is not None else _fact(prop.get(k)) for k in PAIR_FACTS]
     return json.dumps([str(requirement if requirement is not None else '')] + values, ensure_ascii=False, separators=(',', ':'))
 
+# Area tolerance, equal to areaFit() in domain.mjs: up to 15 % below the lower and 25 % above the upper bound;
+# area_hard keeps the buyer's bounds strict. Unknown area is never 0.
+AREA_TOLERANCE = dict(below=15, above=25)
+_EPS = 1e-12
+
+def area_fit(area, criteria):
+    if not number(area) or area <= 0: return None
+    hard, low, high = criteria.get('area_hard') is True, criteria.get('min_area'), criteria.get('max_area')
+    ok_low = low is None or (area >= low if hard else area * 100 >= low * (100 - AREA_TOLERANCE['below']) * (1 - _EPS))
+    ok_high = high is None or (area <= high if hard else area * 100 <= high * (100 + AREA_TOLERANCE['above']) * (1 + _EPS))
+    deviation = 100 * (area - low) / low if low is not None and area < low else 100 * (area - high) / high if high is not None and area > high else 0
+    # Half away from zero, like Math.round on the absolute value in domain.mjs for these magnitudes.
+    rounded = math.floor(abs(deviation) * 10 + 0.5) / 10
+    return dict(fits=ok_low and ok_high, deviation=rounded if deviation >= 0 else -rounded, hard=hard)
+
+def _pct(v):
+    return ('+' if v > 0 else '−' if v < 0 else '') + ('%g' % abs(v)).replace('.', ',') + ' %'
+
 def evaluate(prop, investor, pair_checks=None):
     pair_checks = pair_checks or {}
     criteria = parse_criteria(investor)
@@ -182,8 +201,14 @@ def evaluate(prop, investor, pair_checks=None):
             check(label, True, bool(prop.get(field)), norm(prop.get(field)) in {norm(v) for v in criteria[key]})
     min_area, max_area = criteria.get('min_area'), criteria.get('max_area')
     area = prop.get('area')
+    area_deviation = None
     if min_area is not None or max_area is not None:
-        check('Površina', True, number(area) and area > 0, number(area) and (min_area is None or area >= min_area) and (max_area is None or area <= max_area))
+        fit = area_fit(area, criteria)
+        check('Površina', True, fit is not None, bool(fit and fit['fits']))
+        if fit:
+            area_deviation = fit['deviation']
+            if fit['deviation'] and fit['fits']: info.append('Površina ' + _pct(fit['deviation']) + ' od tražene granice, unutar tolerancije −15 %/+25 %')
+            elif not fit['fits']: info.append('Površina ' + _pct(fit['deviation']) + ' od tražene granice, izvan ' + ('tvrde granice kupca' if fit['hard'] else 'tolerancije −15 %/+25 %'))
     elif not number(area) or area <= 0:
         gap('Površina nekretnine', 'property')
     if criteria.get('requires_buildable'):
@@ -246,7 +271,8 @@ def evaluate(prop, investor, pair_checks=None):
     status = REJECT if rejected else CANDIDATE if missing else MATCH
     phase = PHASE['REJECT'] if rejected else PHASE['PROPERTY'] if gaps['property'] else PHASE['BUYER'] if missing else PHASE['REAL']
     return dict(status=status, phase=phase, score=round(100 * passed / checks) if checks else 0,
-                reasons=reasons, missing=missing, rejected=rejected, gaps=gaps, info=info, total_cost=total, roi=roi)
+                reasons=reasons, missing=missing, rejected=rejected, gaps=gaps, info=info, total_cost=total, roi=roi,
+                **({'area_deviation': area_deviation} if area_deviation is not None else {}))
 
 def refresh_matches(c):
     """Refresh latest results without committing the caller's transaction."""

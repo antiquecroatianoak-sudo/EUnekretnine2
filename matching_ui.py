@@ -94,6 +94,7 @@ def investor_form(c, investors, countries):
         regions = st.text_input('Tražene regije / županije, odvojene zarezom (prazno = bez ograničenja)', value=', '.join(criteria.get('regions', [])))
         mina = st.number_input('Minimalna površina m² (neobavezno)', min_value=0.0, value=float(criteria['min_area']) if criteria.get('min_area') is not None else None)
         maxa = st.number_input('Maksimalna površina m² (neobavezno)', min_value=0.0, value=float(criteria['max_area']) if criteria.get('max_area') is not None else None)
+        area_hard = st.checkbox('Tvrda granica površine (bez tolerancije −15 %/+25 %)', value=criteria.get('area_hard') is True, help='Označi samo ako kupac izričito ne prihvaća manju ili veću površinu od navedene.')
         minroi = st.number_input('Minimalni jednostavni ROI % (neobavezno)', min_value=0.0, value=float(criteria['min_roi']) if criteria.get('min_roi') is not None else None)
         buildable = st.checkbox('Traži dokazanu mogućnost planirane gradnje', value=bool(criteria.get('requires_buildable')))
         notes = st.text_area('Dodatni uvjeti / napomene', value=i.get('notes') or '')
@@ -119,6 +120,8 @@ def investor_form(c, investors, countries):
                 # Change only the fields this form manages; source keys such as call state stay.
                 criteria = {k: v for k, v in criteria.items() if k != '_invalid'}
                 criteria.update(buyer_kind=buyer_kind,property_types=types,conditions=conditions,cities=[v.strip() for v in cities.split(',') if v.strip()],regions=[v.strip() for v in regions.split(',') if v.strip()],min_area=mina,max_area=maxa,min_roi=minroi,requires_buildable=buildable,source_url=source.strip(),checked_at=stamp)
+                if area_hard: criteria['area_hard'] = True
+                else: criteria.pop('area_hard', None)
                 if notes_confirm: criteria['notes_check'] = dict(digest=digest(notes), checked_at=datetime.now(timezone.utc).isoformat(), evidence=notes_evidence.strip())
                 validate_criteria(criteria)
                 fields = dict(name=name.strip(),country=country,min_budget=low,max_budget=high,preferred_countries=','.join(prefs),notes=notes,verified=int(verified),criteria_json=json.dumps(criteria,ensure_ascii=False))
