@@ -1,4 +1,9 @@
-> Ažuriranje 23.10.2026.: ispravci pregleda 6344298344 i 6361220363 nalaze se na grani PR-a (`3af1428`, `1170b5d` i ispravak uskladivanja s bazom niže). Pojedinosti su u `ops/review-fixes-2026-10-23.md`. Ništa nije objavljeno.
+> **Aktualno stanje (23.10.2026., navečer).**
+> - **Spojeno u `main`:** PR #2 (`3f4c00e`) i PR #3 (`8940196`).
+> - **Objavljeno**, prema neovisnom pregledu ChatGPT-a (6361512242): migracija `pair_records_verified_outcomes`, Edge funkcije `sites-platform` v8 i `discovery-sync` v10 te privatni Sites v7 (kanonski izvor `b169077`).
+> - **Rang povoljnosti postoji** od `3af1428` (`rankAffordability`): EUR/m² među usporedivim ponudama s izričitom traženom cijenom.
+> - **Nastavak** (vidljivost parova, tolerancija površine, tragovi novih izvora, odgođena poslovna faza) nalazi se u PR-u #4. Matrica je u `ops/pairs-visibility-2026-10-23.md`.
+> - Odjeljci „Procjena”, „Plan” i „Stanje provedbe” niže su **povijesni** i opisuju stanje prije spajanja.
 
 # Trajni cilj: evidencija potencijalnih parova
 
@@ -30,7 +35,8 @@ Faze se ne spajaju i svaka ima vlastiti dokaz.
 - **Provjera stvarne namjene, lokacije i pravnog stanja ostaje,** kao i poznata neslaganja tih kriterija.
 - **Uvjeti kupca provjeravaju se u dva koraka.** Provjera teksta uvjeta kupca potvrđuje samo **sadržaj zahtjeva**. Ispunjava li ga konkretna nekretnina, zasebna je stavka para. Zatvara je samo provjeren odgovor s dokazom vezan uz tekst uvjeta i činjenice te nekretnine. Svaka promjena nekretnine ili uvjeta poništava dokaz.
 - **Ništa se ne šalje automatski.** Pitanja i prezentacija su nacrti za pregled.
-- **Rang povoljnosti nije uveden.** Kad se uvede, ide odvojeno od odgovaranja potrebama, provjerenosti i interesa: samo usporedive ponude iste vrste, iste osnove cijene i istog područja.
+- **Rang povoljnosti** (uveden u `3af1428`) ide odvojeno od odgovaranja potrebama, provjerenosti i interesa. Usporedive su samo ponude iste vrste, iste osnove cijene i istog područja; rang se računa samo nad spremljenim stvarnim prilikama (`83d7e6d`).
+- **Površina** (6366561469): tolerancija −15 % / +25 %, uz izričitu tvrdu granicu kupca. Nadomješta ±25 % iz 6364306499. Semantika je u `ops/pairs-visibility-2026-10-23.md`.
 
 ## Proces dopune
 - **Ciljana pitanja:** pripremaju se pitanja prodavatelju i/ili kupcu, s evidencijom odgovora (dokaz, izvor, datum, status).
@@ -46,7 +52,7 @@ Faze se ne spajaju i svaka ima vlastiti dokaz.
 - **Bez slanja i otkrivanja:** nikome se ne šalju poruke niti otkrivaju podaci bez konkretnog odobrenja primatelja, sadržaja i kanala.
 - **Bez novih plaćenih integracija.**
 
-## Procjena postojeće implementacije (repozitorij na `fe3890a`, dopunjeno na `e99d45d`)
+## Procjena postojeće implementacije (POVIJESNO: stanje na `fe3890a` i `e99d45d`, prije PR-a #2 i #3)
 | Zahtjev | Postoji | Nedostaje |
 |---|---|---|
 | Usporedba po parametrima | `evaluate` u Pythonu (`matching.py`) i JS-u (`domain.mjs`, `suggestions.mjs`): razlozi (`reasons`), nedostajući podaci (`missing`), neslaganja (`rejected`) | — |
@@ -58,7 +64,7 @@ Faze se ne spajaju i svaka ima vlastiti dokaz.
 | Pitanja i opis za kupca | — | Generator ciljanih pitanja iz `missing`, anonimizirani opis s pravilima redakcije i provjera priloga. |
 | Zaštita od curenja identifikatora | — | Regresije: opis ne sadrži URL, adresu, koordinate, kontakte, ID-eve ni dugačke doslovne isječke izvora. |
 
-## Plan u kompatibilnim koracima (svaki uz pregled prije objave)
+## Plan u kompatibilnim koracima (POVIJESNO: izveden u PR-u #2 i #3)
 1. **Pročitati stvarno stanje baze:** `match_results`, `match_review_tasks`, funkcije `sync_source_listing` i `fill_*` te broj zapisa. Zapisati ih kao reproducibilnu migraciju bez promjene ponašanja.
 2. **Trajna evidencija:** nadograditi postojeće tablice (ili `match_review_tasks`, ako odgovara), ne uvoditi drugu bazu.
    - Par dobiva stabilan ključ (`property_id`, `investor_id`), prvi i zadnji izračun te povijest statusa.
@@ -73,7 +79,7 @@ Faze se ne spajaju i svaka ima vlastiti dokaz.
    - Regresije curenja identifikatora.
 6. **Gumb „Mogući parovi”** prelazi na trajnu evidenciju; broj i popis ostaju iz istog izvora.
 
-## Stanje provedbe
+## Stanje provedbe (POVIJESNO, do spajanja PR-a #3)
 - **Audit 6342938279.** `fab8cdd` (nepoznat budžet NULL, sjedište izvan EU), `6bb9f65` (provjera teksta uvjeta), `e99d45d` (opis za kupca), `ca87cf0` (oznaka „Podudaranja kriterija”).
 - **Objavljeno (ChatGPT, 22.10.):** samo gumb „Mogući parovi” (`fe3890a` + `ca87cf0`), u kanonskom Sites izvoru `c29e0922`. Promjene `sites-review/` ovdje ne mijenjaju objavljenu aplikaciju. Pri prijenosu treba sačuvati već objavljeni gumb.
 - **Dio A, `92c2713`, pregled 6344298344** (bez baze):

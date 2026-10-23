@@ -176,4 +176,17 @@ class PublicLandTests(unittest.TestCase):
         self.assertEqual(c.execute('SELECT notes FROM investors WHERE id=?',(open_id,)).fetchone()['notes'],'Ručno: samo uz prugu')
         c.close()
 
+class BuyerDraftTests(unittest.TestCase):
+    def test_same_rules_as_buyer_draft_in_domain_mjs(self):
+        # 6369690655 point 2: criteria kept, budget NULL, seat separate from EU interest.
+        from source_store import buyer_draft
+        row=dict(id='test:buyer:global',url='https://example.org/b/1',last_seen='2026-10-23T12:00:00+00:00',title='Global',country='US')
+        d=buyer_draft(row,dict(seat_country='US',preferred_countries=['Hrvatska','SI'],property_types=['Zemljište'],preferred_locations=['Uz more'],min_area=2000))
+        c=json.loads(d['criteria_json'])
+        self.assertEqual((d['country'],d['preferred_countries'],d['min_budget'],d['max_budget']),('US','Hrvatska,Slovenija',None,None))
+        self.assertEqual((c['preferred_locations'],c['min_area'],c['candidate_source_id']),(['Uz more'],2000,'test:buyer:global'))
+        self.assertEqual(buyer_draft(dict(row,country='DE'),dict(property_types=['Zgrada']))['preferred_countries'],'')
+        call=buyer_draft(dict(row,country='IE'),dict(buyer_type='public_authority',budget=25000000,budget_unit='EUR/m2'))
+        self.assertEqual((call['preferred_countries'],call['max_budget']),('Irska',None))
+
 if __name__=='__main__':unittest.main()

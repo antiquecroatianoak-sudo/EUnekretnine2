@@ -32,6 +32,11 @@ def build_schema(cur):
     for r in SCHEMA['rls']:
         if r['rowsecurity']:
             cur.execute(f'alter table {r["schemaname"]}.{r["tablename"]} enable row level security')
+    # Not part of the pair-review export but read by sites-platform `read`: minimal test-only shapes,
+    # columns as in storage.SCHEMA. They hold no production structure beyond what the app already reads.
+    cur.execute('create table public.sources(id bigserial primary key,country text,name text,url text,category text)')
+    cur.execute('create table public.discovery_runs(source_id text primary key,status text not null,checked_at text not null,body_json text not null)')
+    cur.execute('create table public.imports(id bigserial primary key,source_url text unique not null,checked_at text not null,evidence_url text not null,property_id integer not null)')
 
 @unittest.skipUnless(os.environ.get('TEST_POSTGRES_URL'), 'TEST_POSTGRES_URL nije postavljen')
 class PairRecordsMigrationTests(unittest.TestCase):

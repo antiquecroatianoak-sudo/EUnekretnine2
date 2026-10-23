@@ -7,6 +7,8 @@ on:
     paths:
       - discovery.py
       - registry_discovery.py
+      - source_leads.py
+      - test_source_leads.py
       - public_land_sources.py
       - verify_public_land_import.py
       - test_public_land_sources.py
@@ -59,7 +61,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
-        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources
+        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources test_source_leads
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
         run: node test_verification.mjs
       - name: Uvezi aktualni registar i nastavi spremljene stranice
@@ -68,6 +70,10 @@ jobs:
         env:
           PYTHONUNBUFFERED: '1'
         run: python registry_discovery.py
+      - name: Provjeri do 10 novih tragova izvora (robots.txt, bez prijave, bez automatskog uključivanja)
+        id: leads
+        continue-on-error: true
+        run: python source_leads.py 10
       - name: Dohvati javne izvore bez prijave i ključeva
         id: discovery
         continue-on-error: true
@@ -76,7 +82,7 @@ jobs:
         run: |
           git config user.name 'EU platform source monitor'
           git config user.email 'source-monitor@users.noreply.github.com'
-          git add data/discovered_candidates.json
+          git add data/discovered_candidates.json data/source_leads.json
           if ! git diff --cached --quiet; then
             git commit -m 'Osvježi javne kandidate i stanje izvora'
             git pull --rebase origin main

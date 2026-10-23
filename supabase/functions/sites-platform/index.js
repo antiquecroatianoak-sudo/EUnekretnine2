@@ -1,6 +1,7 @@
 import postgres from 'npm:postgres@3.4.7';
-import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES} from './domain.mjs';
+import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
+import {pairFunnel} from './suggestions.mjs';
 const PUBLIC_KEY={"kty":"RSA","n":"zftp10EPtvkqY_g46ytE0Mx6r2Y9cFyoMSEUn19hAEGIkeVFahS2m-j_O5fLUYt4b3tNvgGUOK-v92DhNwEdlYU8nSJa3Qlr2uEMCo_N-rQdwhjMc12fJBOQHDB4MCTF3MuydWIeyniALAhASW5DyjN4nUnT8C97ztPLnCXghTrQU8B4rUGASSPTbuq5sLBXRHfbkPaRnBHxjJLfE84gfn9huLyS4-tft3VsOBBejGZctrRj0ZdVmd-btmMifm7eVjVfPahHO9k5WjLBR3iuh6eiJlWDyKRKhmZQXt07QGG0MqFMEfveZqtsbUU5hNjwechw_1a_wgF77JcwhTn6-Q","e":"AQAB"};
 const AUDIENCE='appgprj_6ad3d11946fc8191bd34af0ad4f2cdd8';
 const enc=new TextEncoder();
@@ -10,14 +11,57 @@ let db;
 function database(){return db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:2,prepare:false,idle_timeout:10,connect_timeout:10})}
 // Manual refresh, record edits and discovery use the same rules and transaction lock.
 const refresh=refreshSuggestions;
+// Deferred business phase (6364306499 C): preparing presentations for buyers, seller contact and agency hand-over
+// stay off until the owner starts the business. Reversible with BUSINESS_PHASE=on; it changes no data and never
+// sends anything (this function has no sending path); internal review and manual entry are never blocked.
+const settings=()=>({business_phase:Deno.env.get('BUSINESS_PHASE')==='on'});
+// Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
+const PROPERTY_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())`;
+const INVESTOR_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed'))`;
+// Row caps per table. Large tables return their newest rows plus the true count, so the UI never shows a
+// truncated table as complete; source candidates page through `sources`.
+const LIMITS={properties:10000,investors:10000,sources:10000,source_candidates:500,discovery_runs:2000,activity:500,notification_outbox:2000,match_results:10000};
 async function list(tx){
- const tables=['properties','investors','sources','source_candidates','discovery_runs','activity','notification_outbox','match_results'];
+ const tables=Object.keys(LIMITS);
  const values=await Promise.all(tables.map(t=>{
- if(t==='properties')return tx`select p.* from properties p where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now()) order by p.id limit 10000`;
- if(t==='investors')return tx`select i.* from investors i where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed')) order by i.id limit 10000`;
- return tx`select * from ${tx(t)} order by 1 limit 10000`;
+ if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
+ if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
+ if(t==='source_candidates')return tx`select * from source_candidates order by last_seen desc,id limit ${LIMITS.source_candidates}`;
+ if(t==='activity')return tx`select * from activity order by id desc limit ${LIMITS.activity}`;
+ return tx`select * from ${tx(t)} order by 1 limit ${LIMITS[t]}`;
 }));
- return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['loaded_at',new Date().toISOString()]]);
+ const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
+  (select count(*) from sources)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
+  (select count(*) from activity)::int as activity,(select count(*) from notification_outbox)::int as notification_outbox,(select count(*) from match_results)::int as match_results`;
+ const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
+ return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['truncated',truncated],['settings',settings()],['loaded_at',new Date().toISOString()]]);
+}
+// Stored pairs with only the records they link to: small, independent of the full read, and explicit about
+// pairs whose property or buyer is outside the visible lists (they are reported, never silently dropped).
+async function pairsRead(tx){
+ const rows=await tx`select property_id,investor_id,result_json,updated from match_results order by property_id,investor_id`;
+ const pids=[...new Set(rows.map(r=>Number(r.property_id)))],iids=[...new Set(rows.map(r=>Number(r.investor_id)))];
+ const [properties,investors,[totals]]=await Promise.all([
+  tx`select p.*,(${tx.unsafe(PROPERTY_VISIBLE)}) as visible from properties p where p.id=any(${pids}::bigint[])`,
+  tx`select i.*,(${tx.unsafe(INVESTOR_VISIBLE)}) as visible from investors i where i.id=any(${iids}::bigint[])`,
+  tx`select (select count(*) from properties)::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
+ return {match_results:rows,properties,investors,totals,settings:settings(),loaded_at:new Date().toISOString()};
+}
+// Paged source candidates for the Izvori tab (newest first).
+async function sourcesPage(tx,a){
+ const offset=Number(a.offset??0),limit=Number(a.limit??LIMITS.source_candidates);
+ if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>1000)throw Error('Nevaljana stranica izvora.');
+ const [rows,[{n}]]=await Promise.all([tx`select * from source_candidates order by last_seen desc,id limit ${limit} offset ${offset}`,tx`select count(*)::int as n from source_candidates`]);
+ return {source_candidates:rows,offset,total:n};
+}
+// Counts only: how the stored candidates arise and why the remaining property × buyer pairs are excluded.
+async function pairDiagnostics(tx){
+ const props=await tx`select p.* from properties p where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) order by p.id`;
+ const investors=await tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id`;
+ const checks=pairCheckMap(await tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where kind='Odgovor'`);
+ const [stored]=await tx`select count(*)::int as total,count(*) filter (where result_json::jsonb->>'status'=${MATCH})::int as matches,count(*) filter (where result_json::jsonb->>'status'<>${MATCH})::int as candidates,
+  (select count(*) from properties)::int as all_properties,(select count(*) from investors)::int as all_investors from match_results`;
+ return {funnel:pairFunnel(props,investors,Date.now(),checks),stored,checked_at:new Date().toISOString()};
 }
 async function save(tx,table,input,id){
  const data=table==='properties'?propertyInput(input):investorInput(input);
@@ -34,8 +78,8 @@ async function prepare(tx,id){
   result=await tx`insert into properties(country,title,source,price,renovation,other_costs,legal,status,updated) values(${r.country},${r.title},${r.url},${num(f.asking_price)?f.asking_price:null},null,null,'Nepoznato','Provjera',${r.last_seen}) returning id`;
   await tx`update source_candidates set property_id=${result[0].id} where id=${id}`;
  }else{
-  const c=Object.fromEntries(Object.entries(f).filter(([k])=>['property_types','cities','min_area','max_area','requires_buildable'].includes(k)));c.source_url=r.url;c.checked_at=r.last_seen;
-  result=await tx`insert into investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) values(${r.title},${r.country},0,null,${r.country},${'Javni zahtjev; provjeri budžet, lokaciju i sve uvjete. '+(f.location_note||'')+' '+(f.development_note||'')},0,${JSON.stringify(c)}) returning id`;
+  const b=buyerDraft(r,f);
+  result=await tx`insert into investors ${tx(b,'name','country','min_budget','max_budget','preferred_countries','notes','verified','criteria_json')} returning id`;
   await tx`update source_candidates set investor_id=${result[0].id} where id=${id}`;
  }
  return {kind:r.kind,id:result[0].id};
@@ -114,6 +158,9 @@ async function dispatch(tx,a){
  if(a.action==='pair_stage')return await pairStage(tx,a);
  if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
+ if(a.action==='pairs')return await pairsRead(tx);
+ if(a.action==='sources')return await sourcesPage(tx,a);
+ if(a.action==='pair_diagnostics')return await pairDiagnostics(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};
  if(a.action==='save_property'||a.action==='save_investor'){
   const table=a.action==='save_property'?'properties':'investors';const id=await save(tx,table,a.record,a.id);await refresh(tx);
@@ -132,7 +179,8 @@ async function dispatch(tx,a){
   if(!Array.isArray(a.items)||!a.items.length||a.items.length>1000)throw Error('Potreban je popis od 1 do 1000 zapisa.');
   for(const p of a.items){
    propertyInput(p);for(const k of ['city','evidence_url','checked_at'])if(typeof p[k]!=='string'||!p[k].trim())throw Error('Nedostaje '+k);
-   if(!['Francuska','Nizozemska','Hrvatska','Slovenija'].includes(p.country)||!validUrl(p.evidence_url)||!/(Z|[+-]\d\d:\d\d)$/.test(p.checked_at)||!Number.isFinite(Date.parse(p.checked_at))||Date.parse(p.checked_at)>Date.now()||p.source_verified!==true||p.listing_active!==true)throw Error('Uvoz zahtijeva provjerene izvore, aktivnost i valjan datum.');
+   // EU27 on equal terms (6369690655 point 1); the country must be an EU member state.
+   if(!Object.values(COUNTRIES).includes(country(p.country))||!validUrl(p.evidence_url)||!/(Z|[+-]\d\d:\d\d)$/.test(p.checked_at)||!Number.isFinite(Date.parse(p.checked_at))||Date.parse(p.checked_at)>Date.now()||p.source_verified!==true||p.listing_active!==true)throw Error('Uvoz zahtijeva provjerene izvore, aktivnost i valjan datum.');
    if(!['price','area','renovation','other_costs'].every(k=>num(p[k])))throw Error('U uvozu su obavezni provjereni iznosi i površina.');
   }
   let inserted=0;for(const p of a.items){if((await tx`select id from properties where source=${p.source} union all select property_id from imports where source_url=${p.source} limit 1`).length)continue;
@@ -153,7 +201,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(a.action==='read'||a.action==='pair')return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','pair_diagnostics'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}

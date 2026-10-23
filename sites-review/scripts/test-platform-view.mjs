@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {storedMatches,sourceDescription,sourceProgress,pageWindow,possiblePairs,possiblePairsFilters,filterMatches} from '../lib/platform-view.mjs';
+import {storedMatches,sourceDescription,sourceProgress,pageWindow,possiblePairs,possiblePairsFilters,filterMatches,pairsView,pairsExplanation,funnelRows} from '../lib/platform-view.mjs';
 import {MATCH,CANDIDATE,REJECT} from '../lib/domain.mjs';
 const result=(status,score)=>JSON.stringify({status,score,reasons:[],missing:[],rejected:[]});
 assert.deepEqual(pageWindow([1,2],8).rows,[1,2],'A refresh that shrinks results must not leave a blank page');
@@ -49,6 +49,24 @@ assert.equal(possiblePairs(storedMatches({})).length,0,'no data yet: count 0, no
 const source=readFileSync(new URL('../app/platform.tsx',import.meta.url),'utf8');
 assert.match(source,/possible=possiblePairs\(matches\)/);
 assert.match(source,/const filteredMatches=filterMatches\(matches,\{query,filterCountry,matchStatus\}\)/);
-assert.match(source,/onClick=\{openPossiblePairs\}[^>]*>.*Mogući parovi<span className='nav-count'>\{integer\(possible\.length\)\}/);
+assert.match(source,/onClick=\{openPossiblePairs\}[^>]*>.*Mogući parovi<span className='nav-count'>\{pairsUnknown\?'\?':integer\(possible\.length\)\}/);
 assert.match(source,/function openPossiblePairs\(\)\{const f=possiblePairsFilters\(\);changeTab\(f\.tab\);setMatchStatus\(f\.matchStatus\);setQuery\(f\.query\);setFilterCountry\(f\.filterCountry\);setPage\(f\.page\)\}/);
+// Separate pairs read: hidden links are counted with a reason; errors and real zeros are explained, never confused.
+{const resp={match_results:[{property_id:1,investor_id:10,result_json:result(CANDIDATE,60)},{property_id:2,investor_id:10,result_json:result(CANDIDATE,50)},{property_id:3,investor_id:11,result_json:result(CANDIDATE,40)}],
+ properties:[{id:1,visible:true},{id:2,visible:false}],investors:[{id:10,visible:true}],totals:{properties:9657,investors:74}};
+ const v=pairsView(resp);
+ assert.deepEqual(v.matches.map(m=>m.property.id),[1]);
+ assert.deepEqual(v.hidden.map(h=>h.reason),['nekretnina je istekla ili uklonjena iz izvora','nekretnina više ne postoji']);
+ assert.equal(pairsExplanation({error:'HTTP 504',matches:[]}).kind,'error');
+ assert.match(pairsExplanation({error:'HTTP 504',matches:[]}).text,/nije stvarna nula/);
+ assert.match(pairsExplanation({matches:[],totals:resp.totals}).text,/nema spremljenih rezultata uparivanja \(u bazi 9657 nekretnina i 74 kupaca\)/);
+ assert.equal(pairsExplanation({matches:v.matches,hidden:v.hidden,filtered:0}).kind,'filtered');
+ assert.match(pairsExplanation({matches:v.matches,hidden:v.hidden,filtered:1}).text,/1 skriveno jer nekretnina je istekla/);
+ assert.equal(pairsExplanation({matches:v.matches,filtered:1}),null,'nothing to explain when pairs are shown');
+ // A malformed stored result and a link missing from the full read are counted, never shown as an empty success.
+ const legacy=pairsView({match_results:[...resp.match_results,{property_id:1,investor_id:10,result_json:'{"status":"Kandidat - potrebna provjera"}'}],properties:[{id:1}],investors:[{id:10}]},{complete:false});
+ assert.deepEqual(legacy.hidden.map(h=>h.reason),['nekretnina nije u učitanim podacima','nekretnina nije u učitanim podacima','spremljeni rezultat nema valjanu strukturu']);
+ assert.deepEqual(pairsView({match_results:[{property_id:1,investor_id:12,result_json:result(CANDIDATE,1)}],properties:[{id:1}],investors:[]},{complete:false}).hidden[0].reason,'kupac nije u učitanim podacima');
+ const rows=funnelRows({properties:3,investors:2,pairs:6,country_mismatch:2,excluded:{a:1,b:3},suggested:{x:0},properties_without_type:1,properties_without_source:0,investors_without_types:0,investors_without_source:0});
+ assert.deepEqual(rows.slice(4,6),[['Isključeno: b',3],['Isključeno: a',1]],'largest exclusion first');}
 console.log('Stored matching, source classification, import progress and possible-pair entry checks passed.');

@@ -68,4 +68,12 @@ assert.equal(mergeCandidate(existing,{...reopened,facts:{...reopened.facts,reope
 assert(reopens(reopened.facts,now)&&!reopens(row.facts,now));
 // A new record never arrives verified.
 assert.equal(mergeCandidate(null,row,source,now).verified,false);
+// pairFunnel: every property × buyer pair is suggested, excluded with the suggestion() reason, or outside the buyer countries.
+{const {pairFunnel,EXCLUDED}=await import('./supabase/functions/discovery-sync/suggestions.mjs');
+ const f=pairFunnel([land,{...land,id:8,property_type:null},{...land,id:9,property_type:'Kuća'},{...land,id:10,country:'Slovenija'},{...land,id:11,source:''}],[buyer],now);
+ assert.equal(f.pairs,5);assert.equal(f.country_mismatch,1);
+ assert.deepEqual(f.excluded,{[EXCLUDED.PROPERTY_TYPE]:1,[EXCLUDED.TYPE]:1,[EXCLUDED.PROPERTY_SOURCE]:1});
+ assert.equal(Object.values(f.suggested).reduce((a,b)=>a+b,0),1);
+ assert.equal(f.properties_without_type,1);assert.equal(f.properties_without_source,1);
+ const why={};assert.equal(suggestion({...land,region:'Dublin'},buyer,now,{},why),null);assert.equal(why.reason,'Ne odgovara: Regija');}
 console.log('Public land matching and merge checks passed.');

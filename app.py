@@ -47,7 +47,7 @@ with tabs[0]:
 with tabs[1]:
  property_form(c, props, EU)
  st.subheader('Uvoz provjerenih zapisa')
- st.caption('JSON popis zapisa za pilot: Francuska, Nizozemska, Hrvatska i Slovenija. Provjera izvora i aktivnosti oglasa nije pravna provjera.')
+ st.caption('JSON popis zapisa za bilo koju od 27 država članica EU. Provjera izvora i aktivnosti oglasa nije pravna provjera.')
  with st.expander('Obavezna polja i pravila uvoza'):
   st.write('country, city, title, source, evidence_url, checked_at (s vremenskom zonom), source_verified=true, listing_active=true, legal, price, area, renovation, other_costs.')
   st.write('Za pravni status Uredno potreban je legal_evidence_url. Za estimated_value potreban je valuation_evidence_url. Duplikati prema izvornom URL-u se preskaču.')

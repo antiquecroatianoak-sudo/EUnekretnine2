@@ -1,7 +1,7 @@
 """Keep automatically discovered candidates separate from reviewed opportunities."""
 import json
 from datetime import datetime, timezone
-from matching import valid_url, number, refresh_matches
+from matching import valid_url, number, refresh_matches, COUNTRY_NAMES, country_name
 from public_land_sources import keep_closed_state
 
 
@@ -30,6 +30,32 @@ def sync_snapshot(c, snapshot):
                   (run['source_id'],run['status'],run['checked_at'],json.dumps(run,ensure_ascii=False)))
 
 
+# Equal to buyerDraft() in domain.mjs (6369690655 point 2): every known criterion and call fact is kept, an unknown
+# budget stays NULL, and the seat is not the EU interest. Interest comes only from the source: listed preferred
+# countries, or the location of a public buy request (as site_private.sync_source_listing).
+BUYER_FACTS=('property_types','conditions','cities','regions','min_area','max_area','requires_buildable','area_hard','preferred_locations','locations',
+             'required_criteria','required','original_property_types','min_area_m2','max_area_m2')
+
+def buyer_draft(row, facts):
+    eu=lambda v: country_name(v) if country_name(v) in COUNTRY_NAMES.values() else None
+    criteria={k:facts[k] for k in BUYER_FACTS if facts.get(k) is not None}
+    criteria.update(source_url=row['url'],checked_at=row['last_seen'],candidate_source_id=row['id'])
+    if facts.get('buyer_type')=='public_authority':criteria['buyer_kind']='Javno tijelo'
+    if facts.get('listing_kind'):criteria['listing_kind']=facts['listing_kind']
+    # A published deadline or explicit closed state ends the public demand.
+    if facts.get('deadline'):criteria['call_deadline']=facts['deadline']
+    if facts.get('source_listing_state') in ('expired','removed'):criteria['call_closed']=facts.get('source_status_evidence') or facts['source_listing_state']
+    raw=facts.get('preferred_countries') or []
+    listed=[x for x in (eu(v) for v in (raw if isinstance(raw,list) else str(raw).split(','))) if x]
+    public=facts.get('transaction_type') in ('buy_request','public_buy_request') or facts.get('listing_kind')=='public_buy_request' or facts.get('buyer_type')=='public_authority'
+    interest=list(dict.fromkeys(listed or ([eu(row['country'])] if public and eu(row['country']) else [])))
+    criteria['interest_basis']='Države navedene u izvoru' if listed else 'Lokacija objavljene potražnje' if interest else 'Interes za države EU nije naveden u izvoru'
+    # A per-m² price or a programme total is not the buyer's budget.
+    budget=facts.get('budget') if number(facts.get('budget')) and facts.get('budget_unit') not in ('EUR/m2','EUR/m²','€/m²') and 'unit_budget' not in facts else None
+    notes=('Javni zahtjev; provjeri lokaciju i sve uvjete. '+facts.get('location_note','')+' '+facts.get('development_note','')).strip()
+    return dict(name=row['title'],country=country_name(facts.get('seat_country') or facts.get('headquarters_country') or row['country']),min_budget=None,max_budget=budget,
+                preferred_countries=','.join(interest),notes=notes,verified=0,criteria_json=json.dumps(criteria,ensure_ascii=False))
+
 def prepare_for_review(c, candidate_id):
     """Create an incomplete draft once; never overwrite a user's reviewed record."""
     row=c.execute('SELECT * FROM source_candidates WHERE id=?',(candidate_id,)).fetchone()
@@ -42,18 +68,9 @@ def prepare_for_review(c, candidate_id):
                          (row['country'],row['title'],row['url'],facts.get('asking_price'),None,None,'Nepoznato','Provjera',row['last_seen'])).fetchone()
         c.execute('UPDATE source_candidates SET property_id=? WHERE id=?',(result['id'],candidate_id))
     else:
-        # Same fields and budget rule as site_private.sync_source_listing.
-        criteria={k:v for k,v in facts.items() if k in ('property_types','conditions','cities','regions','min_area','max_area','requires_buildable')}
-        criteria.update(source_url=row['url'],checked_at=row['last_seen'])
-        if facts.get('buyer_type')=='public_authority':criteria['buyer_kind']='Javno tijelo'
-        # A published deadline or explicit closed state ends the public demand.
-        if facts.get('deadline'):criteria['call_deadline']=facts['deadline']
-        if facts.get('source_listing_state') in ('expired','removed'):criteria['call_closed']=facts.get('source_status_evidence') or facts['source_listing_state']
-        # A per-m² price or a programme total is not the buyer's budget.
-        budget=facts.get('budget') if number(facts.get('budget')) and facts.get('budget_unit') not in ('EUR/m2','EUR/m²','€/m²') and 'unit_budget' not in facts else None
-        notes='Javni zahtjev; provjeri budžet, lokaciju i sve uvjete. '+facts.get('location_note','')+' '+facts.get('development_note','')
+        draft=buyer_draft(row,facts)
         result=c.execute('INSERT INTO investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) VALUES(?,?,?,?,?,?,?,?) RETURNING id',
-                         (row['title'],row['country'],0,budget,row['country'],notes.strip(),0,json.dumps(criteria,ensure_ascii=False))).fetchone()
+                         tuple(draft[k] for k in ('name','country','min_budget','max_budget','preferred_countries','notes','verified','criteria_json'))).fetchone()
         c.execute('UPDATE source_candidates SET investor_id=? WHERE id=?',(result['id'],candidate_id))
     refresh_matches(c)
     return row['kind'],result['id']

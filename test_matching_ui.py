@@ -141,5 +141,25 @@ class MatchingUITests(unittest.TestCase):
         self.assertTrue(any('raspon' in e.value for e in self.app.error))
         c=self.original(path=self.db)
         self.assertEqual(c.execute('SELECT COUNT(*) AS n FROM investors').fetchone()['n'],0);c.close()
+    def test_area_hard_limit_is_explicit_and_reversible(self):
+        self.add_property()
+        for label,value in [('Naziv kupca / tvrtke','TEST kupac'),('URL dokaza zahtjeva kupca','https://example.org/mandate'),('Datum provjere zahtjeva (YYYY-MM-DD)',datetime.now(timezone.utc).date().isoformat())]:
+            self.set_field('text_input',label,value)
+        self.set_field('multiselect','Zanimljive države',['Hrvatska'])
+        self.set_field('multiselect','Tražene vrste nekretnina',['Kuća'])
+        self.set_field('multiselect','Prihvatljivo stanje / obnova / rušenje',['Za obnovu'])
+        self.set_field('number_input','Minimalna površina m² (neobavezno)',115.)
+        self.set_field('number_input','Maksimalna površina m² (neobavezno)',115.)
+        self.set_field('checkbox','Zahtjev i kriteriji kupca potvrđeni su na navedenom izvoru',True)
+        self.submit('Spremi kupca i kriterije')
+        c=self.original(path=self.db)
+        # 100 m² is 13 % below 115 m²: inside the −15 % tolerance.
+        self.assertEqual(ranked_matches(c)[0]['status'],MATCH);self.assertNotIn('area_hard',json.loads(c.execute('SELECT criteria_json FROM investors').fetchone()['criteria_json']));c.close()
+        self.field('selectbox','Novi kupac ili uređivanje zahtjeva').set_value(1).run()
+        self.set_field('checkbox','Tvrda granica površine (bez tolerancije −15 %/+25 %)',True)
+        self.submit('Spremi kupca i kriterije')
+        c=self.original(path=self.db)
+        self.assertIs(json.loads(c.execute('SELECT criteria_json FROM investors').fetchone()['criteria_json'])['area_hard'],True)
+        self.assertEqual(ranked_matches(c)[0]['status'],REJECT);c.close()
 
 if __name__=='__main__': unittest.main()

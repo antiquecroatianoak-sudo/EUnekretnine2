@@ -5,7 +5,7 @@ import {readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 const {default:postgres}=await import(pathToFileURL(process.env.PG_MODULE).href);
 const dir=new URL('./supabase/functions/sites-platform/',import.meta.url),copy=new URL('.pair-api-test.mjs',dir);
-globalThis.Deno={env:{get:()=>process.env.PAIR_DB_URL},serve:()=>{}};
+globalThis.Deno={env:{get:k=>k==='SUPABASE_DB_URL'?process.env.PAIR_DB_URL:process.env['TEST_'+k]},serve:()=>{}};
 writeFileSync(copy,readFileSync(new URL('index.js',dir),'utf8').replace("from 'npm:postgres@3.4.7'",'from '+JSON.stringify(pathToFileURL(process.env.PG_MODULE).href))+'\nexport {dispatch};');
 let dispatch;try{({dispatch}=await import(copy.href))}finally{rmSync(copy)}
 const {digest,PAIR_CONDITION,MATCH,CANDIDATE,PHASE}=await import('./supabase/functions/sites-platform/domain.mjs');
@@ -122,5 +122,64 @@ try{
  await run({action:'refresh'});
  const ranked=Object.fromEntries((await sql`select property_id,result_json from match_results where investor_id=${i2.id}`).map(x=>[x.property_id,JSON.parse(x.result_json)]));
  assert.equal(ranked[p3].status,MATCH);assert.equal(ranked[p3].affordability.rank,1);assert.equal(ranked[p2].affordability.rank,2);assert.equal(ranked[p2].affordability.compared,2);
+ // Visibility (6361512242, 6364207005, 6369410657): the pairs read is independent of the full read, returns every
+ // stored pair with the records it links to, and reports hidden links instead of dropping them.
+ let full=await run({action:'read'});
+ assert.equal(full.counts.match_results,full.match_results.length);assert.equal(full.truncated.match_results,false);
+ assert.equal(full.counts.properties,full.properties.length,'counts are true totals of the visible lists');
+ let pv=await run({action:'pairs'});
+ assert.equal(pv.match_results.length,(await sql`select count(*)::int as n from match_results`)[0].n);
+ assert(pv.match_results.every(m=>pv.properties.some(p=>String(p.id)===String(m.property_id))&&pv.investors.some(i=>String(i.id)===String(m.investor_id))),'every linked record is included');
+ assert(pv.properties.every(p=>p.visible===true));
+ await sql`update properties set bid_deadline_at=now()-interval '1 hour' where id=${p2}`;
+ pv=await run({action:'pairs'});full=await run({action:'read'});
+ if(pv.match_results.some(m=>String(m.property_id)===String(p2))){
+  assert.equal(pv.properties.find(p=>String(p.id)===String(p2)).visible,false,'a pair whose property left the visible list is reported as hidden');
+  assert(!full.properties.some(p=>String(p.id)===String(p2)));
+ }
+ await sql`update properties set bid_deadline_at=null where id=${p2}`;
+ // Source candidates page with a true total; the full read does not ship every candidate body.
+ for(let n=0;n<7;n++)await sql`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${'test:page:'+n},'test','property',${'Kandidat '+n},'HR',${'https://example.org/c/'+n},'{"facts":{}}',${new Date(Date.now()+n*1000).toISOString()})`;
+ const page=await run({action:'sources',offset:2,limit:3});
+ assert.equal(page.total,7);assert.deepEqual(page.source_candidates.map(c=>c.id),['test:page:4','test:page:3','test:page:2'],'newest first, stable paging');
+ await assert.rejects(run({action:'sources',offset:-1}),/Nevaljana stranica/);
+ full=await run({action:'read'});assert.equal(full.counts.source_candidates,7);
+ // C: the deferred business phase is off unless explicitly configured; switching it changes no data.
+ assert.equal(full.settings.business_phase,false);assert.equal(pv.settings.business_phase,false);
+ process.env.TEST_BUSINESS_PHASE='on';assert.equal((await run({action:'pairs'})).settings.business_phase,true);delete process.env.TEST_BUSINESS_PHASE;
+ // 6369690655 point 2: buyer drafts keep every criterion, an unknown budget and the seat, without inventing EU interest.
+ const cand=(id,facts,country='HR',title='TEST kupac '+id)=>sql`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${id},'test','buyer',${title},${country},${'https://example.org/b/'+id},${JSON.stringify({facts})},${new Date().toISOString()})`;
+ await cand('test:buyer:global',{seat_country:'US',preferred_countries:['Hrvatska','SI'],property_types:['Zemljište'],preferred_locations:['Uz more'],required_criteria:['Građevinska dozvola'],min_area:2000},'US');
+ await cand('test:buyer:profile',{property_types:['Zgrada']},'DE');
+ await cand('test:buyer:call',{buyer_type:'public_authority',listing_kind:'public_buy_request',deadline:'2027-04-30',budget:25000000,budget_unit:'EUR/m2',property_types:['Zemljište']},'IE');
+ const drafts={};for(const id of ['test:buyer:global','test:buyer:profile','test:buyer:call']){const r=await run({action:'prepare',id});drafts[id]=(await sql`select * from investors where id=${r.id}`)[0]}
+ let g=drafts['test:buyer:global'],gc=JSON.parse(g.criteria_json);
+ assert.equal(g.country,'US','the seat is kept');assert.equal(g.preferred_countries,'Hrvatska,Slovenija','EU interest comes from the source');
+ assert.equal(g.min_budget,null);assert.equal(g.max_budget,null,'an unknown budget is NULL, never 0');
+ assert.deepEqual([gc.preferred_locations,gc.required_criteria,gc.min_area,gc.candidate_source_id],[['Uz more'],['Građevinska dozvola'],2000,'test:buyer:global'],'extra criteria and provenance are kept');
+ g=drafts['test:buyer:profile'];assert.equal(g.preferred_countries,'','a profile without stated interest gets none from its seat');assert.equal(JSON.parse(g.criteria_json).interest_basis,'Interes za države EU nije naveden u izvoru');
+ g=drafts['test:buyer:call'];gc=JSON.parse(g.criteria_json);
+ assert.equal(g.preferred_countries,'Irska','a public buy request is located where it is published');assert.equal(g.max_budget,null,'a per-m² figure is not a budget');
+ assert.deepEqual([gc.buyer_kind,gc.call_deadline,gc.listing_kind],['Javno tijelo','2027-04-30','public_buy_request']);
+ assert.equal(String((await run({action:'prepare',id:'test:buyer:global'})).id),String(drafts['test:buyer:global'].id),'prepared once');
+ // 6369690655 point 1: import accepts every EU member state and rejects a property outside the EU.
+ const item=(country,n)=>({title:'TEST uvoz '+n,country,city:'Lisboa',source:'https://example.pt/l/'+n,evidence_url:'https://example.pt/e/'+n,checked_at:new Date(Date.now()-60000).toISOString(),source_verified:true,listing_active:true,price:150000,area:80,renovation:0,other_costs:0,legal:'Nepoznato'});
+ assert.equal((await run({action:'import',items:[item('Portugal',1)]})).inserted,1);
+ assert.equal((await run({action:'import',items:[item('LT',2)]})).inserted,1,'a member-state code is accepted');
+ await assert.rejects(run({action:'import',items:[item('Norveška',3)]}),/državu EU|država|EU/);
+ // Counts-only diagnostics explain the gap between all property × buyer pairs and stored candidates.
+ const diag=await run({action:'pair_diagnostics'});
+ const f=diag.funnel,sum=Object.values(f.suggested).reduce((a,b)=>a+b,0)+Object.values(f.excluded).reduce((a,b)=>a+b,0)+f.country_mismatch;
+ assert.equal(sum,f.pairs,'every pair is either suggested, excluded with a reason or outside the buyer countries');
+ assert.equal(Object.values(f.suggested).reduce((a,b)=>a+b,0),diag.stored.total,'suggested pairs equal stored pairs after a refresh');
+ assert(!JSON.stringify(diag).includes('example.ie'),'diagnostics contain counts, not records');
+ // Evidence for review (6369690655): the real API responses of this run, interpreted by the same view code as the
+ // dashboard. With PAIRS_RESPONSE_OUT set, they are saved for the DOM check, which renders them.
+ {const {pairsView,possiblePairs}=await import('./sites-review/lib/platform-view.mjs');
+  const real={read:await run({action:'read'}),pairs:await run({action:'pairs'})};
+  const dbCandidates=(await sql`select count(*)::int as n from match_results m join properties p on p.id=m.property_id where m.result_json::jsonb->>'status'=${CANDIDATE} and (p.bid_deadline_at is null or p.bid_deadline_at>now())`)[0].n;
+  assert(dbCandidates>0,'the run has stored candidates to show');
+  assert.equal(possiblePairs(pairsView(JSON.parse(JSON.stringify(real.pairs))).matches).length,dbCandidates,'every stored visible candidate reaches the list');
+  if(process.env.PAIRS_RESPONSE_OUT)writeFileSync(process.env.PAIRS_RESPONSE_OUT,JSON.stringify({...real,expected_candidates:dbCandidates}));}
  console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair, explicit source check without budget, expiry back to candidate, guard refusal kept visible and excluded from ranking.');
 }finally{await sql.end()}

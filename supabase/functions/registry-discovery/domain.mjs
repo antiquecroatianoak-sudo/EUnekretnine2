@@ -22,6 +22,7 @@ export function validateCriteria(c){
  for(const k of ['min_area','max_area','min_roi'])if(c[k]!=null&&!num(c[k]))throw Error('Nevaljana granica: '+k);
  if(c.min_area!=null&&c.max_area!=null&&c.min_area>c.max_area)throw Error('Nevaljan raspon površine.');
  if(c.requires_buildable!=null&&typeof c.requires_buildable!=='boolean')throw Error('Nevaljan uvjet gradnje.');
+ if(c.area_hard!=null&&typeof c.area_hard!=='boolean')throw Error('Nevaljana oznaka tvrde granice površine.');
  if(c.source_url&&!validUrl(c.source_url))throw Error('Potreban je valjan URL dokaza zahtjeva kupca.');
 }
 // Property facts a pair-specific check is bound to: any change to them makes the check stale.
@@ -103,6 +104,22 @@ export function settle(r){
  r.phase=r.rejected.length?PHASE.REJECT:r.gaps.property.length?PHASE.PROPERTY:r.missing.length?PHASE.BUYER:PHASE.REAL;
  return r;
 }
+// Area tolerance (owner 6366561469; replaces the ±25 % of 6364306499). A property may be up to 15 % smaller
+// than the buyer's lower bound and up to 25 % larger than the upper bound: target 1000 m² (min=max) accepts
+// 850–1250 m² inclusive. A range widens both ends (min·0.85 … max·1.25); a one-sided bound widens only that
+// side. `area_hard: true` keeps the buyer's own bounds strict. Unknown area is never 0: it stays an open item.
+export const AREA_TOLERANCE={below:15,above:25};
+const EPS=1e-12;
+export function areaFit(area,c){
+ if(!num(area)||area<=0)return null;
+ const hard=c.area_hard===true,lo=c.min_area,hi=c.max_area;
+ // Scaled comparisons (area·100 vs bound·85 / bound·125) avoid 1000·0.85 rounding at the exact limits.
+ const okLow=lo==null||(hard?area>=lo:area*100>=lo*(100-AREA_TOLERANCE.below)*(1-EPS));
+ const okHigh=hi==null||(hard?area<=hi:area*100<=hi*(100+AREA_TOLERANCE.above)*(1+EPS));
+ const deviation=lo!=null&&area<lo?100*(area-lo)/lo:hi!=null&&area>hi?100*(area-hi)/hi:0;
+ return {fits:okLow&&okHigh,deviation:Math.sign(deviation)*Math.round(Math.abs(deviation)*10)/10,hard};
+}
+const pct=v=>(v>0?'+':v<0?'−':'')+String(Math.abs(v)).replace('.',',')+' %';
 export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  let c=criteria(i),reasons=[],rejected=[],info=[],passed=0,checks=0;
  const r={reasons,missing:[],rejected,gaps:{property:[],buyer:[],pair:[]},info};
@@ -118,7 +135,12 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  else if(budget&&total!==null&&total<i.min_budget)info.push('Ukupni trošak ispod navedenog budžeta kupca (informativno)');
  for(const [k,f,label,allowed] of [['property_types','property_type','Vrsta nekretnine',TYPES],['conditions','condition','Stanje / obnova / rušenje',CONDITIONS]])check(label,!!c[k]?.length,allowed.includes(p[f]),c[k]?.includes(p[f]));
  for(const [k,f,label] of [['cities','city','Grad'],['regions','region','Regija']])if(c[k]?.length)check(label,true,!!p[f],c[k].map(norm).includes(norm(p[f])));
- if(c.min_area!=null||c.max_area!=null)check('Površina',true,num(p.area)&&p.area>0,num(p.area)&&(c.min_area==null||p.area>=c.min_area)&&(c.max_area==null||p.area<=c.max_area));
+ if(c.min_area!=null||c.max_area!=null){
+  const fit=areaFit(p.area,c);check('Površina',true,fit!==null,fit?.fits);
+  if(fit){r.area_deviation=fit.deviation;
+   if(fit.deviation&&fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, unutar tolerancije −15 %/+25 %');
+   else if(!fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, izvan '+(fit.hard?'tvrde granice kupca':'tolerancije −15 %/+25 %'));}
+ }
  else if(!num(p.area)||p.area<=0)gap(r,'Površina nekretnine','property');
  if(c.requires_buildable){check('Potvrđena mogućnost gradnje',true,['Da','Ne'].includes(p.buildable),p.buildable==='Da'&&validUrl(p.planning_evidence_url));if(p.buildable==='Da'&&!validUrl(p.planning_evidence_url)){rejected.splice(rejected.indexOf('Potvrđena mogućnost gradnje')>>>0,1);gap(r,'Dokaz mogućnosti gradnje','property')}}
  const roi=num(p.estimated_value)&&total!==null&&total>0?100*(p.estimated_value-total)/total:null;
@@ -148,6 +170,27 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  if(deadline){const stamp=Date.parse(deadline);if(!Number.isFinite(stamp))gap(r,'Valjan rok dostupnosti','property');else expired=/^\d{4}-\d{2}-\d{2}$/.test(deadline)?String(deadline)<new Date(now).toISOString().slice(0,10):stamp<now}
  if(['prodano','povuceno','rok istekao','zatvoreno'].some(v=>norm(p.status).startsWith(v))||expired)rejected.push('Nekretnina više nije aktivna');
  return settle({...r,score:checks?Math.round(100*passed/checks):0,total_cost:total,roi});
+}
+// Buyer draft from a discovered source candidate (6369690655 point 2). Every known criterion and call fact is kept;
+// an unknown budget stays NULL (never 0); the seat is not the EU interest. Interest comes only from the source:
+// published preferred countries, or the location of a public buy request (as site_private.sync_source_listing).
+export const BUYER_FACTS=['property_types','conditions','cities','regions','min_area','max_area','requires_buildable','area_hard','preferred_locations','locations','required_criteria','required','original_property_types','min_area_m2','max_area_m2'];
+const euCountry=v=>Object.values(COUNTRIES).includes(country(v))?country(v):null;
+export function buyerDraft(r,f={}){
+ const c=Object.fromEntries(BUYER_FACTS.filter(k=>f[k]!=null).map(k=>[k,f[k]]));
+ Object.assign(c,{source_url:r.url,checked_at:r.last_seen,candidate_source_id:r.id});
+ if(f.buyer_type==='public_authority')c.buyer_kind='Javno tijelo';
+ if(f.listing_kind)c.listing_kind=f.listing_kind;
+ if(f.deadline)c.call_deadline=f.deadline;
+ if(['expired','removed'].includes(f.source_listing_state))c.call_closed=f.source_status_evidence||f.source_listing_state;
+ const listed=(Array.isArray(f.preferred_countries)?f.preferred_countries:String(f.preferred_countries||'').split(',')).map(euCountry).filter(Boolean);
+ const publicDemand=['buy_request','public_buy_request'].includes(f.transaction_type)||f.listing_kind==='public_buy_request'||f.buyer_type==='public_authority';
+ const interest=[...new Set(listed.length?listed:publicDemand&&euCountry(r.country)?[euCountry(r.country)]:[])];
+ c.interest_basis=listed.length?'Države navedene u izvoru':interest.length?'Lokacija objavljene potražnje':'Interes za države EU nije naveden u izvoru';
+ // A per-m² price or a programme total is not the buyer's budget.
+ const budget=num(f.budget)&&!['EUR/m2','EUR/m²','€/m²'].includes(f.budget_unit)&&!('unit_budget' in f)?f.budget:null;
+ return {name:r.title,country:country(f.seat_country||f.headquarters_country||r.country),min_budget:null,max_budget:budget,preferred_countries:interest.join(','),
+  notes:('Javni zahtjev; provjeri lokaciju i sve uvjete. '+(f.location_note||'')+' '+(f.development_note||'')).trim(),verified:0,criteria_json:JSON.stringify(c)};
 }
 export function propertyInput(input){
  const out={};const texts=['price_basis','country','city','region','title','property_type','condition','source','legal','status','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','risk_notes'];
