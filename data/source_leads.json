@@ -1,11 +1,10 @@
 {
  "counts": {
   "blokirano": 1,
-  "kandidat_nekretnine": 1,
-  "nedostupno": 4,
-  "nije_relevantno": 3,
-  "novo": 1,
-  "robots_zabrana": 1
+  "kandidat_nekretnine": 2,
+  "nedostupno": 5,
+  "nije_relevantno": 4,
+  "robots_zabrana": 2
  },
  "leads": [
   {
@@ -25,7 +24,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -53,7 +52,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "nedostupno"
   },
   {
@@ -73,7 +72,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "nedostupno"
   },
   {
@@ -113,8 +112,42 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.immonestor.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.immonestor.at/"
+    },
+    {
+     "anchor": "immonestor.at/immobiliencard",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.immonestor.at/immobiliencard"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "immonestor.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 2,
+    "property_words": 20
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Home - NESTOR | Immobilien in Wien: Immobilienmakler NESTOR Immobilien Wien"
   },
   {
    "check_note": "HTTP 403",
@@ -133,7 +166,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "blokirano"
   },
   {
@@ -153,8 +186,36 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "nedostupno"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "- - - Immobilie online bewerten - - -",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/niederoesterreich/krems-an-der-donau/am-steindl-zinshaus-mit-ausgebautem-dg-und-gartenwohnung-2018930333/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://kuttenberger-immo.at/schnellbewertung/"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "kuttenberger-immo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 15
+   },
+   "status": "nije_relevantno",
+   "title": "Kostenlose Immobilienbewertung in 3 Minuten online : Kuttenberger Immobilien"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -173,7 +234,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -194,6 +255,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/landhausidylle-mit-moeglicher-tierhaltung-2145036060/",
      "seen": "2026-10-23T18:29:56.556629+00:00",
      "url": "https://www.raiffeisen-immobilien.at/de/immobilien"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/salzburg/zell-am-see/sanierungsbeduerftiges-einfamilienhaus-in-idyllischer-lage-1189533959/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.raiffeisen-immobilien.at/de/ueber-uns/raiffeisen-immobilien-salzburg"
     }
    ],
    "first_seen": "2026-10-23T18:29:56.556629+00:00",
@@ -201,7 +268,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "signals": {
     "areas": 24,
     "buyer_words": 0,
@@ -211,6 +278,26 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Immobilien | Raiffeisen Immobilien Immobilien"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "service.immonestor.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://service.immonestor.at/"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "service.immonestor.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "status": "robots_zabrana"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -229,7 +316,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -241,6 +328,8 @@
    "title": "Ihr Immobilienmakler mit 22 jähriger Immobilienmarkterfahrung! Ihr Immobilienmakler mit über 22 jähriger Immobilienmarkterfahrung"
   },
   {
+   "check_note": "HTTP 406",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
    "country_hint": null,
    "evidence": [
     {
@@ -255,11 +344,11 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T18:29:56.556629+00:00",
-   "status": "novo"
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "status": "nedostupno"
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-23T18:29:56.556629+00:00",
- "verified_at": "2026-10-23T18:29:56.667281+00:00"
+ "updated_at": "2026-10-23T19:00:28.832808+00:00",
+ "verified_at": "2026-10-23T19:00:28.936701+00:00"
 }
