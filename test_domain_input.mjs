@@ -20,7 +20,22 @@ assert.throws(()=>investorInput({...base,country:''}),/sjedište/);
 assert.throws(()=>investorInput({...base,country:'x'.repeat(81)}),/sjedište/);
 // EU interest, not the seat, decides the property country. Owner correction 6344490047/6344511552:
 // the buyer's budget is optional and never a condition; the property's price stays a core fact.
-const land={id:7,country:'Irska',property_type:'Zemljište',source:'https://example.ie/l/1',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal'};
+const land={id:7,country:'Irska',city:'Dublin',property_type:'Zemljište',source:'https://example.ie/l/1',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal',
+ status:'Aktivno',source_checked_on:new Date(Date.now()-86400000).toISOString().slice(0,10)};
+// Review 6361220363, reproduced: a record saved through propertyInput has no source check, so the database
+// guard (property_eligible) refuses it as a real opportunity. It must stay a candidate with the open item.
+{const {propertyInput,SOURCE_FRESH,ACTIVE_CHECK}=await import('./supabase/functions/sites-platform/domain.mjs');
+ const saved={...propertyInput({title:'TEST Dublin',country:'Irska',city:'Dublin',property_type:'Zemljište',condition:'Neizgrađeno',status:'Aktivno',price:90000,area:6120,legal:'Uredno',legal_evidence_url:'https://example.ie/legal',source:'https://example.ie/l/1',source_checked_on:'2026-10-23'}),id:7};
+ assert(!('source_checked_on' in saved),'an ordinary save never records a source check');
+ const buyerNoBudget={...base,country:'US',min_budget:null,max_budget:null,verified:1,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString()})};
+ let res=evaluate(saved,buyerNoBudget);
+ assert.equal(res.status,CANDIDATE);assert.deepEqual(res.gaps.property,[SOURCE_FRESH]);
+ res=evaluate({...saved,source_checked_on:new Date().toISOString().slice(0,10),status:'Provjera'},buyerNoBudget);assert.deepEqual(res.gaps.property,[ACTIVE_CHECK]);
+ res=evaluate({...saved,source_checked_on:new Date(Date.now()-31*86400000).toISOString().slice(0,10)},buyerNoBudget);assert.deepEqual(res.gaps.property,[SOURCE_FRESH],'an expired check reopens the item');
+ res=evaluate({...saved,source_checked_on:new Date(),city:''},buyerNoBudget);assert.deepEqual(res.gaps.property,['Grad nekretnine'],'a Date from the driver counts; city is required');
+ assert.equal(evaluate({...saved,source_checked_on:new Date().toISOString().slice(0,10)},buyerNoBudget).status,MATCH,'with a current source check the same pair is a real opportunity without a budget');
+ res=evaluate({...saved,source_checked_on:new Date().toISOString().slice(0,10)},{...buyerNoBudget,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:'2026-10-23T10:00:00'})});
+ assert(res.gaps.buyer.includes('Zapis zahtjeva kupca u standardnom obliku (vrste, stanje, izvor, datum)'),'investor_eligible needs a time zone on checked_at');}
 const buyer={...base,country:'US',min_budget:null,max_budget:null,verified:1,criteria_json:JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString()})};
 let r=evaluate({...land,condition:'Neizgrađeno'},buyer);
 assert.equal(r.status,MATCH,'an undisclosed budget does not block a complete pair');assert(r.reasons.includes('Država'));

@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS match_results(property_id INTEGER NOT NULL,investor_i
 EXTRA_COLUMNS = {
     'properties': {'property_type': 'TEXT', 'condition': 'TEXT', 'region': 'TEXT',
                    'buildable': 'TEXT', 'planning_evidence_url': 'TEXT',
-                   'legal_evidence_url': 'TEXT', 'valuation_evidence_url': 'TEXT', 'available_until': 'TEXT'},
+                   'legal_evidence_url': 'TEXT', 'valuation_evidence_url': 'TEXT', 'available_until': 'TEXT',
+                   # Date of an explicit, evidenced check of the source listing; never set by an ordinary save.
+                   'source_checked_on': 'TEXT'},
     'investors': {'criteria_json': "TEXT DEFAULT '{}'"},
 }
 

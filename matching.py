@@ -1,6 +1,7 @@
 """Explainable matching of recorded buyer mandates; never infers buying intent."""
 import json
 import math
+import re
 import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -91,6 +92,36 @@ PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'cond
 PHASE = dict(REJECT='Ne odgovara potrebama kupca', PROPERTY='Mogući par – dopuna podataka o nekretnini',
              BUYER='Nekretnina provjerena – usklađivanje s potrebama kupca', REAL='Stvarna prilika – interes kupca još nije potvrđen')
 PAIR_CONDITION = 'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu'
+# The same rules as site_private.property_eligible / investor_eligible and domain.mjs: a pair the
+# database would refuse as a real opportunity stays a candidate with these open items.
+ACTIVE_STATUSES = ['Aktivno', 'Provjereno', 'Novo - aktivna dražba']
+SOURCE_FRESH = 'Aktualnost izvora nekretnine nije potvrđena unutar 30 dana'
+ACTIVE_CHECK = 'Potrebna potvrda aktivnosti oglasa'
+BUYER_RECORD = 'Zapis zahtjeva kupca u standardnom obliku (vrste, stanje, izvor, datum)'
+
+def _stamp(value):
+    if value is None or value == '': return None
+    try:
+        if hasattr(value, 'year') and not hasattr(value, 'hour'): value = value.isoformat()
+        parsed = value if hasattr(value, 'hour') else datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return None
+
+def source_fresh(prop, now=None):
+    """Mirrors source_checked_on::timestamptz between now()-30 days and now()."""
+    checked, now = _stamp(prop.get('source_checked_on')), now or datetime.now(timezone.utc)
+    return checked is not None and checked <= now and (now - checked).total_seconds() <= 30 * 86400
+
+def stored_buyer_eligible(investor, criteria, now=None):
+    now = now or datetime.now(timezone.utc)
+    checked = _stamp(criteria.get('checked_at')) if isinstance(criteria.get('checked_at'), str) and re.search(r'(Z|[+-]\d\d:\d\d)$', criteria['checked_at']) else None
+    types, conditions = criteria.get('property_types'), criteria.get('conditions')
+    return (investor.get('verified') == 1 and bool((investor.get('preferred_countries') or '').strip())
+            and isinstance(criteria.get('source_url'), str) and re.match(r'^https?://[^/ ]+', criteria['source_url']) is not None
+            and checked is not None and checked <= now and (now - checked).total_seconds() <= 90 * 86400
+            and isinstance(types, list) and bool(types) and all(v in PROPERTY_TYPES for v in types)
+            and isinstance(conditions, list) and bool(conditions) and all(v in CONDITIONS for v in conditions))
 SOURCE_CONDITIONS = [
  ('Provjera izvornog opisa vrste i namjene nekretnine', 'Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'),
  ('Provjera izvornih lokacijskih uvjeta kupca', 'Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'),
@@ -185,6 +216,10 @@ def evaluate(prop, investor, pair_checks=None):
             if not check_valid(evidence, pair_text(source_text, prop)) or evidence.get('outcome') not in ('zadovoljava', 'ne zadovoljava'): gap(fulfilment, 'pair')
             elif evidence['outcome'] == 'ne zadovoljava': rejected.append(fulfilment)
     if not valid_url(prop.get('source')): gap('Izvor oglasa', 'property')
+    if not (prop.get('city') or '').strip(): gap('Grad nekretnine', 'property')
+    if not source_fresh(prop): gap(SOURCE_FRESH, 'property')
+    if prop.get('status') not in ACTIVE_STATUSES: gap(ACTIVE_CHECK, 'property')
+    if not stored_buyer_eligible(investor, parse_criteria(investor)): gap(BUYER_RECORD, 'buyer')
     if prop.get('legal') == 'Komplikacije': rejected.append('Pravne komplikacije')
     elif prop.get('legal') != 'Uredno' or not valid_url(prop.get('legal_evidence_url')):
         gap('Dokaz pravne provjere', 'property')

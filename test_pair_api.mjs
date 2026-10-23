@@ -81,5 +81,46 @@ try{
  assert.equal(d.record.in_latest_calculation,true);assert.equal(d.current&&JSON.parse(d.current.result_json).status,MATCH,'the same verified evidence counts again for the unchanged facts');
  assert.equal(d.tasks.length,2,'the archived tasks are restored, not duplicated');assert.notEqual(d.tasks[0].status,'Otvoreno','the item is closed again by the unchanged evidence');
  assert.equal((await sql`select count(*)::int as n from site_private.pair_task_archive`)[0].n,0);
- console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair.');
+ // Review 6361220363: a property saved through the API has no source check. It must stay a visible candidate
+ // with a task (not be dropped by guard_verified_pair), become a real opportunity without any budget only after
+ // an explicit evidenced source check, and return to candidate when that check expires, keeping its history.
+ const {SOURCE_FRESH,GUARD_REFUSED}=await import('./supabase/functions/sites-platform/domain.mjs');
+ const [i2]=await sql`insert into investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) values('TEST kupac bez budžeta','US',null,null,'Irska','',1,${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString()})}) returning id`;
+ const land={title:'TEST Dublin',country:'Irska',city:'Dublin',property_type:'Zemljište',condition:'Neizgrađeno',status:'Aktivno',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal',source:'https://example.ie/l/1',price_basis:'asking'};
+ const {id:p2}=await run({action:'save_property',record:{...land,source_checked_on:today}});
+ const ids2={property_id:Number(p2),investor_id:Number(i2.id)};
+ assert.equal((await sql`select source_checked_on from properties where id=${p2}`)[0].source_checked_on,null,'an ordinary save never records a source check');
+ d=await run({action:'pair',...ids2});r=JSON.parse(d.current.result_json);
+ assert.equal(r.status,CANDIDATE);assert.deepEqual(r.gaps.property,[SOURCE_FRESH]);assert.equal(r.phase,PHASE.PROPERTY);
+ assert.deepEqual(d.tasks.map(t=>[t.requirement,t.status]),[[SOURCE_FRESH,'Otvoreno']],'the missing check is a visible task');
+ await assert.rejects(run({action:'source_check',property_id:p2,checked_on:new Date(Date.now()+2*86400000).toISOString().slice(0,10),evidence:'x'}),/ne u budućnosti/);
+ await assert.rejects(run({action:'source_check',property_id:p2,checked_on:today,evidence:' '}),/dokaz provjere izvora/);
+ await assert.rejects(run({action:'source_check',property_id:p2,checked_on:today,evidence:'x',status:'Novo'}),/Potvrđeni status/);
+ await run({action:'source_check',property_id:p2,checked_on:today,evidence:'Oglas otvoren 23.10., i dalje aktivan',status:'Aktivno'});
+ d=await run({action:'pair',...ids2});r=JSON.parse(d.current.result_json);
+ assert.equal(r.status,MATCH,'stored by the real guard as a real opportunity without a budget');assert.equal(r.phase,PHASE.REAL);
+ assert.equal(d.tasks[0].status,'Više nije navedeno kao nedostatak');
+ assert.match((await sql`select notes from activity where property_id=${p2} and stage='Provjera'`)[0].notes,/Provjera izvora oglasa .*Oglas otvoren/);
+ await sql`update properties set source_checked_on=${new Date(Date.now()-31*86400000).toISOString().slice(0,10)} where id=${p2}`;await run({action:'refresh'});
+ d=await run({action:'pair',...ids2});r=JSON.parse(d.current.result_json);
+ assert.equal(r.status,CANDIDATE,'an expired source check returns the pair to candidate');assert.deepEqual(r.gaps.property,[SOURCE_FRESH]);
+ assert.equal(d.tasks[0].status,'Otvoreno');assert(d.record.in_latest_calculation&&d.history.map(h=>h.status).join()===[CANDIDATE,MATCH,CANDIDATE].reverse().join(),'history kept: candidate, real opportunity, candidate');
+ // Safety net: if the database guard still refuses a computed real opportunity, the pair stays a candidate with an
+ // explicit item, and affordability ranks only the stored real opportunities (here one, so no rank is invented).
+ await sql`update properties set source_checked_on=${today} where id=${p2}`;
+ const {id:p3}=await run({action:'save_property',record:{...land,title:'TEST refused by guard',source:'https://example.ie/l/2',price:60000}});
+ await sql`update properties set source_checked_on=${today} where id=${p3}`;
+ await sql`alter function site_private.property_eligible(public.properties) rename to property_eligible_real`;
+ await sql`create function site_private.property_eligible(p public.properties) returns boolean language sql stable set search_path to '' as $$select p.title<>'TEST refused by guard' and site_private.property_eligible_real(p)$$`;
+ await run({action:'refresh'});
+ const stored=Object.fromEntries((await sql`select property_id,result_json from match_results where investor_id=${i2.id}`).map(x=>[x.property_id,JSON.parse(x.result_json)]));
+ assert.equal(stored[p2].status,MATCH);assert.equal(stored[p3].status,CANDIDATE,'refused real opportunity stays visible');
+ assert(stored[p3].gaps.pair.includes(GUARD_REFUSED));
+ assert.equal(stored[p2].affordability.rank,null,'the refused cheaper listing does not take rank 1');assert.equal(stored[p2].affordability.compared,0);
+ d=await run({action:'pair',property_id:Number(p3),investor_id:Number(i2.id)});assert(d.tasks.some(t=>t.requirement===GUARD_REFUSED&&t.status==='Otvoreno'));
+ await sql`drop function site_private.property_eligible(public.properties)`;await sql`alter function site_private.property_eligible_real(public.properties) rename to property_eligible`;
+ await run({action:'refresh'});
+ const ranked=Object.fromEntries((await sql`select property_id,result_json from match_results where investor_id=${i2.id}`).map(x=>[x.property_id,JSON.parse(x.result_json)]));
+ assert.equal(ranked[p3].status,MATCH);assert.equal(ranked[p3].affordability.rank,1);assert.equal(ranked[p2].affordability.rank,2);assert.equal(ranked[p2].affordability.compared,2);
+ console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair, explicit source check without budget, expiry back to candidate, guard refusal kept visible and excluded from ranking.');
 }finally{await sql.end()}

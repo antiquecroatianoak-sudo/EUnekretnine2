@@ -22,10 +22,26 @@ Polazište: `22cf738f3c84db66f7db56b9ee200d813c2abe26`, grana `claude/eu-public-
 - Šest starih adaptera provjereno stvarnim dohvatom, bez upisa u produkciju: Fina 447, Državne nekretnine 4, španjolske dražbe 8, španjolska izravna prodaja 5, Gradzilla 1 i Immoexpert 1. Ukupno 466 kandidata. Zapis je u `ops/legacy-source-probe-2026-10-23.json`. Uspješan dohvat nije potvrda dostupnosti, zakonitosti ili stvarne prilike.
 - Deset stvarnih grupa sa sjedištem izvan EU i javnim izvorima u `data/global_investor_review_cases.json`: GIC, CPP Investments, Mapletree, Blackstone, Brookfield Asset Management, Hines, Greystar, KKR, Starwood Capital i ICG. Testovi potvrđuju prihvaćanje sjedišta i NULL budžeta te neovisnost sjedišta od sintetičkog EU mandata. **To su profili za provjeru, ne deset potvrđenih aktualnih mandata ili podudaranja.** Nisu uvezeni u produkciju.
 
+## Pregled 6361220363 — usklađivanje evaluatora s bazom
+
+- **Nalaz:** `propertyInput` ne sprema `source_checked_on`, a `evaluate` nije provjeravao svježinu izvora, status ni grad. Zato je izračunao MATCH koji `property_eligible` odbija, `guard_verified_pair` taj upis tiho ne prihvaća, a osvježavanje je par izbrisalo.
+- **Ispravak:** isti uvjeti u svim kopijama `domain.mjs` i u `matching.py`:
+  - nekretnina: `SOURCE_FRESH`, `ACTIVE_CHECK`, „Grad nekretnine”;
+  - kupac: `BUYER_RECORD`, prema `investor_eligible` na spremljenim kriterijima.
+- **Izričita provjera izvora:** API `source_check` (u dopuštenim radnjama rute), obrazac u „Detalju para” i Streamlit obrazac. Datum ne smije biti u budućnosti, a dokaz se upisuje u `activity`.
+- **Zaštitna mreža pri osvježavanju:** stvarna prilika koju baza odbije sprema se kao kandidat s `GUARD_REFUSED`. Rang se ponovno računa samo nad spremljenim zapisima.
+- **Regresije u `test_pair_api.mjs`** (pravi `dispatch` nad izvezenom shemom), redom:
+  1. spremanje bez provjere daje kandidata sa zadatkom;
+  2. provjera izvora daje stvarnu priliku bez budžeta;
+  3. istek nakon 31 dana vraća kandidata uz sačuvanu povijest;
+  4. čuvar koji odbije jeftiniju ponudu ne mijenja rang druge.
+- **Negativne kontrole:** bez novih uvjeta u evaluatoru ili sa starim osvježavanjem test pada.
+- **Ostale regresije:** Python paritet u `test_matching.py` i `test_matching_ui.py`; DOM provjera obrasca za provjeru izvora.
+
 ## Što još ograničava dovršetak
 
-1. Automatska provjera odbila je stvaranje GitHub tree objekta, navodeći da prijenos izvornog koda i izvoza sheme u udaljeni repozitorij nije dovoljno izričito odobren. Nije stvoren ni objavljen novi remote commit. Za spremanje ovih ispravaka na istu granu PR-a potrebno je izričito odobrenje korisnika; odbijanje se ne zaobilazi.
-2. Nakon toga izvršiti standardni PostgreSQL 17/TLS CI na konačnom SHA, provjeriti logove i pregledati konačni diff.
+1. Ispravci su na grani PR-a (`3af1428`, `1170b5d`). Standardni CI s PostgreSQL 17 i TLS-om na `1170b5d` prošao je bez preskočenih testova.
+2. Za ispravak pregleda 6361220363 rezultat CI-ja navodi se u komentaru PR-a uz konačni SHA.
 3. Neovisni pregled prije eventualnog spajanja ostaje uvjet. Migracija nije primijenjena na produkciju.
 4. Sites je još pregledna kopija. Pri prijenosu treba otvoriti kanonski aktualni Sites izvor, prenijeti samo pregledane promjene, sačuvati gumb Mogući parovi i provjeriti nacrt prije objave. Produkcijska aplikacija nije promijenjena.
 5. `claude-code-action` ostaje neaktivan prijedlog. Izrada ovih ispravaka ne predstavlja Claude integraciju. Sigurna autorizacija vlasnika nije potvrđena; token se ne izmišlja, ne čita i ne stavlja u izvorni kod.

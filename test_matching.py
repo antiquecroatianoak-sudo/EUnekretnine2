@@ -4,12 +4,12 @@ import tempfile
 import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from matching import evaluate, refresh_matches, ranked_matches, digest, pair_text, MATCH, REJECT, CANDIDATE, PHASE, PAIR_CONDITION
+from matching import evaluate, refresh_matches, ranked_matches, digest, pair_text, MATCH, REJECT, CANDIDATE, PHASE, PAIR_CONDITION, SOURCE_FRESH, ACTIVE_CHECK, ACTIVE_STATUSES, BUYER_RECORD
 from storage import connect
 
 class MatchingTests(unittest.TestCase):
     def setUp(self):
-        self.prop = dict(country='Hrvatska', city='Zagreb', region='Grad Zagreb', property_type='Zgrada', condition='Za rušenje', price=100., renovation=50., other_costs=20., area=1000., estimated_value=250., source='https://example.org/property', legal='Uredno', legal_evidence_url='https://example.org/legal', valuation_evidence_url='https://example.org/valuation', buildable='Da', planning_evidence_url='https://example.org/planning', status='Novo')
+        self.prop = dict(country='Hrvatska', city='Zagreb', region='Grad Zagreb', property_type='Zgrada', condition='Za rušenje', price=100., renovation=50., other_costs=20., area=1000., estimated_value=250., source='https://example.org/property', legal='Uredno', legal_evidence_url='https://example.org/legal', valuation_evidence_url='https://example.org/valuation', buildable='Da', planning_evidence_url='https://example.org/planning', status='Aktivno', source_checked_on=datetime.now(timezone.utc).date().isoformat())
         self.criteria = dict(property_types=['Zgrada'], conditions=['Za rušenje'], cities=['zagreb'], regions=['Grad Zagreb'], min_area=500., max_area=1500., requires_buildable=True, min_roi=20., source_url='https://example.org/mandate', checked_at=datetime.now(timezone.utc).isoformat())
         self.buyer = dict(preferred_countries='Hrvatska', min_budget=0., max_budget=200., verified=1)
     def result(self, pair_checks=None):
@@ -24,6 +24,27 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(self.result()['status'],REJECT)
         self.prop.pop('bid_deadline_at');self.prop['status']='Rok istekao - potrebna provjera ishoda'
         self.assertEqual(self.result()['status'],REJECT)
+    def test_property_and_buyer_rules_match_the_database_guard(self):
+        # Review 6361220363: what site_private.property_eligible refuses is an open item, never a computed match.
+        today = datetime.now(timezone.utc).date()
+        for field, value, label in [('source_checked_on', None, SOURCE_FRESH), ('source_checked_on', (today - timedelta(days=31)).isoformat(), SOURCE_FRESH),
+                                    ('source_checked_on', (today + timedelta(days=1)).isoformat(), SOURCE_FRESH), ('status', 'Novo', ACTIVE_CHECK),
+                                    ('status', 'Provjera', ACTIVE_CHECK), ('city', None, 'Grad nekretnine')]:
+            with self.subTest(field=field, value=value):
+                old = self.prop[field]; self.prop[field] = value
+                result = self.result()
+                self.assertEqual(result['status'], CANDIDATE)
+                self.assertIn(label, result['gaps']['property'])
+                self.assertEqual(result['phase'], PHASE['PROPERTY'])
+                self.prop[field] = old
+        self.prop['source_checked_on'] = (today - timedelta(days=29)).isoformat()
+        self.assertEqual(self.result()['status'], MATCH)
+        for status in ACTIVE_STATUSES:
+            self.prop['status'] = status
+            self.assertEqual(self.result()['status'], MATCH, status)
+        # Mirrors investor_eligible on the stored criteria.
+        self.criteria['checked_at'] = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+        self.assertIn(BUYER_RECORD, self.result()['gaps']['buyer'])
     def test_null_evidence_date_is_candidate(self):
         self.criteria['checked_at']=None
         self.assertEqual(self.result()['status'],CANDIDATE)

@@ -1,4 +1,4 @@
-import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS,checkCondition} from './domain.mjs';
+import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS,checkCondition,storedBuyerEligible,BUYER_RECORD} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -35,9 +35,9 @@ export function suggestion(p,i,now=Date.now(),pairChecks={}){
  const result=evaluate({...p,property_type:ptype},{...i,preferred_countries:countries,criteria_json:c},now,pairChecks,raw);
  if(result.status===REJECT)return null;
  // A known budget is informative only (evaluate notes it); an unknown or undisclosed one never drops a pair.
- const stamp=Date.parse(p.source_checked_on||'');
- if(!Number.isFinite(stamp)||stamp>now||now-stamp>30*86400000)gap(result,'Aktualnost izvora nekretnine nije potvrđena unutar 30 dana','property');
- if(!['Aktivno','Provjereno','Novo - aktivna dražba'].includes(p.status))gap(result,'Potrebna potvrda aktivnosti oglasa','property');
+ // Source freshness, active status and city are checked in evaluate(), like property_eligible.
+ // investor_eligible reads the stored row, not the compatibility view built above.
+ if(!storedBuyerEligible(i,raw,now))gap(result,BUYER_RECORD,'buyer');
  if(p.auction_at&&Date.parse(p.auction_at)<now)return null;
  settle(result);
  return result.status===REJECT?null:result;

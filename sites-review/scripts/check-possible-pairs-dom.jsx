@@ -135,12 +135,13 @@ assert.equal(copied,summary);assert(document.body.textContent.includes('Ništa n
 await act(async()=>root.unmount());
 // 6. Pair detail: task -> question draft -> answer with evidence; nothing is sent, only stored through the API.
 posts.length=0;document.body.innerHTML='<div id="root"></div>';
-const gapsResult=JSON.stringify({status:'Kandidat - potrebna provjera',phase:'Mogući par – dopuna podataka o nekretnini',score:60,reasons:['Država','Vrsta nekretnine'],missing:['Dokaz pravne provjere','Ispunjenje dodatnih uvjeta kupca za ovu nekretninu'],rejected:[],info:['Ukupni trošak iznad navedenog budžeta kupca (informativno)'],
- gaps:{property:['Dokaz pravne provjere'],buyer:[],pair:['Ispunjenje dodatnih uvjeta kupca za ovu nekretninu']}});
+const gapsResult=JSON.stringify({status:'Kandidat - potrebna provjera',phase:'Mogući par – dopuna podataka o nekretnini',score:60,reasons:['Država','Vrsta nekretnine'],missing:['Dokaz pravne provjere','Aktualnost izvora nekretnine nije potvrđena unutar 30 dana','Ispunjenje dodatnih uvjeta kupca za ovu nekretninu'],rejected:[],info:['Ukupni trošak iznad navedenog budžeta kupca (informativno)'],
+ gaps:{property:['Dokaz pravne provjere','Aktualnost izvora nekretnine nije potvrđena unutar 30 dana'],buyer:[],pair:['Ispunjenje dodatnih uvjeta kupca za ovu nekretninu']}});
 globalThis.fetch=async(url,options={})=>{
  if(options.method==='POST'){const b=JSON.parse(options.body);posts.push(b);
   if(b.action==='pair')return {ok:true,json:async()=>({record:{first_seen_at:'2026-10-22T10:00:00Z',in_latest_calculation:true},history:[{id:1,recorded_at:'2026-10-22T10:00:00Z',event:'Prvi izračun',phase:'Mogući par – dopuna podataka o nekretnini'}],
-   tasks:[{requirement:'Dokaz pravne provjere',status:'Otvoreno'},{requirement:'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu',status:'Otvoreno'}],answers:[],stages:[],current:{result_json:gapsResult}})};
+   tasks:[{requirement:'Dokaz pravne provjere',status:'Otvoreno'},{requirement:'Aktualnost izvora nekretnine nije potvrđena unutar 30 dana',status:'Otvoreno'},{requirement:'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu',status:'Otvoreno'}],answers:[],stages:[],current:{result_json:gapsResult}})};
+  if(b.action==='source_check'&&!b.evidence)return {ok:false,json:async()=>({error:'Nedostaje ili je predug podatak: dokaz provjere izvora.'})};
   if(b.action==='pair_answer'&&b.verified&&!b.evidence)return {ok:false,json:async()=>({error:'Za provjeren odgovor potrebni su dokaz, izvor i datum.'})};
   return {ok:true,json:async()=>({id:1})}}
  const d=dataset(true);d.match_results[0].result_json=gapsResult;return {ok:true,json:async()=>d}};
@@ -159,7 +160,7 @@ const draftText=$('textarea[aria-label="Nacrt pitanja"]').value;
 assert(draftText.includes('zemljišne knjige')&&!draftText.includes('Galway County Council'),'seller question never names the buyer');
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi nacrt').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert.deepEqual(posts.find(b=>b.action==='pair_question'),{action:'pair_question',property_id:1,investor_id:10,requirement:'Dokaz pravne provjere',addressed_to:'Prodavatelj',body:draftText});
-await act(async()=>{$$('button').filter(b=>b.textContent==='Upiši odgovor')[1].click()});
+await act(async()=>{$$('button').filter(b=>b.textContent==='Upiši odgovor')[2].click()});
 await setValue($('textarea[aria-label="Odgovor"]'),'Parcela je 120 m od pruge.');
 await act(async()=>{$('input[name="answer_verified"]').click()});
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
@@ -169,6 +170,16 @@ await setValue($('input[name="evidence"]'),'Situacijski nacrt');await setValue($
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi odgovor').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 const answer=posts.filter(b=>b.action==='pair_answer').at(-1);
 assert.equal(answer.requirement,'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu');assert.equal(answer.verified,true);assert.equal(answer.evidence,'Situacijski nacrt');assert.equal(answer.outcome,'ne zadovoljava','verification and fulfilment are separate UI fields');
-assert(posts.every(b=>['pair','pair_question','pair_answer'].includes(b.action)),'only storing actions, no sending');
+// Review 6361220363: an explicit, evidenced source check; no date is filled in automatically.
+assert.equal($$('button').filter(b=>b.textContent==='Zabilježi provjeru izvora').length,1,'offered only for the source item');
+await act(async()=>{$$('button').find(b=>b.textContent==='Zabilježi provjeru izvora').click()});
+assert.equal($('input[name="checked_on"]').value,'','no automatic date');
+await setValue($('input[name="checked_on"]'),'2026-10-23');
+await act(async()=>{$$('button').find(b=>b.textContent==='Spremi provjeru izvora').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+assert(document.body.textContent.includes('dokaz provjere izvora'),'the refusal without evidence is shown');
+await setValue($('input[name="source_evidence"]'),'Oglas otvoren 23.10., aktivan');await setValue($('select[name="source_status"]'),'Aktivno');
+await act(async()=>{$$('button').find(b=>b.textContent==='Spremi provjeru izvora').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
+assert.deepEqual(posts.filter(b=>b.action==='source_check').at(-1),{action:'source_check',property_id:1,investor_id:10,checked_on:'2026-10-23',evidence:'Oglas otvoren 23.10., aktivan',status:'Aktivno'});
+assert(posts.every(b=>['pair','pair_question','pair_answer','source_check'].includes(b.action)),'only storing actions, no sending');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts and answers with evidence only.');
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only.');

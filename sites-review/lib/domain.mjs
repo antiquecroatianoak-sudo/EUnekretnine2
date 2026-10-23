@@ -32,6 +32,22 @@ const fact=v=>v==null?null:typeof v==='number'?v:v instanceof Date?v.toISOString
 export const pairText=(requirement,p)=>JSON.stringify([String(requirement??''),...PAIR_FACTS.map(k=>k==='id'&&p.id!=null?String(p.id):fact(p[k]))]);
 // Separate stages of a pair; computed matching never reaches confirmed interest or a closed deal.
 export const PHASE={REJECT:'Ne odgovara potrebama kupca',PROPERTY:'Mogući par – dopuna podataka o nekretnini',BUYER:'Nekretnina provjerena – usklađivanje s potrebama kupca',REAL:'Stvarna prilika – interes kupca još nije potvrđen'};
+// The same property and buyer rules as site_private.property_eligible / investor_eligible
+// (ops/pair-review-schema-2026-10-22.json). A pair the database would refuse as a real
+// opportunity stays a visible candidate with these open items instead of being dropped.
+export const ACTIVE_STATUSES=['Aktivno','Provjereno','Novo - aktivna dražba'];
+export const SOURCE_FRESH='Aktualnost izvora nekretnine nije potvrđena unutar 30 dana',ACTIVE_CHECK='Potrebna potvrda aktivnosti oglasa';
+export const GUARD_REFUSED='Baza nije prihvatila stvarnu priliku: provjeriti zapis nekretnine i kupca';
+export const BUYER_RECORD='Zapis zahtjeva kupca u standardnom obliku (vrste, stanje, izvor, datum)';
+const stampOf=v=>v instanceof Date?v.getTime():Date.parse(v??'');
+// Mirrors `source_checked_on::timestamptz` between now()-30 days and now().
+export function sourceFresh(p,now=Date.now()){const t=stampOf(p.source_checked_on);return Number.isFinite(t)&&t<=now&&now-t<=30*86400000}
+export function storedBuyerEligible(i,c,now=Date.now()){
+ const t=Date.parse(c.checked_at);
+ return i.verified==1&&String(i.preferred_countries||'').trim()!==''&&/^https?:\/\/[^/ ]+/.test(c.source_url||'')&&/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at||'')
+  &&Number.isFinite(t)&&t<=now&&now-t<=90*86400000&&Array.isArray(c.property_types)&&c.property_types.length>0&&c.property_types.every(v=>TYPES.includes(v))
+  &&Array.isArray(c.conditions)&&c.conditions.length>0&&c.conditions.every(v=>CONDITIONS.includes(v));
+}
 export const PAIR_CONDITION='Ispunjenje dodatnih uvjeta kupca za ovu nekretninu';
 // Original buyer conditions reported by suggestions(): [wording to confirm, fulfilment for one property].
 export const SOURCE_CONDITIONS=[['Provjera izvornog opisa vrste i namjene nekretnine','Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'],
@@ -123,6 +139,10 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
   else if(String(d).slice(0,10)<new Date(now).toISOString().slice(0,10))rejected.push('Javni poziv kupca je zatvoren ili istekao');
  }
  if(!validUrl(p.source))gap(r,'Izvor oglasa','property');
+ if(!String(p.city||'').trim())gap(r,'Grad nekretnine','property');
+ if(!sourceFresh(p,now))gap(r,SOURCE_FRESH,'property');
+ if(!ACTIVE_STATUSES.includes(p.status))gap(r,ACTIVE_CHECK,'property');
+ if(!storedBuyerEligible(i,sourceRaw||criteria(i),now))gap(r,BUYER_RECORD,'buyer');
  if(p.legal==='Komplikacije')rejected.push('Pravne komplikacije');else if(p.legal!=='Uredno'||!validUrl(p.legal_evidence_url))gap(r,'Dokaz pravne provjere','property');
  const deadline=p.available_until||p.bid_deadline_at;let expired=false;
  if(deadline){const stamp=Date.parse(deadline);if(!Number.isFinite(stamp))gap(r,'Valjan rok dostupnosti','property');else expired=/^\d{4}-\d{2}-\d{2}$/.test(deadline)?String(deadline)<new Date(now).toISOString().slice(0,10):stamp<now}
