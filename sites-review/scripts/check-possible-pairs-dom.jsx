@@ -20,6 +20,20 @@ function dataset(withCandidates){return {properties:[{id:1,title:'Zemljište Gal
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const button=text=>$$('button').find(b=>b.textContent.includes(text));
 const setValue=async(el,v)=>{await act(async()=>{const set=Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el),'value').set;set.call(el,v);el.dispatchEvent(new window.Event(el.tagName==='SELECT'?'change':'input',{bubbles:true}))})};
+// Each test section installs a mock of the full read and of storing actions. The installed mock is wrapped so
+// responses also offer text() (the dashboard parses text to report invalid bodies), and the separate `pairs` read
+// is answered from the same mocked dataset without being recorded as a storing action.
+let mockFetch,pairsMode='ok';
+const respond=r=>({status:r.ok?200:500,...r,text:r.text||(async()=>JSON.stringify(await r.json()))});
+Object.defineProperty(globalThis,'fetch',{configurable:true,set:v=>{mockFetch=v},get:()=>async(url,options={})=>{
+ let body=null;try{body=JSON.parse(options.body||'null')}catch{}
+ if(options.method==='POST'&&body?.action==='pairs'){
+  if(pairsMode==='fail')return respond({ok:false,status:504,json:async()=>({error:'Gateway timeout'})});
+  const d=await (await mockFetch(url,{})).json();
+  return respond({ok:true,json:async()=>({match_results:d.match_results,properties:d.properties,investors:d.investors,totals:{properties:d.properties.length,investors:d.investors.length}})});
+ }
+ return respond(await mockFetch(url,options));
+}});
 async function mount(withCandidates){
  document.body.innerHTML='<div id="root"></div>';
  globalThis.fetch=async()=>({ok:true,json:async()=>dataset(withCandidates)});
@@ -182,4 +196,48 @@ await act(async()=>{$$('button').find(b=>b.textContent==='Spremi provjeru izvora
 assert.deepEqual(posts.filter(b=>b.action==='source_check').at(-1),{action:'source_check',property_id:1,investor_id:10,checked_on:'2026-10-23',evidence:'Oglas otvoren 23.10., aktivan',status:'Aktivno'});
 assert(posts.every(b=>['pair','pair_question','pair_answer','source_check'].includes(b.action)),'only storing actions, no sending');
 await act(async()=>root.unmount());
-console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only.');
+// 7. Visibility (6361512242, 6364207005, 6369410657): a failed or oversized full read must not hide stored pairs,
+// a failed pairs read is not a zero, a real zero is explained, hidden links are counted, diagnostics are counts only.
+const mountWith=async(fn,mode='ok')=>{pairsMode=mode;posts.length=0;document.body.innerHTML='<div id="root"></div>';globalThis.fetch=fn;
+ const r=createRoot($('#root'));await act(async()=>{r.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(x=>setTimeout(x,30))});return r};
+const htmlTimeout={ok:false,status:504,json:async()=>{throw SyntaxError('Unexpected token <')},text:async()=>'<html>Gateway Timeout</html>'};
+const split=async(fullOk,pairsOk,data=dataset(true))=>mountWith(async(url,options={})=>{
+ if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({funnel:{properties:3,investors:2,pairs:6,country_mismatch:3,suggested:{'Kandidat - potrebna provjera':2,'Podudaranje kriterija':1},excluded:{'Vrsta nekretnine nije među traženima':0},properties_without_type:0,properties_without_source:0,investors_without_types:0,investors_without_source:0},stored:{total:4,matches:1,candidates:3},checked_at:'2026-10-23T12:00:00Z'})}}
+ if(options.cache==='no-store'&&!fullOk)return htmlTimeout;
+ return {ok:true,json:async()=>data};
+},pairsOk?'ok':'fail');
+// (a) the full read fails with a non-JSON gateway page; pairs still load from their own read.
+root=await split(false,true);
+assert(document.body.textContent.includes('HTTP 504'),'the full-read failure is shown with its status');
+assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'2','pairs come from their own read');
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal($$('.match-card').length,2,'possible pairs are listed although the full read failed');
+assert(document.body.textContent.includes('Puni pregled nije učitan'));
+await act(async()=>root.unmount());
+// (b) pairs read fails, full read works: the full read still provides the list, with an explicit note.
+root=await split(true,false);
+assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'2');
+await act(async()=>{button('Mogući parovi').click()});
+assert(document.body.textContent.includes('Mogući parovi nisu učitani zasebno'));assert.equal($$('.match-card').length,2);
+await act(async()=>root.unmount());
+// (c) both fail: never a zero.
+root=await split(false,false);
+assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'?','an unknown count is not 0');
+await act(async()=>root.unmount());
+// (d) a real zero is explained.
+root=await split(true,true,dataset(false));
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'0');
+assert(document.body.textContent.includes('Nema mogućih parova za provjeru: spremljeno je 2 rezultata'),'a real zero says what is stored');
+// (e) diagnostics are counts only, opened on request.
+await act(async()=>{button('Zašto nema više parova?').click()});await act(async()=>{await new Promise(x=>setTimeout(x,10))});
+assert.deepEqual(posts.at(-1),{action:'pair_diagnostics'});
+assert(document.body.textContent.includes('Svi mogući parovi (nekretnina × kupac)')&&document.body.textContent.includes('Spremljeno u bazi: 4'));
+await act(async()=>root.unmount());
+// (f) a stored pair whose property left the visible list is counted, not silently dropped.
+const withHidden=dataset(true);withHidden.properties[0]={...withHidden.properties[0],visible:false};
+root=await split(true,true,withHidden);
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal($$('.match-card').length,1);assert(document.body.textContent.includes('1 skriveno jer nekretnina je istekla ili uklonjena iz izvora'));
+await act(async()=>root.unmount());
+console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted.');

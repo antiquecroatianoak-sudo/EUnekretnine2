@@ -35,3 +35,37 @@ export function sourceProgress(run){
  if(pending)counts.push(`${pending} poveznica čeka nastavak`);
  return {state,summary:counts.join(' · '),continuing:run.status==='Djelomično'&&pending>0&&!state.error};
 }
+// Stored pairs from the separate `pairs` read. Pairs whose property or buyer is outside the visible lists stay
+// out of the list (as before) but are counted, so a hidden pair is never silently lost.
+export function pairsView(resp){
+ if(!resp)return {matches:[],hidden:[]};
+ const visible=rows=>(rows||[]).filter(r=>r.visible!==false);
+ const matches=storedMatches({properties:visible(resp.properties),investors:visible(resp.investors),match_results:resp.match_results});
+ const p=new Map((resp.properties||[]).map(r=>[String(r.id),r])),i=new Map((resp.investors||[]).map(r=>[String(r.id),r]));
+ const hidden=(resp.match_results||[]).flatMap(m=>{
+  const prop=p.get(String(m.property_id)),inv=i.get(String(m.investor_id));
+  const reason=!prop?'nekretnina više ne postoji':!inv?'kupac više ne postoji':prop.visible===false?'nekretnina je istekla ili uklonjena iz izvora':inv.visible===false?'zahtjev kupca je istekao ili uklonjen iz izvora':null;
+  return reason?[{property_id:m.property_id,investor_id:m.investor_id,reason}]:[];
+ });
+ return {matches,hidden,totals:resp.totals||null,loaded_at:resp.loaded_at};
+}
+// Why the possible-pairs list is empty or short. A failed load is never presented as zero.
+export function pairsExplanation({error=null,matches=[],hidden=[],totals=null,filtered=0}={}){
+ if(error&&!matches.length)return {kind:'error',text:'Mogući parovi nisu učitani ('+error+'). Ovo nije stvarna nula; pokušaj ponovno.'};
+ const candidates=matches.filter(m=>m.status===CANDIDATE).length;
+ const byReason=hidden.reduce((o,h)=>({...o,[h.reason]:(o[h.reason]||0)+1}),{});
+ const hiddenText=Object.entries(byReason).map(([r,n])=>n+' skriveno jer '+r).join('; ');
+ if(!matches.length&&!hidden.length)return {kind:'zero',text:'U bazi trenutačno nema spremljenih rezultata uparivanja'+(totals?' (u bazi '+totals.properties+' nekretnina i '+totals.investors+' kupaca)':'')+'. Pokreni „Izračunaj ponovno” ili „Zašto nema više parova?” za razloge isključenja.'};
+ if(!candidates)return {kind:'zero',text:'Nema mogućih parova za provjeru: spremljeno je '+matches.length+' rezultata, ali nijedan nije kandidat'+(hiddenText?'; '+hiddenText:'')+'.'};
+ if(filtered===0)return {kind:'filtered',text:'Nema rezultata za odabrane filtre; ukupno je '+candidates+' mogućih parova. Očisti filtre.'};
+ return hiddenText?{kind:'hidden',text:hiddenText+'.'}:null;
+}
+// Labels for the counts-only diagnostics funnel.
+export function funnelRows(f){
+ if(!f)return [];
+ const rows=[['Nekretnine u izračunu',f.properties],['Kupci u izračunu',f.investors],['Svi mogući parovi (nekretnina × kupac)',f.pairs],['Država izvan interesa kupca',f.country_mismatch]];
+ for(const [k,v] of Object.entries(f.excluded||{}).sort((a,b)=>b[1]-a[1]))rows.push(['Isključeno: '+k,v]);
+ for(const [k,v] of Object.entries(f.suggested||{}))rows.push(['Spremljeno: '+k,v]);
+ rows.push(['Nekretnine bez prepoznate vrste',f.properties_without_type],['Nekretnine bez URL-a izvora',f.properties_without_source],['Kupci bez navedene vrste',f.investors_without_types],['Kupci bez URL-a izvora',f.investors_without_source]);
+ return rows;
+}

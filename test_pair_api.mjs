@@ -122,5 +122,33 @@ try{
  await run({action:'refresh'});
  const ranked=Object.fromEntries((await sql`select property_id,result_json from match_results where investor_id=${i2.id}`).map(x=>[x.property_id,JSON.parse(x.result_json)]));
  assert.equal(ranked[p3].status,MATCH);assert.equal(ranked[p3].affordability.rank,1);assert.equal(ranked[p2].affordability.rank,2);assert.equal(ranked[p2].affordability.compared,2);
+ // Visibility (6361512242, 6364207005, 6369410657): the pairs read is independent of the full read, returns every
+ // stored pair with the records it links to, and reports hidden links instead of dropping them.
+ let full=await run({action:'read'});
+ assert.equal(full.counts.match_results,full.match_results.length);assert.equal(full.truncated.match_results,false);
+ assert.equal(full.counts.properties,full.properties.length,'counts are true totals of the visible lists');
+ let pv=await run({action:'pairs'});
+ assert.equal(pv.match_results.length,(await sql`select count(*)::int as n from match_results`)[0].n);
+ assert(pv.match_results.every(m=>pv.properties.some(p=>String(p.id)===String(m.property_id))&&pv.investors.some(i=>String(i.id)===String(m.investor_id))),'every linked record is included');
+ assert(pv.properties.every(p=>p.visible===true));
+ await sql`update properties set bid_deadline_at=now()-interval '1 hour' where id=${p2}`;
+ pv=await run({action:'pairs'});full=await run({action:'read'});
+ if(pv.match_results.some(m=>String(m.property_id)===String(p2))){
+  assert.equal(pv.properties.find(p=>String(p.id)===String(p2)).visible,false,'a pair whose property left the visible list is reported as hidden');
+  assert(!full.properties.some(p=>String(p.id)===String(p2)));
+ }
+ await sql`update properties set bid_deadline_at=null where id=${p2}`;
+ // Source candidates page with a true total; the full read does not ship every candidate body.
+ for(let n=0;n<7;n++)await sql`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${'test:page:'+n},'test','property',${'Kandidat '+n},'HR',${'https://example.org/c/'+n},'{"facts":{}}',${new Date(Date.now()+n*1000).toISOString()})`;
+ const page=await run({action:'sources',offset:2,limit:3});
+ assert.equal(page.total,7);assert.deepEqual(page.source_candidates.map(c=>c.id),['test:page:4','test:page:3','test:page:2'],'newest first, stable paging');
+ await assert.rejects(run({action:'sources',offset:-1}),/Nevaljana stranica/);
+ full=await run({action:'read'});assert.equal(full.counts.source_candidates,7);
+ // Counts-only diagnostics explain the gap between all property × buyer pairs and stored candidates.
+ const diag=await run({action:'pair_diagnostics'});
+ const f=diag.funnel,sum=Object.values(f.suggested).reduce((a,b)=>a+b,0)+Object.values(f.excluded).reduce((a,b)=>a+b,0)+f.country_mismatch;
+ assert.equal(sum,f.pairs,'every pair is either suggested, excluded with a reason or outside the buyer countries');
+ assert.equal(Object.values(f.suggested).reduce((a,b)=>a+b,0),diag.stored.total,'suggested pairs equal stored pairs after a refresh');
+ assert(!JSON.stringify(diag).includes('example.ie'),'diagnostics contain counts, not records');
  console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair, explicit source check without budget, expiry back to candidate, guard refusal kept visible and excluded from ranking.');
 }finally{await sql.end()}
