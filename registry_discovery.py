@@ -18,6 +18,7 @@ from urllib.error import HTTPError
 from urllib.robotparser import RobotFileParser
 from sync_discovery import request_token, call as legacy_call
 from public_land_sources import PUBLIC_LAND_CALLS, public_land_record
+import source_leads
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
@@ -407,6 +408,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
         stamp=datetime.now(timezone.utc).isoformat();sid='registry-'+str(source['id'])
         try:
             page=Page(fetcher.get(source['url']))
+            source_leads.observe(source['url'],page.links)
             text=' '.join(' '.join(page.text).split())
             print('Public source diagnostic',sid,'title', ' '.join(page.title)[:160], 'text sample',text[:240],flush=True)
             row=public_land_record(source,text,stamp)
@@ -460,6 +462,8 @@ def process(source,state,fetcher,deadline,max_pages=25):
             url=safe_url(url,root);page=Page(fetcher.get(url));pages+=1
             text=' '.join(' '.join(page.text).split())
             if re.search(r'captcha|access denied|verify you are human|just a moment',page.meta.get('og:title','')+' '+text[:400],re.I):raise ValueError('Access challenge; no import')
+            # Off-site links naming sales or buyer demand become leads for new sources (never crawled automatically).
+            source_leads.observe(url,page.links)
             if item['mode']=='buyer':
                 demand=DEMAND.search(text)
                 if not demand:
@@ -613,6 +617,11 @@ def main(max_workers=3):
         for future in futures:
             persistence_failures.extend(future.result())
     print('Registry pass finished; unvisited sources retain their checkpoints.')
+    try:
+        leads=source_leads.record_observed([urlsplit(s['url']).hostname or '' for s in config['sources']])
+        print('Source leads recorded:',len(leads['leads']))
+    except OSError as error:
+        print('Source leads not recorded:',type(error).__name__)
     if persistence_failures:
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
