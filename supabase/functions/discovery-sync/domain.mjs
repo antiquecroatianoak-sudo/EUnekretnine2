@@ -7,6 +7,15 @@ export const norm=v=>String(v||'').toLocaleLowerCase('hr').normalize('NFKD').rep
 export const num=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
 export const validUrl=v=>{try{return typeof v==='string'&&['https:','http:'].includes(new URL(v).protocol)}catch{return false}};
 export const criteria=i=>{try{const c=typeof i.criteria_json==='string'?JSON.parse(i.criteria_json):i.criteria_json||{};return c&&typeof c==='object'&&!Array.isArray(c)?c:{_invalid:true}}catch{return {_invalid:true}}};
+// Content fingerprint: FNV-1a over UTF-16 units of whitespace-normalised text (same as matching.digest).
+export function digest(v){const s=String(v??'').replace(/\s+/g,' ').trim();let h=0x811c9dc5;for(let k=0;k<s.length;k++){h^=s.charCodeAt(k);h=Math.imul(h,0x01000193)>>>0}return h.toString(16).padStart(8,'0')}
+// A recorded check counts only for the exact checked text, within 90 days and with evidence.
+export function checkValid(check,text,now=Date.now()){
+ if(!check||typeof check!=='object')return false;const t=Date.parse(check.checked_at);
+ return check.digest===digest(text)&&/(Z|[+-]\d\d:\d\d)$/.test(check.checked_at||'')&&Number.isFinite(t)&&t<=now&&now-t<=90*86400000&&typeof check.evidence==='string'&&check.evidence.trim().length>0;
+}
+// Original source wording that the structured criteria cannot express.
+export const sourceConditions=c=>JSON.stringify([c.property_types??null,c.preferred_locations??null,c.locations??null,c.required_criteria??null,c.required??null]);
 export function validateCriteria(c){
  for(const [k,allowed] of [['property_types',TYPES],['conditions',CONDITIONS]])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>!allowed.includes(v)))throw Error('Nepoznati kriteriji: '+k);
  for(const k of ['cities','regions'])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>typeof v!=='string'||!v.trim()))throw Error('Lokacije moraju biti popis naziva.');
@@ -15,33 +24,113 @@ export function validateCriteria(c){
  if(c.requires_buildable!=null&&typeof c.requires_buildable!=='boolean')throw Error('Nevaljan uvjet gradnje.');
  if(c.source_url&&!validUrl(c.source_url))throw Error('Potreban je valjan URL dokaza zahtjeva kupca.');
 }
-export function evaluate(p,i,now=Date.now()){
- let c=criteria(i),reasons=[],missing=[],rejected=[],passed=0,checks=0;
- const check=(label,known,fits)=>{checks++;if(!known)missing.push(label);else if(fits){reasons.push(label);passed++}else rejected.push(label)};
- try{validateCriteria(c);if(c._invalid)throw Error()}catch{missing.push('Ispravni strukturirani kriteriji kupca');c={}}
+// Property facts a pair-specific check is bound to: any change to them makes the check stale.
+export const PAIR_FACTS=['id','country','region','city','title','property_type','condition','area','price','price_basis','renovation','other_costs','legal','legal_evidence_url','buildable','planning_evidence_url','source','available_until','bid_deadline_at','auction_at','risk_notes'];
+const fact=v=>v==null?null:typeof v==='number'?v:v instanceof Date?v.toISOString():String(v);
+// Text a pair check covers: the buyer's condition wording plus the property facts it was checked against.
+// The id is compared as text because the database driver returns bigint ids as strings.
+export const pairText=(requirement,p)=>JSON.stringify([String(requirement??''),...PAIR_FACTS.map(k=>k==='id'&&p.id!=null?String(p.id):fact(p[k]))]);
+// Separate stages of a pair; computed matching never reaches confirmed interest or a closed deal.
+export const PHASE={REJECT:'Ne odgovara potrebama kupca',PROPERTY:'Mogući par – dopuna podataka o nekretnini',BUYER:'Nekretnina provjerena – usklađivanje s potrebama kupca',REAL:'Stvarna prilika – interes kupca još nije potvrđen'};
+export const PAIR_CONDITION='Ispunjenje dodatnih uvjeta kupca za ovu nekretninu';
+// Original buyer conditions reported by suggestions(): [wording to confirm, fulfilment for one property].
+export const SOURCE_CONDITIONS=[['Provjera izvornog opisa vrste i namjene nekretnine','Ispunjenje izvornog opisa vrste i namjene za ovu nekretninu'],
+ ['Provjera izvornih lokacijskih uvjeta kupca','Ispunjenje izvornih lokacijskih uvjeta kupca za ovu nekretninu'],
+ ['Provjera dodatnih izvornih uvjeta kupca','Ispunjenje dodatnih izvornih uvjeta kupca za ovu nekretninu']];
+// The condition text a pair-specific item is checked against; null for items closed by updating a record.
+export function conditionText(label,i){
+ if(label===PAIR_CONDITION)return String(i.notes||'');
+ return SOURCE_CONDITIONS.some(([,f])=>f===label)?sourceConditions(criteria(i)):null;
+}
+// The latest verified or rejected answer per pair and item decides; a later rejection withdraws a verification,
+// an unverified answer changes nothing.
+export function pairCheckMap(rows){
+ const out=new Map(),seen=new Set();
+ for(const r of [...rows].sort((a,b)=>Date.parse(b.recorded_at)-Date.parse(a.recorded_at)||Number(b.id)-Number(a.id))){
+  if(r.status!=='Provjereno'&&r.status!=='Odbačeno')continue;
+  const pair=r.property_id+'-'+r.investor_id,key=pair+'\n'+r.requirement;if(seen.has(key))continue;seen.add(key);
+  if(r.status!=='Provjereno'||!r.digest)continue;
+  if(!out.has(pair))out.set(pair,{});
+  out.get(pair)[r.requirement]={digest:r.digest,checked_at:new Date(r.answered_on||r.recorded_at).toISOString(),evidence:r.evidence,outcome:r.outcome||'nepoznato'};
+ }
+ return out;
+}
+// Verification establishes that an answer is reliable, not that it satisfies the requirement.
+export function checkCondition(r,label,text,p,checks,now){
+ const c=checks[label];
+ if(!checkValid(c,pairText(text,p),now)||!['zadovoljava','ne zadovoljava'].includes(c?.outcome))gap(r,label,'pair');
+ else if(c.outcome==='ne zadovoljava')r.rejected.push(label);
+}
+// Draft questions only: the system never sends them. A question to the seller never names the buyer.
+const QUESTIONS=[[/^Cijena nekretnine$/,'Koja je tražena cijena nekretnine i što uključuje (porezi, pristojbe, drugi troškovi)? Ako se prodaje na dražbi, koja je početna ili minimalna ponuda?'],
+ [/^Površina/,'Kolika je površina nekretnine ili zemljišta prema službenoj evidenciji (m²)?'],
+ [/pravne/,'Možete li dostaviti izvadak iz zemljišne knjige ili drugi dokument o vlasništvu, teretima i eventualnim sporovima?'],
+ [/gradnje/,'Koja je namjena prema važećem prostornom planu i postoje li lokacijska ili građevinska dozvola?'],
+ [/Aktualnost|aktivnosti oglasa|rok dostupnosti/,'Je li nekretnina još uvijek dostupna i do kada vrijedi ponuda ili rok za ponude?'],
+ [/^Stanje/,'U kakvom je stanju nekretnina (useljiva, za obnovu, za rušenje, neizgrađena)?'],
+ [/^Vrsta nekretnine$/,'O kojoj se vrsti nekretnine radi i kako je upisana u službenim evidencijama?'],
+ [/^(Grad|Regija|Država)$/,'U kojoj se općini i regiji nekretnina nalazi?'],
+ [/ROI/,'Postoji li procjena tržišne vrijednosti ili dokumentirani troškovi obnove?'],
+ [/^Ispunjenje/,'Molimo podatke o lokaciji, okruženju i namjeni nekretnine potrebne za provjeru dodatnih uvjeta (konkretan uvjet upisati ručno, bez podataka o kupcu).']];
+const BUYER_QUESTIONS=[[/napomena|izvorn/,'Možete li potvrditi točan sadržaj svojih dodatnih uvjeta (lokacija, namjena, ostalo) i od kada vrijede?'],
+ [/zahtjev kupca|kriteriji/,'Možete li potvrditi trenutne kriterije traženja (države, vrste nekretnina, stanje, površina) i izvor zahtjeva?'],
+ [/javnog poziva/,'Je li javni poziv još otvoren i do kada?']];
+export function questionDraft(label,side){
+ const list=side==='buyer'?BUYER_QUESTIONS:QUESTIONS;
+ return {addressed_to:side==='buyer'?'Kupac':/Izvor oglasa/.test(label)?'Interni izvor':'Prodavatelj',body:(list.find(([re])=>re.test(label))?.[1])||'Molimo dodatne podatke potrebne za provjeru: '+label+'.'};
+}
+// Records an open item on the property, buyer or pair side; missing keeps the combined order.
+export function gap(r,label,side){r.missing.push(label);r.gaps[side].push(label)}
+export function settle(r){
+ r.missing=[...new Set(r.missing)];for(const k of Object.keys(r.gaps))r.gaps[k]=[...new Set(r.gaps[k])];
+ r.status=r.rejected.length?REJECT:r.missing.length?CANDIDATE:MATCH;
+ r.phase=r.rejected.length?PHASE.REJECT:r.gaps.property.length?PHASE.PROPERTY:r.missing.length?PHASE.BUYER:PHASE.REAL;
+ return r;
+}
+export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
+ let c=criteria(i),reasons=[],rejected=[],info=[],passed=0,checks=0;
+ const r={reasons,missing:[],rejected,gaps:{property:[],buyer:[],pair:[]},info};
+ const check=(label,buyerKnown,propertyKnown,fits)=>{checks++;if(!buyerKnown)gap(r,label,'buyer');else if(!propertyKnown)gap(r,label,'property');else if(fits){reasons.push(label);passed++}else rejected.push(label)};
+ try{validateCriteria(c);if(c._invalid)throw Error()}catch{gap(r,'Ispravni strukturirani kriteriji kupca','buyer');c={}}
  const countries=String(i.preferred_countries||'').split(',').map(v=>v.trim()).filter(Boolean);
- check('Država',!!(countries.length&&p.country),countries.map(v=>norm(country(v))).includes(norm(country(p.country))));
+ check('Država',countries.length>0,!!p.country,countries.map(v=>norm(country(v))).includes(norm(country(p.country))));
  const total=['price','renovation','other_costs'].every(k=>num(p[k]))?p.price+p.renovation+p.other_costs:null;
- const budget=num(i.min_budget)&&num(i.max_budget)&&i.max_budget>0&&i.max_budget>=i.min_budget&&total!==null;
- check('Ukupni trošak unutar budžeta',budget,budget&&total>=i.min_budget&&total<=i.max_budget);
- for(const [k,f,label,allowed] of [['property_types','property_type','Vrsta nekretnine',TYPES],['conditions','condition','Stanje / obnova / rušenje',CONDITIONS]])check(label,!!c[k]?.length&&allowed.includes(p[f]),c[k]?.includes(p[f]));
- for(const [k,f,label] of [['cities','city','Grad'],['regions','region','Regija']])if(c[k]?.length)check(label,!!p[f],c[k].map(norm).includes(norm(p[f])));
- if(c.min_area!=null||c.max_area!=null)check('Površina',num(p.area)&&p.area>0,num(p.area)&&(c.min_area==null||p.area>=c.min_area)&&(c.max_area==null||p.area<=c.max_area));
- if(c.requires_buildable){check('Potvrđena mogućnost gradnje',['Da','Ne'].includes(p.buildable),p.buildable==='Da'&&validUrl(p.planning_evidence_url));if(p.buildable==='Da'&&!validUrl(p.planning_evidence_url)){rejected=rejected.filter(v=>v!=='Potvrđena mogućnost gradnje');missing.push('Dokaz mogućnosti gradnje')}}
+ // The property's price is a core fact; the buyer's budget is optional and never blocks a pair.
+ if(!num(p.price)||p.price<=0)gap(r,'Cijena nekretnine','property');
+ const budget=num(i.min_budget)&&num(i.max_budget)&&i.max_budget>0&&i.max_budget>=i.min_budget;
+ if(budget&&total!==null&&total>i.max_budget)info.push('Ukupni trošak iznad navedenog budžeta kupca (informativno)');
+ else if(budget&&total!==null&&total<i.min_budget)info.push('Ukupni trošak ispod navedenog budžeta kupca (informativno)');
+ for(const [k,f,label,allowed] of [['property_types','property_type','Vrsta nekretnine',TYPES],['conditions','condition','Stanje / obnova / rušenje',CONDITIONS]])check(label,!!c[k]?.length,allowed.includes(p[f]),c[k]?.includes(p[f]));
+ for(const [k,f,label] of [['cities','city','Grad'],['regions','region','Regija']])if(c[k]?.length)check(label,true,!!p[f],c[k].map(norm).includes(norm(p[f])));
+ if(c.min_area!=null||c.max_area!=null)check('Površina',true,num(p.area)&&p.area>0,num(p.area)&&(c.min_area==null||p.area>=c.min_area)&&(c.max_area==null||p.area<=c.max_area));
+ else if(!num(p.area)||p.area<=0)gap(r,'Površina nekretnine','property');
+ if(c.requires_buildable){check('Potvrđena mogućnost gradnje',true,['Da','Ne'].includes(p.buildable),p.buildable==='Da'&&validUrl(p.planning_evidence_url));if(p.buildable==='Da'&&!validUrl(p.planning_evidence_url)){rejected.splice(rejected.indexOf('Potvrđena mogućnost gradnje')>>>0,1);gap(r,'Dokaz mogućnosti gradnje','property')}}
  const roi=num(p.estimated_value)&&total!==null&&total>0?100*(p.estimated_value-total)/total:null;
- if(c.min_roi!=null)check('Minimalni jednostavni ROI',roi!==null&&validUrl(p.valuation_evidence_url),roi!==null&&roi>=c.min_roi);
+ if(c.min_roi!=null)check('Minimalni jednostavni ROI',true,roi!==null&&validUrl(p.valuation_evidence_url),roi!==null&&roi>=c.min_roi);
  const checked=Date.parse(c.checked_at),age=now-checked;
- if(!i.verified||!Number.isFinite(checked)||!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at||'')||age<0||age>90*86400000||!validUrl(c.source_url))missing.push('Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana');
- if(String(i.notes||'').trim())missing.push('Dodatni uvjeti iz napomena za ručnu provjeru');
- if(!validUrl(p.source))missing.push('Izvor oglasa');
- if(p.legal==='Komplikacije')rejected.push('Pravne komplikacije');else if(p.legal!=='Uredno'||!validUrl(p.legal_evidence_url))missing.push('Dokaz pravne provjere');
+ if(!i.verified||!Number.isFinite(checked)||!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at||'')||age<0||age>90*86400000||!validUrl(c.source_url))gap(r,'Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana','buyer');
+ // Checking the wording of the buyer's notes confirms what they ask for, not that this property meets it.
+ if(String(i.notes||'').trim()){if(!checkValid(c.notes_check,i.notes,now))gap(r,'Dodatni uvjeti iz napomena za ručnu provjeru','buyer');else checkCondition(r,PAIR_CONDITION,i.notes,p,pairChecks,now)}
+ const original=sourceRaw||c;
+ const applies=[(original.property_types||[]).some(v=>!TYPES.includes(v)),original.preferred_locations?.length||original.locations?.length,original.required_criteria?.length||(original.required&&Object.keys(original.required).length)];
+ for(const [n,[wording,fulfilment]] of SOURCE_CONDITIONS.entries())if(applies[n]){
+  if(!checkValid(original.source_conditions_check,sourceConditions(original),now))gap(r,wording,'buyer');
+  else checkCondition(r,fulfilment,sourceConditions(original),p,pairChecks,now);
+ }
+ if(c.call_closed||i._call_facts?.source_listing_state==='expired'||i._call_facts?.source_listing_state==='removed')rejected.push('Javni poziv kupca je zatvoren ili istekao');
+ for(const d of [c.call_deadline,i._call_facts?.deadline])if(d){
+  if(!Number.isFinite(Date.parse(d)))gap(r,'Valjan rok javnog poziva kupca','buyer');
+  else if(String(d).slice(0,10)<new Date(now).toISOString().slice(0,10))rejected.push('Javni poziv kupca je zatvoren ili istekao');
+ }
+ if(!validUrl(p.source))gap(r,'Izvor oglasa','property');
+ if(p.legal==='Komplikacije')rejected.push('Pravne komplikacije');else if(p.legal!=='Uredno'||!validUrl(p.legal_evidence_url))gap(r,'Dokaz pravne provjere','property');
  const deadline=p.available_until||p.bid_deadline_at;let expired=false;
- if(deadline){const stamp=Date.parse(deadline);if(!Number.isFinite(stamp))missing.push('Valjan rok dostupnosti');else expired=/^\d{4}-\d{2}-\d{2}$/.test(deadline)?String(deadline)<new Date(now).toISOString().slice(0,10):stamp<now}
+ if(deadline){const stamp=Date.parse(deadline);if(!Number.isFinite(stamp))gap(r,'Valjan rok dostupnosti','property');else expired=/^\d{4}-\d{2}-\d{2}$/.test(deadline)?String(deadline)<new Date(now).toISOString().slice(0,10):stamp<now}
  if(['prodano','povuceno','rok istekao','zatvoreno'].some(v=>norm(p.status).startsWith(v))||expired)rejected.push('Nekretnina više nije aktivna');
- return {status:rejected.length?REJECT:missing.length?CANDIDATE:MATCH,score:checks?Math.round(100*passed/checks):0,reasons,missing,rejected,total_cost:total,roi};
+ return settle({...r,score:checks?Math.round(100*passed/checks):0,total_cost:total,roi});
 }
 export function propertyInput(input){
- const out={};const texts=['country','city','region','title','property_type','condition','source','legal','status','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','risk_notes'];
+ const out={};const texts=['price_basis','country','city','region','title','property_type','condition','source','legal','status','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','risk_notes'];
  for(const k of texts)if(k in input){if(input[k]!=null&&typeof input[k]!=='string')throw Error('Nevaljano polje: '+k);out[k]=input[k]?.trim()||null;if(out[k]?.length>4000)throw Error('Predug podatak: '+k)}
  for(const k of ['price','area','renovation','other_costs','estimated_value'])if(k in input){if(input[k]!=null&&!num(input[k]))throw Error('Nevaljan broj: '+k);out[k]=input[k]??null}
  if(!out.title||!validUrl(out.source)||!Object.values(COUNTRIES).includes(country(out.country)))throw Error('Unesi naziv, državu EU i valjan URL izvornog oglasa.');
@@ -58,11 +147,44 @@ export function propertyInput(input){
 }
 export function investorInput(input){
  const out={};for(const k of ['name','country','preferred_countries','notes']){if(typeof input[k]!=='string'||input[k].length>8000)throw Error('Nevaljano polje: '+k);out[k]=input[k].trim()}
- if(!out.name||!Object.values(COUNTRIES).includes(country(out.country)))throw Error('Unesi naziv kupca i državu EU.');
- if(!num(input.min_budget)||!num(input.max_budget)||input.max_budget<=0||input.max_budget<input.min_budget)throw Error('Unesi valjan raspon budžeta.');
+ // The seat may be outside the EU; EU interest is preferred_countries and stays separate.
+ if(!out.name||!out.country||out.country.length>80)throw Error('Unesi naziv kupca i sjedište.');
+ // Unknown budget stays NULL; only known bounds are validated.
+ const low=input.min_budget??null,high=input.max_budget??null;
+ if((low!=null&&!num(low))||(high!=null&&(!num(high)||high<=0))||(low!=null&&high!=null&&high<low))throw Error('Unesi valjan raspon budžeta ili ostavi nepoznat iznos prazan.');
  const c=criteria(input);validateCriteria(c);if(c._invalid)throw Error('Nevaljani kriteriji.');
+ for(const k of ['notes_check','source_conditions_check']){const v=c[k];if(v==null)continue;const t=Date.parse(v?.checked_at);
+  if(typeof v!=='object'||!/^[0-9a-f]{8}$/.test(v.digest||'')||!/(Z|[+-]\d\d:\d\d)$/.test(v.checked_at||'')||!Number.isFinite(t)||t>Date.now()+60000||typeof v.evidence!=='string'||!v.evidence.trim()||v.evidence.length>2000)throw Error('Nevaljana provjera dodatnih uvjeta.')}
  if(c.checked_at&&(!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at)||!Number.isFinite(Date.parse(c.checked_at))||Date.parse(c.checked_at)>Date.now()))throw Error('Datum provjere nije valjan.');
  if(![0,1,false,true].includes(input.verified))throw Error('Nevaljana potvrda zahtjeva.');
  if(input.verified&&(!validUrl(c.source_url)||!c.checked_at||!out.preferred_countries||!c.property_types?.length||!c.conditions?.length))throw Error('Za potvrđen zahtjev navedi izvor, datum i kriterije.');
- return {...out,min_budget:input.min_budget,max_budget:input.max_budget,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
+ return {...out,min_budget:low,max_budget:high,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
+}
+
+// Rank only current MATCH listings for the same buyer, city, type, condition and explicit asking-price basis.
+// Auction starting bids and unknown bases never compete with asking prices. EUR is the system's currency.
+export function rankAffordability(rows,props){
+ const groups=new Map(),byId=new Map(props.map(p=>[String(p.id),p]));
+ for(const row of rows){
+  const r=JSON.parse(row.result_json),p=byId.get(String(row.property_id));
+  r.affordability={rank:null,compared:0,label:'Nema dovoljno usporedivih ponuda'};
+  const basis=norm(p?.price_basis);
+  if(r.status===MATCH&&p&&['asking','asking_price','trazena cijena','trazena'].includes(basis)&&p.city&&num(p.area)&&p.area>0&&num(p.price)&&p.price>0&&(!p.currency||p.currency==='EUR')&&!p.auction_at&&!p.bid_deadline_at&&!/drazb|auction/i.test(p.status||'')){
+   // Size band prevents comparing a small plot to a huge development site; building condition stays separate.
+   const key=JSON.stringify([String(row.investor_id),norm(country(p.country)),norm(p.city),p.property_type,p.condition,Math.floor(Math.log(p.area)/Math.log(1.5))]);
+   if(!groups.has(key))groups.set(key,[]);
+   groups.get(key).push({r,row,value:p.price/p.area});
+  }
+  row.result_json=JSON.stringify(r);
+ }
+ for(const group of groups.values()){
+  if(group.length<2)continue;
+  group.sort((a,b)=>a.value-b.value||String(a.row.property_id).localeCompare(String(b.row.property_id)));
+  for(let n=0;n<group.length;n++){
+   const item=group[n],rank=group.findIndex(x=>x.value===item.value)+1;
+   item.r.affordability={rank,compared:group.length,price_per_m2:item.value,basis:'Tražena cijena EUR/m²',label:'Povoljnost '+rank+'/'+group.length+' među dostupnim usporedivim ponudama (tražena cijena/m²; dodatni troškovi zasebno)'};
+   item.row.result_json=JSON.stringify(item.r);
+  }
+ }
+ return rows;
 }

@@ -1,0 +1,413 @@
+{
+ "schema_version": 1,
+ "updated_at": "2026-10-22T13:00:00Z",
+ "policy": "Evidencija ne tvrdi potpunu pokrivenost. Pronađen ili konfiguriran izvor nije isto što i stvarno testiran uvoz. Prodaja javnog zemljišta, posredovanje, zatvoreni pozivi i najave projekata nisu aktivna potražnja javnog kupca.",
+ "statuses": {
+  "uvoz_testiran": "Stvarni uvoz u bazu prošao (navedeno pokretanje)",
+  "dohvat_testiran": "Stvarni dohvat i prepoznavanje prošli bez upisa u bazu; uvoz čeka registraciju izvora",
+  "konfiguriran_ceka_provjeru": "Adapter postoji; stvarni dohvat još nije potvrđen",
+  "pronaden_nije_konfiguriran": "Službena stranica pronađena; adapter nije napravljen",
+  "zatvoren": "Poziv je zatvoren ili mu je rok istekao; nije aktivna potražnja",
+  "izvan_opsega": "Službeni izvor, ali nije kupnja zemljišta",
+  "blokiran": "Dohvat odbijen (robots.txt, 401/403 ili zaštita); ne zaobilazi se"
+ },
+ "ted": "TED je samo dopunski izvor: Direktiva 2014/24/EU (čl. 10.a) izuzima stjecanje zemljišta i zgrada iz javne nabave, pa TED nije potpuna baza kupnje zemljišta. Adapter za TED nije uključen.",
+ "countries": {
+  "AT": {
+   "name": "Austrija",
+   "searched_at": "2026-10-22",
+   "summary": "Pronađen je stalni zemaljski program kupnje stambenog zemljišta, ali ga pokreću pojedinci koji traže zemljište, a ne poziv vlasnicima. Općinski pozivi vlasnicima nisu pronađeni.",
+   "sources": [
+    {
+     "url": "https://noe.gv.at/noe/Bauen-Neubau/Foerd_NOE_Baurechtsaktion.html",
+     "institution": "Land Niederösterreich – NÖ Baurechtsaktion",
+     "authority_level": "regional",
+     "source_type": "stalni_program",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Land kupuje opremljeno stambeno zemljište (smjernica oko 60.000 EUR / 700 m²) za pravo građenja; vlasnici nemaju pravo na otkup. Smjernice iz 2021. treba ponovno provjeriti."
+    }
+   ]
+  },
+  "BE": {
+   "name": "Belgija",
+   "searched_at": "2026-10-22",
+   "summary": "Vlaamse Grondenbank (VLM) kupuje poljoprivredno zemljište u projektnim područjima. Poziv za stambeno zemljište nije pronađen.",
+   "sources": [
+    {
+     "url": "https://www.vlaanderen.be/bouwen-wonen-en-energie/kopen-en-verkopen/bouwgrond/koop-verkoop-en-ruil-van-grond-via-de-vlaamse-grondenbank",
+     "institution": "Vlaamse Landmaatschappij – Vlaamse Grondenbank",
+     "authority_level": "regional",
+     "source_type": "stalni_program",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Stranica obuhvaća kupnju, prodaju i zamjenu; adapter mora razlikovati kupnju od prodaje. Kupnja ograničena na projektna područja i zemljište bez zakupa."
+    }
+   ]
+  },
+  "BG": {
+   "name": "Bugarska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađene su samo privatne oglasne ponude i propisi o općinskoj imovini."
+  },
+  "HR": {
+   "name": "Hrvatska",
+   "searched_at": "2026-10-22",
+   "summary": "Pronađeni su pozivi Grada Zagreba za iskaz interesa za kupnju građevinskog zemljišta, ali su im objavljeni rokovi istekli. Otvoren poziv nije pronađen.",
+   "sources": [
+    {
+     "url": "https://www.zagreb.hr/userdocsimages/arhiva/gospodarstvo/javni poziv-prodaja zemljište za rd/JAVNI POZIV ZA ISKAZ INTERESA-RD_komunalne baze.docx",
+     "institution": "Grad Zagreb",
+     "authority_level": "local",
+     "source_type": "arhivirani_poziv",
+     "support_status": "zatvoren",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Kupnja građevinskog zemljišta od najmanje 1.000 m² za reciklažna dvorišta i komunalne baze; objavljeni rokovi 30.4.2026. i 31.8.2026. su istekli."
+    }
+   ]
+  },
+  "CY": {
+   "name": "Cipar",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Cyprus Land Development Corporation prodaje parcele; poziv vlasnicima za prodaju nije pronađen."
+  },
+  "CZ": {
+   "name": "Češka",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. SPÚ objavljuje ponude državnog zemljišta (prodaja/prijenos), što nije potražnja javnog kupca."
+  },
+  "DK": {
+   "name": "Danska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Općine imaju proračune za kupnju zemljišta (npr. Randers), ali bez javnog poziva vlasnicima."
+  },
+  "EE": {
+   "name": "Estonija",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Država otkupljuje zemljište sa zaštićenim prirodnim vrijednostima na zahtjev vlasnika (Keskkonnaamet); to je postupak na zahtjev, a službena stranica postupka nije potvrđena."
+  },
+  "FI": {
+   "name": "Finska",
+   "searched_at": "2026-10-22",
+   "summary": "Grad Helsinki javno navodi da kupuje zemljište za razvoj, bez poziva s uvjetima i rokom.",
+   "sources": [
+    {
+     "url": "https://www.hel.fi/en/urban-environment-and-traffic/plots-and-building-permits/manage-plot-matters/purchasing-and-selling-land",
+     "institution": "City of Helsinki",
+     "authority_level": "local",
+     "source_type": "stalni_program",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Opća izjava o kupnji zemljišta i dijelova čestica; ista stranica opisuje i prodaju gradskog zemljišta."
+    }
+   ]
+  },
+  "FR": {
+   "name": "Francuska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Établissements publics fonciers kupuju zemljište uglavnom pravom prvokupa i pregovorima; pozivi vlasnicima nisu pronađeni."
+  },
+  "DE": {
+   "name": "Njemačka",
+   "searched_at": "2026-10-22",
+   "summary": "Gradska služba za nekretnine Nürnberga opisuje kupnju zemljišta; javni poziv s uvjetima nije pronađen.",
+   "sources": [
+    {
+     "url": "https://www.nuernberg.de/internet/liegenschaftsamt/ankauf_verkauf.html",
+     "institution": "Stadt Nürnberg – Liegenschaftsamt",
+     "authority_level": "local",
+     "source_type": "stalni_program",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Stranica obuhvaća kupnju i prodaju; potreban je pregled teksta prije adaptera."
+    }
+   ]
+  },
+  "GR": {
+   "name": "Grčka",
+   "searched_at": "2026-10-22",
+   "summary": "Pronađen je općinski poziv za kupnju zemljišta s isteklim rokom. Otvoren poziv nije pronađen.",
+   "sources": [
+    {
+     "url": "https://korinthos.gr/wp-content/uploads/2025/07/24288-Περίληψη-διακήρυξης-δημοπρασίας-.pdf",
+     "institution": "Dimos Korinthion",
+     "authority_level": "local",
+     "source_type": "arhivirani_poziv",
+     "support_status": "zatvoren",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Kupnja nekretnine za parkiralište kod groblja u Athikiji; rok 30.7.2025. je istekao."
+    }
+   ]
+  },
+  "HU": {
+   "name": "Mađarska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađene su samo proračunske stavke općina za kupnju nekretnina."
+  },
+  "IE": {
+   "name": "Irska",
+   "searched_at": "2026-10-22",
+   "summary": "Tri službena poziva (LDA, Galway) su stvarno uvezena i ponovno dohvaćena 22.10.2026. Donegalova stranica stvarnom dohvatu vraća stranicu za prijavu umjesto sadržaja. Kerryjev poziv je prepoznat, ali stranica ne objavljuje rok; prema pretrazi je istekao 10.7.2026., pa nije predložen za uvoz.",
+   "sources": [
+    {
+     "url": "https://lda.ie/projects/private-land-acquisition",
+     "institution": "Land Development Agency",
+     "authority_level": "national",
+     "source_type": "stalni_program",
+     "support_status": "uvoz_testiran",
+     "configured": true,
+     "registry_id": 101,
+     "last_import_check": {
+      "run_id": 39756884773,
+      "job_id": 119751019539,
+      "workflow": "discovery.yml / public-land-check",
+      "commit": "ef3ab4788f2ace942b227a5be0d63d6cce74d630",
+      "at": "2026-10-22T09:39:13Z",
+      "result": "Uspješno; 1 zapis; checkpoint spremljen"
+     },
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
+     },
+     "notes": "Kriteriji (lokacija, gustoća, planska dozvola) su u dokumentaciji programa."
+    },
+    {
+     "url": "https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition",
+     "institution": "Galway County Council",
+     "authority_level": "local",
+     "source_type": "stalni_program",
+     "support_status": "uvoz_testiran",
+     "configured": true,
+     "registry_id": 100,
+     "last_import_check": {
+      "run_id": 39756884773,
+      "job_id": 119751019539,
+      "workflow": "discovery.yml / public-land-check",
+      "commit": "ef3ab4788f2ace942b227a5be0d63d6cce74d630",
+      "at": "2026-10-22T09:39:02Z",
+      "result": "Uspješno; 1 zapis; checkpoint spremljen"
+     },
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
+     },
+     "notes": "Raniji poziv imao je rok 20.6.2024.; stranica i dalje poziva vlasnike stambeno zoniranog zemljišta."
+    },
+    {
+     "url": "https://donegalcoco.ie/en/services/housing/housing-delivery-and-supply/expressions-of-interest-land-and-property-for-social-housing",
+     "institution": "Donegal County Council",
+     "authority_level": "local",
+     "source_type": "stalni_program",
+     "support_status": "blokiran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Umjesto sadržaja vraćena je Meraki stranica za prijavu (JavaScript); poziv nije vidljiv"
+     },
+     "notes": "Stvarni dohvat ne vidi sadržaj stranice; zaštita se ne zaobilazi. Kriteriji prema pretrazi: zemljište prikladno za odmah stambenu gradnju, cijenu predlaže vlasnik."
+    },
+    {
+     "url": "https://www.kerrycoco.ie/expression-of-interest-in-turnkey-units-land-with-development-potential/",
+     "institution": "Kerry County Council",
+     "authority_level": "local",
+     "source_type": "javni_poziv",
+     "support_status": "dohvat_testiran",
+     "configured": true,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Poziv prepoznat; stranica ne objavljuje rok"
+     },
+     "notes": "Rok 10.7.2026. prema pretrazi je u dokumentaciji poziva, ne na stranici. Ne registrirati za uvoz bez ručne provjere dokumenta jer bi se istekao poziv prikazao kao aktivna potražnja."
+    },
+    {
+     "url": "https://offaly.ie/?p=2063",
+     "institution": "Offaly County Council",
+     "authority_level": "local",
+     "source_type": "javni_poziv",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Poziv za prodaju zemljišta Vijeću za stambenu izgradnju; aktualni rok nije potvrđen."
+    }
+   ]
+  },
+  "IT": {
+   "name": "Italija",
+   "searched_at": "2026-10-22",
+   "summary": "Pronađen je poziv općine Livorno za kupnju zgrade, ne zemljišta. Poziv za kupnju zemljišta nije pronađen.",
+   "sources": [
+    {
+     "url": "https://trasparenza.comune.livorno.it/sites/trasparenza/files/index/avvisi/Avviso-acquisizione-immobile-Piazza-Garibaldi_a1a19a10599efed2_p7m_qrcode.pdf",
+     "institution": "Comune di Livorno",
+     "authority_level": "local",
+     "source_type": "javni_poziv",
+     "support_status": "izvan_opsega",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Kupnja zgrade za institucionalne socijalne namjene, ne zemljišta."
+    }
+   ]
+  },
+  "LV": {
+   "name": "Latvija",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađena su samo pravila o prodaji općinskog zemljišta."
+  },
+  "LT": {
+   "name": "Litva",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađene su dražbe državnog zemljišta (prodaja), ne kupnja."
+  },
+  "LU": {
+   "name": "Luksemburg",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Država i Fonds du Logement kupuju zemljište, ali javni poziv vlasnicima s uvjetima nije pronađen."
+  },
+  "MT": {
+   "name": "Malta",
+   "searched_at": "2026-10-22",
+   "summary": "Pronađen je dokument Housing Authorityja o iskazu interesa iz 2025.; iz dostupnog sažetka nije jasno je li riječ o kupnji zemljišta.",
+   "sources": [
+    {
+     "url": "https://housingauthority.gov.mt/wp-content/uploads/2025/03/EOI-Published-doc-EOI-0001_2025.pdf",
+     "institution": "Housing Authority Malta",
+     "authority_level": "national",
+     "source_type": "javni_poziv",
+     "support_status": "pronaden_nije_konfiguriran",
+     "configured": false,
+     "registry_id": null,
+     "last_import_check": null,
+     "last_fetch_check": null,
+     "notes": "Predmet i rok poziva treba provjeriti u dokumentu."
+    }
+   ]
+  },
+  "NL": {
+   "name": "Nizozemska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Općine kupuju zemljište pravom prvokupa (Wet voorkeursrecht gemeenten) i pregovorima, bez javnog poziva vlasnicima."
+  },
+  "PL": {
+   "name": "Poljska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađene su samo dražbe općinskog zemljišta (prodaja)."
+  },
+  "PT": {
+   "name": "Portugal",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Mediji izvještavaju o općinskim kupnjama zemljišta (npr. Amadora, Lagos), ali službeni poziv vlasnicima nije pronađen."
+  },
+  "RO": {
+   "name": "Rumunjska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađeni su pojedinačni slučajevi kupnje izravnim pregovorima, bez otvorenog poziva."
+  },
+  "SK": {
+   "name": "Slovačka",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađeni su samo natječaji za prodaju općinskog zemljišta."
+  },
+  "SI": {
+   "name": "Slovenija",
+   "searched_at": "2026-10-22",
+   "summary": "Javni poziv Stanovanjskog sklada RS za 2026. i 2027. stvarno je uvezen i ponovno dohvaćen 22.10.2026.; rok i iznos nisu na stranici nego u dokumentaciji poziva.",
+   "sources": [
+    {
+     "url": "https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027",
+     "institution": "Stanovanjski sklad Republike Slovenije, javni sklad",
+     "authority_level": "national",
+     "source_type": "javni_poziv",
+     "support_status": "uvoz_testiran",
+     "configured": true,
+     "registry_id": 6,
+     "last_import_check": {
+      "run_id": 39756884773,
+      "job_id": 119751019539,
+      "workflow": "discovery.yml / public-land-check",
+      "commit": "ef3ab4788f2ace942b227a5be0d63d6cce74d630",
+      "at": "2026-10-22T09:38:51Z",
+      "result": "Uspješno; 1 zapis; checkpoint spremljen"
+     },
+     "last_fetch_check": {
+      "run_id": 39776595003,
+      "job_id": 119816994469,
+      "workflow": "public-land-probe.yml (samo čitanje)",
+      "commit": "44d75df474c18d3c13292a2682641d89ea0514ba",
+      "at": "2026-10-22T12:13:58Z",
+      "result": "Poziv prepoznat; rok i iznos nisu objavljeni na stranici, pa je aktualnost konkretnog poziva nepoznata (program objavljen)"
+     },
+     "notes": "Poziv obuhvaća stanove i zemljišta za gradnju stanova u cijeloj Sloveniji."
+    }
+   ]
+  },
+  "ES": {
+   "name": "Španjolska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Pronađene su prodaje općinskog i regionalnog zemljišta; raniji poziv Valencije (2024.) za stjecanje stanova zamjenom parcela je istekao."
+  },
+  "SE": {
+   "name": "Švedska",
+   "searched_at": "2026-10-22",
+   "sources": [],
+   "summary": "Pretragom službenih izvora 2026-10-22 nije pronađen otvoren javni poziv javnog tijela za kupnju zemljišta. Općine kupuju zemljište dobrovoljnim pregovorima; javni poziv vlasnicima nije pronađen."
+  }
+ }
+}

@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timezone
 import streamlit as st
-from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name
+from matching import PROPERTY_TYPES, CONDITIONS, validate_criteria, valid_url, parse_criteria, refresh_matches, country_name, digest, check_valid
 
 
 def property_form(c, props, countries):
@@ -61,11 +61,17 @@ def investor_form(c, investors, countries):
     criteria = parse_criteria(i)
     with st.form('buyer_' + str(selected)):
         name = st.text_input('Naziv kupca / tvrtke', value=i.get('name') or '')
-        buyer_kinds = ['Građevinska tvrtka', 'Privatna osoba', 'Investicijska tvrtka', 'Drugo']
-        buyer_kind = st.selectbox('Profil kupca', buyer_kinds, index=buyer_kinds.index(criteria.get('buyer_kind')) if criteria.get('buyer_kind') in buyer_kinds else 0)
-        country = st.selectbox('Sjedište', countries, index=countries.index(i['country']) if i.get('country') in countries else 0)
-        low = st.number_input('Minimalni ukupni budžet EUR', min_value=0.0, value=float(i.get('min_budget') or 0))
-        high = st.number_input('Maksimalni ukupni budžet EUR', min_value=0.0, value=float(i['max_budget']) if i.get('max_budget') else None)
+        buyer_kinds = ['Građevinska tvrtka', 'Privatna osoba', 'Investicijska tvrtka', 'Javno tijelo', 'Drugo']
+        # Keep a known classification; an unknown one is never guessed.
+        known_kind = criteria.get('buyer_kind')
+        if known_kind and known_kind not in buyer_kinds: buyer_kinds.append(known_kind)
+        buyer_kind = st.selectbox('Profil kupca', buyer_kinds, index=buyer_kinds.index(known_kind) if known_kind else 0)
+        # The seat may be outside the EU; the EU interest below is a separate choice.
+        seats = countries + ([i['country']] if i.get('country') and i['country'] not in countries else [])
+        country = st.selectbox('Sjedište', seats, index=seats.index(i['country']) if i.get('country') in seats else 0)
+        # Unknown stays unknown (NULL); only a new empty form starts the minimum at 0.
+        low = st.number_input('Minimalni ukupni budžet EUR', min_value=0.0, value=float(i['min_budget']) if i.get('min_budget') is not None else (0.0 if selected is None else None))
+        high = st.number_input('Maksimalni ukupni budžet EUR', min_value=0.0, value=float(i['max_budget']) if i.get('max_budget') is not None else None, help='Prazno = nepoznat budžet; par tada ostaje kandidat.')
         prefs = st.multiselect('Zanimljive države', countries, default=[country_name(x) for x in (i.get('preferred_countries') or '').split(',') if country_name(x) in countries])
         types = st.multiselect('Tražene vrste nekretnina', PROPERTY_TYPES, default=[v for v in criteria.get('property_types', []) if v in PROPERTY_TYPES])
         conditions = st.multiselect('Prihvatljivo stanje / obnova / rušenje', CONDITIONS, default=[v for v in criteria.get('conditions', []) if v in CONDITIONS])
@@ -78,16 +84,28 @@ def investor_form(c, investors, countries):
         buildable = st.checkbox('Traži dokazanu mogućnost planirane gradnje', value=bool(criteria.get('requires_buildable')))
         notes = st.text_area('Dodatni uvjeti / napomene', value=i.get('notes') or '')
         st.caption('Dodatni uvjeti iz napomena provjeravaju se ručno; ne ulaze u automatsku ocjenu.')
+        # A dated check with evidence covers exactly this note text; any later change needs a new check.
+        if notes.strip() and check_valid(criteria.get('notes_check'), notes):
+            st.caption('Provjera dodatnih uvjeta vrijedi: ' + criteria['notes_check']['checked_at'][:10] + ' · ' + criteria['notes_check']['evidence'])
+        elif criteria.get('notes_check'):
+            st.caption('Ranija provjera ne vrijedi: bilješka je promijenjena ili je provjera starija od 90 dana.')
+        notes_confirm = st.checkbox('Dodatni uvjeti iz trenutne bilješke provjereni su uz dokaz', value=False)
+        notes_evidence = st.text_input('Dokaz provjere dodatnih uvjeta (izvor, kanal, datum)', value='')
         source = st.text_input('URL dokaza zahtjeva kupca', value=criteria.get('source_url') or '')
         checked = st.text_input('Datum provjere zahtjeva (YYYY-MM-DD)', value=(criteria.get('checked_at') or '')[:10])
         verified = st.checkbox('Zahtjev i kriteriji kupca potvrđeni su na navedenom izvoru', value=bool(i.get('verified')))
         if st.form_submit_button('Spremi kupca i kriterije'):
             try:
-                if not name.strip() or high is None or high <= 0 or high < low: raise ValueError('Unesi naziv i valjan raspon ukupnog budžeta.')
+                if not name.strip(): raise ValueError('Unesi naziv kupca.')
+                if (high is not None and high <= 0) or (high is not None and low is not None and high < low): raise ValueError('Unesi valjan raspon ukupnog budžeta ili ostavi nepoznat iznos prazan.')
                 stamp = datetime.strptime(checked, '%Y-%m-%d').replace(tzinfo=timezone.utc).isoformat() if checked else None
                 if stamp and datetime.fromisoformat(stamp).date() > datetime.now(timezone.utc).date(): raise ValueError('Datum provjere ne smije biti u budućnosti.')
                 if verified and (not source or not stamp or not prefs or not types or not conditions): raise ValueError('Za potvrđen zahtjev navedi izvor, datum, države, vrste i prihvatljiva stanja.')
-                criteria = dict(buyer_kind=buyer_kind,property_types=types,conditions=conditions,cities=[v.strip() for v in cities.split(',') if v.strip()],regions=[v.strip() for v in regions.split(',') if v.strip()],min_area=mina,max_area=maxa,min_roi=minroi,requires_buildable=buildable,source_url=source.strip(),checked_at=stamp)
+                if notes_confirm and (not notes.strip() or not notes_evidence.strip()): raise ValueError('Za provjeru dodatnih uvjeta upiši bilješku i dokaz provjere.')
+                # Change only the fields this form manages; source keys such as call state stay.
+                criteria = {k: v for k, v in criteria.items() if k != '_invalid'}
+                criteria.update(buyer_kind=buyer_kind,property_types=types,conditions=conditions,cities=[v.strip() for v in cities.split(',') if v.strip()],regions=[v.strip() for v in regions.split(',') if v.strip()],min_area=mina,max_area=maxa,min_roi=minroi,requires_buildable=buildable,source_url=source.strip(),checked_at=stamp)
+                if notes_confirm: criteria['notes_check'] = dict(digest=digest(notes), checked_at=datetime.now(timezone.utc).isoformat(), evidence=notes_evidence.strip())
                 validate_criteria(criteria)
                 fields = dict(name=name.strip(),country=country,min_budget=low,max_budget=high,preferred_countries=','.join(prefs),notes=notes,verified=int(verified),criteria_json=json.dumps(criteria,ensure_ascii=False))
                 if selected is None:

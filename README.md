@@ -82,3 +82,14 @@ Ovaj raspored može dohvaćati poznate javne izvore neovisno o mobitelu nakon po
 - Prvi potvrđeni stvarni prolaz GitHuba: 17.10.2026. 20:08 UTC, 494 prenesena kandidata, šest izvora i 980 izračunatih parova. To nisu 494 nove ni pravno potvrđene nekretnine, a 980 parova nije broj potvrđenih kupnji.
 - Funkcija discovery-sync prihvaća samo kratkotrajni GitHub OIDC identitet s točnim issuerom, publikom, privatnim repozitorijem, nepromjenjivim ID-em repozitorija i vlasnika, main granom i workflowom. Točan sub uključuje nepromjenjive ID-eve iz GitHubova aktualnog formata. Pogrešna publika provjereno se odbija; trajne lozinke i ključevi baze nisu pohranjeni u GitHubu. Sve izvorne domene su ograničene, a kandidati ostaju nepotvrđeni.
 - Sites čita istu bazu. Osvježi bazu učitava nove prenesene podatke. Ne šalju se poruke niti se automatski potvrđuju pravni status ili stvarni interes kupca. Nepokrivene države i opće traženje novih kupaca izvan šest izvora ostaju zasebno proširenje.
+
+
+## Javni kupci zemljišta — svih 27 država (22.10.2026.)
+
+- Obuhvat je svih 27 država članica ravnopravno; raniji geografski prioritet više se ne prikazuje.
+- `data/public_land_registry.json` za svaku državu bilježi pronađene službene izvore, status (uvoz testiran, konfiguriran, pronađen, zatvoren, izvan opsega) i zadnju stvarnu provjeru. Države bez otvorenog poziva navedene su izričito, bez glumljenja pokrivenosti.
+- Uvoz javnih poziva bilježi rok, programski iznos i površinu samo kad su objavljeni; zatvoren ili istekao poziv isključuje parove preko postojećeg lifecyclea. Nepoznat budžet ostaje kandidat, nikad potvrđen posao.
+- Pull request pokreće stvarni dohvat bez upisa u bazu (`public-land-probe.yml`). Detalji: `ops/public-land-sources.md`.
+
+## Trajni cilj: potencijalni parovi (22.10.2026.)
+Predloženi parovi nekretnina i kupaca trajno se evidentiraju kao potencijalni parovi s razlozima, neslaganjima, nedostajućim parametrima i zadacima provjere. Potvrda traži dokaz za svaki nedostajući podatak i stvaran interes. Razlikuju se podudaranje kriterija, potvrđen interes i realiziran posao, a pitanja i anonimizirani opis za kupca samo se pripremaju, bez slanja. Cilj, procjena postojećeg stanja i plan koraka: `ops/potential-pairs.md`.

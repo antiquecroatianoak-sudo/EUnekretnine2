@@ -1,7 +1,7 @@
 name: Provjera aplikacije i PostgreSQL uparivanja
 on:
   push:
-    branches: [main]
+    branches: [main, claude/eu-public-land-27]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -41,7 +41,21 @@ jobs:
           docker exec "$PG_CONTAINER" psql -U postgres -c "ALTER SYSTEM SET ssl_key_file = '/var/lib/postgresql/server.key'"
           docker exec "$PG_CONTAINER" psql -U postgres -c "ALTER SYSTEM SET ssl = 'on'"
           docker exec "$PG_CONTAINER" psql -U postgres -c 'SELECT pg_reload_conf()'
-      - name: SQLite, Streamlit obrasci i PostgreSQL preko TLS-a
+      - name: Klijent postgres@3.4.7 za test API-ja parova (ista verzija kao Edge funkcije)
+        run: npm install --prefix "$RUNNER_TEMP/pgjs" --no-save --no-audit --no-fund postgres@3.4.7
+      - name: SQLite, Streamlit obrasci, PostgreSQL preko TLS-a i evidencija parova
         env:
           TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test?sslmode=require
+          PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
         run: python -m unittest discover -p 'test_*.py'
+      - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
+        run: |
+          node test_verification.mjs
+          node test_public_land.mjs
+          node test_domain_input.mjs
+          node sites-review/scripts/test-platform-view.mjs
+          node sites-review/scripts/test-teaser.mjs
+      - name: Pregled sučelja i odvojeni negativan ishod odgovora
+        run: |
+          npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+          bash ops/run-dom-check.sh "$RUNNER_TEMP/dom"

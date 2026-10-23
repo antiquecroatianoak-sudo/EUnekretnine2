@@ -1,0 +1,35 @@
+name: Stvarni dohvat javnih poziva za zemljište (bez upisa u bazu)
+on:
+  pull_request:
+    paths:
+      - public_land_sources.py
+      - probe_public_land.py
+      - registry_discovery.py
+      - data/public_land_registry.json
+      - test_public_land_sources.py
+      - .github/workflows/public-land-probe.yml
+  workflow_dispatch:
+# Read-only: no OIDC token, no secrets and no database endpoint are used.
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testiraj prepoznavanje javnih poziva
+        run: python -m unittest -v test_public_land_sources
+      - name: Dohvati svaki konfigurirani poziv uz robots.txt i ograničenja
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python probe_public_land.py public_land_probe.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-land-probe
+          path: public_land_probe.json
+          if-no-files-found: ignore

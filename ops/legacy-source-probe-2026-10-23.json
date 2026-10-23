@@ -1,0 +1,50 @@
+[
+  {
+    "source_id": "fina-csv",
+    "url": "https://ponip.fina.hr/ocevidnik-web/preuzmi/csv",
+    "status": "Uspješno",
+    "count": 447,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.689799+00:00"
+  },
+  {
+    "source_id": "hr-state-sales",
+    "url": "https://hr-nekretnine.hr/natjecaji/",
+    "status": "Uspješno",
+    "count": 4,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.690811+00:00"
+  },
+  {
+    "source_id": "es-state-auctions",
+    "url": "https://www.hacienda.gob.es/_layouts/15/rsssubastas.aspx?hiloid=12",
+    "status": "Uspješno",
+    "count": 8,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.691671+00:00"
+  },
+  {
+    "source_id": "es-direct-sales",
+    "url": "https://www.hacienda.gob.es/_layouts/15/rssventasdirectas.aspx?hiloid=15",
+    "status": "Uspješno",
+    "count": 5,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.692244+00:00"
+  },
+  {
+    "source_id": "gradzilla-demand",
+    "url": "https://gradzilla.hr/trazimo-zemljista/",
+    "status": "Uspješno",
+    "count": 1,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.693117+00:00"
+  },
+  {
+    "source_id": "immoexpert-demand",
+    "url": "https://www.immoexpert.hr/",
+    "status": "Uspješno",
+    "count": 1,
+    "error": null,
+    "checked_at": "2026-10-23T08:39:48.696006+00:00"
+  }
+]

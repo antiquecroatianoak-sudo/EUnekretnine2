@@ -1,7 +1,6 @@
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
-import {COUNTRIES} from './domain.mjs';
-import {assessEvidence} from './verification.mjs';
+import {mergeCandidate} from './merge.mjs';
 const repo='antiquecroatianoak-sudo/EUnekretnine2',audience='eu-property-discovery:izpzsfiqvransehvmuzn';
 const jwks=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -87,20 +86,7 @@ Deno.serve(async req=>{
    let inserted=0,updated=0;
    for(const row of body.candidates){
     const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
-    let prior={};try{prior=JSON.parse(existing?.body_json||'{}')}catch{}
-    const merged={...prior,...row,id:existing?.id||row.id,source_id:existing?.source_id||row.source_id,country:COUNTRIES[source.country]||({'France':'Francuska'}[source.country])||source.country,first_seen:prior.first_seen||row.first_seen,status:prior.status||'Za provjeru',verified:prior.verified===true};
-    // Retain user review fields and prior suggestions. Source evidence is refreshed separately.
-    if(prior.match_suggestions)merged.match_suggestions=prior.match_suggestions;
-    merged.facts={...(prior.facts||{})};
-    const notObserved=[];
-    for(const [key,value] of Object.entries(row.facts)){
-     if(value==null&&merged.facts[key]!=null)notObserved.push(key);
-     else merged.facts[key]=value;
-    }
-    merged.facts.not_observed_in_latest_fetch=notObserved;
-    // Never interpret an import timestamp or a reachable page as confirmed interest/availability.
-    merged.verification=assessEvidence(merged);
-    merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';
+    const merged=mergeCandidate(existing,row,source);
     if(existing){
      await tx`update source_candidates set title=${merged.title},country=${merged.country},url=${merged.url},body_json=${JSON.stringify(merged)},last_seen=${row.last_seen} where id=${existing.id} and last_seen<=${row.last_seen}`;updated++;
     }else{

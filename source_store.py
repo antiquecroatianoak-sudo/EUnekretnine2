@@ -1,7 +1,8 @@
 """Keep automatically discovered candidates separate from reviewed opportunities."""
 import json
-from datetime import datetime
-from matching import valid_url, refresh_matches
+from datetime import datetime, timezone
+from matching import valid_url, number, refresh_matches
+from public_land_sources import keep_closed_state
 
 
 def sync_snapshot(c, snapshot):
@@ -16,7 +17,12 @@ def sync_snapshot(c, snapshot):
         for key in ('first_seen','last_seen'):
             if datetime.fromisoformat(row[key]).tzinfo is None: raise ValueError('Nedostaje vremenska zona dohvata.')
         if not isinstance(row.get('facts'),dict): raise ValueError('Nedostaju izvorne činjenice kandidata.')
+    now=datetime.now(timezone.utc)
     for row in snapshot['candidates']:
+        prior=c.execute('SELECT body_json FROM source_candidates WHERE id=?',(row['id'],)).fetchone()
+        if prior:
+            # Same rule as merge.mjs: missing data in a new fetch never reopens a closed call.
+            row={**row,'facts':keep_closed_state(json.loads(prior['body_json']).get('facts',{}),row['facts'],now)}
         c.execute('INSERT INTO source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title,country=excluded.country,url=excluded.url,body_json=excluded.body_json,last_seen=excluded.last_seen WHERE source_candidates.last_seen<=excluded.last_seen',
                   (row['id'],row['source_id'],row['kind'],row['title'],row['country'],row['url'],json.dumps(row,ensure_ascii=False),row['last_seen']))
     for run in snapshot.get('runs',[]):
@@ -36,11 +42,18 @@ def prepare_for_review(c, candidate_id):
                          (row['country'],row['title'],row['url'],facts.get('asking_price'),None,None,'Nepoznato','Provjera',row['last_seen'])).fetchone()
         c.execute('UPDATE source_candidates SET property_id=? WHERE id=?',(result['id'],candidate_id))
     else:
-        criteria={k:v for k,v in facts.items() if k in ('property_types','cities','min_area','max_area','requires_buildable')}
+        # Same fields and budget rule as site_private.sync_source_listing.
+        criteria={k:v for k,v in facts.items() if k in ('property_types','conditions','cities','regions','min_area','max_area','requires_buildable')}
         criteria.update(source_url=row['url'],checked_at=row['last_seen'])
+        if facts.get('buyer_type')=='public_authority':criteria['buyer_kind']='Javno tijelo'
+        # A published deadline or explicit closed state ends the public demand.
+        if facts.get('deadline'):criteria['call_deadline']=facts['deadline']
+        if facts.get('source_listing_state') in ('expired','removed'):criteria['call_closed']=facts.get('source_status_evidence') or facts['source_listing_state']
+        # A per-m² price or a programme total is not the buyer's budget.
+        budget=facts.get('budget') if number(facts.get('budget')) and facts.get('budget_unit') not in ('EUR/m2','EUR/m²','€/m²') and 'unit_budget' not in facts else None
         notes='Javni zahtjev; provjeri budžet, lokaciju i sve uvjete. '+facts.get('location_note','')+' '+facts.get('development_note','')
         result=c.execute('INSERT INTO investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) VALUES(?,?,?,?,?,?,?,?) RETURNING id',
-                         (row['title'],row['country'],0,None,row['country'],notes.strip(),0,json.dumps(criteria,ensure_ascii=False))).fetchone()
+                         (row['title'],row['country'],0,budget,row['country'],notes.strip(),0,json.dumps(criteria,ensure_ascii=False))).fetchone()
         c.execute('UPDATE source_candidates SET investor_id=? WHERE id=?',(result['id'],candidate_id))
     refresh_matches(c)
     return row['kind'],result['id']
