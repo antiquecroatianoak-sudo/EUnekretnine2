@@ -45,7 +45,7 @@ CREATE OR REPLACE FUNCTION site_private.sync_source_listing(cid text)
  LANGUAGE plpgsql
  SET search_path TO ''
 AS $function$
-declare r public.source_candidates; f jsonb; oldsnap jsonb; snap jsonb; entity bigint; nation text; amount real; sqm real; loc text; typ text; budget real; c jsonb; stamp timestamptz; incoming jsonb; previous jsonb; protected jsonb; interest text; seat text; buyer public.investors; manual_interest boolean:=false; manual_budget boolean:=false;
+declare r public.source_candidates; f jsonb; oldsnap jsonb; snap jsonb; entity bigint; nation text; amount real; sqm real; loc text; typ text; budget real; c jsonb; stamp timestamptz; incoming jsonb; previous jsonb; protected jsonb; interest text; seat text; buyer public.investors; manual_interest boolean:=false; manual_budget boolean:=false; before_criteria jsonb; lower_key text; upper_key text;
 begin
  select * into r from public.source_candidates where id=cid for update;
  if not found then return 'missing'; end if;
@@ -108,6 +108,7 @@ begin
     preferred_countries=case when not manual_interest then interest else i.preferred_countries end
     where i.id=entity;
    select site_private.safe_json(criteria_json) into c from public.investors where id=entity;
+   before_criteria:=c;
    -- Do not refresh checked_at, verification flags, source checks, notes or manual country/seat.
    -- A source fetch is not a new human verification.
    for typ in select k from jsonb_object_keys(previous||incoming) as k loop
@@ -118,6 +119,15 @@ begin
     elsif incoming ? typ and not(previous ? typ) and c ? typ then
      -- Existing values without source provenance, including []/null/false, are manual until proved otherwise.
      protected:=protected||jsonb_build_array(typ);
+    end if;
+   end loop;
+   -- Validate the effective range after mixing source updates with retained/manual bounds.
+   foreach lower_key in array array['min_area','min_area_m2'] loop
+    upper_key:=case lower_key when 'min_area' then 'max_area' else 'max_area_m2' end;
+    if site_private.draft_number(c->lower_key)>site_private.draft_number(c->upper_key) then
+     c:=(c-lower_key-upper_key)||
+       (select coalesce(jsonb_object_agg(k,v),'{}'::jsonb) from jsonb_each(before_criteria) e(k,v) where k in (lower_key,upper_key));
+     incoming:=incoming-lower_key-upper_key;
     end if;
    end loop;
    if f->>'source_listing_state'='active' and site_private.safe_stamp(f->>'deadline')>now() and length(coalesce(f->>'reopen_evidence',''))>0

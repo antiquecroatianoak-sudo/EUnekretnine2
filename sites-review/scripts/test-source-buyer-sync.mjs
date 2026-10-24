@@ -43,6 +43,17 @@ try{
  const singleBound={...base,min_area_m2:1000};delete singleBound.max_area_m2;
  await upsert('single-range',singleBound);await sync('single-range');
  assert.equal((await buyer('single-range')).criteria.min_area_m2,1000);assert.equal((await buyer('single-range')).criteria.max_area_m2,undefined);
+ // A partial update cannot cross an old bound; a manual bound must stay intact.
+ await upsert('partial-cross',base);await sync('partial-cross');
+ const partialCross={...base,min_area_m2:1200};delete partialCross.max_area_m2;
+ await upsert('partial-cross',partialCross);await sync('partial-cross');
+ assert.equal((await buyer('partial-cross')).criteria.min_area_m2,900);
+ await upsert('partial-cross',{...base,min_area_m2:1000});await sync('partial-cross');
+ assert.equal((await buyer('partial-cross')).criteria.min_area_m2,1000,'rejected update must not poison provenance');
+ await upsert('manual-bound',base);await sync('manual-bound');let manualBound=await buyer('manual-bound');
+ await query('update investors set criteria_json=$1 where id=$2',[JSON.stringify({...manualBound.criteria,max_area_m2:1000}),manualBound.id]);
+ await upsert('manual-bound',{...base,min_area_m2:1200,max_area_m2:1500});await sync('manual-bound');
+ manualBound=await buyer('manual-bound');assert.equal(manualBound.criteria.min_area_m2,900);assert.equal(manualBound.criteria.max_area_m2,1000);
  const firstChecked=b.criteria.checked_at;
  await upsert('test-full',{...base,min_area_m2:1200,max_area_m2:1500,preferred_countries:['ES'],required_criteria:['Documented road']});await sync('test-full');b=await buyer('test-full');
  assert.equal(b.criteria.min_area_m2,1200);assert.equal(b.preferred_countries,'Španjolska');assert.equal(b.criteria.checked_at,firstChecked,'fetch never extends human verification');
