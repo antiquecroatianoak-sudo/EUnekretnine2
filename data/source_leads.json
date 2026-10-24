@@ -1,12 +1,40 @@
 {
  "counts": {
   "blokirano": 1,
-  "kandidat_nekretnine": 6,
+  "kandidat_nekretnine": 8,
   "nedostupno": 5,
   "nije_relevantno": 6,
   "robots_zabrana": 2
  },
  "leads": [
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T09:37:27.517651+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.adamant-immobilien.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1220-donaustadt/familienfreundliches-reihenhaus-mit-garten-und-terrasse-modernes-wohnen-in-toplage-von-wien-donaustadt-1573287955/",
+     "seen": "2026-10-24T09:37:27.440685+00:00",
+     "url": "https://www.adamant-immobilien.at/"
+    }
+   ],
+   "first_seen": "2026-10-24T09:37:27.440685+00:00",
+   "host": "adamant-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "signals": {
+    "areas": 2,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 12,
+    "property_words": 8
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Home - ADAMANT IMMOBILIEN GmbH Willkommen bei ADAMANT IMMOBILIEN GMBH – Ihr zuverlässiger Partner in der Immobilienwelt,"
+  },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
@@ -24,7 +52,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -52,7 +80,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "nedostupno"
   },
   {
@@ -72,7 +100,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "nedostupno"
   },
   {
@@ -112,7 +140,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -249,6 +277,34 @@
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T09:37:27.517651+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.immolution.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1230-liesing/smartes-einfamilienhaus-mit-pool-garage-114m-keller-bus-system-rodaun-mauer-1230-wien-837413907/",
+     "seen": "2026-10-24T09:37:27.440685+00:00",
+     "url": "https://www.immolution.at/"
+    }
+   ],
+   "first_seen": "2026-10-24T09:37:27.440685+00:00",
+   "host": "immolution.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "signals": {
+    "areas": 2,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 6,
+    "property_words": 6
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Home - Immolution GmbH"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
    "checked_at": "2026-10-23T19:00:28.936701+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -298,7 +354,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "blokirano"
   },
   {
@@ -318,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "nedostupno"
   },
   {
@@ -366,7 +422,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -504,7 +560,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T09:37:27.440685+00:00",
    "status": "nedostupno"
   },
   {
@@ -565,6 +621,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T06:59:55.163867+00:00",
- "verified_at": "2026-10-24T06:59:55.269871+00:00"
+ "updated_at": "2026-10-24T09:37:27.440685+00:00",
+ "verified_at": "2026-10-24T09:37:27.517651+00:00"
 }
