@@ -21,6 +21,9 @@ try{
  await exec(readFileSync(new URL('ops/source-sync-before-2026-10-24.sql',root),'utf8'));
  const dir=new URL('supabase/migrations/',root),migration=readFileSync(new URL(readdirSync(dir).find(p=>p.endsWith('_buyer_source_criteria.sql')),dir),'utf8');
  await exec(migration);await exec(migration); // repeatability
+ for(const signature of ['site_private.source_country_name(text)','site_private.source_buyer_criteria(jsonb)','site_private.source_buyer_interest(jsonb,text)'])for(const role of ['anon','authenticated'])assert.equal((await one("select has_function_privilege($1,$2,'EXECUTE') allowed",[role,signature])).allowed,false);
+ assert.equal((await one("select prosecdef from pg_proc where oid='site_private.sync_source_listing(text)'::regprocedure")).prosecdef,false);
+
  const stamp=new Date().toISOString();
  const base={transaction_type:'buy_request',evidence_excerpt:'TEST ONLY explicitly published property acquisition request',property_types:['Zemljište'],conditions:['Neizgrađeno'],preferred_locations:['Galway coast'],locations:['Galway'],required_criteria:['Road access'],required:{power:true},original_property_types:['residential_development_land'],min_area_m2:900,max_area_m2:1100,area_hard:true,seat_country:'US',preferred_countries:['IE','HR'],buyer_type:'public_authority',listing_kind:'public_buy_request',deadline:'2099-04-30',budget:null};
  const upsert=async(id,f)=>query(`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values($1,'test','buyer','TEST ONLY public acquisition','IE',$2,$3,$4) on conflict(id) do update set body_json=excluded.body_json,last_seen=excluded.last_seen`,[id,'https://example.org/call/'+id,JSON.stringify({facts:f}),new Date().toISOString()]);
@@ -37,6 +40,14 @@ try{
  await upsert('test-full',{transaction_type:base.transaction_type,evidence_excerpt:base.evidence_excerpt,preferred_countries:['not-a-country']});await sync('test-full');assert.equal((await buyer('test-full')).preferred_countries,'Španjolska');
  // An unknown budget between two known values must not mark the old auto budget as manual.
  await upsert('budget-gap',{...base,budget:100000});await sync('budget-gap');await upsert('budget-gap',base);await sync('budget-gap');await upsert('budget-gap',{...base,budget:200000});await sync('budget-gap');assert.equal((await buyer('budget-gap')).max_budget,200000);
+ // Malformed facts cannot overwrite known requirements or create lifecycle/entity records.
+ await upsert('malformed',base);await sync('malformed');let beforeMalformed=await buyer('malformed');
+ await upsert('malformed',{...base,required_criteria:{bad:true},preferred_locations:{bad:true},required:['bad'],area_hard:'true',min_area_m2:'900',deadline:{bad:true}});await sync('malformed');let afterMalformed=await buyer('malformed');
+ for(const k of ['required_criteria','preferred_locations','required','area_hard','min_area_m2','call_deadline'])assert.deepEqual(afterMalformed.criteria[k],beforeMalformed.criteria[k],k+' malformed source retained prior value');
+ await upsert('invalid-top',[]);assert.equal((await sync('invalid-top')).result,'invalid_facts');assert.equal((await one("select count(*)::int n from site_private.listing_lifecycle where candidate_id='invalid-top'")).n,0);
+ // Actual later human verification and evidence must remain exactly as entered.
+ b=await buyer('test-full');const human={...b.criteria,checked_at:'2026-10-23T10:00:00Z',notes_check:{digest:'manual',checked_at:'2026-10-23T10:00:00Z',evidence:'HUMAN EVIDENCE'}};
+ await query('update investors set verified=1,criteria_json=$1 where id=$2',[JSON.stringify(human),b.id]);await upsert('test-full',base);await sync('test-full');b=await buyer('test-full');assert.equal(b.verified,1);assert.equal(b.criteria.checked_at,human.checked_at);assert.deepEqual(b.criteria.notes_check,human.notes_check);
  // Explicit false, [] and removed keys are manual decisions, not missing data to refill.
  const manual={...b.criteria,area_hard:false,preferred_locations:[],min_area_m2:null};delete manual.required;
  await query('update investors set criteria_json=$1,preferred_countries=$2,max_budget=null,notes=$3 where id=$4',[JSON.stringify(manual),'Italija','MANUAL NOTE',b.id]);

@@ -4,15 +4,26 @@ create or replace function site_private.source_country_name(v text) returns text
 language sql immutable security invoker set search_path='' as $$ select case upper(trim(v)) when 'AT' then 'Austrija' when 'BE' then 'Belgija' when 'BG' then 'Bugarska' when 'HR' then 'Hrvatska' when 'CY' then 'Cipar' when 'CZ' then 'Češka' when 'DK' then 'Danska' when 'EE' then 'Estonija' when 'FI' then 'Finska' when 'FR' then 'Francuska' when 'DE' then 'Njemačka' when 'GR' then 'Grčka' when 'HU' then 'Mađarska' when 'IE' then 'Irska' when 'IT' then 'Italija' when 'LV' then 'Latvija' when 'LT' then 'Litva' when 'LU' then 'Luksemburg' when 'MT' then 'Malta' when 'NL' then 'Nizozemska' when 'PL' then 'Poljska' when 'PT' then 'Portugal' when 'RO' then 'Rumunjska' when 'SK' then 'Slovačka' when 'SI' then 'Slovenija' when 'ES' then 'Španjolska' when 'SE' then 'Švedska' else trim(v) end $$;
 create or replace function site_private.source_buyer_criteria(f jsonb) returns jsonb
 language plpgsql stable security invoker set search_path='' as $$
-declare c jsonb:='{}'::jsonb; k text;
+declare c jsonb:='{}'::jsonb; k text; v jsonb; valid boolean;
 begin
  if jsonb_typeof(f) is distinct from 'object' then return c; end if;
  for k in select unnest(array['property_types','conditions','cities','regions','min_area','max_area','requires_buildable','area_hard','preferred_locations','locations','required_criteria','required','original_property_types','min_area_m2','max_area_m2']) loop
-  if f ? k and f->k<>'null'::jsonb then c:=c||jsonb_build_object(k,f->k); end if;
+  v:=f->k; valid:=false;
+  if k in ('property_types','conditions','cities','regions','preferred_locations','locations','required_criteria','original_property_types') then
+   if jsonb_typeof(v)='array' then
+    valid:=jsonb_array_length(v)>0 and not exists(select 1 from jsonb_array_elements(v) a(x) where jsonb_typeof(x)<>'string' or nullif(trim(x#>>'{}'),'') is null);
+   end if;
+  elsif k in ('min_area','max_area','min_area_m2','max_area_m2') then valid:=site_private.draft_number(v) is not null;
+  elsif k in ('requires_buildable','area_hard') then valid:=jsonb_typeof(v)='boolean';
+  elsif k='required' then valid:=jsonb_typeof(v)='object' and v<>'{}'::jsonb;
+  end if;
+  if coalesce(valid,false) then c:=c||jsonb_build_object(k,v); end if;
  end loop;
+ if c ? 'min_area' and c ? 'max_area' and (c->>'min_area')::numeric>(c->>'max_area')::numeric then c:=c-'min_area'-'max_area'; end if;
+ if c ? 'min_area_m2' and c ? 'max_area_m2' and (c->>'min_area_m2')::numeric>(c->>'max_area_m2')::numeric then c:=c-'min_area_m2'-'max_area_m2'; end if;
  if f->>'buyer_type'='public_authority' then c:=c||jsonb_build_object('buyer_kind','Javno tijelo'); end if;
- if nullif(f->>'listing_kind','') is not null then c:=c||jsonb_build_object('listing_kind',f->>'listing_kind'); end if;
- if nullif(f->>'deadline','') is not null then c:=c||jsonb_build_object('call_deadline',f->>'deadline'); end if;
+ if jsonb_typeof(f->'listing_kind')='string' and nullif(f->>'listing_kind','') is not null then c:=c||jsonb_build_object('listing_kind',f->>'listing_kind'); end if;
+ if jsonb_typeof(f->'deadline')='string' and site_private.safe_stamp(f->>'deadline') is not null then c:=c||jsonb_build_object('call_deadline',f->>'deadline'); end if;
  if f->>'source_listing_state' in ('expired','removed') then c:=c||jsonb_build_object('call_closed',coalesce(nullif(f->>'source_status_evidence',''),f->>'source_listing_state'));
  elsif site_private.safe_stamp(f->>'deadline')<=now() then c:=c||jsonb_build_object('call_closed','Istekao dokumentirani rok izvornog poziva'); end if;
  return c;
@@ -39,6 +50,7 @@ begin
  select * into r from public.source_candidates where id=cid for update;
  if not found then return 'missing'; end if;
  f:=site_private.safe_json(r.body_json)->'facts';
+ if jsonb_typeof(f) is distinct from 'object' then return 'invalid_facts'; end if;
  if r.url !~ '^https://[^/ ]+/.+' or length(trim(r.title))<8 then return 'not_individual'; end if;
  nation:=case upper(trim(r.country)) when 'AT' then 'Austrija' when 'BE' then 'Belgija' when 'BG' then 'Bugarska' when 'HR' then 'Hrvatska' when 'CY' then 'Cipar' when 'CZ' then 'Češka' when 'DK' then 'Danska' when 'EE' then 'Estonija' when 'FI' then 'Finska' when 'FR' then 'Francuska' when 'DE' then 'Njemačka' when 'GR' then 'Grčka' when 'HU' then 'Mađarska' when 'IE' then 'Irska' when 'IT' then 'Italija' when 'LV' then 'Latvija' when 'LT' then 'Litva' when 'LU' then 'Luksemburg' when 'MT' then 'Malta' when 'NL' then 'Nizozemska' when 'PL' then 'Poljska' when 'PT' then 'Portugal' when 'RO' then 'Rumunjska' when 'SK' then 'Slovačka' when 'SI' then 'Slovenija' when 'ES' then 'Španjolska' when 'SE' then 'Švedska' else trim(r.country) end;
  if r.kind='property' and nation not in ('Austrija','Belgija','Bugarska','Hrvatska','Cipar','Češka','Danska','Estonija','Finska','Francuska','Njemačka','Grčka','Mađarska','Irska','Italija','Latvija','Litva','Luksemburg','Malta','Nizozemska','Poljska','Portugal','Rumunjska','Slovačka','Slovenija','Španjolska','Švedska') then return 'outside_eu'; end if;
