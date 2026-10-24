@@ -40,11 +40,12 @@ try{
  assert.deepEqual(next.items.map(r=>Number(r.id)),[5,6,7],'deletion before cursor cannot skip a row');
  assert.equal(next.through,10125,'new insert waits until refresh');
  page=await catalogPage(tx,{table:'properties',query:'TEST ONLY 10125',country:'Hrvatska'});
+ assert.equal((await catalogPage(tx,{table:'properties',record_id:10125})).items[0].id,10125);
  assert.equal(page.total,1);assert.equal(Number(page.items[0].id),10125,'search reaches beyond the initial page');
  assert.equal((await catalogPage(tx,{table:'properties',query:"' or 1=1 --"})).total,0,'query is literal, not SQL');
  assert.equal((await catalogPage(tx,{table:'properties',query:'%'})).total,0,'wildcards are literal');
  await assert.rejects(catalogPage(tx,{table:'properties',after:-1}));
- await assert.rejects(catalogPage(tx,{table:'secrets'}));
+ await assert.rejects(catalogPage(tx,{table:'secrets'}));await assert.rejects(catalogPage(tx,{table:'properties',record_id:'bad'}));
  await assert.rejects(catalogPage(tx,{table:'properties',limit:10001}));
  const now=Date.now(),p={...page.items[0],source:'https://example.org/10125',area:1000,renovation:0,other_costs:0,property_type:'Zemljište',condition:'Neizgrađeno',legal_evidence_url:'https://example.org/legal',source_checked_on:new Date(now).toISOString(),status:'Aktivno'};
  const i={...(await catalogPage(tx,{table:'investors',query:'TEST ONLY 10042'})).items[0],criteria_json:{property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.org/buyer',checked_at:new Date(now).toISOString()}};

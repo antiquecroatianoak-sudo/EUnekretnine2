@@ -6,7 +6,7 @@ const range=(lo,hi,suffix)=>lo==null&&hi==null?unknown:`${lo==null?'bez donje gr
 // Read only: classifications and the score come exclusively from the stored evaluator result.
 // Never infer a pass from matching display strings, or treat a manual evidence check as scored.
 export function pairReview(result,property={},investor={}){
- const c=criteria(investor),groups=[['met','Podudara se',result.reasons||[]],['unmet','Ne podudara se',result.rejected||[]],['unknown','Nedostaje podatak / nije provjereno',result.missing||[]]];
+ const raw=criteria(investor),c={...raw,min_area:raw.min_area??raw.min_area_m2,max_area:raw.max_area??raw.max_area_m2},groups=[['met','Podudara se',result.reasons||[]],['unmet','Ne podudara se',result.rejected||[]],['unknown','Nedostaje podatak / nije provjereno',result.missing||[]]];
  const extra=[...(Array.isArray(c.required_criteria)?c.required_criteria:[]),...Object.entries(c.required||{}).map(([k,v])=>`${k}: ${v}`)].join(' · ')||unknown;
  const sourceFacts=[list(c.property_types),list(c.preferred_locations||c.locations),extra];
  const facts={
@@ -15,7 +15,7 @@ export function pairReview(result,property={},investor={}){
   [ACTIVE_CHECK]:['Aktivan oglas',property.status||unknown],
   [BUYER_RECORD]:['Potpun i aktualan zahtjev kupca',[list(c.property_types),list(c.conditions),c.source_url,c.checked_at].filter(Boolean).join(' · ')],
   'Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana':[c.source_url||unknown,c.checked_at||unknown],
-  'Država':[list(String(investor.preferred_countries||'').split(',').map(v=>country(v.trim())).filter(Boolean)),country(property.country)||unknown],
+  'Država':[list(String(investor.preferred_countries|| (Array.isArray(c.preferred_countries)?c.preferred_countries.join(','):'') ).split(',').map(v=>country(v.trim())).filter(Boolean)),country(property.country)||unknown],
   'Vrsta nekretnine':[list(c.property_types),property.property_type||unknown],
   'Stanje / obnova / rušenje':[list(c.conditions),property.condition||unknown],
   'Grad':[list(c.cities),property.city||unknown],

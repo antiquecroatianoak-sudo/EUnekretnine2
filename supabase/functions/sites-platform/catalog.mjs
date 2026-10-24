@@ -8,6 +8,7 @@ export async function catalogPage(tx,a){
  if(!['properties','investors'].includes(a.table))throw Error('Nepoznat katalog.');
  const after=Number(a.after??0),limit=Number(a.limit??CATALOG_PAGE_SIZE),requested=a.through==null?null:Number(a.through);
  if(!Number.isSafeInteger(after)||after<0||!Number.isSafeInteger(limit)||limit<1||limit>500||requested!==null&&(!Number.isSafeInteger(requested)||requested<0||requested<after))throw Error('Nevaljana stranica kataloga.');
+ const record=a.record_id==null?null:Number(a.record_id);if(record!==null&&(!Number.isSafeInteger(record)||record<=0))throw Error('Nevaljana oznaka zapisa.');
  const q=String(a.query??'').trim().toLocaleLowerCase('hr'),country=String(a.country??''),legal=String(a.legal??''),price=a.price==null||a.price===''?null:Number(a.price);
  if(q.length>200||country.length>100||legal.length>50||price!==null&&(!Number.isFinite(price)||price<0))throw Error('Nevaljan filtar kataloga.');
  const property=a.table==='properties',alias=property?'p':'i';
@@ -16,7 +17,7 @@ export async function catalogPage(tx,a){
  // Search is literal substring matching, including % and _, never user-supplied SQL.
  const search=property?`lower(concat_ws(' ',p.title,p.city,p.region))`:`lower(concat_ws(' ',i.name,i.preferred_countries))`;
  const visible=property?PROPERTY_VISIBLE:INVESTOR_VISIBLE;
- const predicate=tx`${tx.unsafe(visible)} and ${tx.unsafe(alias+'.id')}<=${through} and (${q}='' or strpos(${tx.unsafe(search)},${q})>0) and (${country}='' or ${tx.unsafe(alias+'.country')}=any(${a.country_values||[country]}::text[]))`;
+ const predicate=tx`${tx.unsafe(visible)} and (${record}::bigint is null or ${tx.unsafe(alias+'.id')}=${record}) and ${tx.unsafe(alias+'.id')}<=${through} and (${q}='' or strpos(${tx.unsafe(search)},${q})>0) and (${country}='' or ${tx.unsafe(alias+'.country')}=any(${a.country_values||[country]}::text[]))`;
  const extra=property?tx`and (${legal}='' or p.legal=${legal}) and (${price}::numeric is null or p.price<=${price})`:tx``;
  const [rows,[counts]]=await Promise.all([
   tx`select ${tx.unsafe(alias+'.*')} from ${tx(a.table)} ${tx.unsafe(alias)} where ${predicate} ${extra} and ${tx.unsafe(alias+'.id')}>${after} order by ${tx.unsafe(alias+'.id')} limit ${limit+1}`,

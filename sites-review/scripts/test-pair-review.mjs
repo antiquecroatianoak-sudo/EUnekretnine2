@@ -19,3 +19,8 @@ assert.equal(evaluate({...property,area:849},buyer,now).status,REJECT);
 assert.equal(evaluate({...property,area:1251},buyer,now).status,REJECT);
 assert.equal(pairReview({reasons:[],missing:[],rejected:[]}).score,null);
 console.log('Pair comparison: full, partial, critical mismatch, missing evidence at 100%, unchanged scoring and area boundaries passed.');
+
+const {suggestion}=await import('../../supabase/functions/sites-platform/suggestions.mjs');
+const legacyBuyer={...buyer,preferred_countries:'',criteria_json:{property_types:['Zemljište'],conditions:['Neizgrađeno'],min_area_m2:900,max_area_m2:1100,preferred_countries:['Hrvatska'],source_url:'https://example.org/buyer',checked_at:'2026-10-24T09:00:00Z'}};
+const legacy=suggestion(property,legacyBuyer,now),legacyView=pairReview(legacy,property,legacyBuyer);
+assert.equal(legacy.score,100);assert(legacyView.scored.includes('Površina'));assert.equal(legacyView.rows.find(r=>r.label==='Površina').buyer,'900 m² – 1.100 m²');assert.equal(legacyView.rows.find(r=>r.label==='Država').buyer,'Hrvatska');

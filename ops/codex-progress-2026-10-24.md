@@ -35,3 +35,11 @@ Vlasnik je odobrio izravnu implementaciju dok Claude čeka obnovu limita, uz spr
 - Pairs endpoint zasad vraća sve spremljene parove s njihovim zapisima; kod vrlo velikih baza dalje razmotriti paginaciju tog zasebnog odgovora i nastavak skupog izračuna, bez skrivanja kandidata.
 
 Nema mergea, objave, kontakata ni slanja ponuda. Poslovna faza ostaje isključena. Košarica i građevinska aplikacija nisu dirane.
+
+## Završavanje po vlasnikovoj uputi „odradi do kraja”
+
+Neovisni pregled izvornog koda našao je i ispravljeni su: izbor zapisa iza početne stranice za aktivnosti, dohvat povezanog nacrta po ID-u, istiniti nazivi povijesti aktivnosti, postotak u detalju para, prikaz ranije uvezenih country/area aliasa te zabrana pozitivne preporuke za povijesni par izvan aktualnog izračuna. Dodani su regresijski testovi za svaki slučaj.
+
+Pregled u stvarnom pregledniku s izoliranim testnim podacima: okviri širine 390 i 360 px, kartica i proširena usporedba te dijalog detalja. Provjereni scrollWidth/clientWidth jednaki su za dokument (375/375 i 345/345) i detalj (325/325); nema horizontalnog prelijevanja u tim prikazima. Ovo je test mobilnih dimenzija u pregledniku, ne tvrdnja o provjeri na vlasnikovu fizičkom uređaju niti o čitanju produkcijskih privatnih podataka.
+
+Posljednji prethodni CI 40080662002 na 82f1ab70643db8f72e00766e4540e4a8369398f4: completed/success. Nakon ovih ispravaka potrebno je potvrditi novi CI i ponovno neovisno pregledati popravke prije spajanja i objave.
