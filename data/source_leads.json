@@ -2,9 +2,9 @@
  "counts": {
   "blokirano": 1,
   "kandidat_nekretnine": 8,
-  "nedostupno": 5,
-  "nije_relevantno": 8,
-  "robots_zabrana": 2
+  "nedostupno": 6,
+  "nije_relevantno": 9,
+  "robots_zabrana": 3
  },
  "leads": [
   {
@@ -80,7 +80,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "nedostupno"
   },
   {
@@ -128,8 +128,28 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "nedostupno"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-24T15:50:03.992575+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Trustpilot",
+     "found_on": "https://www.immonestor.at/immobilien",
+     "seen": "2026-10-24T15:50:03.901748+00:00",
+     "url": "https://de.trustpilot.com/review/immonestor.at"
+    }
+   ],
+   "first_seen": "2026-10-24T15:50:03.901748+00:00",
+   "host": "de.trustpilot.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "status": "robots_zabrana"
   },
   {
    "check_note": "HTTP 404",
@@ -168,8 +188,28 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://www.google.com/search",
+   "checked_at": "2026-10-24T15:50:03.992575+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.immonestor.at/immobilien",
+     "seen": "2026-10-24T15:50:03.901748+00:00",
+     "url": "https://g.page/immonestor/review"
+    }
+   ],
+   "first_seen": "2026-10-24T15:50:03.901748+00:00",
+   "host": "g.page",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -382,8 +422,42 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "blokirano"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T15:50:03.992575+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Justimmo",
+     "found_on": "https://www.adamant-immobilien.at/",
+     "seen": "2026-10-24T15:50:03.901748+00:00",
+     "url": "https://www.justimmo.at/"
+    },
+    {
+     "anchor": "Software für Immobilienmakler",
+     "found_on": "https://www.adamant-immobilien.at/",
+     "seen": "2026-10-24T15:50:03.901748+00:00",
+     "url": "https://www.justimmo.at/immobilienmaklersoftware-testen"
+    }
+   ],
+   "first_seen": "2026-10-24T15:50:03.901748+00:00",
+   "host": "justimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 10
+   },
+   "status": "nije_relevantno",
+   "title": "Justimmo - Einfach Makeln! - Die meist empfohlene Maklersoftware in Österreich Einfach makeln."
   },
   {
    "check_note": "HTTP 405",
@@ -402,7 +476,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "nedostupno"
   },
   {
@@ -450,7 +524,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -512,7 +586,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -616,7 +690,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "status": "nedostupno"
   },
   {
@@ -636,7 +710,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "last_seen": "2026-10-24T15:50:03.901748+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -677,6 +751,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T13:01:23.745437+00:00",
- "verified_at": "2026-10-24T13:01:23.837633+00:00"
+ "updated_at": "2026-10-24T15:50:03.901748+00:00",
+ "verified_at": "2026-10-24T15:50:03.992575+00:00"
 }
