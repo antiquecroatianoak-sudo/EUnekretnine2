@@ -1,7 +1,7 @@
 import {strict as assert} from 'node:assert';
 import {suggestion} from './supabase/functions/discovery-sync/suggestions.mjs';
 import {CANDIDATE,PHASE} from './supabase/functions/discovery-sync/domain.mjs';
-import {mergeCandidate,reopens} from './supabase/functions/registry-discovery/merge.mjs';
+import {mergeCandidate,reopens,candidateCountry} from './supabase/functions/registry-discovery/merge.mjs';
 const now=Date.parse('2026-10-22T12:00:00Z'),day=new Date(now).toISOString().slice(0,10);
 // A public authority imported from an official call: no budget is published.
 const buyer={id:1,name:'Galway County Council — javna potražnja za zemljištem',preferred_countries:'Irska',min_budget:null,max_budget:null,verified:0,
@@ -77,3 +77,21 @@ assert.equal(mergeCandidate(null,row,source,now).verified,false);
  assert.equal(f.properties_without_type,1);assert.equal(f.properties_without_source,1);
  const why={};assert.equal(suggestion({...land,region:'Dublin'},buyer,now,{},why),null);assert.equal(why.reason,'Ne odgovara: Regija');}
 console.log('Public land matching and merge checks passed.');
+
+// Reviewed agency property country must survive persistence independently of the registry country.
+{
+const now=Date.now(),stamp=new Date(now).toISOString();
+const source={id:106,country:'AT',url:'https://zweitwohnsitze.com/'};
+const row={id:'test',kind:'property',country:'DE',url:'https://zweitwohnsitze.com/objekte/apartment.html',first_seen:stamp,last_seen:stamp,facts:{advertised_location:'Bad Griesbach, Bayern, Deutschland'}};
+assert.equal(candidateCountry(row,source),'Njemačka');
+assert.equal(mergeCandidate(null,row,source,now).country,'Njemačka');
+const prior={id:row.id,body_json:JSON.stringify({...row,verified:true,status:'Ručna provjera',match_suggestions:{manual:true},facts:{legal_evidence_url:'https://example.org/legal'}})};
+const merged=mergeCandidate(prior,row,source,now);
+assert.equal(merged.country,'Njemačka');assert.equal(merged.verified,true);assert.equal(merged.status,'Ručna provjera');assert.equal(merged.facts.legal_evidence_url,'https://example.org/legal');assert.deepEqual(merged.match_suggestions,{manual:true});
+for(const c of [undefined,null,'US','Deutschland'])assert.throws(()=>candidateCountry({...row,country:c},source));
+for(const host of ['immonestor.at','adamant-immobilien.at','immolution.at','raiffeisen-immobilien.at','zweitwohnsitze.com'])assert.equal(candidateCountry({...row,country:'HR'},{...source,url:'https://www.'+host}), 'Hrvatska');
+assert.equal(candidateCountry({...row,kind:'buyer'},source),'Austrija');
+assert.equal(candidateCountry(row,{...source,url:'https://legacy.example.org'}),'Austrija');
+console.log('Agency country, invalid country and manual review preservation tests passed');
+
+}
