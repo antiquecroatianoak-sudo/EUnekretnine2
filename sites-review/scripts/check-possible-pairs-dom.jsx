@@ -305,10 +305,11 @@ await act(async()=>{await new Promise(r=>setTimeout(r,250))});
 assert(document.body.textContent.includes('First record'));assert(document.body.textContent.includes('10.125'));
 await act(async()=>button('Učitaj sljedećih 100').click());
 assert(document.body.textContent.includes('Tail record'));assert.equal(catalogRequests.at(-1).after,1);assert.equal(catalogRequests.at(-1).through,10125);
+const beforeQuiet=catalogRequests.length;large.loaded_at='quiet-refreshed';await act(async()=>{document.dispatchEvent(new window.Event('visibilitychange'))});await act(async()=>{await new Promise(r=>setTimeout(r,250))});assert.equal(catalogRequests.length,beforeQuiet,'quiet refresh preserves the active catalogue cursor');assert(document.body.textContent.includes('Tail record'));
 await setValue($('input[aria-label="Pretraživanje"]'),'last');await act(async()=>{await new Promise(r=>setTimeout(r,250))});
 assert(document.body.textContent.includes('Last record'));assert.equal(catalogRequests.at(-1).query,'last');assert.equal(catalogRequests.at(-1).after,undefined,'filter resets cursor');
 await setValue($('input[aria-label="Pretraživanje"]'),'fail');await act(async()=>{await new Promise(r=>setTimeout(r,250))});
-assert(document.body.textContent.includes('test catalogue unavailable'),'failure cannot masquerade as zero');
+assert(document.body.textContent.includes('test catalogue unavailable'),'failure cannot masquerade as zero');assert(!document.body.textContent.includes('Nema nekretnina za odabrane kriterije.'));
 await act(async()=>root.unmount());
 console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted'+(realChecked?'; real API response rendered with every stored candidate.':' (real API response not supplied).'));
 

@@ -4,7 +4,7 @@ Vlasnik je odobrio izravnu implementaciju dok Claude čeka obnovu limita, uz spr
 
 ## Spremljeno / implementirano
 
-- Usklađen main (327115e0dac95aeb0716820025985287ee7ef4d9) u postojeću granu, očuvani kanal i prethodne upute. Prvi kodni checkpoint: 087d75b9b8adb40bcc27abcbe03196bce7ab325d.
+- Usklađen main (kod PR-a #4 327115e0dac95aeb0716820025985287ee7ef4d9, zatim discovery zapis 0d58dbdd8ae0ec317ebb1feb7a40452b04a97435) u postojeću granu, očuvani kanal i prethodne upute. Prvi kodni checkpoint: 087d75b9b8adb40bcc27abcbe03196bce7ab325d.
 - Početni pregled vodi na moguće parove. Svaki par ima razumljive brojače, osnovne podatke, usporedbu zahtjeva kupca i nekretnine, otvorene provjere i vidljiva kritična odstupanja. Ocjena se preuzima iz spremljenog evaluatora, uz objašnjenje bodovanih kriterija i dodatnih provjera. Budžet ostaje informativan. Tolerancija −15%/+25% očuvana.
 - Zaseban popis neprovjerenih nekretnina nije prikazan u evidenciji izvora; evidencija izvora zadržava kandidate za kupce. Interno otkrivanje, podaci i provjera nisu obrisani niti su neprovjereni zapisi proglašeni provjerenima.
 - Potvrđen uzrok granice: stari read imao je LIMITS.properties=10000 i LIMITS.investors=10000. Zamijenjeno ograničenom početnom stranicom i katalogom s keyset nastavkom bez ukupnog maksimuma, pretragom/filtrima nad cijelim katalogom, stvarnim brojačima i granicom novih unosa do osvježavanja. Isti nastavak dostupan je karti i analizi. Izvoz izričito označuje da obuhvaća učitane rezultate.
@@ -20,9 +20,15 @@ Vlasnik je odobrio izravnu implementaciju dok Claude čeka obnovu limita, uz spr
 - Test stvarne API rute: dopušten katalog uz postojeću prijavu, blokada neprijavljenih i cross-origin zahtjeva.
 - Python batch test: 10.125 zapisa u ograničenim zahtjevima, očuvani svi podaci i statusi, determinističan retry i eksplicitna pogreška prevelikog pojedinačnog zapisa.
 
+## Završna provjera ovog paketa
+
+- GitHub CI za 1f1b8f5409572e8ad40a12fc127f1d55a663aeef prošao je: run 40080340750, svi koraci uspješni, uključujući PostgreSQL 17 preko TLS-a, postojeće migracijske/API regresije, PGlite katalog i React prikaz stvarnog API odgovora.
+- Lokalni Python: 111 testova, OK, 5 PostgreSQL testova preskočeno jer lokalni TEST_POSTGRES_URL nije postavljen; ti testovi odrađeni su u GitHub CI-ju. Node regresije pravila, kupaca, javnih zemljišta i prezentacije prošle.
+- Dodatna dorada nakon toga: automatsko tiho osvježavanje čuva aktivan katalog/kursor; pogreška dohvata ne prikazuje lažnu poruku da nema nekretnina; prikazani su raspoloživi dodatni uvjeti kupca i podaci provjere izvora. Ponovljeni React i usporedni testovi prošli.
+
 ## Još nije potvrđeno / nastaviti
 
-- Puni CI i testovi s produkcijskom izvezenom shemom na PostgreSQL 17, neovisni pregled diffa i stvarni mobilni vizualni pregled. Lokalni jsdom ne dokazuje raspored na uređaju.
+- Potvrditi CI na završnom SHA-u nakon zadnje dorade, neovisni pregled diffa i stvarni mobilni vizualni pregled. Lokalni jsdom ne dokazuje raspored na uređaju.
 - Stvarni produkcijski brojevi i prikaz unutar prijavljenog vlasnikova računa nisu provjereni. Podaci za test su izolirani; nisu dodavani u produkciju.
 - Prethodni zadatak proširenja sync_source_listing na dodatne kriterije kupca s migracijom i dokazom očuvanja ručnih izmjena ostaje za poseban nastavak/pregled. Ovaj paket ne primjenjuje novu migraciju.
 - Pregled stvarnih novih izvora i produkcijska dijagnostika ostaju prema komentaru 6371837456; ne tvrditi da je ovaj UI paket i njih dovršio.
