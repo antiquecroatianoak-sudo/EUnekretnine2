@@ -22,11 +22,11 @@ jobs:
           import json
           from registry_discovery import Fetcher, Page, objects
           urls=[
-            'https://www.immonestor.at/objekt/7582406?from=482954',
-            'https://www.adamant-immobilien.at/objekt/17329426?from=1555954',
-            'https://www.immolution.at/objekt/14502658?from=302544',
-            'https://www.raiffeisen-immobilien.at/de/wohnung-kaufen',
-            'https://zweitwohnsitze.com/'
+            'https://www.immonestor.at/immobilien',
+            'https://www.adamant-immobilien.at/',
+            'https://www.immolution.at/',
+            'https://www.raiffeisen-immobilien.at/de/immobilien/kauf/7000/eisenstadt/anlegerwohnung-im-herzen-von-eisenstadt.0001011757?category%5B0%5D=flat&sales_type=buy',
+            'https://zweitwohnsitze.com/objekte/Kreischberg-Chalets-Haus-44-A.html'
           ]
           for url in urls:
               try:
