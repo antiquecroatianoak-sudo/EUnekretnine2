@@ -40,6 +40,9 @@ class AgencyTests(unittest.TestCase):
   a=self.row(n,url,'<header>Kaufpreis 999,00 €</header><main>7000 Eisenstadt Kaufpreis 175.000,00 € Wohnfläche 69,08 m² Beschreibung Derzeit vermietet.</main><footer>Kaufpreis 888,00 €</footer>')
   self.assertEqual(a['facts']['asking_price'],175000);self.assertEqual(a['country'],'AT')
   self.assertEqual(a['facts']['advertised_area']['value'],69.08)
+ def test_catalogue_pagination_is_preserved(self):
+  self.assertEqual(canonical('https://www.immonestor.at/immobilien?page=2'),'https://www.immonestor.at/immobilien?page=2')
+  self.assertEqual(canonical('https://www.immonestor.at/objekt/123?from=9'),'https://www.immonestor.at/objekt/123')
  def test_catalogue_is_not_primary_property(self):
   with self.assertRaises(RejectedListing):self.row(self.node(),url='https://www.immonestor.at/immobilien')
  def test_skip_lease_and_continue_to_valid_purchase(self):
