@@ -33,8 +33,12 @@ try{
  let b=await buyer('test-full');assert.equal(b.country,'US');assert.equal(b.preferred_countries,'Irska,Hrvatska');assert.equal(b.max_budget,null);assert.equal(b.verified,0);
  for(const key of ['preferred_locations','locations','required_criteria','required','original_property_types','min_area_m2','max_area_m2','area_hard'])assert.deepEqual(b.criteria[key],base[key],key);
  assert.equal(b.criteria.call_deadline,'2099-04-30');assert.equal(b.criteria.buyer_kind,'Javno tijelo');
+ // Reversed source ranges must preserve previously valid criteria.
+ await upsert('invalid-range',base);await sync('invalid-range');
+ await upsert('invalid-range',{...base,min_area_m2:1200,max_area_m2:1100});await sync('invalid-range');
+ const invalidRange=await buyer('invalid-range');assert.equal(invalidRange.criteria.min_area_m2,900);assert.equal(invalidRange.criteria.max_area_m2,1100);
  const firstChecked=b.criteria.checked_at;
- await upsert('test-full',{...base,min_area_m2:1200,preferred_countries:['ES'],required_criteria:['Documented road']});await sync('test-full');b=await buyer('test-full');
+ await upsert('test-full',{...base,min_area_m2:1200,max_area_m2:1500,preferred_countries:['ES'],required_criteria:['Documented road']});await sync('test-full');b=await buyer('test-full');
  assert.equal(b.criteria.min_area_m2,1200);assert.equal(b.preferred_countries,'Španjolska');assert.equal(b.criteria.checked_at,firstChecked,'fetch never extends human verification');
  // Missing/invalid source interest preserves the last applied countries, not the publication country.
  await upsert('test-full',{transaction_type:base.transaction_type,evidence_excerpt:base.evidence_excerpt,preferred_countries:['not-a-country']});await sync('test-full');assert.equal((await buyer('test-full')).preferred_countries,'Španjolska');
