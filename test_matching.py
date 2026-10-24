@@ -14,6 +14,14 @@ class MatchingTests(unittest.TestCase):
         self.buyer = dict(preferred_countries='Hrvatska', min_budget=0., max_budget=200., verified=1)
     def result(self, pair_checks=None):
         return evaluate(self.prop, dict(self.buyer, criteria_json=json.dumps(self.criteria)), pair_checks)
+    def test_buyer_seat_does_not_replace_countries_of_demand(self):
+        self.buyer['country']='Njemačka'
+        self.assertEqual(self.result()['status'],MATCH)
+        self.buyer['preferred_countries']='Italija'
+        self.assertIn('Država',self.result()['rejected'])
+        self.buyer['country']='Hrvatska'
+        self.buyer['preferred_countries']=''
+        self.assertIn('Država',self.result()['gaps']['buyer'])
     def test_country_codes_match_existing_database_without_rewriting_rows(self):
         self.prop['country']='HR'
         self.assertEqual(self.result()['status'],MATCH)
@@ -183,3 +191,4 @@ class MatchingTests(unittest.TestCase):
                 self.assertEqual(p['title'],'existing'); self.assertIsNone(p['property_type']); c.close()
 
 if __name__=='__main__': unittest.main()
+
