@@ -123,7 +123,7 @@ def in_scope(url,root,config=None):
 
 def canonical(url):
     p=urlsplit(url)
-    if hostkey(p.hostname or '') in AGENCIES:
+    if hostkey(p.hostname or '') in AGENCIES and re.search(DETAIL[hostkey(p.hostname)],p.path):
         return urlunsplit((p.scheme,p.netloc.lower(),p.path,'',''))
     path=p.path.rstrip('/') if hostkey(p.hostname or '')=='propertymarket.com.mt' and p.path.startswith('/view/') else p.path
     return urlunsplit((p.scheme,p.netloc.lower(),path,urlencode([(k,v) for k,v in parse_qsl(p.query,keep_blank_values=True) if not k.lower().startswith(('utm_','fbclid','gclid'))]),''))
