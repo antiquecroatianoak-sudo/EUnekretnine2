@@ -6,7 +6,7 @@ export function PairComparison({result,property,investor,expanded=false}){
   {review.unmet>0&&<p className='pair-blocker' role='note'><b>Kritično odstupanje:</b> {(result.rejected||[]).join(' · ')}. Postotak ne uklanja ovu prepreku.</p>}
   <details open={expanded||undefined}><summary>Usporedi uvjete kupca i nekretninu</summary><div className='pair-comparison'>
    {review.rows.map(row=><article className={'pair-criterion '+row.state} key={row.state+row.label}><header><h4>{row.label}</h4><span>{row.status}</span></header><dl><div><dt>Zahtjev kupca</dt><dd>{row.buyer}</dd></div><div><dt>Nekretnina</dt><dd>{row.property}</dd></div></dl><p>{row.explanation}</p></article>)}
-  </div><p className='pair-score-note'>{review.scoreExplanation}</p></details>
+  </div><p className='pair-score-note'><b>Bodovani kriteriji:</b> {review.scored.join(' · ')}.</p><p className='pair-score-note'>{review.scoreExplanation}</p></details>
   {review.missing>0&&<p className='pair-next'><b>Sljedeći korak:</b> {(result.missing||[]).slice(0,3).join(' · ')}{review.missing>3?` · još ${review.missing-3} stavki u detalju`:''}. Otvori detalj para za pitanja, odgovore i dokaze.</p>}
   {!review.missing&&!review.unmet&&<p className='pair-next'>Kriteriji su zadovoljeni prema spremljenom izračunu. Prije prezentacije ručno pregledaj podatke; interes kupca još nije potvrđen.</p>}
  </section>;

@@ -25,10 +25,11 @@ export function pairReview(result,property={},investor={}){
   'Grad nekretnine':['Zabilježena lokacija',property.city||unknown],
   'Nekretnina više nije aktivna':['Aktivna nekretnina',property.status||unknown],
  };
+ const scored=['Država','Vrsta nekretnine','Stanje / obnova / rušenje',...(c.cities?.length?['Grad']:[]),...(c.regions?.length?['Regija']:[]),...(c.min_area!=null||c.max_area!=null?['Površina']:[]),...(c.requires_buildable?['Potvrđena mogućnost gradnje']:[]),...(c.min_roi!=null?['Minimalni jednostavni ROI']:[])];
  const rows=groups.flatMap(([state,status,labels])=>[...new Set(labels)].map(label=>({label,state,status,buyer:facts[label]?.[0]||'Provjera uvjeta i dokaza',property:facts[label]?.[1]||'Provjeriti zapis i priložene dokaze',explanation:label==='Površina'?(c.area_hard?'Stroga granica kupca.':'Dopuštena tolerancija −15 %/+25 %.'):state==='unmet'?'Odstupanje ostaje blokada bez obzira na postotak.':state==='unknown'?'Dopuniti podatak ili potvrditi dokaz prije sljedeće faze.':'Potvrđeno u spremljenom izračunu.'})));
  // Budget is informational in the existing evaluator and is deliberately not counted as a pass/failure.
  rows.push({label:'Budžet / ukupni trošak',state:'info',status:'Informativno',buyer:range(investor.min_budget,investor.max_budget,' €'),property:number(result.total_cost,' €'),explanation:'Budžet ne ulazi u postotak i sam po sebi ne isključuje par.'});
  const score=Number.isFinite(result.score)&&result.score>=0&&result.score<=100?result.score:null;
- return {rows,score,met:groups[0][2].length,unmet:groups[1][2].length,missing:groups[2][2].length,
+ return {rows,score,scored,met:groups[0][2].length,unmet:groups[1][2].length,missing:groups[2][2].length,
   scoreExplanation:'Spremljena ocjena evaluatora: udio zadovoljenih bodovanih kriterija, zaokružen na cijeli postotak. Bodovani kriterij s nepoznatim podatkom ne donosi bod. Pravne, izvorne i ručne provjere dodatni su uvjeti; zato ni 100 % ne znači da je par potpuno provjeren. Budžet je informativan. Ocjena nije vjerojatnost prodaje.'};
 }

@@ -55,10 +55,13 @@ jobs:
           node test_public_land.mjs
           node test_domain_input.mjs
           node sites-review/scripts/test-platform-view.mjs
+          node sites-review/scripts/test-pair-review.mjs
           node sites-review/scripts/test-teaser.mjs
       - name: Pregled sučelja i odvojeni negativan ishod odgovora
         env:
           PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json
         run: |
-          npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+          npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund @electric-sql/pglite@0.3.14 esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+          node sites-review/scripts/test-catalog.mjs "$RUNNER_TEMP/dom"
           bash ops/run-dom-check.sh "$RUNNER_TEMP/dom"
+
