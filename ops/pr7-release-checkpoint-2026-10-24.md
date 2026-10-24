@@ -17,3 +17,14 @@
 - GitHub fetch_commit_workflow_runs wrapper prikazuje PR pokretanja, ne main push/schedule: prazan odgovor nije dokaz da main uvoz nije pokrenut. Produkcijski uvoz potvrđuje baza.
 - Ne ponavljati PR7 registraciju, PR8 popravak ili PR6 migraciju kao da nisu objavljeni. Nastaviti postojeće redove i sljedeća proširenja izvora uz prioritet kriterija kupaca. Za ostale Raiffeisen lokacije prvo prilagoditi dokaz lokacije; ne proširivati opseg na slijepo.
 - Vlasnik je odobrio samostalan nastavak i objavu, bez novih prijava, uz periodično spremanje. Druge aplikacije nisu dirane; ponude i poruke vanjskim osobama nisu slane.
+
+## Točka nastavka funkcija — spremljeno na izričit zahtjev vlasnika
+
+- Završena objava funkcija ovog paketa: PR7 i PR8 spojeni, registry-discovery ACTIVE v7 potvrđen. Ne ponavljati spajanje, deploy ili PR6 migraciju bez novog razloga.
+- Uvoz uzima podatke glavnog prodajnog oglasa; preporučeni oglas ne smije promijeniti cijenu. Kanonski detaljni URL uklanja tracking duplikate i čuva katalošku paginaciju. Nepodržani detalji evidentiraju se bez prekidanja drugih zapisa.
+- Zemlja pojedinačne nekretnine čuva se i pri spremanju, ne zamjenjuje se zemljom agencije. Uparivanje koristi tražene države kupca (preferred_countries), odvojeno od sjedišta. Nepoznata država potražnje ostaje dopuna. Budžet nije obvezni uvjet podudaranja; ručne dopune i dokazi čuvaju se.
+- Posljednji potvrđeni produkcijski rezultat ovog razgovora: 57 novih oglasa, 57 property_id veza, 57 različitih URL-ova; kandidati ostaju za provjeru. To je povijesni potvrđeni rezultat, ne obećanje trenutačnog broja pri sljedećem nastavku.
+- Opseg Raiffeisena ostaje samo Eisenstadt. Daljnje širenje lokacija i novih parsera nije dovršeno i nije blokada već izvršene objave.
+- Novo pozadinsko istraživanje „Širenje izvora i kupaca” uključeno je svakih šest sati. Odvojeno je od postojećeg GitHub uvoza; prednost imaju kupci i dokumentirani kriteriji. Posljednjom provjerom enabled=true, ali prvi dovršeni prolaz još nije potvrđen. Status i napredak pratiti u discovery_runs research-source-expansion:v1; ne stvarati drugi isti zadatak.
+- Prijavljeni UI vlasnikova računa nije ponovno provjeren; lokalni izravni HTTP poziv nove Edge v7 nije uspio zbog timeouta. Objavljeni paket i aktivna verzija potvrđeni; ne pretvarati te nepokrenute/neuspjele provjere u blokadu za novu prijavu.
+- Pri nastavku prvo pročitati ovaj zapis i aktualni AGENTS.md, provjeriti rezultate pozadinskog istraživanja i stvarno stanje ako je relevantno, zatim nastaviti samo nove tražene funkcionalne dorade ili dokumentirane nedostatke. Ne tvrditi da su novi kupci već uvezeni samo zato što je zadatak uključen. Ne uvoditi nove funkcije bez korisnikova cilja.
