@@ -19,10 +19,11 @@ from urllib.robotparser import RobotFileParser
 from sync_discovery import request_token, call as legacy_call
 from public_land_sources import PUBLIC_LAND_CALLS, public_land_record
 import source_leads
+from agency_listings import AGENCIES, JUSTIMMO, RejectedListing, primary_data
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
-ADAPTER_REVISION='2026-10-19-demand-redirect-v2'
+ADAPTER_REVISION='2026-10-24-primary-agency-v1'
 SALE=re.compile(r'prodaja|prodaju|nakup|for-sale|for_sale|sale|verkauf|kaufen|koop|vente|vendre|vendita|vendesi|venta|comprar|imoveis|prodej|predaj|elado|vanzare|prodava|parduo|myyt|sprzedaz|mieszkania|müü|muua|til-salg|till-salu|πωλη|продава|продаж',re.I)
 RENT=re.compile(r'najam|iznajm|oddaja|for-rent|to-rent|rentals|mieten|vermiet|location/|affitto|alquiler|arrendar|pronajem|prenajom',re.I)
 DEMAND=re.compile(r'\b(?:kupujemo|tražimo|iščemo|kupimo)\s+(?:građevinsk\w*\s+|stavbn\w*\s+)?(?:zemlji\w*|nekretnin\w*|stan\w*|kuć\w*|hiš\w*)|\b(?:we\s+(?:buy|seek|are\s+looking\s+for)|wanted|seeking)\s+(?:land|properties|property|sites|development)|\b(?:acquisition|investment)\s+criteria\b|\b(?:ankaufsprofil|ankaufskriterien)\b|\b(?:nous\s+(?:recherchons|achetons)|recherche\s+de)\s+(?:terrains?|biens|immeubles)|\b(?:buscamos|compramos)\s+(?:terrenos?|inmuebles|suelo)|\b(?:cerchiamo|acquistiamo)\s+(?:terreni|immobili)',re.I)
@@ -47,6 +48,9 @@ def validate_redirect(source,target,root):
     except ValueError as error:raise RejectedRedirect(source,target,error) from error
 
 DETAIL={
+ **{h:r'^/objekt/\d+/?$' for h in JUSTIMMO},
+ 'raiffeisen-immobilien.at':r'^/de/immobilien/kauf/.+\.\d+$',
+ 'zweitwohnsitze.com':r'^/objekte/[^/]+\.html$',
  'njuskalo.hr':r'-oglas-\d+', 'nepremicnine.net':r'/oglasi-(?:prodaja|nakup)/.+_\d+',
  'immobiliare.it':r'/annunci/\d+', 'idealista.com':r'/inmueble/\d+', 'idealista.pt':r'/imovel/\d+',
  'pap.fr':r'/annonces/.+-r\d+', 'aruodas.lt':r'-\d+-\d+/?$', 'funda.nl':r'/detail/koop/',
@@ -66,6 +70,9 @@ DETAIL={
 # Scope rules are separate from property price/type filters. They prevent crawling
 # unrelated classifieds, editorial articles, agent directories and rental pages.
 SCOPES={
+ **{h:r'^/(?:$|objekt/\d+/?$|immobilien(?:/|$))' for h in JUSTIMMO},
+ 'raiffeisen-immobilien.at':r'^/de/(?:wohnung-kaufen/?$|immobilien(?:/|$))',
+ 'zweitwohnsitze.com':r'^/(?:$|objekte(?:/|$))',
  'openbareverkoop.nl':r'^/(?:kavel/\d+/|kavels(?:/|$))',
  'evarzytynes.lt':r'^/evs/pages/auctions?\.do$',
  'willhaben.at':r'^/iad/immobilien(?:/|$)',
@@ -116,6 +123,8 @@ def in_scope(url,root,config=None):
 
 def canonical(url):
     p=urlsplit(url)
+    if hostkey(p.hostname or '') in AGENCIES and re.search(DETAIL[hostkey(p.hostname)],p.path):
+        return urlunsplit((p.scheme,p.netloc.lower(),p.path,'',''))
     path=p.path.rstrip('/') if hostkey(p.hostname or '')=='propertymarket.com.mt' and p.path.startswith('/view/') else p.path
     return urlunsplit((p.scheme,p.netloc.lower(),path,urlencode([(k,v) for k,v in parse_qsl(p.query,keep_blank_values=True) if not k.lower().startswith(('utm_','fbclid','gclid'))]),''))
 
@@ -139,10 +148,11 @@ class Page(HTMLParser):
     def __init__(self,content):
         super().__init__(convert_charrefs=True)
         self.links=[]; self.next=[]; self.meta={}; self.scripts=[]; self.text=[]
-        self.anchor=None; self.ld=None; self.ignore=0; self.heading=None; self.title=[]
+        self.anchor=None; self.ld=None; self.ignore=0; self.heading=None; self.title=[]; self.main_depth=0; self.main_text=[]
         self.feed(content)
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
+        if tag=='main':self.main_depth+=1
         if tag=='a': self.anchor=[a.get('href',''),[],a.get('rel','')]
         if tag in ('title','h1'):self.heading=tag
         if tag=='link' and 'next' in a.get('rel','').split(): self.next.append(a.get('href',''))
@@ -155,9 +165,11 @@ class Page(HTMLParser):
         if self.ld is not None: self.ld.append(data)
         if not self.ignore:
             self.text.append(data)
+            if self.main_depth:self.main_text.append(data)
             if self.heading:self.title.append(data)
             if self.anchor is not None: self.anchor[1].append(data)
     def handle_endtag(self,tag):
+        if tag=='main':self.main_depth=max(0,self.main_depth-1)
         if tag==self.heading:self.heading=None
         if tag=='script' and self.ld is not None:
             try:self.scripts.append(json.loads(''.join(self.ld)))
@@ -289,6 +301,9 @@ def buyer_source(source):
 def listing_record(source,url,page,kind,now):
     title=(page.meta.get('og:title') or page.meta.get('twitter:title') or ' '.join(page.title)).strip()
     nodes=[v for script in page.scripts for v in objects(script)]
+    if kind=='property' and hostkey(urlsplit(url).hostname) in AGENCIES:
+        title,country,facts,url=primary_data(hostkey(urlsplit(url).hostname),url,nodes,page)
+        return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':country,'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
     if source.get('import_config',{}).get('require_structured_listing') and kind=='property':
         if not any(set([n.get('@type')] if isinstance(n.get('@type'),str) else n.get('@type',[])) & {'RealEstateListing','Apartment','House','Residence','SingleFamilyResidence'} for n in nodes):
             raise ValueError('No structured listing title/type; adapter needs review')
@@ -540,6 +555,8 @@ def process(source,state,fetcher,deadline,max_pages=25):
         except Exception as e:
             if isinstance(e,HTTPError) and e.code in (404,410):
                 unavailable.append({'url':url,'http_status':e.code,'checked_at':now});seen.add(url);continue
+            if isinstance(e,RejectedListing) and item['mode']=='detail':
+                failed.append({'url':url,'mode':item['mode'],'error':str(e),'checked_at':now});seen.add(url);continue
             if isinstance(e,ValueError) and item['mode']=='detail' and 'title' in str(e):
                 # One malformed/deleted listing must not block the rest of the queue.
                 failed.append({'url':url,'mode':item['mode'],'error':str(e),'checked_at':now});continue
@@ -626,6 +643,8 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
+
 
 
 
