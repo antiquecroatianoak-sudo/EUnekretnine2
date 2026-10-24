@@ -1,9 +1,9 @@
-# Nastavak nakon PR-a 5 — 24.10.2026.
+# Nastavak nakon PR5 — 24.10.2026.
 
-Vlasnik je ponovno zatražio nastavak i periodično spremanje. PR5 i objavljeni paket ne ponavljati. Novi rad počinje iz aktualnog maina; pri početku nema otvorenog nastavnog PR-a.
+Vlasnik je obnovio rad i zatražio redovito spremanje. Nastavni PR6: codex/eu-buyer-criteria. Početni checkpoint je na GitHubu; novi kod još nije primijenjen u produkciji.
 
-Prvi potvrđeni nalaz (pročitano iz aktivne baze): sync_source_listing prenosi samo property_types, conditions, cities, regions, min_area, max_area i requires_buildable. Dodatni izvorni uvjeti i rokovi iz buyerDraft ne prenose se u cijelosti. Očuvanje ručnih dopuna radi usporedbom sa snapshotom izvora, ali prazne kolekcije ne smiju se automatski smatrati nedostatkom ako ih je korisnik svjesno ručno uklonio.
+Pripremljena migracija: supabase/migrations/20261024113202_buyer_source_criteria.sql. Prenosi dodatne kriterije iz buyerDraft, čuva ručne null/false/[] i brisanje ključa, globalno sjedište razlikuje od EU interesa, ne produžuje ljudsku provjeru novim dohvatom i štiti zatvorene pozive. Testovi na izoliranoj izvezenoj shemi PostgreSQL/PGlite prolaze. Neovisni pregled našao je još dva rubna slučaja (izostala država interesa i izostali budžet između dvaju poznatih iznosa); ispravci i nove regresije su u tijeku. Migracija nije odobrena za primjenu samim lokalnim prolazom testova.
 
-Redoslijed: 1) pripremiti preglednu migraciju i testove kriterija/ručnih dopuna/nepoznatih vrijednosti/zatvorenih poziva, 2) provjeriti nove izvore, 3) provjeriti dostupnost prijavljenog korisničkog prikaza. Migracija se ne primjenjuje prije pregleda. Budžet ne utječe na uspješnost para. Nepotpuni parovi služe dodatnoj ručnoj provjeri.
+Aktualni source_leads.json u mainu ima osam kandidatskih domena za nekretnine. Tri Grekodom jezične domene nisu novi neovisni izvori; matični Grekodom već je u bazi kao sources.id77. Ostali kandidati: NESTOR, ADAMANT, Immolution, Raiffeisen Immobilien i Zweitwohnsitze. Primarne javne stranice potvrđuju prodajne oglase. Robots.txt svih pet pri ovoj provjeri odgovorio je HTTP200 i dopuštao korijen za EUPropertyResearch/1.0; to ne potvrđuje dopuštenje baš svih detaljnih ruta niti uvjete ponovne uporabe. Nisu automatski dodani u aktivno pronalaženje.
 
-Ovo je početni checkpoint; implementacija i provjere još nisu dovršene. Pristup bazi ne dokazuje pristup vlasnikovoj prijavljenoj UI sesiji. Bez kontakata i bez izmjena drugih aplikacija.
+Preostaje dovršiti ispravke i neovisni pregled migracije, spremiti izvještaj o izvorima te provjeriti dostupnost vlasnikove prijavljene UI sesije. Pristup bazi nije potvrda pristupa prijavljenom računu. Nema kontakata, slanja ponuda ni izmjena drugih aplikacija. Budžet ne utječe na uspješnost podudaranja; nepotpuni parovi služe ručnoj dopuni.
