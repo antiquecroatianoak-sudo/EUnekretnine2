@@ -1,5 +1,7 @@
 name: Read-only probe of five candidate sources
 on:
+  pull_request:
+    paths: [.github/workflows/new-agency-probe.yml]
   push:
     branches: [codex/new-agency-import]
     paths: [.github/workflows/new-agency-probe.yml]
