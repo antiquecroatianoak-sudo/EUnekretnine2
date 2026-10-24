@@ -3,7 +3,7 @@
   "blokirano": 1,
   "kandidat_nekretnine": 6,
   "nedostupno": 5,
-  "nije_relevantno": 5,
+  "nije_relevantno": 6,
   "robots_zabrana": 2
  },
  "leads": [
@@ -24,7 +24,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -52,7 +52,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "nedostupno"
   },
   {
@@ -72,7 +72,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "nedostupno"
   },
   {
@@ -112,7 +112,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -298,7 +298,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "blokirano"
   },
   {
@@ -318,7 +318,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "nedostupno"
   },
   {
@@ -366,7 +366,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -504,8 +504,36 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
    "status": "nedostupno"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T06:59:55.269871+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "\"Ihr Immobilienkontakt auf einen Klick.\"",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1130-hietzing/grosse-moeglichkeiten-ihr-zuhause-mit-zukunft-oder-ihr-naechstes-immobilienprojekt-in-ober-st-veit-zellmann-immobilien-1592387770/",
+     "seen": "2026-10-24T06:59:55.163867+00:00",
+     "url": "https://zellmannimmobilien.qr1.at/czellmann"
+    }
+   ],
+   "first_seen": "2026-10-24T06:59:55.163867+00:00",
+   "host": "zellmannimmobilien.qr1.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 2
+   },
+   "status": "nije_relevantno",
+   "title": "Christian Zellmann - Visitenkarte Christian Zellmann - Visitenkarte Christian Zellmann"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -537,6 +565,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T01:10:37.831503+00:00",
- "verified_at": "2026-10-24T01:10:37.930983+00:00"
+ "updated_at": "2026-10-24T06:59:55.163867+00:00",
+ "verified_at": "2026-10-24T06:59:55.269871+00:00"
 }
