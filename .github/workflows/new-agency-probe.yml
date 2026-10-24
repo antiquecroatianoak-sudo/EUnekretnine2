@@ -1,7 +1,7 @@
 name: Read-only probe of five candidate sources
 on:
   pull_request:
-    paths: [.github/workflows/new-agency-probe.yml]
+    paths: [.github/workflows/new-agency-probe.yml, agency_listings.py, registry_discovery.py]
   push:
     branches: [codex/new-agency-import]
     paths: [.github/workflows/new-agency-probe.yml]
@@ -10,34 +10,40 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Fetch one permitted page per source without database writes
+      - name: Validate adapters and cross-source isolation
+        run: python -m unittest test_agency_listings test_primary_agency_listing test_registry_discovery test_population_refresh test_matching
+      - name: Read actual primary sale details without database writes
         run: |
           python - <<'PY'
-          import json
-          from registry_discovery import Fetcher, Page, objects
-          urls=[
-            'https://www.immonestor.at/immobilien',
-            'https://www.adamant-immobilien.at/',
-            'https://www.immolution.at/',
-            'https://www.raiffeisen-immobilien.at/de/immobilien/kauf/7000/eisenstadt/anlegerwohnung-im-herzen-von-eisenstadt.0001011757?category%5B0%5D=flat&sales_type=buy',
-            'https://zweitwohnsitze.com/objekte/Kreischberg-Chalets-Haus-44-A.html'
+          import json,time
+          from registry_discovery import Fetcher,Page,listing_record,process
+          sources=[
+            ('NESTOR','https://www.immonestor.at/immobilien','https://www.immonestor.at/objekt/7582406'),
+            ('ADAMANT','https://www.adamant-immobilien.at/','https://www.adamant-immobilien.at/objekt/17329426'),
+            ('Immolution','https://www.immolution.at/','https://www.immolution.at/objekt/14502658'),
+            ('Raiffeisen','https://www.raiffeisen-immobilien.at/de/wohnung-kaufen','https://www.raiffeisen-immobilien.at/de/immobilien/kauf/7000/eisenstadt/anlegerwohnung-im-herzen-von-eisenstadt.0001011757'),
+            ('Zweitwohnsitze','https://zweitwohnsitze.com/','https://zweitwohnsitze.com/objekte/Kreischberg-Chalets-Haus-44-A.html')
           ]
-          for url in urls:
+          failures=[]
+          for i,(name,root,detail) in enumerate(sources):
+              source=dict(id=9000+i,name=name,url=root,country='DE',category='Agencija',import_config=dict(sale_scope=True))
               try:
-                  html=Fetcher(url).get(url)
-                  page=Page(html)
-                  if 'raiffeisen' in url:
-                      import re
-                      print('RAIFFEISEN_MARKUP '+json.dumps([html[max(0,m.start()-500):m.end()+900] for m in re.finditer(r'Kaufpreis|Wohnfl.che|addressCountry|postalCode|<main|</main|itemprop=',html)][:50],ensure_ascii=False),flush=True)
-                  nodes=[obj for script in page.scripts for obj in objects(script)]
-                  result=dict(url=url,title=page.title,structured=nodes[:12],links=page.links[:100],text=' '.join(page.text)[:24000])
+                  fetch=Fetcher(root)
+                  row=listing_record(source,detail,Page(fetch.get(detail)),'property','2026-10-24T16:00:00+00:00')
+                  assert row['country']=='AT',row
+                  assert row['facts']['asking_price'] and row['facts']['asking_price']>0,row
+                  records,state=process(source,{},fetch,time.monotonic()+65,max_pages=3)
+                  print('ADAPTER_RESULT '+json.dumps(dict(name=name,primary=row,index_rows=records,state=state),ensure_ascii=False),flush=True)
+                  if state.get('error') or not state.get('pending') and not records:
+                      failures.append(name+': index discovery failed')
               except Exception as error:
-                  result=dict(url=url,error=type(error).__name__+': '+str(error)[:500])
-              print('SOURCE_PROBE '+json.dumps(result,ensure_ascii=False),flush=True)
+                  failures.append(name+': '+type(error).__name__+': '+str(error))
+                  print('ADAPTER_ERROR '+json.dumps(dict(name=name,error=str(error)),ensure_ascii=False),flush=True)
+          if failures:raise SystemExit('; '.join(failures))
           PY
