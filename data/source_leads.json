@@ -1,5 +1,570 @@
 {
- "leads": [],
+ "counts": {
+  "blokirano": 1,
+  "kandidat_nekretnine": 6,
+  "nedostupno": 5,
+  "nije_relevantno": 6,
+  "robots_zabrana": 2
+ },
+ "leads": [
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Trouver un bureau",
+     "found_on": "https://www.bouygues-immobilier.com/terrains-batir",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.bouygues-immobilier-corporate.com/activites/immobilier-dentreprise-et-hotellerie"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "bouygues-immobilier-corporate.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 16
+   },
+   "status": "nije_relevantno",
+   "title": "Immobilier d’Entreprise et Hôtellerie | Bouygues immobilier Immobilier d’Entreprise et Hôtellerie"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://jobs.smartrecruiters.com/",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Jobs",
+     "found_on": "https://www.immoweb.be/en/classified/house/for-sale/gembloux/5030/21906116",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://careers.smartrecruiters.com/AVIVGroup/immoweb"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "careers.smartrecruiters.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://tradedoubler.com/",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Finansowanie: Oblicz ratę dla tej nieruchomości z ING. RRSO 6,09% na dzień 12.10.2026",
+     "found_on": "https://www.otodom.pl/pl/oferta/smardzewska-8-mieszkanie-1-pok-a-a-1-4-3-ID4wTyz",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://clk.tradedoubler.com/click"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "clk.tradedoubler.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "HTTP 404",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.donauimmo.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/neuwertiges-bauernhaus-mit-grosszuegigen-nebengebaeuden-perfekt-fuer-pferdehaltung-2079005049/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.donauimmo.at/objekt/15030124"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "donauimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T18:29:56.556629+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Property Acquisition/Leasing Preliminary Assessment",
+     "found_on": "https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://forms.office.com/pages/responsepage.aspx"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "forms.office.com",
+   "kinds": [
+    "buyer"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T01:10:37.930983+00:00",
+   "country_hint": "PL",
+   "evidence": [
+    {
+     "anchor": "Polski",
+     "found_on": "https://www.grekodom.com/realtyobject/67062-for-sale-flat-48-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.com.pl/realtyobject/67062-sprzedaz-apartament-48-m2-w-salonikach"
+    },
+    {
+     "anchor": "Polski",
+     "found_on": "https://www.grekodom.com/realtyobject/67059-for-sale-flat-95-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.com.pl/realtyobject/67059-sprzedaz-apartament-95-m2-w-salonikach"
+    },
+    {
+     "anchor": "Polski",
+     "found_on": "https://www.grekodom.com/realtyobject/67064-for-sale-commercial-property-238-m2-in",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.com.pl/realtyobject/67064-sprzedaz-nieruchomosc-komercyjna-238-m2"
+    },
+    {
+     "anchor": "Polski",
+     "found_on": "https://www.grekodom.com/realtyobject/60216-for-sale-detached-house-224-m2-in-corfu",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.com.pl/realtyobject/60216-sprzedaz-dom-wolnostojacy-224-m2-na-kor"
+    },
+    {
+     "anchor": "Polski",
+     "found_on": "https://www.grekodom.com/realtyobject/67066-for-sale-flat-80-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.com.pl/realtyobject/67066-sprzedaz-apartament-80-m2-w-salonikach"
+    }
+   ],
+   "first_seen": "2026-10-24T01:10:37.831503+00:00",
+   "host": "grekodom.com.pl",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "signals": {
+    "areas": 23,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 19,
+    "property_words": 34
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Apartament 48 m² w Salonikach, Grecja | kupić, kupić apartments cena: 200000€ | Grekodom Development Sprzedaż - Apartament 48 m² w Salonikach"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T01:10:37.930983+00:00",
+   "country_hint": "DE",
+   "evidence": [
+    {
+     "anchor": "Deutsch",
+     "found_on": "https://www.grekodom.com/realtyobject/67064-for-sale-commercial-property-238-m2-in",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.de/realtyobject/67064-verkauf-gewerbeimmobilie-238-m2-in-thes"
+    }
+   ],
+   "first_seen": "2026-10-24T01:10:37.831503+00:00",
+   "host": "grekodom.de",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "signals": {
+    "areas": 23,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 23,
+    "property_words": 26
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Gewerbeimmobilie 238 m² in Thessaloniki, Griechenland | kaufen Geschäftsräume preis: 350000€ | Grekodom Development Verkauf - Gewerbeimmobilie 238 m² in Thessal"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T01:10:37.930983+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Srpski",
+     "found_on": "https://www.grekodom.com/realtyobject/67062-for-sale-flat-48-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.rs/realtyobject/67062-prodaja-stan-48-m2-u-solunu"
+    },
+    {
+     "anchor": "Srpski",
+     "found_on": "https://www.grekodom.com/realtyobject/67059-for-sale-flat-95-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.rs/realtyobject/67059-prodaja-stan-95-m2-u-solunu"
+    },
+    {
+     "anchor": "Srpski",
+     "found_on": "https://www.grekodom.com/realtyobject/67064-for-sale-commercial-property-238-m2-in",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.rs/realtyobject/67064-prodaja-commercial-property-238-m2-u-so"
+    },
+    {
+     "anchor": "Srpski",
+     "found_on": "https://www.grekodom.com/realtyobject/60216-for-sale-detached-house-224-m2-in-corfu",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.rs/realtyobject/60216-prodaja-kuca-224-m2-na-krfu"
+    },
+    {
+     "anchor": "Srpski",
+     "found_on": "https://www.grekodom.com/realtyobject/67066-for-sale-flat-80-m2-in-thessaloniki",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.grekodom.rs/realtyobject/67066-prodaja-stan-80-m2-u-solunu"
+    }
+   ],
+   "first_seen": "2026-10-24T01:10:37.831503+00:00",
+   "host": "grekodom.rs",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "signals": {
+    "areas": 23,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 23,
+    "property_words": 21
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Stan 48 m² u Solunu, Grčka | kupiti, kupovinu apartmana cena: 200000€ | Grekodom Development Prodaja - Stan 48 m² u Solunu"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.immonestor.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.immonestor.at/"
+    },
+    {
+     "anchor": "immonestor.at/immobiliencard",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.immonestor.at/immobiliencard"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "immonestor.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 2,
+    "property_words": 20
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Home - NESTOR | Immobilien in Wien: Immobilienmakler NESTOR Immobilien Wien"
+  },
+  {
+   "check_note": "HTTP 403",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "DE",
+   "evidence": [
+    {
+     "anchor": "Immowelt.de",
+     "found_on": "https://www.immoweb.be/en/classified/house/for-sale/gembloux/5030/21906116",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.immowelt.de/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "immowelt.de",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "blokirano"
+  },
+  {
+   "check_note": "HTTP 405",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.cp-ag.at/en/contact/project-purchase/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.kununu.com/at/cp-immobilien2"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "kununu.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "- - - Immobilie online bewerten - - -",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/niederoesterreich/krems-an-der-donau/am-steindl-zinshaus-mit-ausgebautem-dg-und-gartenwohnung-2018930333/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://kuttenberger-immo.at/schnellbewertung/"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "kuttenberger-immo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 15
+   },
+   "status": "nije_relevantno",
+   "title": "Kostenlose Immobilienbewertung in 3 Minuten online : Kuttenberger Immobilien"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "HR",
+   "evidence": [
+    {
+     "anchor": "Real estate design",
+     "found_on": "https://www.opereta.hr/nekretnine/prodaja",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://opereta-projektiranje.hr/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "opereta-projektiranje.hr",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": "Opereta projektiranje d.o.o."
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/landhausidylle-mit-moeglicher-tierhaltung-2145036060/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.raiffeisen-immobilien.at/de/immobilien"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/salzburg/zell-am-see/sanierungsbeduerftiges-einfamilienhaus-in-idyllischer-lage-1189533959/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://www.raiffeisen-immobilien.at/de/ueber-uns/raiffeisen-immobilien-salzburg"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "raiffeisen-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 24,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 22,
+    "property_words": 26
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobilien | Raiffeisen Immobilien Immobilien"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T01:10:37.930983+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/steiermark/leibnitz/ein-kleines-bauernhaus-ein-grosses-stueck-freiheit-naturparadies-mit-ca-6-500-m-grund-am-waldrand-ein-urspruengliches-bauernhaus-mit-wirtschaftsgebaeude-erdkeller-viel-wiese-und-wald-direkt-vor-der-haustuer-1195630668/",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.schmuck-immobilien.at/immobilien-1/gartentraum-ein-wohnhaus-perfekt-fuer-familie-1"
+    }
+   ],
+   "first_seen": "2026-10-24T01:10:37.831503+00:00",
+   "host": "schmuck-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "signals": {
+    "areas": 10,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 9
+   },
+   "status": "nije_relevantno",
+   "title": "Ein kleines Bauernhaus, ein großes Stück Freiheit – Naturparadies mit ca. 6.500 m² Grund am Waldrand! Ein ursprüngliches Bauernhaus mit Wirtschaftsgebäude, Erdk"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "service.immonestor.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/zwettl/renovierungsbeduerftiges-bauernhaus-in-langschlag-ihr-traum-vom-eigenheim-1525801010/",
+     "seen": "2026-10-23T19:00:28.832808+00:00",
+     "url": "https://service.immonestor.at/"
+    }
+   ],
+   "first_seen": "2026-10-23T19:00:28.832808+00:00",
+   "host": "service.immonestor.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-23T18:29:56.667281+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "WWW.SMKIMMO.AT",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/mistelbach/uriger-charme-mit-besonderem-flair-1290355524/",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://www.smkimmo.at/"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "smkimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 40
+   },
+   "status": "nije_relevantno",
+   "title": "Ihr Immobilienmakler mit 22 jähriger Immobilienmarkterfahrung! Ihr Immobilienmakler mit über 22 jähriger Immobilienmarkterfahrung"
+  },
+  {
+   "check_note": "HTTP 406",
+   "checked_at": "2026-10-23T19:00:28.936701+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Property Information Checklist",
+     "found_on": "https://lda.ie/projects/private-land-acquisition",
+     "seen": "2026-10-23T18:29:56.556629+00:00",
+     "url": "https://view.officeapps.live.com/op/view.aspx"
+    }
+   ],
+   "first_seen": "2026-10-23T18:29:56.556629+00:00",
+   "host": "view.officeapps.live.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T06:59:55.269871+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "\"Ihr Immobilienkontakt auf einen Klick.\"",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1130-hietzing/grosse-moeglichkeiten-ihr-zuhause-mit-zukunft-oder-ihr-naechstes-immobilienprojekt-in-ober-st-veit-zellmann-immobilien-1592387770/",
+     "seen": "2026-10-24T06:59:55.163867+00:00",
+     "url": "https://zellmannimmobilien.qr1.at/czellmann"
+    }
+   ],
+   "first_seen": "2026-10-24T06:59:55.163867+00:00",
+   "host": "zellmannimmobilien.qr1.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T06:59:55.163867+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 2
+   },
+   "status": "nije_relevantno",
+   "title": "Christian Zellmann - Visitenkarte Christian Zellmann - Visitenkarte Christian Zellmann"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T01:10:37.930983+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Hier finden Sie unser Immobilenangebot",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/steiermark/murtal/uriges-holz-chalet-mit-herrlichem-bergpanorama-hohentauern-821867282/",
+     "seen": "2026-10-24T01:10:37.831503+00:00",
+     "url": "https://www.zweitwohnsitze.com/"
+    }
+   ],
+   "first_seen": "2026-10-24T01:10:37.831503+00:00",
+   "host": "zweitwohnsitze.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "signals": {
+    "areas": 10,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 13,
+    "property_words": 33
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Zweitwohnsitze kaufen | Chalets & Ferienimmobilien in den Alpen Zweitwohnsitze in den Alpen kaufen"
+  }
+ ],
  "schema_version": 1,
- "updated_at": "2026-10-23T16:44:58.574837+00:00"
+ "updated_at": "2026-10-24T06:59:55.163867+00:00",
+ "verified_at": "2026-10-24T06:59:55.269871+00:00"
 }
