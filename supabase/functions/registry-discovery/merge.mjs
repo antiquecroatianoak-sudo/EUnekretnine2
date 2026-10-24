@@ -1,6 +1,15 @@
 import {COUNTRIES} from './domain.mjs';
 import {assessEvidence} from './verification.mjs';
 const CLOSURE_KEYS=['source_listing_state','source_status_evidence','call_currency','availability'];
+const PROPERTY_COUNTRY_HOSTS=new Set(['immonestor.at','adamant-immobilien.at','immolution.at','raiffeisen-immobilien.at','zweitwohnsitze.com']);
+export function candidateCountry(row,source){
+ const host=new URL(source.url).hostname.replace(/^www\./,'');
+ if(row.kind==='property'&&PROPERTY_COUNTRY_HOSTS.has(host)){
+  if(!Object.hasOwn(COUNTRIES,row.country))throw Error('Missing supported property country');
+  return COUNTRIES[row.country];
+ }
+ return COUNTRIES[source.country]||({'France':'Francuska'}[source.country])||source.country;
+}
 // Same rule as public_land_sources.reopens: only an explicit active state with a
 // future deadline is new evidence that a closed call reopened.
 export function reopens(facts,now=Date.now()){
@@ -11,7 +20,7 @@ export function reopens(facts,now=Date.now()){
 // earlier evidence are kept; a field missing from the new fetch is reported, not erased.
 export function mergeCandidate(existing,row,source,now=Date.now()){
  let prior={};try{prior=JSON.parse(existing?.body_json||'{}')}catch{}
- const merged={...prior,...row,id:existing?.id||row.id,source_id:existing?.source_id||row.source_id,country:COUNTRIES[source.country]||({'France':'Francuska'}[source.country])||source.country,first_seen:prior.first_seen||row.first_seen,status:prior.status||'Za provjeru',verified:prior.verified===true};
+ const merged={...prior,...row,id:existing?.id||row.id,source_id:existing?.source_id||row.source_id,country:candidateCountry(row,source),first_seen:prior.first_seen||row.first_seen,status:prior.status||'Za provjeru',verified:prior.verified===true};
  // Retain user review fields and prior suggestions. Source evidence is refreshed separately.
  if(prior.match_suggestions)merged.match_suggestions=prior.match_suggestions;
  merged.facts={...(prior.facts||{})};
@@ -34,3 +43,4 @@ export function mergeCandidate(existing,row,source,now=Date.now()){
  merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';
  return merged;
 }
+
