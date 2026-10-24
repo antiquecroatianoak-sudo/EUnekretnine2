@@ -289,6 +289,18 @@ def buyer_source(source):
 def listing_record(source,url,page,kind,now):
     title=(page.meta.get('og:title') or page.meta.get('twitter:title') or ' '.join(page.title)).strip()
     nodes=[v for script in page.scripts for v in objects(script)]
+    if kind=='property' and hostkey(urlsplit(url).hostname) in ('immonestor.at','adamant-immobilien.at','immolution.at'):
+        # Recommendations share the document but must never supply the current price.
+        identity=lambda value: (hostkey(urlsplit(urljoin(url,value)).hostname),urlsplit(urljoin(url,value)).path.rstrip('/'))
+        primary=[n for n in nodes if n.get('@type')=='RealEstateListing' and isinstance(n.get('url'),str) and identity(n['url'])==identity(url)]
+        if not primary:raise ValueError('No structured listing matching the current URL')
+        primary=primary[0];offer=primary.get('offers',{})
+        if not isinstance(offer,dict) or offer.get('@type')!='OfferForPurchase':
+            raise ValueError('No explicit purchase offer for the current listing')
+        nodes=[primary]
+        item=offer.get('itemOffered',{})
+        if isinstance(item,dict):nodes.append(item)
+        title=primary.get('name') or title
     if source.get('import_config',{}).get('require_structured_listing') and kind=='property':
         if not any(set([n.get('@type')] if isinstance(n.get('@type'),str) else n.get('@type',[])) & {'RealEstateListing','Apartment','House','Residence','SingleFamilyResidence'} for n in nodes):
             raise ValueError('No structured listing title/type; adapter needs review')
@@ -626,6 +638,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
