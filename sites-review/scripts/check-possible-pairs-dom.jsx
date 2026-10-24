@@ -267,4 +267,74 @@ if(process.env.PAIRS_RESPONSE&&existsSync(process.env.PAIRS_RESPONSE)){
  assert.equal($$('.match-card').length,realResponse.expected_candidates,'rendered from the real API response');
  await act(async()=>root.unmount());realChecked=true;
 }
+// 9. The comparison is rendered from the same stored result as the card score, including 100% with open checks.
+const reviewData=dataset(true);
+reviewData.match_results=[
+ {property_id:1,investor_id:10,result_json:JSON.stringify({status:'Kandidat - potrebna provjera',score:100,reasons:['Država'],missing:['Dokaz pravne provjere'],rejected:[]})},
+ {property_id:2,investor_id:11,result_json:JSON.stringify({status:'Ne odgovara kriterijima',score:75,reasons:['Država'],missing:[],rejected:['Površina']})},
+ {property_id:3,investor_id:11,result_json:JSON.stringify({status:'Kandidat - potrebna provjera',score:50,reasons:['Država'],missing:['Vrsta nekretnine'],rejected:[]})}
+];
+root=await split(true,true,reviewData);
+await act(async()=>{[...document.querySelectorAll('nav button')].find(b=>b.textContent==='Podudaranja').click()});
+assert.equal($$('.match-card').length,3);
+for(const card of $$('.match-card')){
+ assert(card.querySelector('.pair-review details'));
+ assert(card.textContent.includes('Zahtjev kupca')&&card.textContent.includes('Nekretnina'));
+ assert(card.textContent.includes('Bodovani kriteriji:'));
+}
+const missingAt100=$$('.match-card').find(c=>c.textContent.includes('Zemljište Galway'));
+assert(missingAt100.querySelector('.match-score').textContent.includes('100'));
+assert(missingAt100.querySelector('.pair-next').textContent.includes('Dokaz pravne provjere'));
+const rejectedCard=$$('.match-card').find(c=>c.textContent.includes('Stan Split'));
+assert(rejectedCard.querySelector('.pair-blocker').textContent.includes('Površina'),'critical mismatch stays visible even with 75%');
+await act(async()=>root.unmount());
+// 10. A large catalogue searches the server, follows keyset continuation and keeps errors explicit.
+const large=dataset(true);large.counts={properties:10125,investors:10042};large.truncated={properties:true,investors:true};large.loaded_at='test-large';
+const catalogRequests=[];
+root=await mountWith(async(url,options={})=>{
+ if(options.method==='POST'){
+  const body=JSON.parse(options.body);if(body.action==='catalog'){
+   catalogRequests.push(body);
+   if(body.query==='fail')return {ok:false,json:async()=>({error:'test catalogue unavailable'})};
+   const tail=body.query==='last';return {ok:true,json:async()=>({table:body.table,items:tail?[{id:10125,title:'Last record',name:'Last buyer',country:'Hrvatska'}]:body.after?[{id:10125,title:'Tail record',name:'Tail buyer',country:'Hrvatska'}]:[{id:1,title:'First record',name:'First buyer',country:'Hrvatska'}],total:tail?1:10125,next:tail||body.after?null:1,through:10125,has_more:!tail&&!body.after})};
+  }return {ok:true,json:async()=>({})};
+ }return {ok:true,json:async()=>large};
+});
+await act(async()=>{[...document.querySelectorAll('nav button')].find(b=>b.textContent==='Nekretnine').click()});
+await act(async()=>{await new Promise(r=>setTimeout(r,250))});
+assert(document.body.textContent.includes('First record'));assert(document.body.textContent.includes('10.125'));
+await act(async()=>button('Učitaj sljedećih 100').click());
+assert(document.body.textContent.includes('Tail record'));assert.equal(catalogRequests.at(-1).after,1);assert.equal(catalogRequests.at(-1).through,10125);
+const beforeQuiet=catalogRequests.length;large.loaded_at='quiet-refreshed';await act(async()=>{document.dispatchEvent(new window.Event('visibilitychange'))});await act(async()=>{await new Promise(r=>setTimeout(r,250))});assert.equal(catalogRequests.length,beforeQuiet,'quiet refresh preserves the active catalogue cursor');assert(document.body.textContent.includes('Tail record'));
+await setValue($('input[aria-label="Pretraživanje"]'),'last');await act(async()=>{await new Promise(r=>setTimeout(r,250))});
+assert(document.body.textContent.includes('Last record'));assert.equal(catalogRequests.at(-1).query,'last');assert.equal(catalogRequests.at(-1).after,undefined,'filter resets cursor');
+await setValue($('input[aria-label="Pretraživanje"]'),'fail');await act(async()=>{await new Promise(r=>setTimeout(r,250))});
+assert(document.body.textContent.includes('test catalogue unavailable'),'failure cannot masquerade as zero');assert(!document.body.textContent.includes('Nema nekretnina za odabrane kriterije.'));
+await act(async()=>root.unmount());
+// 11. Activities can select records beyond the initial page; source drafts fetch their linked ID.
+const activityData={...dataset(true),activity:[],counts:{properties:10125,investors:10125,source_candidates:2},truncated:{properties:true,investors:true},source_candidates:[{id:'buyer-tail',kind:'buyer',title:'Buyer draft outside page',investor_id:10125,body_json:'{}'},{id:'property-hidden',kind:'property',title:'Hidden property draft',property_id:10125,body_json:'{}'}]};
+const activityPosts=[];
+root=await mountWith(async(url,options={})=>{
+ if(options.method==='POST'){
+  const body=JSON.parse(options.body);activityPosts.push(body);
+  if(body.action==='catalog')return {ok:true,json:async()=>({items:[{id:10125,title:'Tail property',name:'Tail buyer',country:'Hrvatska',criteria_json:'{}'}],total:1,has_more:false,next:null,through:10125})};
+  return {ok:true,json:async()=>({})};
+ }return {ok:true,json:async()=>activityData};
+});
+await act(async()=>{[...document.querySelectorAll('nav button')].find(b=>b.textContent==='Postupci').click()});await act(async()=>button('Nova aktivnost').click());await act(async()=>{await new Promise(r=>setTimeout(r,250))});
+await setValue($('select[aria-label="Odaberi nekretninu"]'),'10125');await setValue($('select[aria-label="Odaberi kupca"]'),'10125');
+await act(async()=>button('Spremi promjene').click());
+assert(activityPosts.some(p=>p.action==='activity'&&p.property_id==='10125'&&p.investor_id==='10125'),'both activity selectors reach beyond the initial 100');
+await act(async()=>{[...document.querySelectorAll('nav button')].find(b=>b.textContent.startsWith('Izvori')).click()});
+assert(!document.body.textContent.includes('Hidden property draft'),'unverified property evidence stays out of source UI');
+await act(async()=>button('Otvori nacrt').click());
+assert(activityPosts.some(p=>p.action==='catalog'&&p.record_id===10125),'linked draft lookup is by exact id');assert.equal($('input[name="name"]').value,'Tail buyer');
+await act(async()=>root.unmount());
+// 12. An archived former match has a historical score and no current positive recommendation.
+const historical={status:'Podudaranje kriterija',score:100,reasons:['Država'],missing:[],rejected:[]};
+root=await mountWith(async(url,options={})=>options.method==='POST'?{ok:true,json:async()=>({current:null,record:{result_json:JSON.stringify(historical)},tasks:[],answers:[],history:[],stages:[]})}:{ok:true,json:async()=>dataset(true)});
+await act(async()=>button('Mogući parovi').click());await act(async()=>button('Detalj para').click());
+assert($('[role="dialog"]').textContent.includes('Povijesna spremljena ocjena'));assert($('[role="dialog"]').textContent.includes('100 %'));assert(!$('[role="dialog"]').textContent.includes('Kriteriji su zadovoljeni prema spremljenom izračunu.'));
+await act(async()=>root.unmount());
 console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted'+(realChecked?'; real API response rendered with every stored candidate.':' (real API response not supplied).'));
+

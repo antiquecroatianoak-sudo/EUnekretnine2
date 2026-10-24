@@ -1,3 +1,4 @@
+import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
@@ -16,21 +17,22 @@ const refresh=refreshSuggestions;
 // sends anything (this function has no sending path); internal review and manual entry are never blocked.
 const settings=()=>({business_phase:Deno.env.get('BUSINESS_PHASE')==='on'});
 // Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
-const PROPERTY_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())`;
-const INVESTOR_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed'))`;
-// Row caps per table. Large tables return their newest rows plus the true count, so the UI never shows a
-// truncated table as complete; source candidates page through `sources`.
-const LIMITS={properties:10000,investors:10000,sources:10000,source_candidates:500,discovery_runs:2000,activity:500,notification_outbox:2000,match_results:10000};
+// Bounded initial payload. Catalogues continue through `catalog` keyset pages with server-side
+// search; source candidates continue through `sources`. These are page sizes, never overall maxima.
+const LIMITS={properties:100,investors:100,sources:10000,source_candidates:500,discovery_runs:2000,activity:500,notification_outbox:2000,match_results:10000};
 async function list(tx){
  const tables=Object.keys(LIMITS);
  const values=await Promise.all(tables.map(t=>{
  if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
  if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
  if(t==='source_candidates')return tx`select * from source_candidates order by last_seen desc,id limit ${LIMITS.source_candidates}`;
- if(t==='activity')return tx`select * from activity order by id desc limit ${LIMITS.activity}`;
+ if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id order by a.id desc limit ${LIMITS.activity}`;
  return tx`select * from ${tx(t)} order by 1 limit ${LIMITS[t]}`;
 }));
  const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
+  (select count(*) from properties)::int as properties_all,(select count(*) from investors)::int as investors_all,
+  (select count(*) from properties p where site_private.property_eligible(p) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
+  (select count(*) from investors i where site_private.investor_eligible(i) and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
   (select count(*) from sources)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
   (select count(*) from activity)::int as activity,(select count(*) from notification_outbox)::int as notification_outbox,(select count(*) from match_results)::int as match_results`;
  const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
@@ -90,14 +92,15 @@ const optional=(v,max,label)=>v==null||v===''?null:text(v,max,label);
 // Permanent pair record with its history, review tasks, answers and stages (read only).
 async function pair(tx,a){
  const p=pairId(a.property_id),i=pairId(a.investor_id);
- const [record,history,tasks,answers,stages,current]=await Promise.all([
+ const [record,history,tasks,answers,stages,current,properties,investors]=await Promise.all([
   tx`select * from site_private.pair_records where property_id=${p} and investor_id=${i}`,
   tx`select * from site_private.pair_history where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 100`,
   tx`select requirement,status,status_reason,verification_method,checked_at,evidence,updated_at from site_private.match_review_tasks where property_id=${p} and investor_id=${i} order by requirement`,
   tx`select * from site_private.pair_answers where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 200`,
   tx`select * from site_private.pair_stages where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc`,
-  tx`select result_json,updated from match_results where property_id=${p} and investor_id=${i}`]);
- return {record:record[0]||null,history,tasks,answers,stages,current:current[0]||null};
+  tx`select result_json,updated from match_results where property_id=${p} and investor_id=${i}`,
+  tx`select * from properties where id=${p}`,tx`select * from investors where id=${i}`]);
+ return {record:record[0]||null,history,tasks,answers,stages,current:current[0]||null,property:properties[0]||null,investor:investors[0]||null};
 }
 // A question is only a draft: it is stored for review and never sent from here.
 async function pairQuestion(tx,a){
@@ -159,6 +162,7 @@ async function dispatch(tx,a){
  if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='pairs')return await pairsRead(tx);
+ if(a.action==='catalog'){const value=String(a.country||'');return await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]})}
  if(a.action==='sources')return await sourcesPage(tx,a);
  if(a.action==='pair_diagnostics')return await pairDiagnostics(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};
@@ -201,7 +205,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(['read','pair','pairs','sources','pair_diagnostics'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','catalog','pair_diagnostics'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}
@@ -209,3 +213,4 @@ Deno.serve(async req=>{
   });return reply(result);
  }catch(e){console.error('platform request failed',e?.code||e?.name);return reply({error:e?.name==='PostgresError'?'Baza nije spremila promjene. Pokušaj ponovno nakon provjere veze.':String(e?.message||'Zahtjev nije izvršen.')},400)}
 });
+
