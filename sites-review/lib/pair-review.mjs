@@ -15,7 +15,7 @@ export function pairReview(result,property={},investor={}){
   [ACTIVE_CHECK]:['Aktivan oglas',property.status||unknown],
   [BUYER_RECORD]:['Potpun i aktualan zahtjev kupca',[list(c.property_types),list(c.conditions),c.source_url,c.checked_at].filter(Boolean).join(' · ')],
   'Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana':[c.source_url||unknown,c.checked_at||unknown],
-  'Država':[list(String(investor.preferred_countries|| (Array.isArray(c.preferred_countries)?c.preferred_countries.join(','):'') ).split(',').map(v=>country(v.trim())).filter(Boolean)),country(property.country)||unknown],
+  'Država':[list((String(investor.preferred_countries||'').trim()||(Array.isArray(c.preferred_countries)?c.preferred_countries.join(','):'')).split(',').map(v=>country(v.trim())).filter(Boolean)),country(property.country)||unknown],
   'Vrsta nekretnine':[list(c.property_types),property.property_type||unknown],
   'Stanje / obnova / rušenje':[list(c.conditions),property.condition||unknown],
   'Grad':[list(c.cities),property.city||unknown],

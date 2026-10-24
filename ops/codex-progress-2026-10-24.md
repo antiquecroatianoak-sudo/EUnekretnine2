@@ -43,3 +43,5 @@ Neovisni pregled izvornog koda našao je i ispravljeni su: izbor zapisa iza poč
 Pregled u stvarnom pregledniku s izoliranim testnim podacima: okviri širine 390 i 360 px, kartica i proširena usporedba te dijalog detalja. Provjereni scrollWidth/clientWidth jednaki su za dokument (375/375 i 345/345) i detalj (325/325); nema horizontalnog prelijevanja u tim prikazima. Ovo je test mobilnih dimenzija u pregledniku, ne tvrdnja o provjeri na vlasnikovu fizičkom uređaju niti o čitanju produkcijskih privatnih podataka.
 
 Posljednji prethodni CI 40080662002 na 82f1ab70643db8f72e00766e4540e4a8369398f4: completed/success. Nakon ovih ispravaka potrebno je potvrditi novi CI i ponovno neovisno pregledati popravke prije spajanja i objave.
+
+Neovisni ponovljeni pregled ispravaka: bez preostalih blokirajućih nalaza. Neovisno ponovljeni pair-review i PostgreSQL/PGlite katalog testovi prošli. Mobilni pregled u pregledniku opisan iznad također dovršen. Dodatna sitna dorada: tipka otvaranja nacrta onemogućena za vrijeme dohvata i trim fallback država u prikazu usklađen sa suggestion().
