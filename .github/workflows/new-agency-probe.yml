@@ -30,7 +30,11 @@ jobs:
           ]
           for url in urls:
               try:
-                  page=Page(Fetcher(url).get(url))
+                  html=Fetcher(url).get(url)
+                  page=Page(html)
+                  if 'raiffeisen' in url:
+                      import re
+                      print('RAIFFEISEN_MARKUP '+json.dumps([html[max(0,m.start()-500):m.end()+900] for m in re.finditer(r'Kaufpreis|Wohnfl.che|addressCountry|postalCode|<main|</main|itemprop=',html)][:50],ensure_ascii=False),flush=True)
                   nodes=[obj for script in page.scripts for obj in objects(script)]
                   result=dict(url=url,title=page.title,structured=nodes[:12],links=page.links[:100],text=' '.join(page.text)[:24000])
               except Exception as error:
