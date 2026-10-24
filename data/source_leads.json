@@ -3,7 +3,7 @@
   "blokirano": 1,
   "kandidat_nekretnine": 8,
   "nedostupno": 5,
-  "nije_relevantno": 6,
+  "nije_relevantno": 8,
   "robots_zabrana": 2
  },
  "leads": [
@@ -37,6 +37,34 @@
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T13:01:23.837633+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "https://app.immoviewer.com/portal/tour/3156674?accessKey=6a6f",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1230-liesing/einfamilienhaus-mit-salzwasserpool-wintergarten-garage-und-zwei-carports-2099373971/",
+     "seen": "2026-10-24T13:01:23.745437+00:00",
+     "url": "https://app.immoviewer.com/portal/tour/3156674"
+    }
+   ],
+   "first_seen": "2026-10-24T13:01:23.745437+00:00",
+   "host": "app.immoviewer.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 1
+   },
+   "status": "nije_relevantno",
+   "title": "960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten, Garage und zwei Carports - Immoviewer 960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": null,
    "evidence": [
@@ -52,7 +80,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -80,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "nedostupno"
   },
   {
@@ -100,7 +128,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "nedostupno"
   },
   {
@@ -140,7 +168,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -354,7 +382,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "blokirano"
   },
   {
@@ -374,7 +402,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "nedostupno"
   },
   {
@@ -422,7 +450,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -466,6 +494,34 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Immobilien | Raiffeisen Immobilien Immobilien"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-24T13:01:23.837633+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.ringsmuth-immobilien.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1190-doebling/historisches-stadthaus-mit-entwicklungspotenzial-in-nussdorf-vielseitige-nutzungsmoeglichkeiten-rohdachboden-mit-ausbaupotenzial-gewoelbekeller-1827383485/",
+     "seen": "2026-10-24T13:01:23.745437+00:00",
+     "url": "https://www.ringsmuth-immobilien.at/"
+    }
+   ],
+   "first_seen": "2026-10-24T13:01:23.745437+00:00",
+   "host": "ringsmuth-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 27
+   },
+   "status": "nije_relevantno",
+   "title": "Alexander Ringsmuth GmbH | Immobilienvermittlung Wien, NÖ, OÖ & Stmk Alexander Ringsmuth GmbH Wertschätzung & Expertise für Ihre Immobilie in Österreich"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -560,7 +616,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T09:37:27.440685+00:00",
+   "last_seen": "2026-10-24T13:01:23.745437+00:00",
    "status": "nedostupno"
   },
   {
@@ -621,6 +677,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T09:37:27.440685+00:00",
- "verified_at": "2026-10-24T09:37:27.517651+00:00"
+ "updated_at": "2026-10-24T13:01:23.745437+00:00",
+ "verified_at": "2026-10-24T13:01:23.837633+00:00"
 }
