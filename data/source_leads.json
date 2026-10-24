@@ -1,7 +1,7 @@
 {
  "counts": {
-  "blokirano": 1,
-  "kandidat_nekretnine": 8,
+  "blokirano": 2,
+  "kandidat_nekretnine": 9,
   "nedostupno": 6,
   "nije_relevantno": 9,
   "robots_zabrana": 3
@@ -34,6 +34,34 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Home - ADAMANT IMMOBILIEN GmbH Willkommen bei ADAMANT IMMOBILIEN GMBH – Ihr zuverlässiger Partner in der Immobilienwelt,"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-24T16:05:56.046398+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1210-floridsdorf/neu-jetzt-alles-dabei-familienhaus-mit-921-m-grund-1456233352/",
+     "seen": "2026-10-24T16:05:55.948565+00:00",
+     "url": "https://www.alexander-taubenkorb.at/immobilien/1210-salomongasse"
+    }
+   ],
+   "first_seen": "2026-10-24T16:05:55.948565+00:00",
+   "host": "alexander-taubenkorb.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
+   "signals": {
+    "areas": 10,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 8,
+    "property_words": 4
+   },
+   "status": "kandidat_nekretnine",
+   "title": "NEU: Jetzt alles dabei! Familienhaus mit 921 m² Grund | Immobilienmakler in Mödling | Ing. Mag. Alexander Taubenkorb Zu kaufen NEU: Jetzt inklusive hinterem Gru"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -80,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -108,7 +136,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "nedostupno"
   },
   {
@@ -128,7 +156,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "nedostupno"
   },
   {
@@ -148,7 +176,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -188,7 +216,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -208,7 +236,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "nedostupno"
   },
   {
@@ -422,7 +450,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "blokirano"
   },
   {
@@ -448,7 +476,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -476,7 +504,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "nedostupno"
   },
   {
@@ -508,6 +536,26 @@
    "title": "Kostenlose Immobilienbewertung in 3 Minuten online : Kuttenberger Immobilien"
   },
   {
+   "check_note": "HTTP 403",
+   "checked_at": "2026-10-24T16:05:56.046398+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Rundgang durch die Immobilie",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/tulln/top-gepflegtes-4-zimmer-haus-in-stettenhof-mit-garten-terrasse-2-stellplaetzen-1271983425/",
+     "seen": "2026-10-24T16:05:55.948565+00:00",
+     "url": "https://my.matterport.com/show/"
+    }
+   ],
+   "first_seen": "2026-10-24T16:05:55.948565+00:00",
+   "host": "my.matterport.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
+   "status": "blokirano"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": "HR",
@@ -524,7 +572,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -690,7 +738,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "nedostupno"
   },
   {
@@ -710,7 +758,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -751,6 +799,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T15:50:03.901748+00:00",
- "verified_at": "2026-10-24T15:50:03.992575+00:00"
+ "updated_at": "2026-10-24T16:05:55.948565+00:00",
+ "verified_at": "2026-10-24T16:05:56.046398+00:00"
 }
