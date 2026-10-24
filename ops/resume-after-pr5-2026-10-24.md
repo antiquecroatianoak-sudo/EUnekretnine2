@@ -19,3 +19,9 @@ VAŽNO: raniji prolaz osnovnih testova nije konačni prolaz. Najnovije proširen
 Sljedeće: locirati neuspjelu tvrdnju i ispraviti očuvanje kriterija; ponoviti regresije; završiti neovisni pregled i GitHub CI. Procjena pri pauzi: još 20–30 minuta aktivnog rada za ovu cjelinu, okvirno, nije rok. Nakon toga preostaju dovršeni izvještaj/provjera novih izvora i provjera vlasnikova prijavljenog računa. Probni pregled objavljene aplikacije u odvojenom pregledniku završio je na zaslonu za prijavu; prijavljeni prikaz još nije potvrđen. Ne znači da je vlasnik odjavljen na telefonu.
 
 Poslovna pravila: budžet nije obvezan i ne utječe na uspješnost/podudarnost; nepotpuni potencijalni parovi ostaju za ručnu provjeru i dopunu. Ne aktivirati izvore niti tvrditi da je produkcija ažurirana ovim nacrtom.
+
+## Nastavak — završne lokalne provjere
+
+Vlasnik je ponovno zatražio nastavak. Neuspjeh `900 !== 1200` bio je nedosljedan valjani test: minimum 1200 uz maksimum 1100. Ispravljen valjani primjer na 1200–1500; dodane zasebne regresije za obrnuti raspon (stare valjane vrijednosti ostaju), jednake granice i samo jednu poznatu granicu. Cijeli test-source-buyer-sync.mjs sada prolazi u izoliranoj PGlite bazi. Prošli i test_verification, test_public_land, test_domain_input, test-platform-view, test-pair-review, test-teaser. Projektni AGENTS.md trajno bilježi obvezne provjere budućeg kodiranja.
+
+GitHub CI za 112bb683833351fe0bc1212878383338c6394649 pri zadnjoj provjeri još in_progress (run 40101457795); nije potvrđen konačan prolaz. Prošireni lokalni testovi nisu dokaz primjene u produkciji. Migracija nije primijenjena, PR6 nije spojen. Preostaju završni pregled kombiniranja novih i zadržanih granica kriterija, provjera GitHub CI, izvještaj izvora i prijavljeni UI.

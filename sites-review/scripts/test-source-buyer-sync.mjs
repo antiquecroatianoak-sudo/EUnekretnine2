@@ -37,6 +37,12 @@ try{
  await upsert('invalid-range',base);await sync('invalid-range');
  await upsert('invalid-range',{...base,min_area_m2:1200,max_area_m2:1100});await sync('invalid-range');
  const invalidRange=await buyer('invalid-range');assert.equal(invalidRange.criteria.min_area_m2,900);assert.equal(invalidRange.criteria.max_area_m2,1100);
+ // Equal bounds and a single known bound are valid.
+ await upsert('equal-range',{...base,min_area_m2:1100,max_area_m2:1100});await sync('equal-range');
+ assert.equal((await buyer('equal-range')).criteria.min_area_m2,1100);
+ const singleBound={...base,min_area_m2:1000};delete singleBound.max_area_m2;
+ await upsert('single-range',singleBound);await sync('single-range');
+ assert.equal((await buyer('single-range')).criteria.min_area_m2,1000);assert.equal((await buyer('single-range')).criteria.max_area_m2,undefined);
  const firstChecked=b.criteria.checked_at;
  await upsert('test-full',{...base,min_area_m2:1200,max_area_m2:1500,preferred_countries:['ES'],required_criteria:['Documented road']});await sync('test-full');b=await buyer('test-full');
  assert.equal(b.criteria.min_area_m2,1200);assert.equal(b.preferred_countries,'Španjolska');assert.equal(b.criteria.checked_at,firstChecked,'fetch never extends human verification');
