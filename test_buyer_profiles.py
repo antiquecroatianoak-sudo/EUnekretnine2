@@ -45,5 +45,19 @@ class BuyerProfileTests(unittest.TestCase):
  def test_rules_cannot_inject_arbitrary_fields(self):
   c=copy.deepcopy(CONFIG);c["fields"].append(dict(field="verified",value=True,evidence=QUOTE))
   with self.assertRaises(ValueError):self.parse(config=c)
+ def test_normal_import_uses_reviewed_profile_evidence(self):
+  import time
+  from unittest.mock import patch
+  from registry_discovery import process
+  quote='We acquire residential development land in Croatia.'
+  c=copy.deepcopy(CONFIG);c['intent_evidence']=quote;c['fields'][0]['evidence']=quote
+  html='<h1>Acquisition profile</h1>'+TEXT.replace(QUOTE,quote)
+  class Fetch:
+   def get(self,url):return html
+  source=dict(id=113,country='HR',url=URL,category='Investitor',import_config={'buyer_profile':c})
+  with patch('registry_discovery.safe_url',side_effect=lambda u,r:u):
+   rows,state=process(source,None,Fetch(),time.monotonic()+5,1)
+  self.assertIsNone(state['error']);self.assertEqual(len(rows),1);self.assertFalse(rows[0]['verified'])
 
 if __name__=="__main__":unittest.main()
+
