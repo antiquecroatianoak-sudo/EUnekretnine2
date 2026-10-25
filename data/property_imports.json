@@ -1,0 +1,475 @@
+{
+ "checked_at": "2026-10-25T20:07:33.441683+00:00",
+ "results": [
+  {
+   "source_id": "registry-1",
+   "id": "1",
+   "name": "SodneDrazbe.si",
+   "url": "https://sodnedrazbe.si/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-10",
+   "id": "10",
+   "name": "Ministerio de Hacienda – Subasta Noviembre 2026 (Granada)",
+   "url": "https://www.hacienda.gob.es/es-ES/Areas%20Tematicas/Patrimonio%20del%20Estado/Gestion%20Patrimonial%20del%20Estado/Paginas/Investigacion/DEH-GRANADA/Subasta-Noviembre-2026.aspx",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "id": "107",
+   "source_id": "registry-107",
+   "status": "buyer_profile_not_property_catalogue"
+  },
+  {
+   "id": "110",
+   "source_id": "registry-110",
+   "status": "buyer_profile_not_property_catalogue"
+  },
+  {
+   "source_id": "registry-114",
+   "id": "114",
+   "name": "Invest in Italy Real Estate — ICE",
+   "url": "https://www.investinitalyrealestate.com/it/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.investinitalyrealestate.com/it/properties/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.investinitalyrealestate.com/it/property/palazzo-dei-priori-a-todi-locali-in-piazza-principale-di-todi-ex-sede-della-banca-monte-dei-paschi-di-siena-s-p-a/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-13",
+   "id": "13",
+   "name": "FINA Očevidnik nekretnina i pokretnina",
+   "url": "https://ponip.fina.hr/ocevidnik-web/pocetna",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-28",
+   "id": "28",
+   "name": "Immobilier.notaires.fr — dražbe",
+   "url": "https://www.immobilier.notaires.fr/fr/vente-aux-encheres-adjudication",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-66",
+   "id": "66",
+   "name": "RE/MAX Austria",
+   "url": "https://www.remax.at/de/immobilien",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-68",
+   "id": "68",
+   "name": "Bulgarian Properties",
+   "url": "https://www.bulgarianproperties.com/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.bulgarianproperties.com/sale_properties/index.html",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.bulgarianproperties.com/1-bedroom_apartments_in_Bulgaria/AD90025BG_1-bedroom_apartment_for_sale_in_Bansko.html",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-69",
+   "id": "69",
+   "name": "FOX Realty",
+   "url": "https://foxrealty.com.cy/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "ValueError: robots.txt disallows this URL",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-70",
+   "id": "70",
+   "name": "M&M Reality",
+   "url": "https://www.mmreality.cz/nemovitosti/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-71",
+   "id": "71",
+   "name": "VON POLL Immobilien",
+   "url": "https://www.von-poll.com/de/immobilien",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-72",
+   "id": "72",
+   "name": "EDC",
+   "url": "https://www.edc.dk/bolig/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-73",
+   "id": "73",
+   "name": "Uus Maa",
+   "url": "https://uusmaa.ee/en/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-74",
+   "id": "74",
+   "name": "Tecnocasa España",
+   "url": "https://www.tecnocasa.es/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.tecnocasa.es/aticos-en-venta.html",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.tecnocasa.es/venta/piso/andalucia/almeria/almeria.html",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-75",
+   "id": "75",
+   "name": "Kiinteistömaailma",
+   "url": "https://www.kiinteistomaailma.fi/myytavat_asunnot",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-79",
+   "id": "79",
+   "name": "Duna House",
+   "url": "https://dh.hu/elado-ingatlan",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-80",
+   "id": "80",
+   "name": "Sherry FitzGerald",
+   "url": "https://www.sherryfitz.ie/buy",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.sherryfitz.ie/properties/search",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.sherryfitz.ie/properties/search?type=auction",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-81",
+   "id": "81",
+   "name": "Tecnocasa Italia",
+   "url": "https://www.tecnocasa.it/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-82",
+   "id": "82",
+   "name": "Ober-Haus Lithuania",
+   "url": "https://www.ober-haus.lt/en/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.ober-haus.lt/en/services/property-management/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.ober-haus.lt/en/services/property-and-business-valuation/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-83",
+   "id": "83",
+   "name": "INOWAI",
+   "url": "https://www.inowai.com/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.inowai.com/property-management-inowai/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-84",
+   "id": "84",
+   "name": "Latio",
+   "url": "https://latio.lv/en/properties",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://latio.lv/en/properties-title/exclusive-offers",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://latio.lv/en/properties/139627",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-85",
+   "id": "85",
+   "name": "Frank Salt",
+   "url": "https://franksalt.com.mt/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://franksalt.com.mt/properties?mode=buy&sort=recommend&priceFrom=&priceTo=&bathrooms=&bedrooms=&features=&sole-agency=false&featured-property=false&buyer-types=&min-size=&max-size=&pg=1",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://franksalt.com.mt/property-types/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-86",
+   "id": "86",
+   "name": "Brockhoff",
+   "url": "https://brockhoff.nl/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 406: Not Acceptable",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-87",
+   "id": "87",
+   "name": "Metrohouse",
+   "url": "https://metrohouse.pl/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-88",
+   "id": "88",
+   "name": "RE/MAX Portugal",
+   "url": "https://remax.pt/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-89",
+   "id": "89",
+   "name": "RE/MAX Romania",
+   "url": "https://www.remax.ro/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-9",
+   "id": "9",
+   "name": "Državne nekretnine – natječaj K-4/26",
+   "url": "https://hr-nekretnine.hr/natjecaji/natjecaj-za-prodaju-nekretnina-k-4-26/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://hr-nekretnine.hr/natjecaji/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://hr-nekretnine.hr/",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-90",
+   "id": "90",
+   "name": "Fastighetsbyrån",
+   "url": "https://www.fastighetsbyran.com/sv/sverige",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 406: Not Acceptable",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-91",
+   "id": "91",
+   "name": "Stoja",
+   "url": "https://www.stoja-trade.si/en/nepremicnine/prodaja",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [
+    {
+     "url": "https://www.stoja-trade.si/en/nepremicnine/novogradnje",
+     "reason": "primary_identity_missing_or_ambiguous"
+    },
+    {
+     "url": "https://www.stoja-trade.si/nepremicnine/prodaja",
+     "reason": "primary_identity_missing_or_ambiguous"
+    }
+   ],
+   "status": "format_or_evidence_required"
+  },
+  {
+   "source_id": "registry-92",
+   "id": "92",
+   "name": "RE/MAX Slovakia",
+   "url": "https://www.remax-slovakia.sk/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-97",
+   "id": "97",
+   "name": "Gobidreal – dražbe nekretnina",
+   "url": "https://www.gobidreal.it/it/aste/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T20:07:33.441683+00:00"
+  },
+  {
+   "source_id": "registry-98",
+   "id": "98",
+   "name": "Immo Notaires Enchères – javnobilježničke dražbe",
+   "url": "https://immonotairesencheres.com/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  },
+  {
+   "source_id": "registry-99",
+   "id": "99",
+   "name": "Licitor – sudske dražbe nekretnina",
+   "url": "https://www.licitor.com/",
+   "checked_at": "2026-10-25T20:07:33.441683+00:00",
+   "inserted": 0,
+   "updated": 0,
+   "rejections": [],
+   "status": "no_structured_detail_links"
+  }
+ ],
+ "counts": {
+  "buyer_profile_not_property_catalogue": 2,
+  "no_structured_detail_links": 15,
+  "format_or_evidence_required": 10,
+  "failed": 7
+ },
+ "activation_performed": false,
+ "coverage_complete": false
+}
