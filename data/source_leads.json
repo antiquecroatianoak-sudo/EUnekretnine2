@@ -1,9 +1,9 @@
 {
  "counts": {
-  "blokirano": 2,
-  "kandidat_nekretnine": 11,
+  "blokirano": 3,
+  "kandidat_nekretnine": 12,
   "nedostupno": 6,
-  "nije_relevantno": 9,
+  "nije_relevantno": 10,
   "robots_zabrana": 3
  },
  "leads": [
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -118,6 +118,34 @@
    },
    "status": "nije_relevantno",
    "title": "Immobilier d’Entreprise et Hôtellerie | Bouygues immobilier Immobilier d’Entreprise et Hôtellerie"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-25T07:03:38.627464+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Jetzt Besichtigungstermin buchen!",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/oberoesterreich/linz/charmantes-haus-mit-grossem-potenzial-in-begehrter-lage-nahe-schloss-ebelsberg-1943493322/",
+     "seen": "2026-10-25T07:03:38.544797+00:00",
+     "url": "https://calendly.com/office-girkinger-immobilien/besichtigungstermin"
+    }
+   ],
+   "first_seen": "2026-10-25T07:03:38.544797+00:00",
+   "host": "calendly.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": "Calendly"
   },
   {
    "check_note": "Cross-source URL rejected: https://jobs.smartrecruiters.com/",
@@ -136,7 +164,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "nedostupno"
   },
   {
@@ -156,7 +184,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "nedostupno"
   },
   {
@@ -176,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -216,7 +244,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -236,7 +264,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "nedostupno"
   },
   {
@@ -280,7 +308,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 23,
     "buyer_words": 0,
@@ -308,7 +336,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 23,
     "buyer_words": 0,
@@ -360,7 +388,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T01:10:37.831503+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 23,
     "buyer_words": 0,
@@ -370,6 +398,34 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Stan 48 m² u Solunu, Grčka | kupiti, kupovinu apartmana cena: 200000€ | Grekodom Development Prodaja - Stan 48 m² u Solunu"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T07:03:38.627464+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "https://www.immo-immo.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/sankt-poelten-land/-wohntraum-im-gruenen-renoviertes-einfamilienhaus-mit-weitblick-idyllischem-garten-und-grosszuegigem-platzangebot-in-eichgraben-1485005286/",
+     "seen": "2026-10-25T07:03:38.544797+00:00",
+     "url": "https://www.immo-immo.at/"
+    }
+   ],
+   "first_seen": "2026-10-25T07:03:38.544797+00:00",
+   "host": "immo-immo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
+   "signals": {
+    "areas": 20,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 3,
+    "property_words": 50
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Makler Wienerwald & Wien Umgebung | KIEGLER Immobilien Unsere aktuellen Angebote"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -506,7 +562,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "blokirano"
   },
   {
@@ -532,7 +588,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -560,7 +616,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "nedostupno"
   },
   {
@@ -628,7 +684,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -766,7 +822,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-23T19:00:28.832808+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -776,6 +832,26 @@
    },
    "status": "nije_relevantno",
    "title": "Ihr Immobilienmakler mit 22 jähriger Immobilienmarkterfahrung! Ihr Immobilienmakler mit über 22 jähriger Immobilienmarkterfahrung"
+  },
+  {
+   "check_note": "HTTP 403",
+   "checked_at": "2026-10-25T07:03:38.627464+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "https://www.swisslife-select.at/immobilien",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/tirol/kitzbuehel/moderne-erdgeschosswohnung-mit-terrasse-in-top-lage-nur-2-minuten-zum-skilift-zweitwohnsitz-moeglich-1744761594/",
+     "seen": "2026-10-25T07:03:38.544797+00:00",
+     "url": "https://www.swisslife-select.at/immobilien"
+    }
+   ],
+   "first_seen": "2026-10-25T07:03:38.544797+00:00",
+   "host": "swisslife-select.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
+   "status": "blokirano"
   },
   {
    "check_note": "HTTP 406",
@@ -794,7 +870,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T07:03:38.544797+00:00",
    "status": "nedostupno"
   },
   {
@@ -855,6 +931,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T01:02:39.208893+00:00",
- "verified_at": "2026-10-25T01:02:39.307432+00:00"
+ "updated_at": "2026-10-25T07:03:38.544797+00:00",
+ "verified_at": "2026-10-25T07:03:38.627464+00:00"
 }
