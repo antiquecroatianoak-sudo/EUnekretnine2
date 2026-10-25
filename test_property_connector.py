@@ -54,5 +54,9 @@ class NotairesCheckpointTests(unittest.TestCase):
         self.assertEqual(rows[0]['facts']['advertised_area'],{'value':80,'unitCode':'MTK'})
         self.assertEqual(rows[0]['facts']['source_contact']['record_reference'],item['urlDetailAnnonceFr'])
         self.assertFalse(rows[0]['verified'])
+        item['descriptionFr']='Maison (74.44 m²)';item['surface']=77.44
+        rows,_=process_notaires({'id':28,'country':'FR'},None,Fetcher(),time.monotonic()+10,1)
+        self.assertIsNone(rows[0]['facts']['advertised_area'])
+        self.assertEqual(rows[0]['facts']['area_conflict']['structured_area_m2'],77.44)
 
 if __name__=='__main__':unittest.main()
