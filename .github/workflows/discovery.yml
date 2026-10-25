@@ -7,6 +7,9 @@ on:
     paths:
       - discovery.py
       - source_batches.py
+      - buyer_profiles.py
+      - profile_imports.py
+      - test_buyer_profiles.py
       - test_source_batches.py
       - national_enrichment.py
       - supabase/functions/registry-discovery/national-enrichment.mjs
@@ -66,7 +69,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
-        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches
+        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches test_buyer_profiles
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
         run: node test_verification.mjs
       - name: Skupno dijagnosticiraj neaktivne izvore bez aktivacije ili promjene uvoznih cursora
@@ -76,6 +79,11 @@ jobs:
         env:
           PYTHONUNBUFFERED: '1'
         run: python source_batches.py
+      - name: Probno uvezi pregledane javne kriterije kupnje zajedničkim konektorom
+        id: profile_imports
+        continue-on-error: true
+        timeout-minutes: 6
+        run: python profile_imports.py
       - name: Uvezi aktualni registar i nastavi spremljene stranice
         id: registry
         continue-on-error: true
@@ -94,7 +102,7 @@ jobs:
         run: |
           git config user.name 'EU platform source monitor'
           git config user.email 'source-monitor@users.noreply.github.com'
-          git add data/discovered_candidates.json data/source_leads.json data/source_batches.json
+          git add data/discovered_candidates.json data/source_leads.json data/source_batches.json data/profile_imports.json
           if ! git diff --cached --quiet; then
             git commit -m 'Osvježi javne kandidate i stanje izvora'
             git pull --rebase origin main
