@@ -43,6 +43,13 @@ class PrimaryListingTests(unittest.TestCase):
     def test_canonical_stable_id(self):self.assertEqual(self.parse()['id'],self.parse()['id'])
 
 class NotairesCheckpointTests(unittest.TestCase):
+    def test_published_api_representation_is_requested(self):
+        from registry_discovery import content_accept
+        self.assertEqual(content_accept('https://www.immobilier.notaires.fr/pub-services/inotr-www-annonces/v1/annonces?page=1'),'application/json')
+        self.assertEqual(content_accept('https://www.biddit.be/api/eco/biddit-bff/lot/42'),'application/json')
+        self.assertEqual(content_accept('https://www.biddit.be/fr/landing'),'text/html,application/xhtml+xml')
+        self.assertEqual(content_accept('https://example.org/robots.txt'),'text/plain')
+        self.assertIn('application/xml',content_accept('https://example.org/sitemap.xml'))
     def test_public_auction_preserves_contact_area_and_checkpoint_contract(self):
         import json,time
         from registry_discovery import process_notaires
