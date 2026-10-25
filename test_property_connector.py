@@ -42,4 +42,21 @@ class PrimaryListingTests(unittest.TestCase):
         self.n['offers']['itemOffered']['floorSize']['unitCode']='FTK';self.assertNotIn('advertised_area',self.parse()['facts'])
     def test_canonical_stable_id(self):self.assertEqual(self.parse()['id'],self.parse()['id'])
 
+class NotairesCheckpointTests(unittest.TestCase):
+    def test_public_auction_preserves_contact_area_and_checkpoint_contract(self):
+        import json,time
+        from registry_discovery import process_notaires
+        item={'annonceId':42,'typeTransaction':'VAE','statut':'LIGNE','publiable':'OUI','bienVendu':'NON','bienRetire':'NON','venteReportee':'NON','seanceDate':'2099-01-01T12:00:00Z','urlDetailAnnonceFr':'https://www.immobilier.notaires.fr/fr/annonce-immo/adjudication/maison/paris/42','typeBien':'MAI','communeNom':'Paris','surface':80,'prixAffiche':100000,'telephone':'0761761899','crpcen':'23002'}
+        class Fetcher:
+            def get(self,u):return json.dumps({'annonceResumeDto':[item],'nbPages':1})
+        rows,state=process_notaires({'id':28,'country':'FR'},None,Fetcher(),time.monotonic()+10,1)
+        self.assertEqual(state['cycle_seen'],[])
+        self.assertEqual(rows[0]['facts']['advertised_area'],{'value':80,'unitCode':'MTK'})
+        self.assertEqual(rows[0]['facts']['source_contact']['record_reference'],item['urlDetailAnnonceFr'])
+        self.assertFalse(rows[0]['verified'])
+        item['descriptionFr']='Maison (74.44 m²)';item['surface']=77.44
+        rows,_=process_notaires({'id':28,'country':'FR'},None,Fetcher(),time.monotonic()+10,1)
+        self.assertIsNone(rows[0]['facts']['advertised_area'])
+        self.assertEqual(rows[0]['facts']['area_conflict']['structured_area_m2'],77.44)
+
 if __name__=='__main__':unittest.main()
