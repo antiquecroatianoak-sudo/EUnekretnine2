@@ -9,7 +9,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit, urlencode,parse_qs
 
 EU=set('AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE'.split())
 COUNTRIES={'Austria':'AT','Belgium':'BE','Bulgaria':'BG','Croatia':'HR','Cyprus':'CY','Czech Republic':'CZ','Denmark':'DK','Estonia':'EE','Finland':'FI','France':'FR','Germany':'DE','Greece':'GR','Hungary':'HU','Ireland':'IE','Italy':'IT','Latvia':'LV','Lithuania':'LT','Luxembourg':'LU','Malta':'MT','Netherlands':'NL','Poland':'PL','Portugal':'PT','Romania':'RO','Slovakia':'SK','Slovenia':'SI','Spain':'ES','Sweden':'SE'}
@@ -24,6 +24,11 @@ def canonical(u):
 def types(node):
     v=node.get('@type',[])
     return {v} if isinstance(v,str) else set(v) if isinstance(v,list) and all(isinstance(x,str) for x in v) else set()
+
+def category_url(url):
+    path=urlsplit(url).path
+    if re.search(r'/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}',path):return False
+    return bool(re.search(r'for-sale|/search(?:/|$)|/properties/?$|/properties-title/|/aticos-en-venta\.html$|/venta/[^/]+/[^/]+/[^/]+/?$',path,re.I))
 
 def number(v):
     if isinstance(v,bool):return None
@@ -66,8 +71,59 @@ def latio_record(source,url,page,stamp):
         else:facts['land_area_m2']=amount
     return {'id':'registry:property:'+hashlib.sha256(canonical(url).encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'LV','url':canonical(url),'first_seen':stamp,'last_seen':stamp,'verified':False,'status':'Za provjeru','facts':facts}
 
+def ober_record(source,url,page,stamp):
+    if page is None or not re.search(r'-pardavimas-[^/]+,\d+$',urlsplit(url).path):raise ValueError('ober_sale_detail_required')
+    if canonical(page.meta.get('og:url',''))!=canonical(url):raise ValueError('ober_canonical_mismatch')
+    title=page.meta.get('og:title','')
+    kind=re.match(r'^(Parduodamas butas|Parduodamas namas|Parduodamos patalpos|Parduodamas sklypas):',title)
+    cities={'Kauno m. sav.':'Kaunas','Vilniaus m. sav.':'Vilnius','Klaipėdos m. sav.':'Klaipėda','Šiaulių m. sav.':'Šiauliai','Panevėžio m. sav.':'Panevėžys'}
+    city=next((v for k,v in cities.items() if k in title),None)
+    if not kind or not city:raise ValueError('ober_sale_or_reviewed_country_missing')
+    text=' '.join(' '.join(page.text).split())
+    if 'Atgal į paiešką' not in text:raise ValueError('ober_primary_body_required')
+    body=text.split('Atgal į paiešką',1)[1].split('Panašūs objektai',1)[0]
+    prices={float(re.sub(r'\s','',v)) for v in re.findall(re.escape(kind[1])+r'\s+([\d\s]+)\s*€',body)}
+    if len(prices)!=1 or min(prices)<=0:raise ValueError('ober_primary_price_required')
+    names=list(dict.fromkeys(label.strip() for href,label in page.links if '/darbuotoju-kontaktai/' in href and label.strip() and label.strip() in body))
+    emails=list(dict.fromkeys(re.findall(r'\b[^\s@<>]+@ober-haus\.lt\b',body)))
+    if len(names)!=1 or len(emails)!=1:raise ValueError('ober_primary_agent_required')
+    reference=re.search(r'Nuoroda\s+https://www\.ober-haus\.lt/(OH\d+)',body)
+    area=re.search(r'Visas plotas\s+(\d+(?:[.,]\d+)?)\s*m²',body)
+    if not reference:raise ValueError('ober_reference_required')
+    price=prices.pop()
+    facts={'transaction_type':'sale','reference':reference[1],'currency':'EUR','asking_price':price,'advertised_price':price,'property_type':{'Parduodamas butas':'Stan','Parduodamas namas':'Kuća','Parduodamos patalpos':'Poslovni prostor','Parduodamas sklypas':'Zemljište'}[kind[1]],'advertised_location':{'addressLocality':city,'addressCountry':'LT'},'country_basis':'Primary property title names a reviewed Lithuanian city municipality','source_contact':{'mode':'agency','name':names[0],'agency_name':'Ober-Haus','email':emails[0],'record_reference':url,'evidence_url':url,'represents_record':True,'permitted':False},'evidence_excerpt':'Primary sale record '+reference[1]+'; '+city+'; '+str(price)+' EUR; named Ober-Haus agent.','availability':'Prodajni oglas opažen; dostupnost i pravna urednost nisu potvrđene.'}
+    if area:
+        amount=float(area[1].replace(',','.'));described=[float(v.replace(',','.')) for v in re.findall(r'\bPlotas\s*[–—-]\s*(\d+(?:[.,]\d+)?)\s*kv\.\s*m',body)]
+        if any(abs(v-amount)>0.01 for v in described):facts['area_conflict']={'table_building_m2':amount,'description_building_m2':described}
+        else:facts['advertised_area']={'value':amount,'unitCode':'MTK'}
+    url=canonical(url)
+    return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'LT','url':url,'first_seen':stamp,'last_seen':stamp,'verified':False,'status':'Za provjeru','facts':facts}
+
+def catalogue_page(source,url,fetcher,Page):
+    """Public catalogue JSON used by Ober-Haus's own published frontend."""
+    if urlsplit(source['url']).hostname=='www.ober-haus.lt' and (canonical(url)==canonical(source['url']) or urlsplit(url).path=='/api/object.php'):
+        page=int(parse_qs(urlsplit(url).query).get('page',['1'])[0])
+        if page<1 or page>100000:raise ValueError('Invalid public catalogue page')
+        base='https://www.ober-haus.lt/api/object.php?'
+        params={'type':'Apartment for sale','sorting':'newest','page':page,'use_pagination':1}
+        data=json.loads(fetcher.get(base+urlencode(params)))
+        rows=data.get('objects');total=data.get('totalObjects')
+        if not isinstance(rows,list) or not isinstance(total,int) or total<0:raise ValueError('Ober public catalogue format changed')
+        chunks=[]
+        for row in rows:
+            if not isinstance(row,dict) or not str(row.get('id','')).isdigit() or not isinstance(row.get('html'),str):raise ValueError('Ober public card format changed')
+            chunks.append(row['html'])
+        pagination=data.get('pagination','')
+        if not isinstance(pagination,str):raise ValueError('Ober pagination format changed')
+        if re.search(r'data-page=[\"\x27]'+str(page+1)+r'[\"\x27]',pagination):
+            params['page']=page+1;chunks.append('<link rel="next" href="'+html.escape(base+urlencode(params),quote=True)+'">')
+        if not rows and total>0:raise ValueError('Ober returned empty page with nonempty catalogue')
+        return Page(''.join(chunks))
+    return Page(fetcher.get(url))
+
 def primary_record(source,url,nodes,stamp,page=None):
     if urlsplit(url).hostname=='latio.lv':return latio_record(source,url,page,stamp)
+    if urlsplit(url).hostname=='www.ober-haus.lt':return ober_record(source,url,page,stamp)
     matching=[n for n in nodes if types(n)&TYPES.keys() and isinstance(n.get('url'),str) and canonical(urljoin(url,n['url']))==canonical(url)]
     if len(matching)!=1:raise ValueError('primary_identity_missing_or_ambiguous')
     n=matching[0];title=n.get('name');description=n.get('description','')
@@ -117,7 +173,7 @@ def links(page,url,objects,safe_url,root):
                 if isinstance(target,str):candidates.insert(0,(target,'structured listing'))
     found=[]
     for href,label in candidates:
-        if not isinstance(href,str) or not (label=='structured listing' or SALE.search(label+' '+href) or re.search(r'/(?:property|properties|immobilien|immobile|nemovitost|nepremicnine|expose|listing|objekt|offer|detail)[/-]',href,re.I)):continue
+        if not isinstance(href,str) or not (label=='structured listing' or SALE.search(label+' '+href.replace('-',' ')) or '-pardavimas-' in href or re.search(r'/(?:property|properties|immobilien|immobile|nemovitost|nepremicnine|expose|listing|objekt|offer|detail)[/-]',href,re.I)):continue
         try:target=safe_url(urljoin(url,href),root)
         except (ValueError,OSError):continue
         if re.search(r'/(?:services?|news|research|about-us|careers?|privacy|contact)(?:/|$)',urlsplit(target).path,re.I):continue
@@ -126,7 +182,7 @@ def links(page,url,objects,safe_url,root):
     def priority(u):
         p=urlsplit(u).path
         category=bool(re.search(r'/(?:search|property-types|properties-title)(?:/|$)',p,re.I))
-        detail=bool(re.search(r'(?:/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$))',p))
+        detail=bool(re.search(r'(?:/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$)|,\d{4,}$)',p))
         return (category,not detail)
     return sorted(found,key=priority)[:200]
 
@@ -144,18 +200,26 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
                 result['inserted']+=saved.get('inserted',0);result['updated']+=saved.get('updated',0)
             result.update(status='batch_confirmed' if rows else 'no_current_auction_records',adapter='existing_notaires_public_api',pages_processed=state['pages_processed'])
             return result
-        f=Fetcher(source['url']);page=Page(f.get(source['url']))
+        f=Fetcher(source['url']);page=catalogue_page(source,source['url'],f,Page)
         urls=links(page,source['url'],objects,safe_url,source['url'])[:2]
         if not urls:result.update(status='no_structured_detail_links');return result
-        for url in urls:
+        queue=[(url,1) for url in urls];seen={canonical(source['url'])};pages=0
+        while queue and pages<6:
+            url,depth=queue.pop(0)
+            if canonical(url) in seen:continue
             if time.monotonic()>=deadline:result['rejections'].append({'url':url,'reason':'runtime_deferred'});break
+            seen.add(canonical(url))
             try:
-                p=Page(f.get(url));nodes=[n for script in p.scripts for n in objects(script)]
+                p=Page(f.get(url));pages+=1;nodes=[n for script in p.scripts for n in objects(script)]
+                if category_url(url) and depth<2:
+                    children=[u for u in links(p,url,objects,safe_url,source['url']) if canonical(u) not in seen]
+                    queue.extend((u,depth+1) for u in children[:2]);continue
                 row=primary_record(source,url,nodes,stamp,p)
                 saved=api({'action':'batch','source_id':result['source_id'],'candidates':[row]})
                 if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
                 result['inserted']+=saved.get('inserted',0);result['updated']+=saved.get('updated',0)
             except ValueError as e:result['rejections'].append({'url':url,'reason':str(e)[:240]})
+        result['pages_processed']=pages
         result['status']='batch_confirmed' if result['inserted']+result['updated'] else 'format_or_evidence_required'
     except Exception as e:
         result.update(status='failed',error=type(e).__name__+': '+str(e)[:240],retry_after=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat())
@@ -172,7 +236,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
         entry=pending.pop(0);url=entry['url']
         if canonical(url) in seen:continue
         try:
-            url=safe_url(url,source['url']);page=Page(fetcher.get(url));pages+=1
+            url=safe_url(url,source['url']);page=catalogue_page(source,url,fetcher,Page);pages+=1
             nodes=[n for script in page.scripts for n in objects(script)]
             if entry['mode']=='detail':
                 try:rows.append(primary_record(source,url,nodes,stamp,page))
@@ -181,7 +245,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
                 queued={canonical(x['url']) for x in pending}
                 for target in links(page,url,objects,safe_url,source['url']):
                     if canonical(target) not in seen|queued:
-                        pending.append({'url':target,'mode':'detail'});queued.add(canonical(target))
+                        pending.append({'url':target,'mode':'index' if category_url(target) else 'detail'});queued.add(canonical(target))
                 for href in page.next:
                     target=safe_url(urljoin(url,href),source['url'])
                     if canonical(target) not in seen|queued:pending.append({'url':target,'mode':'index'});queued.add(canonical(target))
