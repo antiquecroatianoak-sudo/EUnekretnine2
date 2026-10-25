@@ -1,15 +1,15 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-25T20:25:35.286603+00:00",
+ "checked_at": "2026-10-25T20:42:01.452738+00:00",
  "source_count": 115,
  "inactive_count": 69,
  "groups": {
   "structured_property_adapter": 33,
   "operating_monitor": 46,
   "approved_access_required": 25,
-  "fetch_or_persistence_failure": 4,
+  "fetch_or_persistence_failure": 5,
   "listing_layout": 2,
-  "buyer_acquisition_pages": 3,
+  "buyer_acquisition_pages": 2,
   "pdf_acquisition_profiles": 2
  },
  "sources": [
@@ -307,9 +307,9 @@
    "id": "28",
    "name": "Immobilier.notaires.fr — dražbe",
    "url": "https://www.immobilier.notaires.fr/fr/vente-aux-encheres-adjudication",
-   "is_active": true,
-   "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": "HTTPError: HTTP Error 406: ",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
@@ -1447,9 +1447,9 @@
    "id": "113",
    "name": "AXIORA BAU d.o.o.",
    "url": "https://axiora-bau.hr/zemljiste.html",
-   "is_active": false,
-   "group": "buyer_acquisition_pages",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": "TypeError: first argument must be string or compiled pattern",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
@@ -1492,11 +1492,11 @@
    "url": "https://www.emporia-realestate.com/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "URLError: <urlopen error [Errno 101] Network is unreachable>",
+   "last_error": null,
    "retry_after": null
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 3,
+ "probed_count": 0,
  "remaining_due": 0
 }
