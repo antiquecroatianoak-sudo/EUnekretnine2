@@ -63,3 +63,10 @@
 - Kontakt agencije vrijedi simetrično za obje skupine izvora i obje strane para, uz utvrđenu vezu agencije s konkretnom nekretninom ili potražnjom investitora. Moguće su kombinacije izravno/izravno, izravno/agencija, agencija/izravno i agencija/agencija. Bez izravnog ili relevantnog agencijskog kanala zapis nije operativno koristan.
 - Predložena jezgra budućih zahtjeva (prilagoditi stvarnoj ponudi agencije): 'Zainteresirani smo za odobren pristup ponudama nekretnina i/ili kriterijima potencijalnih kupaca i investitora koje zastupate. Nije potrebno otkrivati njihove izravne kontakte ako vam možemo dostaviti prijedlog za konkretnu nekretninu ili potražnju, a vi ga proslijediti svom klijentu i voditi daljnji postupak. Molimo potvrdite takav kanal suradnje, dopuštenu uporabu podataka, način ažuriranja i uvjete pristupa.'
 - Ovo je predložak za buduće pojedinačne zahtjeve, nije nalog za automatsko slanje niti tvrdnja da je agencija već pristala na suradnju.
+
+## Evidencija po izvornim agencijama — uputa vlasnika 25.10.2026.
+
+- Sve nekretnine i sve kupce/investitore preuzete sa stranica agencija voditi pod njihovom izvornom agencijom. Agencija je dovoljan operativni kontakt za svoj konkretan zapis; ne pokušavati pribavljati izravne kontakte njezinih klijenata.
+- Ne poistovjećivati zastupnika s pravnim vlasnikom. Agencija je prodajni kontakt/zastupnik i vodi daljnji postupak sa svojim klijentom. Izvorni oglas ili potražnja ostaju vezani uz agenciju jasnom referencom.
+- Grupiranje koristiti za obje baze i buduće uvoze. Izvorne veze određuju agenciju; javni portal, sjedište ili sličan naziv sami ne uspostavljaju zastupanje. Način obraćanja agenciji mora biti upotrebljiv; ne izmišljati e-mail/telefon niti potvrdu pristupa API-ju.
+- U uvodu budućih mailova agencijama objasniti obostranu korist: nudimo agenciji nekretninu za njezina kupca/investitora ili potencijalnog kupca/investitora za nekretninu koju zastupa; agencija ostaje kontakt i vodi postupak. Zatraženi pristup podacima služi tom uparivanju, bez zahtjeva za otkrivanjem izravnih klijentskih kontakata.
