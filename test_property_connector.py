@@ -116,6 +116,18 @@ class DiscoveryAndLatioTests(unittest.TestCase):
         def api(body):calls.append(body);return {'candidates':1,'inserted':1,'updated':0}
         r=run_source({'id':99,'name':'Agency','url':root},api,Fetch,Page,objects,lambda u,r:u,'2026-10-25T21:00:00Z')
         self.assertEqual(r['status'],'batch_confirmed');self.assertEqual(r['inserted'],1);self.assertEqual(calls[0]['candidates'][0]['url'],detail)
+    def test_real_listing_with_category_like_url_is_not_discarded(self):
+        import json
+        from property_connector import run_source
+        from registry_discovery import Page,objects
+        root='https://agency.example/';detail=root+'house-for-sale-nice'
+        n=PrimaryListingTests();n.setUp();n.n['url']=detail
+        pages={root:'<a href="'+detail+'">House for sale</a>',detail:'<script type="application/ld+json">'+json.dumps(n.n)+'</script>'}
+        class Fetch:
+            def __init__(self,u):pass
+            def get(self,u):return pages[u]
+        r=run_source({'id':99,'name':'Agency','url':root},lambda body:{'candidates':1,'inserted':1,'updated':0},Fetch,Page,objects,lambda u,r:u,'2026-10-25T21:00:00Z')
+        self.assertEqual(r['inserted'],1)
 
 class OberCatalogueTests(unittest.TestCase):
     def page(self,rental=False,agent=True,area='96.00'):

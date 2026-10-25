@@ -212,9 +212,11 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
             try:
                 p=Page(f.get(url));pages+=1;nodes=[n for script in p.scripts for n in objects(script)]
                 if category_url(url) and depth<2:
-                    children=[u for u in links(p,url,objects,safe_url,source['url']) if canonical(u) not in seen]
-                    queue.extend((u,depth+1) for u in children[:2]);continue
-                row=primary_record(source,url,nodes,stamp,p)
+                    try:row=primary_record(source,url,nodes,stamp,p)
+                    except ValueError:
+                        children=[u for u in links(p,url,objects,safe_url,source['url']) if canonical(u) not in seen]
+                        queue.extend((u,depth+1) for u in children[:2]);continue
+                else:row=primary_record(source,url,nodes,stamp,p)
                 saved=api({'action':'batch','source_id':result['source_id'],'candidates':[row]})
                 if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
                 result['inserted']+=saved.get('inserted',0);result['updated']+=saved.get('updated',0)
@@ -242,6 +244,10 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
                 try:rows.append(primary_record(source,url,nodes,stamp,page))
                 except ValueError as exc:failed.append({'url':url,'reason':str(exc)})
             else:
+                try:
+                    rows.append(primary_record(source,url,nodes,stamp,page))
+                    seen.add(canonical(url));continue
+                except ValueError:pass
                 queued={canonical(x['url']) for x in pending}
                 for target in links(page,url,objects,safe_url,source['url']):
                     if canonical(target) not in seen|queued:
