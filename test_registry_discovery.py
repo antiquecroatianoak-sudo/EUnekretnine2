@@ -331,6 +331,30 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(len(rows),1);self.assertEqual(new['unavailable_urls'][0]['http_status'],404)
         self.assertFalse(new['coverage_complete'])
 
+
+class EmporiaTypographyTests(unittest.TestCase):
+    def record(self, heading, canonical_url=None):
+        from registry_discovery import emporia_record
+        url='https://www.emporia-realestate.com/property/house-h706-zadar/'
+        html=('<meta property="og:title" content="House H706 - Zadar">'
+              '<meta property="og:url" content="'+(canonical_url or url)+'">'
+              '<h1>'+heading+'</h1> Print 2.600.000 € H706 For Sale '
+              'House in Zadar Living Area 200 m², Plot Size 500 m² Additional features')
+        return emporia_record({'id':115},url,Page(html),[],'2026-10-25T19:00:00Z')
+    def test_typographic_dash(self):
+        row=self.record('House H706 &#8211;  Zadar')
+        self.assertEqual(row['facts']['asking_price'],2600000)
+        self.assertEqual(row['facts']['reference'],'H706')
+    def test_ascii_title(self):
+        self.assertEqual(self.record('House H706 - Zadar')['facts']['land_area_m2'],500)
+    def test_different_property_rejected(self):
+        from agency_listings import RejectedListing
+        with self.assertRaises(RejectedListing):self.record('House H999 - Zadar')
+    def test_canonical_mismatch_rejected(self):
+        from agency_listings import RejectedListing
+        with self.assertRaises(RejectedListing):
+            self.record('House H706 - Zadar',canonical_url='https://example.com/other')
+
 if __name__=='__main__':unittest.main(max_workers=1)
 
 
