@@ -346,6 +346,10 @@ def emporia_record(source,url,page,nodes,now):
 def listing_record(source,url,page,kind,now):
     title=(page.meta.get('og:title') or page.meta.get('twitter:title') or ' '.join(page.title)).strip()
     nodes=[v for script in page.scripts for v in objects(script)]
+    if kind=='buyer' and source.get('import_config',{}).get('buyer_profile'):
+        from buyer_profiles import profile_facts
+        facts=profile_facts(url,page,source['import_config']['buyer_profile'])
+        return {'id':'registry:buyer:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'buyer','title':(facts['entity_name']+' — public acquisition criteria')[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
     if kind=='property' and hostkey(urlsplit(url).hostname)=='emporia-realestate.com':
         return emporia_record(source,url,page,nodes,now)
     if kind=='property' and hostkey(urlsplit(url).hostname) in AGENCIES:
