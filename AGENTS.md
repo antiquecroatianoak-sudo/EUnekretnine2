@@ -36,3 +36,13 @@
 - Katastarska površina nije automatski korisna površina stana; katastarska uporaba nije potvrda građevinske namjene, dozvola ili vlasništva. Pravni status ne proglašavati urednim zato što je dohvat uspio. Prodajna cijena i aktivnost oglasa ne proizlaze iz povijesnog registra.
 - Za kupce službene poslovne evidencije mogu dopuniti identitet tvrtke, ali ne dokazuju potražnju, budžet ni interes za konkretnu kupnju.
 - Za budući kod obvezne regresije: isti broj čestice u različitim državama i općinama ne smije se spojiti; nepoznata država, pogrešan identifikator, više rezultata i proturječni dokazi moraju zaustaviti automatsku dopunu; čuvati ručna polja i trag izvora.
+
+## Obvezan upotrebljiv kontakt — uputa vlasnika 25.10.2026.
+
+- Za svaki budući izvor tražiti podatke o nekretninama i potencijalnim kupcima/investitorima s upotrebljivim, dopuštenim načinom kontaktiranja relevantne strane.
+- Nekretnina mora imati kontakt vlasnika, prodavatelja ili ovlaštenog zastupnika koji postupa za tu konkretnu nekretninu. Kupac/investitor mora imati vlastiti kontakt ili ovlašten kanal koji omogućuje obraćanje toj konkretnoj osobi/tvrtki. E-mail, telefon ili stvarno dostupan obrazac/platformski kanal prihvatljivi su samo ako su povezani s relevantnom stranom; opća poveznica portala nije kontakt.
+- Bez takvog kontakta zapis nije korisna ponuda odnosno kontaktabilan potencijalni kupac i ne smije biti uključen u operativne ponude, valjane parove ni brojeve korisnih zapisa. Anonimni kriteriji, naziv tvrtke ili oglas bez načina obraćanja nisu dovoljni. Ne prikupljati takve zapise kao krajnji rezultat; eventualni privremeni trag služi samo pronalaženju nedostajućeg kontakta.
+- Za valjan operativni par potreban je upotrebljiv kontakt OBIJU strana, uz postojeće kriterije i provjere. Postojanje kontakta nije potvrda interesa, aktualnosti oglasa ili pravne urednosti. Ne izmišljati kontakt niti pretpostavljati dopuštenje samo zato što je javno objavljen.
+- Za postojeće zapise najprije provjeriti i dopuniti kontakt gdje je dopušteno; bez kontakta ih isključiti iz korisnih rezultata. Ova uputa sama ne nalaže nepovratno brisanje baze ili povijesti.
+- Ovo pravilo navoditi u budućim zahtjevima za API/feed i pri pregledu izvora. Poslovni tijek ostaje: generička ponuda bez adrese i kontakta prodavatelja, pisani interes kupca, zatim predaja licenciranoj agenciji koja vodi posredovanje; strane ne povezujemo izravno.
+- Status provedbe: ovom izmjenom spremljena je obvezna projektna uputa; programska primjena filtra i provjera postojećih zapisa moraju se zasebno implementirati i potvrditi prije tvrdnje da je pravilo aktivno u aplikaciji.
