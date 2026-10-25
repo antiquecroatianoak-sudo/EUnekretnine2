@@ -3,7 +3,7 @@
   "blokirano": 3,
   "kandidat_nekretnine": 16,
   "nedostupno": 6,
-  "nije_relevantno": 11,
+  "nije_relevantno": 12,
   "robots_zabrana": 4
  },
  "leads": [
@@ -65,6 +65,34 @@
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-25T19:52:13.781473+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/ferienimmobilien-kaufen/vorarlberg/bludenz/mein-ferientraum-im-montafon-alpin-resort-montafon-top-3-17-1469855763/",
+     "seen": "2026-10-25T19:52:13.698132+00:00",
+     "url": "https://www.alpinresortmontafon.com/ferienimmobilien-kaufen/"
+    }
+   ],
+   "first_seen": "2026-10-25T19:52:13.698132+00:00",
+   "host": "alpinresortmontafon.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
+   "signals": {
+    "areas": 5,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 4
+   },
+   "status": "nije_relevantno",
+   "title": "Ferienwohnung kaufen ⌂ Alpin-Resort Montafon in Gargellen - Direkt an der Skipiste Ferienwohnung in Gargellen kaufen"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T13:01:23.837633+00:00",
    "country_hint": null,
    "evidence": [
@@ -108,7 +136,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -164,7 +192,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "nedostupno"
   },
   {
@@ -184,7 +212,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "nedostupno"
   },
   {
@@ -204,7 +232,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -274,7 +302,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -326,7 +354,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -354,7 +382,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -374,7 +402,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "nedostupno"
   },
   {
@@ -706,7 +734,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "blokirano"
   },
   {
@@ -758,7 +786,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1096,7 +1124,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T18:55:10.932362+00:00",
+   "last_seen": "2026-10-25T19:52:13.698132+00:00",
    "status": "nedostupno"
   },
   {
@@ -1157,6 +1185,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T18:55:10.932362+00:00",
- "verified_at": "2026-10-25T18:55:11.025979+00:00"
+ "updated_at": "2026-10-25T19:52:13.698132+00:00",
+ "verified_at": "2026-10-25T19:52:13.781473+00:00"
 }
