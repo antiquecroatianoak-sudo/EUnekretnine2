@@ -543,6 +543,12 @@ def process(source,state,fetcher,deadline,max_pages=25):
             # Off-site links naming sales or buyer demand become leads for new sources (never crawled automatically).
             source_leads.observe(url,page.links)
             if item['mode']=='buyer':
+                if config.get('buyer_profile'):
+                    # The reviewed profile validates identity, exact intent,
+                    # each criterion and its record-bound contact itself.
+                    records.append(listing_record(source,url,page,kind,now))
+                    seen.add(url)
+                    continue
                 demand=DEMAND.search(text)
                 if not demand:
                     raise ValueError('No explicit public acquisition demand; company profile is not a buyer request')
