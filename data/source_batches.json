@@ -1,0 +1,1053 @@
+{
+ "schema_version": 1,
+ "checked_at": "2026-10-25T19:44:35.692629+00:00",
+ "source_count": 115,
+ "inactive_count": 70,
+ "groups": {
+  "structured_property_adapter": 34,
+  "operating_monitor": 45,
+  "approved_access_required": 25,
+  "fetch_or_persistence_failure": 4,
+  "listing_layout": 2,
+  "buyer_acquisition_pages": 3,
+  "pdf_acquisition_profiles": 2
+ },
+ "sources": [
+  {
+   "id": 1,
+   "name": "SodneDrazbe.si",
+   "url": "https://sodnedrazbe.si/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 2,
+   "name": "OpenbareVerkoop.nl",
+   "url": "https://www.openbareverkoop.nl/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 3,
+   "name": "Timek – grond gezocht",
+   "url": "https://www.timek.nl/grond-gezocht",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 4,
+   "name": "Nexity – javno objavljeni kriteriji kupnje zemljišta",
+   "url": "https://www.nexity.fr/terrains/guide-terrain/conseils-vente/vendre-terrain-a-un-promoteur",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:34.751925+00:00"
+  },
+  {
+   "id": 5,
+   "name": "Urbatys – vendre votre terrain",
+   "url": "https://www.urbatys.com/vendre-votre-terrain/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:38.405404+00:00"
+  },
+  {
+   "id": 6,
+   "name": "SSRS – javni poziv 2026–2027",
+   "url": "https://ssrs.si/razpisi/javni-pozivi-in-razpisi/javni-poziv-za-nakup-stanovanj-in-zemljisc-za-gradnjo-stanovanj-v-letih-2026-in-2027/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 7,
+   "name": "Bouygues Immobilier – prodaja zemljišta promotoru",
+   "url": "https://www.bouygues-immobilier.com/terrains-batir",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 8,
+   "name": "Profilo Srl – javna kupnja zemljišta i kompleksa za obnovu",
+   "url": "https://www.profilosrl.com/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 9,
+   "name": "Državne nekretnine – natječaj K-4/26",
+   "url": "https://hr-nekretnine.hr/natjecaji/natjecaj-za-prodaju-nekretnina-k-4-26/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 10,
+   "name": "Ministerio de Hacienda – Subasta Noviembre 2026 (Granada)",
+   "url": "https://www.hacienda.gob.es/es-ES/Areas%20Tematicas/Patrimonio%20del%20Estado/Gestion%20Patrimonial%20del%20Estado/Paginas/Investigacion/DEH-GRANADA/Subasta-Noviembre-2026.aspx",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 11,
+   "name": "Gradzilla – javni zahtjev za kupnju zemljišta",
+   "url": "https://gradzilla.hr/trazimo-zemljista/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 12,
+   "name": "Belgium Land & Property – Grond gezocht",
+   "url": "https://www.blpnv.be/grond-gezocht",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 13,
+   "name": "FINA Očevidnik nekretnina i pokretnina",
+   "url": "https://ponip.fina.hr/ocevidnik-web/pocetna",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 14,
+   "name": "GFP Immobilier – javna potražnja za građevinskim zemljištima u Varu",
+   "url": "https://gfpimmobilier.com/nous-achetons-des-terrains-constructibles-dans-le-var/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 15,
+   "name": "Immobilière Reibel – javna potražnja za zemljištima i zgradama",
+   "url": "https://immo-reibel.com/achat-terrains-benfeld-erstein-67230-67150/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 16,
+   "name": "VINCI Immobilier – kriteriji akvizicije",
+   "url": "https://www.vinci-immobilier.com/lp/vendre-son-terrain",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 17,
+   "name": "Prva hiša – javna potražnja za zemljištem",
+   "url": "https://www.prvahisa.si/sl/priloznosti-za-poslovno-sodelovanje/iscemo-zemljisca-za-gradnjo/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 18,
+   "name": "Palmyrimmo – prodaja zemljišta",
+   "url": "https://www.palmyrimmo.com/vendez-votre-terrain-avec-palmyrimmo/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 19,
+   "name": "LODGIM – kupnja zemljišta",
+   "url": "https://www.lodgim.fr/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 20,
+   "name": "Baltic Core Property Fund — javni kriteriji ulaganja",
+   "url": "https://lordslb.lt/bcpf/en/portfolio/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 21,
+   "name": "DHS REIM — objavljeni kriteriji akvizicije",
+   "url": "https://dhsreim.com/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 22,
+   "name": "Grupo4 — komercijalna i industrijska zemljišta",
+   "url": "https://www.grupo4re.com/buscamos-suelos",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 23,
+   "name": "MiDEAL — javni kriteriji kupnje ureda",
+   "url": "https://www.midealgroup.com/acquisition-criteria",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 24,
+   "name": "Registrų centras — eVaržytynės",
+   "url": "https://www.evarzytynes.lt/evs/pages/auctions.do",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 25,
+   "name": "Rose Patrimoine — kupnja cijelih zgrada u Île-de-France",
+   "url": "https://rosepatrimoine.fr/accueil/nos-criteres-d-investissement/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 26,
+   "name": "Grupo Impulsa — kupnja zemljišta za stambenu gradnju",
+   "url": "https://www.impulsaproyectos.com/compramos-suelo/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 27,
+   "name": "Biddit — belgijski javni bilježnici",
+   "url": "https://www.biddit.be/fr/landing",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": "HTTPError: HTTP Error 500: Internal Server Error",
+   "retry_after": null
+  },
+  {
+   "id": 28,
+   "name": "Immobilier.notaires.fr — dražbe",
+   "url": "https://www.immobilier.notaires.fr/fr/vente-aux-encheres-adjudication",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 29,
+   "name": "Otodom",
+   "url": "https://www.otodom.pl/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 30,
+   "name": "Ingatlan",
+   "url": "https://ingatlan.com/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:43.152055+00:00"
+  },
+  {
+   "id": 31,
+   "name": "Etuovi",
+   "url": "https://www.etuovi.com/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:46.302063+00:00"
+  },
+  {
+   "id": 32,
+   "name": "KV.ee",
+   "url": "https://www.kv.ee/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:47.421494+00:00"
+  },
+  {
+   "id": 33,
+   "name": "ImmobilienScout24",
+   "url": "https://www.immobilienscout24.de/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 401: Unauthorized",
+   "retry_after": "2026-10-26T06:48:51.268729+00:00"
+  },
+  {
+   "id": 34,
+   "name": "Idealista",
+   "url": "https://www.idealista.com/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:52.220173+00:00"
+  },
+  {
+   "id": 35,
+   "name": "Bazaraki",
+   "url": "https://www.bazaraki.com/real-estate-for-sale/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:53.928443+00:00"
+  },
+  {
+   "id": 36,
+   "name": "Boligsiden",
+   "url": "https://www.boligsiden.dk/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:56.895361+00:00"
+  },
+  {
+   "id": 37,
+   "name": "Immoweb",
+   "url": "https://www.immoweb.be/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 38,
+   "name": "Hemnet",
+   "url": "https://www.hemnet.se/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:58.692414+00:00"
+  },
+  {
+   "id": 39,
+   "name": "atHome",
+   "url": "https://www.athome.lu/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 40,
+   "name": "Nepremicnine.net",
+   "url": "https://www.nepremicnine.net/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:48:59.618163+00:00"
+  },
+  {
+   "id": 41,
+   "name": "PAP",
+   "url": "https://www.pap.fr/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:03.605781+00:00"
+  },
+  {
+   "id": 42,
+   "name": "Nehnutelnosti",
+   "url": "https://www.nehnutelnosti.sk/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 43,
+   "name": "Imot.bg",
+   "url": "https://www.imot.bg/",
+   "is_active": false,
+   "group": "listing_layout",
+   "last_error": "ValueError: No supported listing links or next page; completeness is unconfirmed",
+   "retry_after": null
+  },
+  {
+   "id": 44,
+   "name": "Sreality",
+   "url": "https://www.sreality.cz/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "ValueError: robots.txt disallows this URL",
+   "retry_after": "2026-10-26T06:49:05.810290+00:00"
+  },
+  {
+   "id": 45,
+   "name": "Njuškalo",
+   "url": "https://www.njuskalo.hr/nekretnine",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "RejectedRedirect: Cross-source URL rejected: https://validate.perfdrive.com/9423d102072b5d7d382cd3fdbf2d7552/",
+   "retry_after": "2026-10-26T00:48:59.368815+00:00"
+  },
+  {
+   "id": 46,
+   "name": "Imobiliare.ro",
+   "url": "https://www.imobiliare.ro/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:08.589163+00:00"
+  },
+  {
+   "id": 47,
+   "name": "Idealista Portugal",
+   "url": "https://www.idealista.pt/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:07.735229+00:00"
+  },
+  {
+   "id": 48,
+   "name": "Spitogatos",
+   "url": "https://www.spitogatos.gr/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:08.633954+00:00"
+  },
+  {
+   "id": 49,
+   "name": "Immobiliare.it",
+   "url": "https://www.immobiliare.it/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:12.247053+00:00"
+  },
+  {
+   "id": 50,
+   "name": "Funda",
+   "url": "https://www.funda.nl/en/",
+   "is_active": false,
+   "group": "listing_layout",
+   "last_error": "ValueError: No supported listing links or next page; completeness is unconfirmed",
+   "retry_after": null
+  },
+  {
+   "id": 51,
+   "name": "PropertyMarket",
+   "url": "https://www.propertymarket.com.mt/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 52,
+   "name": "Aruodas",
+   "url": "https://en.aruodas.lt/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "ValueError: robots.txt disallows this URL",
+   "retry_after": "2026-10-26T06:49:11.506474+00:00"
+  },
+  {
+   "id": 53,
+   "name": "Daft",
+   "url": "https://www.daft.ie/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 54,
+   "name": "willhaben",
+   "url": "https://www.willhaben.at/iad/immobilien",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 55,
+   "name": "City24 Latvia",
+   "url": "https://www.city24.lv/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:11.437647+00:00"
+  },
+  {
+   "id": 56,
+   "name": "Nepremicnine.net — javni oglasi kupnje zemljišta",
+   "url": "https://www.nepremicnine.net/oglasi-nakup/posest/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:02.235333+00:00"
+  },
+  {
+   "id": 57,
+   "name": "Immotop.lu",
+   "url": "https://www.immotop.lu/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T06:49:16.717677+00:00"
+  },
+  {
+   "id": 58,
+   "name": "Nieruchomosci-online.pl",
+   "url": "https://www.nieruchomosci-online.pl/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 59,
+   "name": "XE.gr",
+   "url": "https://www.xe.gr/property/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 60,
+   "name": "GWT – javna potražnja za zemljištima",
+   "url": "https://www.gwt.hr/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 61,
+   "name": "AIRFLOW – javni otkup nekretnina",
+   "url": "https://www.airflow.hr/prodaja",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 62,
+   "name": "RP investicije – javna kupnja zemljišta",
+   "url": "https://www.rpinvesticije.si/prodajate-zemljisce",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 63,
+   "name": "INVIMIT – javna prodaja nekretnina",
+   "url": "https://vetrinaimmobili.invimit.it/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 64,
+   "name": "MRD Development – javna potražnja za građevinskim zemljištima",
+   "url": "https://mrd.hr/ponudi-zemljiste/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 65,
+   "name": "MP Development – zemljišta i objekti za obnovu ili rušenje",
+   "url": "https://mp-development.hr/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 66,
+   "name": "RE/MAX Austria",
+   "url": "https://www.remax.at/de/immobilien",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 67,
+   "name": "ERA Belgium",
+   "url": "https://www.era.be/nl/te-koop",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 68,
+   "name": "Bulgarian Properties",
+   "url": "https://www.bulgarianproperties.com/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 69,
+   "name": "FOX Realty",
+   "url": "https://foxrealty.com.cy/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 70,
+   "name": "M&M Reality",
+   "url": "https://www.mmreality.cz/nemovitosti/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 71,
+   "name": "VON POLL Immobilien",
+   "url": "https://www.von-poll.com/de/immobilien",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 72,
+   "name": "EDC",
+   "url": "https://www.edc.dk/bolig/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 73,
+   "name": "Uus Maa",
+   "url": "https://uusmaa.ee/en/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 74,
+   "name": "Tecnocasa España",
+   "url": "https://www.tecnocasa.es/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 75,
+   "name": "Kiinteistömaailma",
+   "url": "https://www.kiinteistomaailma.fi/myytavat_asunnot",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 76,
+   "name": "Orpi",
+   "url": "https://www.orpi.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 77,
+   "name": "Grekodom",
+   "url": "https://www.grekodom.com/",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "ValueError: robots.txt disallows this URL",
+   "retry_after": "2026-10-26T06:48:55.982554+00:00"
+  },
+  {
+   "id": 78,
+   "name": "Opereta",
+   "url": "https://www.opereta.hr/nekretnine/prodaja",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 79,
+   "name": "Duna House",
+   "url": "https://dh.hu/elado-ingatlan",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 80,
+   "name": "Sherry FitzGerald",
+   "url": "https://www.sherryfitz.ie/buy",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 81,
+   "name": "Tecnocasa Italia",
+   "url": "https://www.tecnocasa.it/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 82,
+   "name": "Ober-Haus Lithuania",
+   "url": "https://www.ober-haus.lt/en/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 83,
+   "name": "INOWAI",
+   "url": "https://www.inowai.com/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 84,
+   "name": "Latio",
+   "url": "https://latio.lv/en/properties",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 85,
+   "name": "Frank Salt",
+   "url": "https://franksalt.com.mt/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 86,
+   "name": "Brockhoff",
+   "url": "https://brockhoff.nl/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 87,
+   "name": "Metrohouse",
+   "url": "https://metrohouse.pl/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 88,
+   "name": "RE/MAX Portugal",
+   "url": "https://remax.pt/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 89,
+   "name": "RE/MAX Romania",
+   "url": "https://www.remax.ro/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 90,
+   "name": "Fastighetsbyrån",
+   "url": "https://www.fastighetsbyran.com/sv/sverige",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 91,
+   "name": "Stoja",
+   "url": "https://www.stoja-trade.si/en/nepremicnine/prodaja",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 92,
+   "name": "RE/MAX Slovakia",
+   "url": "https://www.remax-slovakia.sk/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 93,
+   "name": "VGP – javni kriteriji kupnje zemljišta u Europi",
+   "url": "https://www.vgpparks.eu/what-we-do/prime-locations/",
+   "is_active": false,
+   "group": "buyer_acquisition_pages",
+   "last_error": "ValueError: No explicit public acquisition demand; company profile is not a buyer request",
+   "retry_after": null
+  },
+  {
+   "id": 94,
+   "name": "C&P Immobilien – kupnja zemljišta i objekata za razvoj",
+   "url": "https://www.cp-ag.at/en/contact/project-purchase/",
+   "is_active": false,
+   "group": "buyer_acquisition_pages",
+   "last_error": "ValueError: No explicit public acquisition demand; company profile is not a buyer request",
+   "retry_after": null
+  },
+  {
+   "id": 95,
+   "name": "PEVEX – javna kupnja građevinskog zemljišta",
+   "url": "https://kompanija.pevex.hr/oglas-za-kupnju-gradjevinskog-zemljista",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-25T15:38:32.432231+00:00"
+  },
+  {
+   "id": 96,
+   "name": "Pollmeier Bau – Ankaufsprofil",
+   "url": "https://pollmeier-bau.de/ankaufsprofil/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 97,
+   "name": "Gobidreal – dražbe nekretnina",
+   "url": "https://www.gobidreal.it/it/aste/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 98,
+   "name": "Immo Notaires Enchères – javnobilježničke dražbe",
+   "url": "https://immonotairesencheres.com/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 99,
+   "name": "Licitor – sudske dražbe nekretnina",
+   "url": "https://www.licitor.com/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 100,
+   "name": "Galway County Council — javna kupnja zemljišta",
+   "url": "https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 101,
+   "name": "Land Development Agency — javna kupnja zemljišta",
+   "url": "https://lda.ie/projects/private-land-acquisition",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 102,
+   "name": "NESTOR",
+   "url": "https://www.immonestor.at/immobilien",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 103,
+   "name": "ADAMANT",
+   "url": "https://www.adamant-immobilien.at/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 104,
+   "name": "Immolution",
+   "url": "https://www.immolution.at/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 105,
+   "name": "Raiffeisen Immobilien — Eisenstadt",
+   "url": "https://www.raiffeisen-immobilien.at/de/wohnung-kaufen",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 106,
+   "name": "Zweitwohnsitze",
+   "url": "https://zweitwohnsitze.com/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 107,
+   "name": "Guetig Group",
+   "url": "https://guetig-group.com/purchase-profile-real-estate/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 108,
+   "name": "GARBE Industrial",
+   "url": "https://www.garbe-industrial.de/wp-content/uploads/2020/12/Ankaufsprofil_en_ar.pdf",
+   "is_active": false,
+   "group": "pdf_acquisition_profiles",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 109,
+   "name": "TSC Real Estate Germany GmbH",
+   "url": "https://www.tsc-realestate.de/wp-content/uploads/2025/02/02_25_Ankaufsprofil_TSC-Real-Estate_D_E.pdf",
+   "is_active": false,
+   "group": "pdf_acquisition_profiles",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 110,
+   "name": "777 Capital Partners",
+   "url": "https://777capital.com/acquisition-profile-real-estate-purchase/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 111,
+   "name": "Eurospin Hrvatska d.o.o.",
+   "url": "https://www.eurospin.hr/zemljiste/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": 112,
+   "name": "Norauto Italia S.p.A.",
+   "url": "https://www.norauto.it/e/sviluppo.html",
+   "is_active": false,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-26T09:07:56.932095+00:00"
+  },
+  {
+   "id": 113,
+   "name": "AXIORA BAU d.o.o.",
+   "url": "https://axiora-bau.hr/zemljiste.html",
+   "is_active": false,
+   "group": "buyer_acquisition_pages",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 114,
+   "name": "Invest in Italy Real Estate — ICE",
+   "url": "https://www.investinitalyrealestate.com/it/",
+   "is_active": false,
+   "group": "structured_property_adapter",
+   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "retry_after": null
+  },
+  {
+   "id": 115,
+   "name": "Emporia d.o.o. Zadar",
+   "url": "https://www.emporia-realestate.com/",
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": null,
+   "retry_after": null
+  }
+ ],
+ "scope": "Diagnostics only; no activation, buyer verification or full coverage claim"
+}
