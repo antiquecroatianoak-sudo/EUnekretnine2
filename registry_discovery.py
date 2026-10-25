@@ -307,9 +307,14 @@ def emporia_record(source,url,page,nodes,now):
     if len(title)<8 or page.meta.get('og:url')!=url:raise RejectedListing('Missing primary canonical title')
     text=' '.join(' '.join(page.text).split())
     # Start after the navigation/title duplication and stop before search widgets.
-    marker=title+' Print '
-    if marker not in text:raise RejectedListing('Primary listing header changed')
-    body=text.split(marker,1)[1].split('Additional features',1)[0]
+    # WordPress headings use typographic dashes while og:title uses ASCII.
+    # Normalize typography only; keep canonical and property title checks.
+    def header_text(value):
+        return ' '.join(re.sub(r'[\u2010-\u2015\u2212]', '-', value).split())
+    normalized=header_text(text)
+    marker=header_text(title)+' Print '
+    if marker not in normalized:raise RejectedListing('Primary listing header changed')
+    body=normalized.split(marker,1)[1].split('Additional features',1)[0]
     header=re.match(r'(?P<price>[\d.,]+\s*€|Price on request)\s+(?P<ref>[A-Z]+\d+)\s+(?P<state>For Sale|Sold|For Rent)\b',body)
     if not header:raise RejectedListing('Missing primary price/reference/offer')
     if header['state']=='For Rent':raise RejectedListing('Rental listing')
