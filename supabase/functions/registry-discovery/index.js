@@ -1,6 +1,7 @@
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {mergeCandidate} from './merge.mjs';
+import {runCountry} from './national-enrichment.mjs';
 const repo='antiquecroatianoak-sudo/EUnekretnine2',audience='eu-property-discovery:izpzsfiqvransehvmuzn';
 const jwks=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -41,6 +42,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Invalid JSON'},400)}
  try{
   const sql=db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:1,prepare:false,idle_timeout:5,connect_timeout:10});
+  if(body.action==='enrichment-country')return reply(await runCountry(sql,body.country));
   if(body.action==='registry'){
    await sql`select site_private.reconcile_listing_lifecycle()`;
    const sources=await sql`select id,country,name,url,category from sources order by id`;
@@ -100,4 +102,5 @@ Deno.serve(async req=>{
   return reply({...result,candidates:body.candidates.length});
  }catch(e){console.error('registry-discovery',e?.name,e?.code);return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
+
 

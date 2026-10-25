@@ -6,6 +6,9 @@ on:
   push:
     paths:
       - discovery.py
+      - national_enrichment.py
+      - supabase/functions/registry-discovery/national-enrichment.mjs
+      - test_national_enrichment.mjs
       - registry_discovery.py
       - source_leads.py
       - test_source_leads.py
@@ -93,3 +96,28 @@ jobs:
       - name: Označi nepotpun dohvat
         if: steps.discovery.outcome == 'failure' || steps.registry.outcome == 'failure'
         run: exit 1
+
+
+  national-enrichment:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: national-enrichment-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Provjeri državu, potpuni identitet, proturječja i očuvanje podataka
+        run: node --test test_national_enrichment.mjs
+      - name: Dopuni postojeće zapise kroz nacionalne servise po državama EU27
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python national_enrichment.py
