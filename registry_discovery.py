@@ -470,6 +470,9 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
     return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
 
 def process(source,state,fetcher,deadline,max_pages=25):
+    if source.get('import_config',{}).get('shared_structured_property') is True:
+        from property_connector import collect
+        return collect(source,state,fetcher,deadline,max_pages)
     if source['url'].rstrip('/') in PUBLIC_LAND_CALLS:
         stamp=datetime.now(timezone.utc).isoformat();sid='registry-'+str(source['id'])
         try:
@@ -694,6 +697,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
