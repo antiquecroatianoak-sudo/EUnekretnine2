@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {mergeSnapshot} from './supabase/functions/discovery-sync/snapshot-merge.mjs';
 import {identityFor,requestFor,parseResult,mergeEnrichment,enrich,isoCountry} from './supabase/functions/registry-discovery/national-enrichment.mjs';
 const nl={country_iso:'NL',issuer:'Kadaster',identifier_type:'cadastral_parcel',municipality_code:'TTR00',section:'A',parcel:'00023',source_url:'https://example.org/original-listing'};
 const body={country:'Nizozemska',verified:false,first_seen:'2020-01-01',facts:{registry_identity:nl,area:70,manual_note:'Keep me'}};
@@ -52,4 +53,9 @@ test('unconfirmed identity performs no network request',async()=>{
 });
 test('403 is preserved as a blocker without retries',async()=>{
  let calls=0;const r=await enrich(row,body,async()=>{calls++;return {ok:false,status:403}});assert.equal(calls,1);assert.equal(r.status,'service_error');assert.equal(r.http_status,403);
+});
+test('a fresh listing import preserves national evidence, review and first_seen',()=>{
+ const prior={...body,verified:true,status:'Ručno provjereno',facts:{...body.facts,registry_enrichment:{fields:{cadastral_area_m2:{value:880}}}}};
+ const incoming={country:body.country,first_seen:'2026-10-25',verified:false,status:'Za provjeru',facts:{asking_price:250000}};
+ const merged=mergeSnapshot(prior,incoming);assert.deepEqual(merged.facts.registry_enrichment,prior.facts.registry_enrichment);assert.equal(merged.verified,true);assert.equal(merged.first_seen,prior.first_seen);assert.equal(merged.status,prior.status);assert.equal(merged.facts.asking_price,250000);
 });

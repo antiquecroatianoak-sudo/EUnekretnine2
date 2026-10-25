@@ -100,7 +100,7 @@ Deno.serve(async req=>{
    return {inserted,updated};
   });
   return reply({...result,candidates:body.candidates.length});
- }catch(e){console.error('registry-discovery',e?.name,e?.code);return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
+ }catch(e){console.error('registry-discovery',e?.name,e?.code,body.action==='enrichment-country'?String(e?.message).slice(0,200):'');return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
 
 

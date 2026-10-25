@@ -76,26 +76,33 @@ export async function runCountry(sql,country){
  let state={};try{state=JSON.parse(saved?.body_json||'{}')}catch{}
  const cursor=typeof state.next_cursor==='string'?state.next_cursor:'';
  const rows=await sql`select id,country,body_json from source_candidates where kind='property' and country in (${country},${COUNTRIES[country]}) and id>${cursor} order by id limit 100`;
- const counts={},processed=[],writeConflicts=[];
+ const counts={},processed=[],writeConflicts=[],pending=[];
  let networkRequests=0;
  for(const row of rows){
   let body;try{body=JSON.parse(row.body_json)}catch{counts.invalid_json=(counts.invalid_json||0)+1;processed.push(row.id);continue;}
   const check=identityFor(row,body);
-  // At most two live requests per batch; deferred rows are explicit and revisited next cycle.
   const result=check.status==='ready'&&networkRequests>=2?{status:'deferred_request_budget',version:VERSION,checked_at:new Date().toISOString(),fields:{},missing:['Deferred to a later bounded pass']}:(await enrich(row,body));
   if(check.status==='ready'&&result.status!=='deferred_request_budget')networkRequests++;
   counts[result.status]=(counts[result.status]||0)+1;
-  await sql.begin(async tx=>{
-   const [current]=await tx`select body_json,country from source_candidates where id=${row.id} for update`;
-   // If identity/source changed during network lookup, retry later instead of writing stale evidence.
-   if(!current||current.body_json!==row.body_json||current.country!==row.country){writeConflicts.push(row.id);return;}
-   const merged=mergeEnrichment(body,result);
-   await tx`update source_candidates set body_json=${JSON.stringify(merged)} where id=${row.id} and body_json=${row.body_json}`;
-   const [verify]=await tx`select body_json from source_candidates where id=${row.id}`;
-   if(JSON.parse(verify.body_json).facts.registry_enrichment.automatic.checked_at!==result.checked_at)throw Error('Enrichment write verification failed');
-  });
-  processed.push(row.id);
+  pending.push({row,body,result});processed.push(row.id);
  }
+ // Lock and write one bounded batch, avoiding hundreds of database round trips.
+ if(pending.length)await sql.begin(async tx=>{
+  const locked=await tx`select id,country,body_json from source_candidates where id=any(${pending.map(p=>p.row.id)}::text[]) for update`;
+  const current=new Map(locked.map(r=>[r.id,r])),updates=[];
+  for(const item of pending){
+   const prior=current.get(item.row.id);
+   if(!prior||prior.body_json!==item.row.body_json||prior.country!==item.row.country){writeConflicts.push(item.row.id);continue;}
+   updates.push({id:item.row.id,expected:prior.body_json,body_json:JSON.stringify(mergeEnrichment(item.body,item.result)),stamp:item.result.checked_at});
+  }
+  if(updates.length){
+   await tx`update source_candidates c set body_json=v.body_json from unnest(${updates.map(u=>u.id)}::text[],${updates.map(u=>u.body_json)}::text[],${updates.map(u=>u.expected)}::text[]) as v(id,body_json,expected) where c.id=v.id and c.body_json=v.expected`;
+   const verified=await tx`select id,body_json from source_candidates where id=any(${updates.map(u=>u.id)}::text[])`;
+   const wanted=new Map(updates.map(u=>[u.id,u]));
+   if(verified.length!==updates.length)throw Error('Enrichment batch verification count mismatch');
+   for(const v of verified)if(JSON.parse(v.body_json).facts.registry_enrichment.automatic.checked_at!==wanted.get(v.id).stamp)throw Error('Enrichment write verification failed: '+v.id);
+  }
+ });
  // Standalone properties have no source_candidate body for supplementary evidence.
  // Record their exact gap in a separate checkpoint without fabricating candidates.
  const standalone=await sql`select p.id,p.country,p.source from properties p where p.country in (${country},${COUNTRIES[country]}) and not exists(select 1 from source_candidates c where c.property_id=p.id) order by p.id limit 100`;

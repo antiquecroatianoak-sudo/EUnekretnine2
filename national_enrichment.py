@@ -1,5 +1,6 @@
 """Country-fair bounded enrichment, authenticated by existing GitHub OIDC policy."""
 import json
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from sync_discovery import request_token
 
@@ -17,6 +18,13 @@ def main():
             with urlopen(request, timeout=90) as response:
                 result = json.load(response)
             print(country, 'processed', result['processed'], 'outcomes', result['counts'], 'cycle_complete', result['cycle_complete'])
+        except HTTPError as error:
+            try:
+                detail = json.load(error).get('detail', 'No detail')
+            except Exception:
+                detail = 'No JSON detail'
+            print(country, 'enrichment HTTP', error.code, str(detail)[:200])
+            errors.append(country)
         except Exception as error:
             # Do not print tokens, complete request payloads or private record URLs.
             print(country, 'enrichment failed:', type(error).__name__)

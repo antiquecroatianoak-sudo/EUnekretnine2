@@ -1,3 +1,4 @@
+import {mergeSnapshot} from './snapshot-merge.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
@@ -44,7 +45,10 @@ Deno.serve(async req=>{
   const snapshot=body.snapshot;
   const result=await sql.begin(async tx=>{
    for(let n=0;n<snapshot.candidates.length;n+=100){
-    const rows=snapshot.candidates.slice(n,n+100).map(r=>({id:r.id,source_id:r.source_id,kind:r.kind,title:r.title,country:r.country,url:r.url,body_json:JSON.stringify(r),last_seen:r.last_seen}));
+    const batch=snapshot.candidates.slice(n,n+100);
+    const previous=await tx`select id,body_json from source_candidates where id=any(${batch.map(r=>r.id)}::text[]) for update`;
+    const prior=new Map(previous.map(r=>[r.id,JSON.parse(r.body_json)]));
+    const rows=batch.map(incoming=>{const r=mergeSnapshot(prior.get(incoming.id),incoming);return {id:r.id,source_id:r.source_id,kind:r.kind,title:r.title,country:r.country,url:r.url,body_json:JSON.stringify(r),last_seen:r.last_seen}});
     if(rows.length)await tx`insert into source_candidates ${tx(rows,'id','source_id','kind','title','country','url','body_json','last_seen')} on conflict(id) do update set title=excluded.title,country=excluded.country,url=excluded.url,body_json=excluded.body_json,last_seen=excluded.last_seen where source_candidates.last_seen<=excluded.last_seen`;
    }
    for(const r of snapshot.runs)await tx`insert into discovery_runs(source_id,status,checked_at,body_json) values(${r.source_id},${r.status},${r.checked_at},${JSON.stringify(r)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
@@ -59,3 +63,4 @@ Deno.serve(async req=>{
   return reply(result);
  }catch(e){console.error('discovery-sync failed',e?.code||e?.name);return reply({error:'Synchronization failed; transaction rolled back'},500)}
 });
+
