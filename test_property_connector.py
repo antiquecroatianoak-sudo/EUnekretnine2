@@ -95,5 +95,70 @@ class DiscoveryAndLatioTests(unittest.TestCase):
         p=Page('<a href="/en/services/property-management/">Property management</a><a href="/en/properties-title/exclusive-offers">Offers</a><a href="/en/properties/139627">House</a>')
         found=links(p,'https://latio.lv/en/properties',objects,lambda u,r:u,'https://latio.lv/en/properties')
         self.assertEqual(found[0],'https://latio.lv/en/properties/139627');self.assertFalse(any('/services/' in u for u in found))
+    def test_hyphenated_sale_categories_are_discovered(self):
+        from property_connector import links,category_url
+        from registry_discovery import Page,objects
+        p=Page('<a href="/en/apartments-for-sale/">Residential properties</a>')
+        found=links(p,'https://agency.example/',objects,lambda u,r:u,'https://agency.example/')
+        self.assertEqual(found,['https://agency.example/en/apartments-for-sale/'])
+        self.assertTrue(category_url(found[0]));self.assertFalse(category_url('https://agency.example/property/12345'))
+    def test_probe_follows_category_and_saves_only_individual_record(self):
+        import json
+        from property_connector import run_source
+        from registry_discovery import Page,objects
+        root='https://agency.example/';category=root+'en/houses-for-sale/';detail=root+'property/12345'
+        n=PrimaryListingTests();n.setUp();n.n['url']=detail
+        pages={root:'<a href="'+category+'">Houses</a>',category:'<a href="'+detail+'">House</a>',detail:'<script type="application/ld+json">'+json.dumps(n.n)+'</script>'}
+        calls=[]
+        class Fetch:
+            def __init__(self,u):pass
+            def get(self,u):return pages[u]
+        def api(body):calls.append(body);return {'candidates':1,'inserted':1,'updated':0}
+        r=run_source({'id':99,'name':'Agency','url':root},api,Fetch,Page,objects,lambda u,r:u,'2026-10-25T21:00:00Z')
+        self.assertEqual(r['status'],'batch_confirmed');self.assertEqual(r['inserted'],1);self.assertEqual(calls[0]['candidates'][0]['url'],detail)
+    def test_real_listing_with_category_like_url_is_not_discarded(self):
+        import json
+        from property_connector import run_source
+        from registry_discovery import Page,objects
+        root='https://agency.example/';detail=root+'house-for-sale-nice'
+        n=PrimaryListingTests();n.setUp();n.n['url']=detail
+        pages={root:'<a href="'+detail+'">House for sale</a>',detail:'<script type="application/ld+json">'+json.dumps(n.n)+'</script>'}
+        class Fetch:
+            def __init__(self,u):pass
+            def get(self,u):return pages[u]
+        r=run_source({'id':99,'name':'Agency','url':root},lambda body:{'candidates':1,'inserted':1,'updated':0},Fetch,Page,objects,lambda u,r:u,'2026-10-25T21:00:00Z')
+        self.assertEqual(r['inserted'],1)
+
+class OberCatalogueTests(unittest.TestCase):
+    def page(self,rental=False,agent=True,area='96.00'):
+        from registry_discovery import Page
+        kind='Nuomojamas butas' if rental else 'Parduodamas butas'
+        u='https://www.ober-haus.lt/butas-pardavimas-kauno,12816768'
+        h='<meta property="og:url" content="'+u+'"><meta property="og:title" content="'+kind+': Kauno m. sav., Street">'
+        h+='Atgal į paiešką '+kind+' 300 000 € Visas plotas '+area+' m² Nuoroda https://www.ober-haus.lt/OH507136 Apie šį turtą Plotas - 95,52 kv. m '
+        if agent:h+='<a href="/darbuotoju-kontaktai/agent/">Named Agent</a> agent@ober-haus.lt '
+        h+='Panašūs objektai 999 000 € info@ober-haus.lt'
+        return Page(h)
+    def parse(self,p):
+        from property_connector import primary_record
+        return primary_record({'id':82},'https://www.ober-haus.lt/butas-pardavimas-kauno,12816768',[],'2026-10-25T21:00:00Z',p)
+    def test_agent_and_price_are_primary(self):
+        f=self.parse(self.page())['facts'];self.assertEqual(f['asking_price'],300000);self.assertEqual(f['source_contact']['email'],'agent@ober-haus.lt')
+    def test_conflicting_area_not_selected(self):
+        f=self.parse(self.page())['facts'];self.assertNotIn('advertised_area',f);self.assertEqual(f['area_conflict']['description_building_m2'],[95.52])
+    def test_rental_rejected(self):
+        with self.assertRaises(ValueError):self.parse(self.page(rental=True))
+    def test_generic_footer_contact_not_used(self):
+        with self.assertRaises(ValueError):self.parse(self.page(agent=False))
+    def test_public_json_and_next_page_are_preserved(self):
+        import json
+        from property_connector import catalogue_page
+        from registry_discovery import Page
+        class Fetch:
+            def get(self,u):
+                self.url=u
+                return json.dumps({'objects':[{'id':'12816768','html':'<a href="https://www.ober-haus.lt/butas-pardavimas-kauno,12816768">Sale</a>'}],'totalObjects':13,'pagination':'<a data-page="2">next</a>'})
+        fetch=Fetch();p=catalogue_page({'url':'https://www.ober-haus.lt/en/'},'https://www.ober-haus.lt/en/',fetch,Page)
+        self.assertIn('type=Apartment+for+sale',fetch.url);self.assertIn('page=2',p.next[0]);self.assertEqual(len(p.links),1)
 
 if __name__=='__main__':unittest.main()

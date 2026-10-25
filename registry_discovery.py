@@ -239,6 +239,7 @@ def objects(value):
 def content_accept(url):
     """Request the published representation, not HTML from JSON/XML services."""
     path=urlsplit(url).path
+    if urlsplit(url).hostname=='www.ober-haus.lt' and path=='/api/object.php':return 'application/json'
     if path.startswith(('/pub-services/inotr-www-annonces/v1/','/api/eco/biddit-bff/')):
         return 'application/json'
     if path.endswith('.xml'):return 'application/xml,text/xml;q=0.9'
