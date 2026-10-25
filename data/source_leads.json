@@ -4,7 +4,7 @@
   "kandidat_nekretnine": 12,
   "nedostupno": 6,
   "nije_relevantno": 11,
-  "robots_zabrana": 3
+  "robots_zabrana": 4
  },
  "leads": [
   {
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -164,7 +164,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "nedostupno"
   },
   {
@@ -184,7 +184,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "nedostupno"
   },
   {
@@ -204,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -250,7 +250,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -270,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "nedostupno"
   },
   {
@@ -596,8 +596,34 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "blokirano"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-25T12:59:28.035060+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Nebenkostenübersicht_Verkauf_Makler_Hubert_Poustka_Raiffeisen-Immobilien",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/amstetten/wohnkomfort-trifft-natur-modernes-holzriegelhaus-mit-pool-und-garten-auf-baurechtsgrund-in-krenstetten-927092370/",
+     "seen": "2026-10-25T12:59:27.949622+00:00",
+     "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/8125f1a114c245f2870e6f310d1f077dd6f1842e/8125f1a114c245f2870e6f310d1f077dd6f1842e.pdf"
+    },
+    {
+     "anchor": "IMMOBILIE ZU VERKAUFEN ODER ZU VERMIETEN",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/sankt-poelten-land/zweifamilienhaus-in-wilhelmsburg-1349823944/",
+     "seen": "2026-10-25T12:59:27.949622+00:00",
+     "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/ee71843c52e0ee913f2a3ed9a772b54b794b859a/ee71843c52e0ee913f2a3ed9a772b54b794b859a.pdf"
+    }
+   ],
+   "first_seen": "2026-10-25T12:59:27.949622+00:00",
+   "host": "interface.ris.immo",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "status": "robots_zabrana"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -622,7 +648,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -650,7 +676,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "nedostupno"
   },
   {
@@ -718,7 +744,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -904,7 +930,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T12:59:27.949622+00:00",
    "status": "nedostupno"
   },
   {
@@ -965,6 +991,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T10:03:11.294768+00:00",
- "verified_at": "2026-10-25T10:03:11.377073+00:00"
+ "updated_at": "2026-10-25T12:59:27.949622+00:00",
+ "verified_at": "2026-10-25T12:59:28.035060+00:00"
 }
