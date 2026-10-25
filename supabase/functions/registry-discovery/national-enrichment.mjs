@@ -16,15 +16,15 @@ export function identityFor(row,body){
  if(i.country_iso!==country)return {status:'identity_conflict',missing:['Resolve country mismatch; no lookup performed'],country};
  const evidence=f.registry_identity?.source_url||Object.values(f.registry_enrichment?.fields||{}).find(v=>v?.source_url)?.source_url;
  if(typeof evidence!=='string'||!/^https:\/\//.test(evidence))return {status:'country_unconfirmed',missing:['Documented source of the property identifier and country'],country};
- if(i.unit||i.units?.length>1)return {status:'unit_review_required',missing:['Verified relation of individual unit to parcel; parcel data is not unit data'],country};
+ if(i.unit||i.units?.length>1||f.property_type==='Stan')return {status:'unit_review_required',missing:['Verified relation of individual unit to parcel; parcel data is not unit data'],country};
  const id={...i,country_iso:country};
- if(country==='NL'&&i.issuer==='Kadaster'&&i.identifier_type==='cadastral_parcel'&&/^[A-Z]{3}\d{2}$/.test(i.municipality_code||'')&&/^[A-Z]{1,2}$/.test(i.section||'')&&/^\d{1,5}$/.test(i.parcel||''))return {status:'ready',country,identity:id};
+ if(country==='NL'&&i.issuer==='Kadaster'&&i.identifier_type==='cadastral_parcel'&&(/^[A-Z]{3}\d{2}$/.test(i.municipality_code||'')||/^[\p{L} '\-]{2,100}$/u.test(i.municipality_name||''))&&/^[A-Z]{1,2}$/.test(i.section||'')&&/^\d{1,5}$/.test(i.parcel||''))return {status:'ready',country,identity:id};
  if(country==='FR'&&i.issuer==='DGFiP'&&i.identifier_type==='cadastral_parcel'&&/^\d{5}$/.test(i.municipality_code||'')&&/^\d{3}$/.test(i.prefix||'')&&/^\w{2}$/.test(i.section||'')&&/^\d{4}$/.test(i.parcel||''))return {status:'ready',country,identity:id};
  if(!SERVICES[country]||SERVICES[country].status!=='enabled')return {status:'adapter_required',country,identity:id,missing:[SERVICES[country]?.reason||'Verify official national service, licence and adapter before lookup']};
  return {status:'missing_identity',country,missing:['Complete issuer, identifier type, local municipality code, section/prefix, parcel and unit identity; preserve original zeroes']};
 }
 export function requestFor(i){
- if(i.country_iso==='NL')return 'https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1/collections/perceel/items?'+new URLSearchParams({akr_kadastrale_gemeente_code_waarde:i.municipality_code,sectie:i.section,perceelnummer:i.parcel,limit:'2',f:'json'});
+ if(i.country_iso==='NL')return 'https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1/collections/perceel/items?'+new URLSearchParams({...(i.municipality_code?{akr_kadastrale_gemeente_code_waarde:i.municipality_code}:{kadastrale_gemeente_waarde:i.municipality_name}),sectie:i.section,perceelnummer:i.parcel,limit:'2',f:'json'});
  if(i.country_iso==='FR')return 'https://apicarto.ign.fr/api/cadastre/parcelle?'+new URLSearchParams({code_insee:i.municipality_code,com_abs:i.prefix,section:i.section,numero:i.parcel,_limit:'2',source_ign:'PCI'});
  throw Error('No enabled national adapter');
 }
@@ -33,7 +33,7 @@ export function parseResult(identity,json,url,readAt){
  // Never silently pick one result, even when the first happens to match.
  if(json.features.length!==1||json.numberMatched>1||json.totalFeatures>1||json.links?.some(x=>x.rel==='next'))return {status:json.features.length?'ambiguous':'not_found',fields:{},missing:['Unique official parcel match']};
  const feature=json.features[0],p=feature.properties||{},nl=identity.country_iso==='NL';
- const match=nl?p.akr_kadastrale_gemeente_code_waarde===identity.municipality_code&&p.sectie===identity.section&&String(p.perceelnummer)===String(Number(identity.parcel)):
+ const match=nl?(identity.municipality_code?p.akr_kadastrale_gemeente_code_waarde===identity.municipality_code:String(p.kadastrale_gemeente_waarde).toLowerCase()===identity.municipality_name.toLowerCase())&&p.sectie===identity.section&&String(p.perceelnummer)===String(Number(identity.parcel)):
  (p.code_insee||String(p.code_dep||'')+String(p.code_com||''))===identity.municipality_code&&p.com_abs===identity.prefix&&p.section===identity.section&&p.numero===identity.parcel;
  if(!match)return {status:'identity_conflict',fields:{},missing:['Official response does not match complete requested identity']};
  if(nl&&p.status_historie_waarde!=='Geldig')return {status:'historical_record',fields:{},missing:['Current valid official parcel record']};

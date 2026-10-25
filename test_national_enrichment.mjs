@@ -59,3 +59,11 @@ test('a fresh listing import preserves national evidence, review and first_seen'
  const incoming={country:body.country,first_seen:'2026-10-25',verified:false,status:'Za provjeru',facts:{asking_price:250000}};
  const merged=mergeSnapshot(prior,incoming);assert.deepEqual(merged.facts.registry_enrichment,prior.facts.registry_enrichment);assert.equal(merged.verified,true);assert.equal(merged.first_seen,prior.first_seen);assert.equal(merged.status,prior.status);assert.equal(merged.facts.asking_price,250000);
 });
+test('exact municipality name is resolved only inside the chosen national service',()=>{
+ const byName={...nl,municipality_code:undefined,municipality_name:'Teteringen'};
+ assert.equal(identityFor(row,{...body,facts:{registry_identity:byName}}).status,'ready');
+ assert.equal(parse({features:[{properties:{...feature.properties,kadastrale_gemeente_waarde:undefined}}]},byName).status,'identity_conflict');
+ const withName={properties:{...feature.properties,kadastrale_gemeente_waarde:'Teteringen'}};
+ assert.equal(parse({features:[withName]},byName).status,'matched');
+ assert.equal(parse({features:[withName]},{...byName,municipality_name:'Waalre'}).status,'identity_conflict');
+});
