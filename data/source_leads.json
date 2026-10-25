@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 2,
-  "kandidat_nekretnine": 9,
+  "kandidat_nekretnine": 11,
   "nedostupno": 6,
   "nije_relevantno": 9,
   "robots_zabrana": 3
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -136,7 +136,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "nedostupno"
   },
   {
@@ -156,7 +156,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "nedostupno"
   },
   {
@@ -176,7 +176,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -216,7 +216,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -236,7 +236,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "nedostupno"
   },
   {
@@ -434,6 +434,62 @@
    "title": "Home - NESTOR | Immobilien in Wien: Immobilienmakler NESTOR Immobilien Wien"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T01:02:39.307432+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/niederoesterreich/moedling/stadthaus-am-idyllischen-moedlingbach-1698887512/",
+     "seen": "2026-10-25T01:02:39.208893+00:00",
+     "url": "https://immopulz.at/property/stadthaus-am-moedlingbach/"
+    }
+   ],
+   "first_seen": "2026-10-25T01:02:39.208893+00:00",
+   "host": "immopulz.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "signals": {
+    "areas": 29,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 11,
+    "property_words": 25
+   },
+   "status": "kandidat_nekretnine",
+   "title": "STADTHAUS am MÖDLINGBACH – PULZ IMMOBILIEN STADTHAUS am MÖDLINGBACH"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T01:02:39.307432+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Webseite",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/oberoesterreich/linz/zentrale-geschaeftsflaeche-mit-starker-sichtbarkeit-werthaltige-geschaeftsflaeche-in-linzer-frequenzlage-mit-starker-sichtbarkeit-und-flexibler-flaechenstruktur-1300081851/",
+     "seen": "2026-10-25T01:02:39.208893+00:00",
+     "url": "https://www.immoquelle.at/immobilien/zentrale-geschaftsflache-mit-starker-sichtbarkeit---werthaltige-geschaftsflache-in-linzer-frequenzlage---mit-starker-sichtbarkeit-und-flexibler-flachenstruktur"
+    }
+   ],
+   "first_seen": "2026-10-25T01:02:39.208893+00:00",
+   "host": "immoquelle.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "signals": {
+    "areas": 15,
+    "buyer_words": 1,
+    "listing_types": 0,
+    "prices": 3,
+    "property_words": 41
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Zentrale Geschäftsfläche mit starker Sichtbarkeit - Werthaltige Geschäftsfläche in Linzer Frequenzlage - mit starker Sichtbarkeit und flexibler Flächenstruktur "
+  },
+  {
    "check_note": "HTTP 403",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": "DE",
@@ -450,7 +506,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "blokirano"
   },
   {
@@ -476,7 +532,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -504,7 +560,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "nedostupno"
   },
   {
@@ -572,7 +628,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T16:05:55.948565+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -634,7 +690,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T15:50:03.901748+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -738,7 +794,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T01:02:39.208893+00:00",
    "status": "nedostupno"
   },
   {
@@ -799,6 +855,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-24T18:58:15.357806+00:00",
- "verified_at": "2026-10-24T18:58:15.458630+00:00"
+ "updated_at": "2026-10-25T01:02:39.208893+00:00",
+ "verified_at": "2026-10-25T01:02:39.307432+00:00"
 }
