@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-25T14:44:28.099Z",
+  "scope": "all_sources_properties_and_buyers",
+  "seller_contact_role": "agency_when_representing_listing",
+  "contact_rule": "Prihvatljiv je izravni kontakt ili kontakt agencije koja je izvor konkretne nekretnine odnosno potražnje i omogućuje obraćanje za taj zapis. Agencija koja zastupa prodaju vodi se kao prodajni kontakt. Ne tražimo izravne osobne kontakte njezinih klijenata.",
+  "property_fields": [
+    "ID ili referenca oglasa/agencije",
+    "izvorna poveznica i datum ažuriranja",
+    "država nekretnine",
+    "regija, grad/općina i lokacija za internu provjeru",
+    "vrsta i namjena nekretnine",
+    "površina i jasno značenje površine (zemljište/korisna/bruto)",
+    "stanje, obnova, rušenje ili neizgrađeno",
+    "tražena cijena i valuta ili početna/minimalna dražbena ponuda, jasno odvojene",
+    "poznati porezi, naknade i drugi troškovi",
+    "aktivnost/dostupnost i rok ponude ili dražbe",
+    "uvjeti prodaje i posebna ograničenja",
+    "navodi o vlasništvu, teretima i pravnom statusu uz dokumente i izvore",
+    "mogućnost gradnje, prostorni plan i dozvole uz dokumente gdje dostupni",
+    "kontakt agencije/prodavatelja povezan s konkretnim oglasom"
+  ],
+  "buyer_fields": [
+    "ID ili referenca potražnje/agencije",
+    "identitet kupca/investitora gdje ga je dopušteno podijeliti ili referenca koju agencija može povezati sa svojim klijentom",
+    "kontakt agencije/zastupnika ili izravni kontakt",
+    "izvor i datum aktualnosti potražnje",
+    "tražene države, regije i lokacije, odvojeno od sjedišta",
+    "vrste i namjena nekretnina",
+    "minimalna/maksimalna ili ciljna površina i tvrde granice ako postoje",
+    "prihvatljivo stanje, obnova, rušenje i razvoj",
+    "posebni uvjeti, namjena i rok kupnje",
+    "budžet i valuta ako su objavljeni; budžet nije obvezni kriterij isključenja"
+  ],
+  "missing_data_rule": "Nepoznato ostaje nepoznato, s oznakom za dopunu. Navod oglasa, dokument i neovisna provjera razlikuju se; uspješan dohvat nije potvrda pravne urednosti ni interesa.",
+  "template_hr": {
+    "subject": "Odobren pristup podacima i suradnja — EU Investicijske prilike",
+    "body": "Poštovani,\n\nRazvijamo privatnu platformu EU Investicijske prilike za usporedbu nekretnina s dokumentiranim kriterijima potencijalnih kupaca i investitora u državama EU.\n\nZainteresirani smo za odobren pristup ponudama nekretnina i/ili potražnjama kupaca/investitora koje zastupate, ovisno o vašoj djelatnosti. Izravni kontakti vaših klijenata nisu potrebni ako vam možemo dostaviti prijedlog za konkretnu ponudu ili potražnju, a vi ga obraditi sa svojim klijentom. Za nekretninu koju zastupate vaša agencija bila bi naš prodajni kontakt. Za zastupanu potražnju bila bi kontakt na strani kupca/investitora.\n\nZa nekretnine trebamo referencu oglasa, izvor i datum ažuriranja, državu i lokaciju za internu provjeru, vrstu i namjenu, površinu s oznakom što obuhvaća, stanje i mogućnost obnove/rušenja, cijenu i valutu, poznate dodatne troškove, aktualnu dostupnost, rokove i uvjete prodaje. Kod dražbi potrebno je odvojiti početnu/minimalnu ponudu od konačne prodajne cijene. Molimo i dostupne podatke i dokumentaciju o vlasništvu, teretima, pravnim ograničenjima, prostornom planu, mogućnosti gradnje i dozvolama; nepoznata polja mogu ostati označena kao nepoznata.\n\nZa kupce/investitore trebamo referencu potražnje, aktualne tražene države i lokacije, vrste i namjenu nekretnina, površinu ili raspon, prihvatljivo stanje (uključujući obnovu/rušenje), posebne uvjete i rokove te budžet i valutu ako su dostupni. Sjedište investitora ne smatramo državom njegove potražnje. Ako identitet klijenta nije moguće dijeliti, dovoljna je referenca uz koju ga vi možete prepoznati i obraditi naš prijedlog.\n\nMolimo potvrdite koje podatke smijete i možete ustupiti, dopušteno interno spremanje i uparivanje, mogućnost korištenja generičkih sažetaka, način pristupa (API, feed ili drugi odobreni izvoz), dokumentaciju, države, ograničenja, ažuriranje i povlačenje oglasa, prava korištenja, obvezno navođenje izvora te cijenu ili mogućnost probnog pristupa. Željeno osvježavanje je približno svakih šest sati, unutar vaših dopuštenih ograničenja.\n\nZa mogući par prijedlog dostavljamo odgovarajućoj agenciji. Naš predviđeni model uključuje generički opis nekretnine bez točne adrese i kontakta vlasnika radi provjere interesa; daljnje posredovanje i prodaju vodi licencirana agencija. Eventualna naknada bila bi unaprijed ugovorena i plativa tek nakon završene prodaje, uz primjenjive uvjete i pravila.\n\nOvo je upit o mogućnostima i uvjetima suradnje, a ne prihvat plaćene usluge, pretplate ili ugovora.\n\nSrdačan pozdrav,\nLuka Kadoić"
+  },
+  "automatic_sending": false,
+  "implementation_status": "policy_and_template_saved; contact_filter_pending"
+}
