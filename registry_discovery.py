@@ -31,6 +31,9 @@ DEMAND=re.compile(DEMAND.pattern+r'|\b(?:kupujemo|tražimo|iščemo)\s+(?:\w+\s+
 # Observed acquisition wording; these signals create unverified candidates only.
 DEMAND=re.compile(DEMAND.pattern+r'|\bnous\s+(?:achetons|recherchons)\s+(?:(?:des|vos|les|un|une)\s+)?(?:terrains?|biens|immeubles|maisons)\b|\bacquisition\s+(?:de\s+|d[\u0027’])(?:immeubles|terrains)\b|\bjavni\s+poziv\s+za\s+nakup\s+(?:stanovanj|zemljišč|nepremičnin)\b',re.I)
 
+# Reviewed public land-acquisition wording (AXIORA); still requires a buyer source.
+DEMAND=re.compile(DEMAND.pattern+r'|\btražimo\s+parcele\s+za\s+nove\s+stambene\s+projekte\b',re.I)
+
 class RejectedRedirect(ValueError):
     def __init__(self,source,target,reason):
         # Retain public location diagnostics, never query tokens or credentials.
