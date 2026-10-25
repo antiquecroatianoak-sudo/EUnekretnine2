@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 3,
-  "kandidat_nekretnine": 16,
+  "kandidat_nekretnine": 17,
   "nedostupno": 6,
   "nije_relevantno": 12,
   "robots_zabrana": 4
@@ -120,7 +120,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -148,7 +148,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -204,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "nedostupno"
   },
   {
@@ -224,7 +224,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "nedostupno"
   },
   {
@@ -244,7 +244,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -320,7 +320,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -372,7 +372,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -400,7 +400,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -420,7 +420,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "nedostupno"
   },
   {
@@ -752,7 +752,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "blokirano"
   },
   {
@@ -810,7 +810,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1072,7 +1072,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1148,8 +1148,36 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:59:06.111259+00:00",
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
    "status": "nedostupno"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T21:15:07.934373+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "SUCHE",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/oberoesterreich/linz/reihenhaus-mit-gebirgsblick-in-ruhiger-linzer-lage-ihr-wohntraum-mit-potenzial-1656178712/",
+     "seen": "2026-10-25T21:15:07.855743+00:00",
+     "url": "https://www.wag.at/immobilien/immobiliensuche/suche/"
+    }
+   ],
+   "first_seen": "2026-10-25T21:15:07.855743+00:00",
+   "host": "wag.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "signals": {
+    "areas": 251,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 228,
+    "property_words": 5
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobiliensuche - WAG Navigation umschalten Raum für dich"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1209,6 +1237,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T20:59:06.111259+00:00",
- "verified_at": "2026-10-25T20:59:06.197013+00:00"
+ "updated_at": "2026-10-25T21:15:07.855743+00:00",
+ "verified_at": "2026-10-25T21:15:07.934373+00:00"
 }
