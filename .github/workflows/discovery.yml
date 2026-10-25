@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - discovery.py
+      - source_batches.py
+      - test_source_batches.py
       - national_enrichment.py
       - supabase/functions/registry-discovery/national-enrichment.mjs
       - test_national_enrichment.mjs
@@ -64,9 +66,16 @@ jobs:
         with:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
-        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources test_source_leads
+        run: python -m unittest -v test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
         run: node test_verification.mjs
+      - name: Skupno dijagnosticiraj neaktivne izvore bez aktivacije ili promjene uvoznih cursora
+        id: source_batches
+        continue-on-error: true
+        timeout-minutes: 6
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python source_batches.py
       - name: Uvezi aktualni registar i nastavi spremljene stranice
         id: registry
         continue-on-error: true
@@ -85,7 +94,7 @@ jobs:
         run: |
           git config user.name 'EU platform source monitor'
           git config user.email 'source-monitor@users.noreply.github.com'
-          git add data/discovered_candidates.json data/source_leads.json
+          git add data/discovered_candidates.json data/source_leads.json data/source_batches.json
           if ! git diff --cached --quiet; then
             git commit -m 'Osvježi javne kandidate i stanje izvora'
             git pull --rebase origin main
