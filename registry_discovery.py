@@ -48,6 +48,7 @@ def validate_redirect(source,target,root):
     except ValueError as error:raise RejectedRedirect(source,target,error) from error
 
 DETAIL={
+ 'emporia-realestate.com':r'^/property/[^/]+/?$',
  **{h:r'^/objekt/\d+/?$' for h in JUSTIMMO},
  'raiffeisen-immobilien.at':r'^/de/immobilien/kauf/.+\.\d+$',
  'zweitwohnsitze.com':r'^/objekte/[^/]+\.html$',
@@ -70,6 +71,7 @@ DETAIL={
 # Scope rules are separate from property price/type filters. They prevent crawling
 # unrelated classifieds, editorial articles, agent directories and rental pages.
 SCOPES={
+ 'emporia-realestate.com':r'^/(?:$|property/|properties/|lands/)',
  **{h:r'^/(?:$|objekt/\d+/?$|immobilien(?:/|$))' for h in JUSTIMMO},
  'raiffeisen-immobilien.at':r'^/de/(?:wohnung-kaufen/?$|immobilien(?:/|$))',
  'zweitwohnsitze.com':r'^/(?:$|objekte(?:/|$))',
@@ -298,9 +300,43 @@ def save_rows(source_id,rows,state,api_call=api):
 def buyer_source(source):
     return bool(re.search(r'kupac|kupci|kupaca|investitor|akvizic|kriteriji|potražnja',source.get('category',''),re.I))
 
+def emporia_record(source,url,page,nodes,now):
+    """Parse the primary Emporia detail; never take values from related cards."""
+    if not re.fullmatch(r'/property/[^/]+/',urlsplit(url).path):raise RejectedListing('Not an Emporia detail')
+    title=page.meta.get('og:title','').strip()
+    if len(title)<8 or page.meta.get('og:url')!=url:raise RejectedListing('Missing primary canonical title')
+    text=' '.join(' '.join(page.text).split())
+    # Start after the navigation/title duplication and stop before search widgets.
+    marker=title+' Print '
+    if marker not in text:raise RejectedListing('Primary listing header changed')
+    body=text.split(marker,1)[1].split('Additional features',1)[0]
+    header=re.match(r'(?P<price>[\d.,]+\s*€|Price on request)\s+(?P<ref>[A-Z]+\d+)\s+(?P<state>For Sale|Sold|For Rent)\b',body)
+    if not header:raise RejectedListing('Missing primary price/reference/offer')
+    if header['state']=='For Rent':raise RejectedListing('Rental listing')
+    # Reviewed locality is in the property's own description, not the agency address.
+    if not re.search(r'\b(?:near Zadar|in Zadar|Zadar,|Zadar\b|Privlaka\b)',title+' '+body):raise RejectedListing('Property country needs explicit locality review')
+    facts={'transaction_type':'sale','reference':header['ref'],'currency':'EUR','asking_price':None,'availability':'Oglas prodaje opažen; dostupnost i pravna urednost zahtijevaju provjeru','evidence_excerpt':body[:1600],'country_basis':'Property locality in original Emporia detail; reviewed Zadar/Privlaka, Croatia','agency_name':'Emporia d.o.o. Zadar','agency_evidence_url':url,'contact_url':url,'contact_evidence':'Contact us enquiry form on this individual listing','source_listing_state':'removed' if header['state']=='Sold' else 'observed'}
+    if header['state']=='Sold':facts['source_status_evidence']='Primary listing label: Sold'
+    if header['price']!='Price on request':facts['asking_price']=float(header['price'].replace('€','').strip().replace('.','').replace(',','.'))
+    path=urlsplit(url).path
+    for label,typ in [('house-','Kuća'),('flat-','Stan'),('apartment-','Stan'),('urbanized-land-','Zemljište')]:
+        if path.startswith('/property/'+label):facts['property_type']=typ;break
+    number=lambda v:float(v.replace('.','').replace(',','.'))
+    for label,key in [('Living Area','building_area_m2'),('Plot Size','land_area_m2')]:
+        values=re.findall(re.escape(label)+r'\s+([\d.,]+)\s*m²',body)
+        if len(values)==1:facts[key]=number(values[0])
+    # Keep conflicting descriptive plot size separate and do not choose one.
+    described=re.findall(r'(\d[\d.,]*)\s*m²\s+plot',body,re.I)
+    if described and facts.get('land_area_m2') is not None and any(number(v)!=facts['land_area_m2'] for v in described):
+        facts['area_conflict']={'table_land_m2':facts.pop('land_area_m2'),'description_land_m2':[number(v) for v in described]}
+    facts['advertised_area']={'value':facts['building_area_m2'],'unitCode':'MTK'} if facts.get('building_area_m2') else None
+    return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
+
 def listing_record(source,url,page,kind,now):
     title=(page.meta.get('og:title') or page.meta.get('twitter:title') or ' '.join(page.title)).strip()
     nodes=[v for script in page.scripts for v in objects(script)]
+    if kind=='property' and hostkey(urlsplit(url).hostname)=='emporia-realestate.com':
+        return emporia_record(source,url,page,nodes,now)
     if kind=='property' and hostkey(urlsplit(url).hostname) in AGENCIES:
         title,country,facts,url=primary_data(hostkey(urlsplit(url).hostname),url,nodes,page)
         return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':kind,'title':title[:240],'country':country,'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
@@ -643,6 +679,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
