@@ -1,5 +1,6 @@
 """Shared, conservative JSON-LD property connector; no automatic activation."""
 import hashlib
+import html
 import json
 import math
 import re
@@ -30,7 +31,43 @@ def number(v):
     except (ValueError,TypeError):return None
     return n if math.isfinite(n) and n>0 else None
 
-def primary_record(source,url,nodes,stamp):
+def latio_record(source,url,page,stamp):
+    """Reviewed primary Riga detail; no images or advertisement text copied."""
+    if page is None or not re.fullmatch(r'/en/properties/\d+',urlsplit(url).path):raise ValueError('latio_primary_detail_required')
+    if canonical(page.meta.get('og:url',''))!=canonical(url):raise ValueError('latio_canonical_mismatch')
+    title=page.meta.get('og:title','').strip()
+    if not re.match(r'^For sale (?:house|apartment|land|commercial)',title,re.I) or not re.search(r'\bin Riga\b',title,re.I):raise ValueError('latio_sale_or_reviewed_location_missing')
+    text=' '.join(' '.join(page.text).split())
+    match=re.search(r'\bID:\s*([A-Z0-9]+)\s+',text)
+    if not match:raise ValueError('latio_reference_required')
+    body=text[match.start():].split('Full-service real estate company',1)[0]
+    header=body.split('Description',1)[0]
+    agents=re.findall(r'Send e-mail\s+([^\s@]+@[^\s@]+\.[^\s@]+)\s+(.+?)\s+Real Estate Agent',body,re.I)
+    agents=list(dict.fromkeys((email,name.strip()) for email,name in agents))
+    if len(agents)!=1:raise ValueError('latio_record_bound_agent_required')
+    prices={float(v.replace(' ','')) for v in re.findall(r'Apply for a visit Price\s+([\d ]+)\s*€',body)}
+    if len(prices)!=1 or min(prices)<=0:raise ValueError('latio_primary_price_required')
+    price=prices.pop();area=re.search(r'\bArea\s+(\d+(?:[.,]\d+)?)\s*m²',header)
+    land=re.search(r'\bLand\s+(\d+(?:[.,]\d+)?)\s*m²',header)
+    description=html.unescape(re.sub('<[^>]+>',' ',page.meta.get('og:description','')))
+    described_land=re.findall(r'Land plot\s*[–—-]\s*(\d+(?:[.,]\d+)?)\s*m²',description,re.I)
+    facts={'transaction_type':'sale','reference':match[1],'currency':'EUR','asking_price':price,'advertised_price':price,'advertised_location':{'addressLocality':'Riga','addressCountry':'LV'},'country_basis':'Primary listing explicitly says in Riga; reviewed Riga, Latvia','availability':'Prodajni oglas opažen; dostupnost i pravna urednost nisu potvrđene','source_contact':{'mode':'agency','name':agents[0][1],'agency_name':'Latio','email':agents[0][0],'evidence_url':url,'record_reference':url,'represents_record':True,'permitted':False},'reuse_constraint':'Latio prohibits republication without written permission; internal factual record only, no copied advertisement description or images.'}
+    facts['evidence_excerpt']='Primary sale detail; reference '+match[1]+'; Riga; price '+str(price)+' EUR; named Latio agent.'
+    facts['property_type']='Kuća' if re.match('For sale house',title,re.I) else 'Stan' if re.match('For sale apartment',title,re.I) else 'Zemljište' if re.match('For sale land',title,re.I) else 'Poslovni prostor'
+    if area:facts['advertised_area']={'value':float(area[1].replace(',','.')),'unitCode':'MTK'}
+    described_building=[float(v.replace(',','.')) for v in re.findall(r'Total building area\s*[–—-]\s*(\d+(?:[.,]\d+)?)\s*m²',description,re.I)]
+    if area and any(abs(v-facts['advertised_area']['value'])>0.01 for v in described_building):
+        facts['area_conflict']={'table_building_m2':facts['advertised_area']['value'],'description_building_m2':described_building}
+        facts['advertised_area']=None
+    if land:
+        amount=float(land[1].replace(',','.'))
+        values=[float(v.replace(',','.')) for v in described_land]
+        if any(abs(v-amount)>0.01 for v in values):facts.setdefault('area_conflict',{}).update(table_land_m2=amount,description_land_m2=values)
+        else:facts['land_area_m2']=amount
+    return {'id':'registry:property:'+hashlib.sha256(canonical(url).encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'LV','url':canonical(url),'first_seen':stamp,'last_seen':stamp,'verified':False,'status':'Za provjeru','facts':facts}
+
+def primary_record(source,url,nodes,stamp,page=None):
+    if urlsplit(url).hostname=='latio.lv':return latio_record(source,url,page,stamp)
     matching=[n for n in nodes if types(n)&TYPES.keys() and isinstance(n.get('url'),str) and canonical(urljoin(url,n['url']))==canonical(url)]
     if len(matching)!=1:raise ValueError('primary_identity_missing_or_ambiguous')
     n=matching[0];title=n.get('name');description=n.get('description','')
@@ -83,8 +120,15 @@ def links(page,url,objects,safe_url,root):
         if not isinstance(href,str) or not (label=='structured listing' or SALE.search(label+' '+href) or re.search(r'/(?:property|properties|immobilien|immobile|nemovitost|nepremicnine|expose|listing|objekt|offer|detail)[/-]',href,re.I)):continue
         try:target=safe_url(urljoin(url,href),root)
         except (ValueError,OSError):continue
+        if re.search(r'/(?:services?|news|research|about-us|careers?|privacy|contact)(?:/|$)',urlsplit(target).path,re.I):continue
         if canonical(target)!=canonical(root) and target not in found:found.append(target)
-    return found[:200]
+    # Individual numeric references outrank category/search/navigation pages.
+    def priority(u):
+        p=urlsplit(u).path
+        category=bool(re.search(r'/(?:search|property-types|properties-title)(?:/|$)',p,re.I))
+        detail=bool(re.search(r'(?:/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$))',p))
+        return (category,not detail)
+    return sorted(found,key=priority)[:200]
 
 def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('inf')):
     result={'source_id':'registry-'+str(source['id']),'id':source['id'],'name':source['name'],'url':source['url'],'checked_at':stamp,'inserted':0,'updated':0,'rejections':[]}
@@ -107,7 +151,7 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
             if time.monotonic()>=deadline:result['rejections'].append({'url':url,'reason':'runtime_deferred'});break
             try:
                 p=Page(f.get(url));nodes=[n for script in p.scripts for n in objects(script)]
-                row=primary_record(source,url,nodes,stamp)
+                row=primary_record(source,url,nodes,stamp,p)
                 saved=api({'action':'batch','source_id':result['source_id'],'candidates':[row]})
                 if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
                 result['inserted']+=saved.get('inserted',0);result['updated']+=saved.get('updated',0)
@@ -131,7 +175,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
             url=safe_url(url,source['url']);page=Page(fetcher.get(url));pages+=1
             nodes=[n for script in page.scripts for n in objects(script)]
             if entry['mode']=='detail':
-                try:rows.append(primary_record(source,url,nodes,stamp))
+                try:rows.append(primary_record(source,url,nodes,stamp,page))
                 except ValueError as exc:failed.append({'url':url,'reason':str(exc)})
             else:
                 queued={canonical(x['url']) for x in pending}

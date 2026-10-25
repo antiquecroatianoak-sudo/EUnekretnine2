@@ -66,4 +66,34 @@ class NotairesCheckpointTests(unittest.TestCase):
         self.assertIsNone(rows[0]['facts']['advertised_area'])
         self.assertEqual(rows[0]['facts']['area_conflict']['structured_area_m2'],77.44)
 
+class DiscoveryAndLatioTests(unittest.TestCase):
+    def page(self,title='For sale house in Riga',agent=True,canonical=True):
+        from registry_discovery import Page
+        u='https://latio.lv/en/properties/139627'
+        h='<meta property="og:title" content="'+title+'"><meta property="og:url" content="'+(u if canonical else u+'0')+'"><meta property="og:description" content="Total building area – 572 m². Land plot – 846 m².">'
+        h+='<h1>'+title+'</h1>from 0 € ID: SM26139627 Riga Area 572 m² Land 850 m² Description Facts Apply for a visit Price 440 000 € '
+        if agent:h+='Send e-mail agent@latio.lv Named Agent Real Estate Agent '
+        return Page(h)
+    def parse(self,p):
+        from property_connector import primary_record
+        return primary_record({'id':84},'https://latio.lv/en/properties/139627',[],'2026-10-25T21:00:00Z',p)
+    def test_primary_price_ignores_zero_navigation_price(self):self.assertEqual(self.parse(self.page())['facts']['asking_price'],440000)
+    def test_latio_does_not_copy_advertisement(self):self.assertNotIn('Total building area',self.parse(self.page())['facts']['evidence_excerpt'])
+    def test_land_conflict_retained(self):
+        f=self.parse(self.page())['facts'];self.assertNotIn('land_area_m2',f);self.assertEqual(f['area_conflict']['table_land_m2'],850)
+    def test_latio_rental_rejected(self):
+        with self.assertRaises(ValueError):self.parse(self.page(title='For rent house in Riga'))
+    def test_missing_primary_agent_rejected(self):
+        with self.assertRaises(ValueError):self.parse(self.page(agent=False))
+    def test_canonical_mismatch_rejected(self):
+        with self.assertRaises(ValueError):self.parse(self.page(canonical=False))
+    def test_unreviewed_country_not_inferred_from_agency(self):
+        with self.assertRaises(ValueError):self.parse(self.page(title='For sale house in Madrid'))
+    def test_primary_detail_precedes_categories_and_services(self):
+        from property_connector import links
+        from registry_discovery import Page,objects
+        p=Page('<a href="/en/services/property-management/">Property management</a><a href="/en/properties-title/exclusive-offers">Offers</a><a href="/en/properties/139627">House</a>')
+        found=links(p,'https://latio.lv/en/properties',objects,lambda u,r:u,'https://latio.lv/en/properties')
+        self.assertEqual(found[0],'https://latio.lv/en/properties/139627');self.assertFalse(any('/services/' in u for u in found))
+
 if __name__=='__main__':unittest.main()
