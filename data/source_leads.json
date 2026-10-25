@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 3,
-  "kandidat_nekretnine": 14,
+  "kandidat_nekretnine": 16,
   "nedostupno": 6,
   "nije_relevantno": 11,
   "robots_zabrana": 4
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -164,7 +164,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "nedostupno"
   },
   {
@@ -184,7 +184,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "nedostupno"
   },
   {
@@ -204,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -234,6 +234,110 @@
    "status": "nedostupno"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T16:13:27.925947+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h701-privlaka/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-immobilien.com/property/haus-h701-privlaka/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/modern-villa-with-panoramic-sea-view-preko/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-immobilien.com/property/moderne-villa-mit-panoramablick-auf-das-meer-preko/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h706-island-ugljan-kali/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-immobilien.com/property/haus-h706-insel-ugljan-kali/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h712-island-ugljan-preko/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-immobilien.com/property/haus-h712-insel-ugljan-preko/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h730-sukosan/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-immobilien.com/property/haus-h730-sukosan/"
+    }
+   ],
+   "first_seen": "2026-10-25T16:13:27.839230+00:00",
+   "host": "emporia-immobilien.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "signals": {
+    "areas": 8,
+    "buyer_words": 0,
+    "listing_types": 1,
+    "prices": 1,
+    "property_words": 20
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Villa Aurelia – Golden Sunset Villas, Direkt am Strand in Privlaka - Emporia RealEstate Zadar Villa Aurelia – Golden Sunset Villas, Direkt am Strand in Privlaka"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T16:13:27.925947+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h701-privlaka/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-nekretnine.com/property/kuca-h701-privlaka/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/modern-villa-with-panoramic-sea-view-preko/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-nekretnine.com/property/moderna-vila-s-panoramskim-pogledom-na-more-preko/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h706-island-ugljan-kali/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-nekretnine.com/property/kuca-h706-otok-ugljan-kali/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h712-island-ugljan-preko/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-nekretnine.com/property/kuca-h712-otok-ugljan-preko/"
+    },
+    {
+     "anchor": "",
+     "found_on": "https://www.emporia-realestate.com/property/house-h730-sukosan/",
+     "seen": "2026-10-25T16:13:27.839230+00:00",
+     "url": "https://www.emporia-nekretnine.com/property/kuca-h730-sukosan/"
+    }
+   ],
+   "first_seen": "2026-10-25T16:13:27.839230+00:00",
+   "host": "emporia-nekretnine.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "signals": {
+    "areas": 8,
+    "buyer_words": 0,
+    "listing_types": 1,
+    "prices": 1,
+    "property_words": 24
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Villa Aurelia - Golden Sunset Villa, Prvi red do mora, Privlaka - Emporia RealEstate Zadar Villa Aurelia – Golden Sunset Villa, Prvi red do mora, Privlaka VILLA"
+  },
+  {
    "check_note": "robots.txt disallows this URL",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": null,
@@ -250,7 +354,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -270,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "nedostupno"
   },
   {
@@ -596,7 +700,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "blokirano"
   },
   {
@@ -648,7 +752,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -986,7 +1090,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-25T16:13:27.839230+00:00",
    "status": "nedostupno"
   },
   {
@@ -1047,6 +1151,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T15:59:08.882925+00:00",
- "verified_at": "2026-10-25T15:59:09.021807+00:00"
+ "updated_at": "2026-10-25T16:13:27.839230+00:00",
+ "verified_at": "2026-10-25T16:13:27.925947+00:00"
 }
