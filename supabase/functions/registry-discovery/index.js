@@ -45,7 +45,9 @@ Deno.serve(async req=>{
   if(body.action==='enrichment-country')return reply(await runCountry(sql,body.country));
   if(body.action==='registry'){
    await sql`select site_private.reconcile_listing_lifecycle()`;
-   const sources=await sql`select id,country,name,url,category from sources order by id`;
+   const sources=await sql`select id,country,name,url,category from sources where is_active order by id`;
+   // Read-only complete inventory for grouped diagnostics; import selection stays active-only.
+   const diagnosticSources=await sql`select id,country,name,url,category,is_active,inactive_reason from sources order by id`;
    const runs=await sql`select source_id,body_json from discovery_runs where source_id like 'registry-%'`;
    const states={};for(const r of runs){try{states[r.source_id]=JSON.parse(r.body_json)}catch{}}
    for(const source of sources){
@@ -59,7 +61,7 @@ Deno.serve(async req=>{
     if(valid){try{for(const u of config.entry_urls||[])validURL(u,source.url)}catch{valid=false}}
     if(valid)source.import_config=config;
    }
-   return reply({sources,states});
+   return reply({sources,states,diagnostic_sources:diagnosticSources});
   }
   if(!/^registry-\d+$/.test(body.source_id||''))return reply({error:'Invalid source ID'},400);
   const [source]=await sql`select id,country,name,url,category from sources where id=${body.source_id.slice(9)}`;
