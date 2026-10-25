@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -164,7 +164,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "nedostupno"
   },
   {
@@ -184,7 +184,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "nedostupno"
   },
   {
@@ -204,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -274,7 +274,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -326,7 +326,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -354,7 +354,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -374,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "nedostupno"
   },
   {
@@ -637,6 +637,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/oberoesterreich/linz/zentrale-geschaeftsflaeche-mit-starker-sichtbarkeit-werthaltige-geschaeftsflaeche-in-linzer-frequenzlage-mit-starker-sichtbarkeit-und-flexibler-flaechenstruktur-1300081851/",
      "seen": "2026-10-25T01:02:39.208893+00:00",
      "url": "https://www.immoquelle.at/immobilien/zentrale-geschaftsflache-mit-starker-sichtbarkeit---werthaltige-geschaftsflache-in-linzer-frequenzlage---mit-starker-sichtbarkeit-und-flexibler-flachenstruktur"
+    },
+    {
+     "anchor": "Webseite",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/oberoesterreich/gmunden/raum-fuer-erfolg-platz-fuer-visionen-vielseitiges-geschaeftslokal-mit-gastronomie-buero-beheizter-werkstatt-und-vier-waschboxen-in-ebensee-1595231284/",
+     "seen": "2026-10-25T18:55:10.932362+00:00",
+     "url": "https://www.immoquelle.at/immobilien/raum-fur-erfolg-platz-fur-visionen---vielseitiges-geschaftslokal-mit-gastronomie-buro-beheizter-werkstatt-und-vier-waschboxen-in-ebensee"
     }
    ],
    "first_seen": "2026-10-25T01:02:39.208893+00:00",
@@ -644,7 +650,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T01:02:39.208893+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "signals": {
     "areas": 15,
     "buyer_words": 1,
@@ -700,7 +706,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "blokirano"
   },
   {
@@ -752,7 +758,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1090,7 +1096,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T16:13:27.839230+00:00",
+   "last_seen": "2026-10-25T18:55:10.932362+00:00",
    "status": "nedostupno"
   },
   {
@@ -1151,6 +1157,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T16:13:27.839230+00:00",
- "verified_at": "2026-10-25T16:13:27.925947+00:00"
+ "updated_at": "2026-10-25T18:55:10.932362+00:00",
+ "verified_at": "2026-10-25T18:55:11.025979+00:00"
 }
