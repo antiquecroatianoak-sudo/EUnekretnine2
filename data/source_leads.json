@@ -101,6 +101,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1230-liesing/einfamilienhaus-mit-salzwasserpool-wintergarten-garage-und-zwei-carports-2099373971/",
      "seen": "2026-10-24T13:01:23.745437+00:00",
      "url": "https://app.immoviewer.com/portal/tour/3156674"
+    },
+    {
+     "anchor": "https://app.immoviewer.com/portal/tour/3157454?accessKey=6a2f",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/sankt-poelten-land/einfamilienhaus-mit-tollem-garten-in-schoener-wohnsiedlung-2056179096/",
+     "seen": "2026-10-25T20:40:28.702267+00:00",
+     "url": "https://app.immoviewer.com/portal/tour/3157454"
     }
    ],
    "first_seen": "2026-10-24T13:01:23.745437+00:00",
@@ -108,7 +114,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T13:01:23.745437+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -136,7 +142,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -192,7 +198,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "nedostupno"
   },
   {
@@ -212,7 +218,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "nedostupno"
   },
   {
@@ -232,7 +238,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -251,6 +257,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/amstetten/ein-zweifamilienhaus-mit-6-zimmer-in-kleiner-siedlungslage-mit-gruenlandblick-steht-ab-sofort-zum-verkauf-1802063378/",
      "seen": "2026-10-25T10:03:11.294768+00:00",
      "url": "https://www.donauimmo.at/objekt/16709380"
+    },
+    {
+     "anchor": "www.donauimmo.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/neunkirchen/laendliches-einfamilienhaus-in-gleissenfeld-mit-idyllischem-charme-und-garten-1899047708/",
+     "seen": "2026-10-25T20:40:28.702267+00:00",
+     "url": "https://www.donauimmo.at/objekt/15009973"
     }
    ],
    "first_seen": "2026-10-23T18:29:56.556629+00:00",
@@ -258,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T10:03:11.294768+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "nedostupno"
   },
   {
@@ -302,7 +314,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:08:35.060325+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -354,7 +366,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:08:35.060325+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -382,7 +394,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -402,7 +414,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "nedostupno"
   },
   {
@@ -734,7 +746,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "blokirano"
   },
   {
@@ -753,6 +765,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/sankt-poelten-land/zweifamilienhaus-in-wilhelmsburg-1349823944/",
      "seen": "2026-10-25T12:59:27.949622+00:00",
      "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/ee71843c52e0ee913f2a3ed9a772b54b794b859a/ee71843c52e0ee913f2a3ed9a772b54b794b859a.pdf"
+    },
+    {
+     "anchor": "Leistungsgarantie_Raiffeisen Immobilien",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/melk/raika-filiale-kaufen-1006616290/",
+     "seen": "2026-10-25T20:40:28.702267+00:00",
+     "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/a19edb9d864b0b5d6cc0e8125e42394ce08c3ca7/a19edb9d864b0b5d6cc0e8125e42394ce08c3ca7.pdf"
     }
    ],
    "first_seen": "2026-10-25T12:59:27.949622+00:00",
@@ -760,7 +778,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -786,7 +804,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -834,7 +852,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T18:58:15.357806+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1124,7 +1142,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:24:29.846864+00:00",
+   "last_seen": "2026-10-25T20:40:28.702267+00:00",
    "status": "nedostupno"
   },
   {
@@ -1185,6 +1203,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T20:24:29.846864+00:00",
- "verified_at": "2026-10-25T20:24:29.939695+00:00"
+ "updated_at": "2026-10-25T20:40:28.702267+00:00",
+ "verified_at": "2026-10-25T20:40:28.780312+00:00"
 }

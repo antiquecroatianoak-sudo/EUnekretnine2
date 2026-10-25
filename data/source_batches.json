@@ -1,11 +1,11 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-25T20:09:40.819749+00:00",
+ "checked_at": "2026-10-25T20:25:35.286603+00:00",
  "source_count": 115,
- "inactive_count": 70,
+ "inactive_count": 69,
  "groups": {
-  "structured_property_adapter": 34,
-  "operating_monitor": 45,
+  "structured_property_adapter": 33,
+  "operating_monitor": 46,
   "approved_access_required": 25,
   "fetch_or_persistence_failure": 4,
   "listing_layout": 2,
@@ -307,8 +307,8 @@
    "id": "28",
    "name": "Immobilier.notaires.fr — dražbe",
    "url": "https://www.immobilier.notaires.fr/fr/vente-aux-encheres-adjudication",
-   "is_active": false,
-   "group": "structured_property_adapter",
+   "is_active": true,
+   "group": "operating_monitor",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
@@ -1248,7 +1248,13 @@
    "is_active": false,
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-25T20:25:35.287548+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-26T20:25:35.287548+00:00"
   },
   {
    "id": "98",
@@ -1257,7 +1263,15 @@
    "is_active": false,
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-25T20:25:35.287548+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 0,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "99",
@@ -1266,7 +1280,15 @@
    "is_active": false,
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-25T20:25:35.287548+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 164,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "100",
@@ -1470,11 +1492,11 @@
    "url": "https://www.emporia-realestate.com/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "URLError: <urlopen error [Errno 101] Network is unreachable>",
    "retry_after": null
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 20,
- "remaining_due": 3
+ "probed_count": 3,
+ "remaining_due": 0
 }

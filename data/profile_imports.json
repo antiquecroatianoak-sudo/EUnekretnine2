@@ -1,14 +1,5 @@
 {
- "checked_at": "2026-10-25T20:10:42.453602+00:00",
- "results": [
-  {
-   "source_id": "registry-113",
-   "status": "batch_confirmed",
-   "url": "https://axiora-bau.hr/zemljiste.html",
-   "inserted": 0,
-   "updated": 1,
-   "note": "Verify stored evidence before source activation"
-  }
- ],
+ "checked_at": "2026-10-25T20:25:51.792226+00:00",
+ "results": [],
  "activation_performed": false
 }
