@@ -46,3 +46,12 @@
 - Za postojeće zapise najprije provjeriti i dopuniti kontakt gdje je dopušteno; bez kontakta ih isključiti iz korisnih rezultata. Ova uputa sama ne nalaže nepovratno brisanje baze ili povijesti.
 - Ovo pravilo navoditi u budućim zahtjevima za API/feed i pri pregledu izvora. Poslovni tijek ostaje: generička ponuda bez adrese i kontakta prodavatelja, pisani interes kupca, zatim predaja licenciranoj agenciji koja vodi posredovanje; strane ne povezujemo izravno.
 - Status provedbe: ovom izmjenom spremljena je obvezna projektna uputa; programska primjena filtra i provjera postojećih zapisa moraju se zasebno implementirati i potvrditi prije tvrdnje da je pravilo aktivno u aplikaciji.
+
+## Dopuna kontakta preko agencije — uputa vlasnika 25.10.2026.
+
+- Pravilo kontakta primjenjuje se jednako na SVE izvore i obje strane: nekretnine/prodavatelje te kupce/investitore.
+- Ako izravni kontakt nije dostupan, prihvatljiv je upotrebljiv kontakt agencije iz čijeg je izvora konkretan zapis preuzet, uz dokaz da agencija objavljuje ili zastupa tu konkretnu nekretninu odnosno tu konkretnu potražnju kupca/investitora. Sam opći kontakt portala, agencije ili tvrtke bez veze s konkretnim zapisom nije dovoljan.
+- Takav zapis ostaje prihvatljiv za moguće parove s oznakom 'Kontakt preko agencije'. Kada postoji odgovarajući mogući par, rješenje se može ponuditi agenciji za njezina kupca ili prodavatelja; nedostatak izravnog kontakta nije razlog isključenja ako postoji ovaj dokazani kanal.
+- Za svaku stranu zasebno zabilježiti izravni ili agencijski kanal, identitet zastupane strane/oglasa, izvor veze s agencijom i način kontaktiranja. Ne pretpostavljati da agencija zastupa kupca zato što samo oglašava nekretnine.
+- Ova dopuna ne uključuje automatsko slanje poruka, ne potvrđuje mandat, interes ili pravnu urednost i ne mijenja predaju posredovanja licenciranoj agenciji.
+- Programsku provjeru izravnog/agencijskog kanala i označavanje prikaza treba implementirati i testirati; spremljena uputa nije potvrda produkcijske primjene.
