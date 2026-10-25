@@ -90,6 +90,16 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
     result={'source_id':'registry-'+str(source['id']),'id':source['id'],'name':source['name'],'url':source['url'],'checked_at':stamp,'inserted':0,'updated':0,'rejections':[]}
     try:
         if time.monotonic()>=deadline:result['status']='runtime_deferred';return result
+        if urlsplit(source['url']).hostname=='www.immobilier.notaires.fr':
+            from registry_discovery import process
+            rows,state=process(source,None,Fetcher(source['url']),deadline,max_pages=1)
+            if state.get('error'):raise ValueError(state['error'])
+            for row in rows:
+                saved=api({'action':'batch','source_id':result['source_id'],'candidates':[row]})
+                if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
+                result['inserted']+=saved.get('inserted',0);result['updated']+=saved.get('updated',0)
+            result.update(status='batch_confirmed' if rows else 'no_current_auction_records',adapter='existing_notaires_public_api',pages_processed=state['pages_processed'])
+            return result
         f=Fetcher(source['url']);page=Page(f.get(source['url']))
         urls=links(page,source['url'],objects,safe_url,source['url'])[:2]
         if not urls:result.update(status='no_structured_detail_links');return result

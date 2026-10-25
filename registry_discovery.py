@@ -461,13 +461,18 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
                 row=listing_record(source,url,Page('<title>Notaires public auction listing</title>'),'property',stamp)
                 row['title']=title[:240]
                 row['facts'].update(asking_price=item.get('prixAffiche'),currency='EUR',advertised_area=item.get('surface'),advertised_location={'addressLocality':item.get('communeNom'),'postalCode':item.get('codePostal'),'addressCountry':'FR'},property_type=kind,auction_at=when.isoformat(),auction_time_kind='auction_start',price_basis='Displayed auction price; total purchase costs unverified',evidence_url=evidence,evidence_excerpt=item.get('descriptionFr','')[:1600],source_listing_state='active',source_status_evidence='LIGNE; publiable=OUI; bienVendu=NON; bienRetire=NON; venteReportee=NON; future seanceDate')
+                phone=item.get('telephone');office=str(item.get('crpcen') or '').strip()
+                if isinstance(phone,str) and re.fullmatch(r'\+?[0-9 ()/.-]{7,30}',phone) and office:
+                    row['facts']['source_contact']={'name':'Étude notariale '+office,'phone':phone,'mode':'agency','agency_name':'Étude notariale '+office,'record_reference':url,'evidence_url':evidence,'represents_record':True,'permitted':False}
+                area=item.get('surface')
+                row['facts']['advertised_area']={'value':area,'unitCode':'MTK'} if isinstance(area,(int,float)) and not isinstance(area,bool) and area>0 else None
                 batch.append(row)
             rows.extend(batch);pages+=1
             if page>=data['nbPages']:
                 complete=True;page=1;break
             page+=1
     except Exception as exc:error=type(exc).__name__+': '+str(exc)[:240]
-    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
+    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],cycle_seen=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
 
 def process(source,state,fetcher,deadline,max_pages=25):
     if source.get('import_config',{}).get('shared_structured_property') is True:
