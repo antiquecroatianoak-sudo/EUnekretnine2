@@ -168,6 +168,6 @@ jobs:
           git add data/property_imports.json
           if ! git diff --cached --quiet; then
             git commit -m 'Sačuvaj ishod skupnog uvoza kataloga'
-            git pull --rebase origin main
+            git -c rebase.autoStash=true pull --rebase origin main
             git push origin main
           fi
