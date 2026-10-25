@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 3,
-  "kandidat_nekretnine": 12,
+  "kandidat_nekretnine": 14,
   "nedostupno": 6,
   "nije_relevantno": 11,
   "robots_zabrana": 4
@@ -108,7 +108,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -164,7 +164,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "nedostupno"
   },
   {
@@ -184,7 +184,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "nedostupno"
   },
   {
@@ -204,7 +204,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -250,7 +250,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -270,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "nedostupno"
   },
   {
@@ -596,7 +596,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "blokirano"
   },
   {
@@ -648,7 +648,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -754,6 +754,34 @@
    },
    "status": "nije_relevantno",
    "title": "Opereta projektiranje d.o.o."
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T15:59:09.021807+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "https://perfektimmo.at/immobilien/",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/tirol/imst/repraesentatives-buero-im-zentrum-von-imst-2001198591/",
+     "seen": "2026-10-25T15:59:08.882925+00:00",
+     "url": "https://perfektimmo.at/immobilien/"
+    }
+   ],
+   "first_seen": "2026-10-25T15:59:08.882925+00:00",
+   "host": "perfektimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "signals": {
+    "areas": 2,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 1,
+    "property_words": 16
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobilien Archive - Perfekt Immo Immobilien­angebot"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -882,7 +910,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T07:03:38.544797+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -892,6 +920,34 @@
    },
    "status": "nije_relevantno",
    "title": "Ihr Immobilienmakler mit 22 jähriger Immobilienmarkterfahrung! Ihr Immobilienmakler mit über 22 jähriger Immobilienmarkterfahrung"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-25T15:59:09.021807+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Zinshaus - voll vermietet!!!!",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/niederoesterreich/melk/wohnungspaket-1129580654/",
+     "seen": "2026-10-25T15:59:08.882925+00:00",
+     "url": "https://www.sreal.at/de/immobilie/960-75099/zinshaus-voll-vermietet"
+    }
+   ],
+   "first_seen": "2026-10-25T15:59:08.882925+00:00",
+   "host": "sreal.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "signals": {
+    "areas": 6,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 7,
+    "property_words": 17
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Zinshaus - voll vermietet!!!!"
   },
   {
    "check_note": "HTTP 403",
@@ -930,7 +986,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-25T15:59:08.882925+00:00",
    "status": "nedostupno"
   },
   {
@@ -991,6 +1047,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T12:59:27.949622+00:00",
- "verified_at": "2026-10-25T12:59:28.035060+00:00"
+ "updated_at": "2026-10-25T15:59:08.882925+00:00",
+ "verified_at": "2026-10-25T15:59:09.021807+00:00"
 }
