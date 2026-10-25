@@ -466,6 +466,10 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
                     row['facts']['source_contact']={'name':'Étude notariale '+office,'phone':phone,'mode':'agency','agency_name':'Étude notariale '+office,'record_reference':url,'evidence_url':evidence,'represents_record':True,'permitted':False}
                 area=item.get('surface')
                 row['facts']['advertised_area']={'value':area,'unitCode':'MTK'} if isinstance(area,(int,float)) and not isinstance(area,bool) and area>0 else None
+                described=[float(v.replace(',','.')) for v in re.findall(r'(\d+(?:[.,]\d+)?)\s*m[²2]',item.get('descriptionFr',''))]
+                if row['facts']['advertised_area'] and any(abs(v-area)>0.01 for v in described):
+                    row['facts']['area_conflict']={'structured_area_m2':area,'description_area_values_m2':described}
+                    row['facts']['advertised_area']=None
                 batch.append(row)
             rows.extend(batch);pages+=1
             if page>=data['nbPages']:
