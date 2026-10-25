@@ -329,6 +329,9 @@ def emporia_record(source,url,page,nodes,now):
     described=re.findall(r'(\d[\d.,]*)\s*m²\s+plot',body,re.I)
     if described and facts.get('land_area_m2') is not None and any(number(v)!=facts['land_area_m2'] for v in described):
         facts['area_conflict']={'table_land_m2':facts.pop('land_area_m2'),'description_land_m2':[number(v) for v in described]}
+    described_building=re.findall(r'total area of\s+(\d[\d.,]*)\s*m²',body,re.I)
+    if described_building and facts.get('building_area_m2') is not None and any(number(v)!=facts['building_area_m2'] for v in described_building):
+        facts.setdefault('area_conflict',{}).update(table_building_m2=facts.pop('building_area_m2'),description_building_m2=[number(v) for v in described_building])
     facts['advertised_area']={'value':facts['building_area_m2'],'unitCode':'MTK'} if facts.get('building_area_m2') else None
     return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
