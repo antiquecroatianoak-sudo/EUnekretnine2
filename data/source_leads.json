@@ -2,8 +2,8 @@
  "counts": {
   "blokirano": 3,
   "kandidat_nekretnine": 17,
-  "nedostupno": 6,
-  "nije_relevantno": 12,
+  "nedostupno": 8,
+  "nije_relevantno": 13,
   "robots_zabrana": 4
  },
  "leads": [
@@ -92,6 +92,26 @@
    "title": "Ferienwohnung kaufen ⌂ Alpin-Resort Montafon in Gargellen - Direkt an der Skipiste Ferienwohnung in Gargellen kaufen"
   },
   {
+   "check_note": "Page exceeds transfer budget",
+   "checked_at": "2026-10-25T21:32:25.666125+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Immobilie Plenzengreith",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/steiermark/weiz/ein-ort-mit-zukunft-projekt-und-anlageimmobilie-mit-panoramalage-am-fusse-des-schoeckls-neuer-preis-599-000-euro-provisionsfrei-1794187420/",
+     "seen": "2026-10-25T21:32:25.567538+00:00",
+     "url": "https://api.aruimmobilien.com/api/attachment/551d6f63-2606-4879-9329-8a7d2f061033"
+    }
+   ],
+   "first_seen": "2026-10-25T21:32:25.567538+00:00",
+   "host": "api.aruimmobilien.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
+   "status": "nedostupno"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T13:01:23.837633+00:00",
    "country_hint": null,
@@ -148,7 +168,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -204,7 +224,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "nedostupno"
   },
   {
@@ -224,7 +244,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "nedostupno"
   },
   {
@@ -244,7 +264,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -320,7 +340,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -372,7 +392,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -400,7 +420,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -420,7 +440,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "nedostupno"
   },
   {
@@ -752,7 +772,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "blokirano"
   },
   {
@@ -810,7 +830,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -981,6 +1001,34 @@
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-25T21:32:25.666125+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Ihre Finanzierungsspezialisten",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/scheibbs/einfamilienhaus-mit-grossem-garten-in-reinsberg-2140287784/",
+     "seen": "2026-10-25T21:32:25.567538+00:00",
+     "url": "https://www.raiffeisen.at/noew/mittleres-mostviertel/de/immobilien.html"
+    }
+   ],
+   "first_seen": "2026-10-25T21:32:25.567538+00:00",
+   "host": "raiffeisen.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 14
+   },
+   "status": "nije_relevantno",
+   "title": "WohnTraumCenter Bauen und Wohnen mit Raiffeisen"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T13:01:23.837633+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -1072,7 +1120,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1148,7 +1196,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
    "status": "nedostupno"
   },
   {
@@ -1178,6 +1226,26 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Immobiliensuche - WAG Navigation umschalten Raum für dich"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://www.youtube.com/watch",
+   "checked_at": "2026-10-25T21:32:25.666125+00:00",
+   "country_hint": "BE",
+   "evidence": [
+    {
+     "anchor": "Immobile in Vogelperspektive",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/steiermark/weiz/ein-ort-mit-zukunft-projekt-und-anlageimmobilie-mit-panoramalage-am-fusse-des-schoeckls-neuer-preis-599-000-euro-provisionsfrei-1794187420/",
+     "seen": "2026-10-25T21:32:25.567538+00:00",
+     "url": "https://youtu.be/4lZN1pAn1p0"
+    }
+   ],
+   "first_seen": "2026-10-25T21:32:25.567538+00:00",
+   "host": "youtu.be",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-25T21:32:25.567538+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1237,6 +1305,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-25T21:15:07.855743+00:00",
- "verified_at": "2026-10-25T21:15:07.934373+00:00"
+ "updated_at": "2026-10-25T21:32:25.567538+00:00",
+ "verified_at": "2026-10-25T21:32:25.666125+00:00"
 }

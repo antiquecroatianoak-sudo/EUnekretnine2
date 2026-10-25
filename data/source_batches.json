@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-25T21:00:30.827003+00:00",
+ "checked_at": "2026-10-25T21:16:32.331572+00:00",
  "source_count": 115,
- "inactive_count": 69,
+ "inactive_count": 68,
  "groups": {
   "structured_property_adapter": 33,
-  "operating_monitor": 46,
+  "operating_monitor": 47,
   "approved_access_required": 25,
-  "fetch_or_persistence_failure": 5,
+  "fetch_or_persistence_failure": 4,
   "listing_layout": 2,
   "buyer_acquisition_pages": 2,
   "pdf_acquisition_profiles": 2
@@ -307,8 +307,8 @@
    "id": "28",
    "name": "Immobilier.notaires.fr — dražbe",
    "url": "https://www.immobilier.notaires.fr/fr/vente-aux-encheres-adjudication",
-   "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "is_active": true,
+   "group": "operating_monitor",
    "last_error": "HTTPError: HTTP Error 406: ",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
