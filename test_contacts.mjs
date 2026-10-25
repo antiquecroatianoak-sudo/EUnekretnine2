@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {contactRoute,contactInput,evaluate,MATCH,CANDIDATE,SELLER_CONTACT,BUYER_CONTACT} from './supabase/functions/sites-platform/domain.mjs';
+import {suggestion} from './supabase/functions/sites-platform/suggestions.mjs';
+import {pairsView} from './sites-review/lib/platform-view.mjs';
+import {buyerTeaser} from './sites-review/lib/teaser.mjs';
+const route=(source,mode='direct',extra={})=>JSON.stringify({mode,name:'TEST kontakt',agency_name:'TEST agencija',email:'test@example.org',evidence_url:source,record_reference:source,permitted:true,represents_record:true,...extra});
+const p={id:1,title:'TEST',country:'Hrvatska',city:'Zagreb',property_type:'Zemljište',condition:'Neizgrađeno',source:'https://example.org/p/1',price:100,area:1000,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.org/legal',status:'Aktivno',source_checked_on:new Date().toISOString().slice(0,10)};
+const c={property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.org/i/1',checked_at:new Date().toISOString()};
+const i={id:2,name:'TEST investor',preferred_countries:'HR',verified:1,criteria_json:JSON.stringify(c)};
+let cases=0;
+for(const pm of ['direct','agency'])for(const im of ['direct','agency']){
+ const prop={...p,contact_json:route(p.source,pm)},buyer={...i,contact_json:route(c.source_url,im)};
+ assert.equal(evaluate(prop,buyer).status,MATCH);assert(suggestion(prop,buyer));
+ const resp={properties:[prop],investors:[buyer],match_results:[{property_id:1,investor_id:2,result_json:JSON.stringify(evaluate(prop,buyer))}]};
+ assert.equal(pairsView(resp).matches.length,1);
+ const before=JSON.stringify(resp);pairsView(resp);assert.equal(JSON.stringify(resp),before,'read-time gate preserves records');
+ const noContact={...prop,contact_json:null};const hidden=pairsView({...resp,properties:[noContact]});
+ assert.equal(hidden.matches.length,0);assert.match(hidden.hidden[0].reason,/kontakt/);
+ assert.equal(suggestion(noContact,buyer),null);assert(evaluate(noContact,buyer).gaps.property.includes(SELLER_CONTACT));
+ assert.equal(suggestion(prop,{...buyer,contact_json:null}),null);assert(evaluate(prop,{...buyer,contact_json:null}).gaps.buyer.includes(BUYER_CONTACT));
+ const teaser=buyerTeaser(prop).text;assert(!teaser.includes('test@example.org'));assert(!teaser.includes('TEST agencija'));
+ cases++;
+}
+for(const bad of [null,'bad','[]','{}',route(p.source,'direct',{permitted:false}),route(p.source,'agency',{represents_record:false}),route(p.source,'agency',{agency_name:''}),route('https://example.org/other'),route(p.source,'direct',{email:'not-email'}),route(p.source,'direct',{evidence_url:'javascript:alert(1)'}),route(p.source,'direct',{email:'',contact_url:'https://u:pass@example.org/contact'}),route(p.source,'direct',{email:'',phone:'12'})])assert.equal(contactRoute({...p,contact_json:bad}),null,String(bad));
+assert(contactRoute({...p,contact_json:route(p.source,'direct',{email:'',phone:'+385 1 234 567'})}));
+assert(contactRoute({...p,contact_json:route(p.source,'agency',{email:'',contact_url:'https://example.org/contact/1'})}));
+assert.deepEqual(contactInput({source:p.source}),{},'omitted contact preserves manual data');
+assert.deepEqual(contactInput({contact_json:null}),{contact_json:null},'explicit clear stays explicit');
+assert.throws(()=>contactInput({...p,contact_json:route('https://example.org/other')}),/konkretnim/);
+assert.equal(evaluate({...p,contact_json:route(p.source)},{...i,verified:0,contact_json:route(c.source_url)}).status,CANDIDATE,'contact does not manufacture buyer verification');
+console.log('Contact policy passed: '+cases+' direct/agency combinations, missing/stale/malformed routes, privacy and manual preservation.');

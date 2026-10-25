@@ -1,3 +1,4 @@
+from contact_policy import contact_route
 """Explainable matching of recorded buyer mandates; never infers buying intent."""
 import json
 import math
@@ -184,6 +185,8 @@ def evaluate(prop, investor, pair_checks=None):
     except ValueError:
         gap('Ispravni strukturirani kriteriji kupca', 'buyer')
         criteria = {}
+    if not contact_route(prop): gap('Upotrebljiv kontakt prodavatelja ili njegove agencije', 'property')
+    if not contact_route(investor): gap('Upotrebljiv kontakt kupca/investitora ili njegove agencije', 'buyer')
     countries = [x.strip() for x in (investor.get('preferred_countries') or '').split(',') if x.strip()]
     check('Država', bool(countries), bool(prop.get('country')), norm(country_name(prop.get('country'))) in {norm(country_name(x)) for x in countries})
     total = sum(prop[k] for k in ('price', 'renovation', 'other_costs')) if all(number(prop.get(k)) for k in ('price', 'renovation', 'other_costs')) else None
@@ -271,7 +274,7 @@ def evaluate(prop, investor, pair_checks=None):
     status = REJECT if rejected else CANDIDATE if missing else MATCH
     phase = PHASE['REJECT'] if rejected else PHASE['PROPERTY'] if gaps['property'] else PHASE['BUYER'] if missing else PHASE['REAL']
     return dict(status=status, phase=phase, score=round(100 * passed / checks) if checks else 0,
-                reasons=reasons, missing=missing, rejected=rejected, gaps=gaps, info=info, total_cost=total, roi=roi,
+                contact_eligible=bool(contact_route(prop) and contact_route(investor)), reasons=reasons, missing=missing, rejected=rejected, gaps=gaps, info=info, total_cost=total, roi=roi,
                 **({'area_deviation': area_deviation} if area_deviation is not None else {}))
 
 def refresh_matches(c):
@@ -284,6 +287,9 @@ def refresh_matches(c):
         investor['_call_facts'] = linked.get(investor['id'])
     for prop in props:
         for investor in investors:
+            if not contact_route(prop) or not contact_route(investor):
+                c.execute('DELETE FROM match_results WHERE property_id=? AND investor_id=?', (prop['id'], investor['id']))
+                continue
             result = evaluate(prop, investor)
             payload = json.dumps(result, ensure_ascii=False, sort_keys=True)
             c.execute('INSERT INTO match_results(property_id,investor_id,result_json,updated) VALUES(?,?,?,?) ON CONFLICT(property_id,investor_id) DO UPDATE SET result_json=excluded.result_json,updated=excluded.updated WHERE match_results.result_json<>excluded.result_json',
@@ -296,9 +302,11 @@ def refresh_matches(c):
 
 def ranked_matches(c):
     rows = []
-    for row in c.execute('SELECT m.*,p.title,i.name FROM match_results m JOIN properties p ON p.id=m.property_id JOIN investors i ON i.id=m.investor_id'):
+    for row in c.execute('SELECT m.*,p.title,i.name,p.contact_json as property_contact,p.source as property_source,i.contact_json as investor_contact,i.criteria_json FROM match_results m JOIN properties p ON p.id=m.property_id JOIN investors i ON i.id=m.investor_id'):
+        if not contact_route(dict(source=row['property_source'],contact_json=row['property_contact'])) or not contact_route(dict(criteria_json=row['criteria_json'],contact_json=row['investor_contact'])): continue
         item = dict(row)
         item.update(json.loads(item.pop('result_json')))
         rows.append(item)
     order = {MATCH: 0, CANDIDATE: 1, REJECT: 2}
     return sorted(rows, key=lambda r: (order[r['status']], -r['score'], r['property_id'], r['investor_id']))
+

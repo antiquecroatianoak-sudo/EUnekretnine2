@@ -125,6 +125,9 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  const r={reasons,missing:[],rejected,gaps:{property:[],buyer:[],pair:[]},info};
  const check=(label,buyerKnown,propertyKnown,fits)=>{checks++;if(!buyerKnown)gap(r,label,'buyer');else if(!propertyKnown)gap(r,label,'property');else if(fits){reasons.push(label);passed++}else rejected.push(label)};
  try{validateCriteria(c);if(c._invalid)throw Error()}catch{gap(r,'Ispravni strukturirani kriteriji kupca','buyer');c={}}
+ if(!contactRoute(p))gap(r,SELLER_CONTACT,'property');
+ if(!contactRoute(i))gap(r,BUYER_CONTACT,'buyer');
+ r.contact_eligible=!!contactRoute(p)&&!!contactRoute(i);
  const countries=String(i.preferred_countries||'').split(',').map(v=>v.trim()).filter(Boolean);
  check('Država',countries.length>0,!!p.country,countries.map(v=>norm(country(v))).includes(norm(country(p.country))));
  const total=['price','renovation','other_costs'].every(k=>num(p[k]))?p.price+p.renovation+p.other_costs:null;
@@ -206,7 +209,7 @@ export function propertyInput(input){
  if(out.estimated_value!=null&&!out.valuation_evidence_url)throw Error('Za tržišnu procjenu potreban je URL dokaza.');
  if(out.buildable==='Da'&&!out.planning_evidence_url)throw Error('Za potvrđenu gradnju potreban je URL dokaza.');
  if(out.available_until&&(!/^\d{4}-\d{2}-\d{2}$/.test(out.available_until)||!Number.isFinite(Date.parse(out.available_until))||new Date(out.available_until).toISOString().slice(0,10)!==out.available_until))throw Error('Rok mora biti valjan datum YYYY-MM-DD.');
- return {...out,updated:new Date().toISOString()};
+ return {...out,...contactInput(input),updated:new Date().toISOString()};
 }
 export function investorInput(input){
  const out={};for(const k of ['name','country','preferred_countries','notes']){if(typeof input[k]!=='string'||input[k].length>8000)throw Error('Nevaljano polje: '+k);out[k]=input[k].trim()}
@@ -221,7 +224,7 @@ export function investorInput(input){
  if(c.checked_at&&(!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at)||!Number.isFinite(Date.parse(c.checked_at))||Date.parse(c.checked_at)>Date.now()))throw Error('Datum provjere nije valjan.');
  if(![0,1,false,true].includes(input.verified))throw Error('Nevaljana potvrda zahtjeva.');
  if(input.verified&&(!validUrl(c.source_url)||!c.checked_at||!out.preferred_countries||!c.property_types?.length||!c.conditions?.length))throw Error('Za potvrđen zahtjev navedi izvor, datum i kriterije.');
- return {...out,min_budget:low,max_budget:high,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
+ return {...out,...contactInput(input),min_budget:low,max_budget:high,verified:input.verified?1:0,criteria_json:JSON.stringify(c)};
 }
 
 // Rank only current MATCH listings for the same buyer, city, type, condition and explicit asking-price basis.
@@ -250,4 +253,38 @@ export function rankAffordability(rows,props){
   }
  }
  return rows;
+}
+
+
+// A contact is record-bound evidence, never inferred from a portal or a company name.
+export const SELLER_CONTACT='Upotrebljiv kontakt prodavatelja ili njegove agencije';
+export const BUYER_CONTACT='Upotrebljiv kontakt kupca/investitora ili njegove agencije';
+export function contactData(row){try{const c=typeof row.contact_json==='string'?JSON.parse(row.contact_json):row.contact_json;return c&&typeof c==='object'&&!Array.isArray(c)?c:{}}catch{return {}}}
+const contactUrl=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password&&!/[\s\u0000-\u001f]/.test(v)}catch{return false}};
+const contactText=v=>typeof v==='string'&&v.trim().length>0&&v.length<=2000&&!/[\u0000-\u001f]/.test(v);
+export function contactRoute(row){
+ const c=contactData(row),source=row.source||criteria(row).source_url;
+ const endpoint=contactText(c.email)&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)||contactText(c.phone)&&/^\+?[0-9 ()/.-]{7,30}$/.test(c.phone)&&c.phone.replace(/\D/g,'').length>=7||contactText(c.contact_url)&&contactUrl(c.contact_url);
+ if(!['direct','agency'].includes(c.mode)||c.permitted!==true||!endpoint||!contactText(c.name)||!contactUrl(c.evidence_url)||!contactUrl(source)||c.record_reference!==source)return null;
+ if(c.mode==='agency'&&(!contactText(c.agency_name)||c.represents_record!==true))return null;
+ return {mode:c.mode,label:c.mode==='agency'?'Kontakt preko agencije':'Izravan kontakt',name:c.mode==='agency'?c.agency_name:c.name};
+}
+export function contactInput(input){
+ if(!Object.hasOwn(input,'contact_json'))return {};
+ if(input.contact_json==null||input.contact_json==='')return {contact_json:null};
+ let raw=input.contact_json;try{raw=typeof raw==='string'?JSON.parse(raw):raw}catch{throw Error('Kontakt mora biti valjan JSON objekt.')}
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('Kontakt mora biti valjan JSON objekt.');
+ const c=raw,out={};
+ for(const k of ['mode','name','agency_name','record_reference','email','phone','contact_url','evidence_url']){
+  if(c[k]!=null&&typeof c[k]!=='string')throw Error('Nevaljano polje kontakta: '+k);
+  if(c[k]?.length>2000||/[\u0000-\u001f]/.test(c[k]||''))throw Error('Nevaljano polje kontakta: '+k);
+  if(c[k]?.trim())out[k]=c[k].trim();
+ }
+ for(const k of ['permitted','represents_record']){if(c[k]!=null&&typeof c[k]!=='boolean')throw Error('Nevaljana potvrda kontakta.');if(c[k]!=null)out[k]=c[k]}
+ if(out.mode&&!['direct','agency'].includes(out.mode))throw Error('Odaberi izravan ili agencijski kontakt.');
+ if(out.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.email))throw Error('Nevaljana e-pošta kontakta.');
+ if(out.phone&&(!/^\+?[0-9 ()/.-]{7,30}$/.test(out.phone)||out.phone.replace(/\D/g,'').length<7))throw Error('Nevaljan telefon kontakta.');
+ for(const k of ['contact_url','evidence_url'])if(out[k]&&!contactUrl(out[k]))throw Error('Nevaljana poveznica kontakta.');
+ if(out.permitted===true&&!contactRoute({...input,contact_json:out}))throw Error('Za potvrđen kontakt potrebni su kontaktni kanal, dokaz i povezanost s konkretnim zapisom.');
+ return {contact_json:Object.keys(out).length?JSON.stringify(out):null};
 }

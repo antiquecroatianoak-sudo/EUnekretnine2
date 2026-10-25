@@ -1,4 +1,4 @@
-import {MATCH,CANDIDATE,REJECT,country} from './domain.mjs';
+import {MATCH,CANDIDATE,REJECT,country,contactRoute} from './domain.mjs';
 // Possible pairs are stored candidates only; they are never shown as confirmed matches.
 export const possiblePairs=matches=>matches.filter(m=>m.status===CANDIDATE);
 // The "Mogući parovi" entry point: earlier filters must not hide any candidate.
@@ -19,7 +19,7 @@ export function storedMatches(data){
  const investors=new Map((data.investors||[]).map(i=>[String(i.id),i]));
  return (data.match_results||[]).flatMap(row=>{
   const property=properties.get(String(row.property_id)),investor=investors.get(String(row.investor_id)),result=jsonObject(row.result_json);
-  if(!property||!investor||![MATCH,CANDIDATE,REJECT].includes(result.status)||!Number.isFinite(result.score)||!['reasons','missing','rejected'].every(k=>Array.isArray(result[k])))return [];
+  if(!property||!investor||!contactRoute(property)||!contactRoute(investor)||![MATCH,CANDIDATE,REJECT].includes(result.status)||!Number.isFinite(result.score)||!['reasons','missing','rejected'].every(k=>Array.isArray(result[k])))return [];
   return [{...result,property,investor,updated:row.updated}];
  }).sort((a,b)=>[MATCH,CANDIDATE,REJECT].indexOf(a.status)-[MATCH,CANDIDATE,REJECT].indexOf(b.status)||b.score-a.score||String(a.property.id).localeCompare(String(b.property.id))||String(a.investor.id).localeCompare(String(b.investor.id)));
 }
@@ -47,7 +47,7 @@ export function pairsView(resp,{complete=true}={}){
  const absent=complete?'više ne postoji':'nije u učitanim podacima';
  const hidden=(resp.match_results||[]).flatMap(m=>{
   const prop=p.get(String(m.property_id)),inv=i.get(String(m.investor_id));
-  const reason=!validResult(jsonObject(m.result_json))?'spremljeni rezultat nema valjanu strukturu':!prop?'nekretnina '+absent:!inv?'kupac '+absent:prop.visible===false?'nekretnina je istekla ili uklonjena iz izvora':inv.visible===false?'zahtjev kupca je istekao ili uklonjen iz izvora':null;
+  const reason=!validResult(jsonObject(m.result_json))?'spremljeni rezultat nema valjanu strukturu':!prop?'nekretnina '+absent:!inv?'kupac '+absent:prop.visible===false?'nekretnina je istekla ili uklonjena iz izvora':inv.visible===false?'zahtjev kupca je istekao ili uklonjen iz izvora':!contactRoute(prop)?'nekretnina nema upotrebljiv izravan ili agencijski kontakt':!contactRoute(inv)?'kupac nema upotrebljiv izravan ili agencijski kontakt':null;
   return reason?[{property_id:m.property_id,investor_id:m.investor_id,reason}]:[];
  });
  return {matches,hidden,totals:resp.totals||null,loaded_at:resp.loaded_at};
@@ -72,3 +72,4 @@ export function funnelRows(f){
  rows.push(['Nekretnine bez prepoznate vrste',f.properties_without_type],['Nekretnine bez URL-a izvora',f.properties_without_source],['Kupci bez navedene vrste',f.investors_without_types],['Kupci bez URL-a izvora',f.investors_without_source]);
  return rows;
 }
+

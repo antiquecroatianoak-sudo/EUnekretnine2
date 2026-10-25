@@ -1,3 +1,4 @@
+import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
@@ -15,7 +16,7 @@ const refresh=refreshSuggestions;
 // Deferred business phase (6364306499 C): preparing presentations for buyers, seller contact and agency hand-over
 // stay off until the owner starts the business. Reversible with BUSINESS_PHASE=on; it changes no data and never
 // sends anything (this function has no sending path); internal review and manual entry are never blocked.
-const settings=()=>({business_phase:Deno.env.get('BUSINESS_PHASE')==='on'});
+async function settings(tx){const rows=await tx`select body_json from discovery_runs where source_id='app-settings:source-cooperation:v1'`;let cooperation=null;try{cooperation=JSON.parse(rows[0]?.body_json||'null')}catch{}return {business_phase:Deno.env.get('BUSINESS_PHASE')==='on',inactive_sources:await tx`select id,name,url,inactive_reason from sources where not is_active order by name,id`,source_cooperation:cooperation,contact_policy:'direct_or_record_agency'}}
 // Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
 // Bounded initial payload. Catalogues continue through `catalog` keyset pages with server-side
 // search; source candidates continue through `sources`. These are page sizes, never overall maxima.
@@ -23,20 +24,23 @@ const LIMITS={properties:100,investors:100,sources:10000,source_candidates:500,d
 async function list(tx){
  const tables=Object.keys(LIMITS);
  const values=await Promise.all(tables.map(t=>{
+ if(t==='sources')return tx`select * from sources where is_active order by id limit ${LIMITS.sources}`;
  if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
  if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
  if(t==='source_candidates')return tx`select * from source_candidates order by last_seen desc,id limit ${LIMITS.source_candidates}`;
  if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id order by a.id desc limit ${LIMITS.activity}`;
  return tx`select * from ${tx(t)} order by 1 limit ${LIMITS[t]}`;
 }));
+ values[0]=await withAgencies(tx,values[0],'properties');values[1]=await withAgencies(tx,values[1],'investors');
+ const agencies=await agencyDirectory(tx);
  const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
   (select count(*) from properties)::int as properties_all,(select count(*) from investors)::int as investors_all,
-  (select count(*) from properties p where site_private.property_eligible(p) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
-  (select count(*) from investors i where site_private.investor_eligible(i) and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
-  (select count(*) from sources)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
+  (select count(*) from properties p where site_private.property_eligible(p) and site_private.contact_usable(p.contact_json,p.source) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
+  (select count(*) from investors i where site_private.investor_eligible(i) and site_private.contact_usable(i.contact_json,i.criteria_json::jsonb->>'source_url') and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
+  (select count(*) from sources where is_active)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
   (select count(*) from activity)::int as activity,(select count(*) from notification_outbox)::int as notification_outbox,(select count(*) from match_results)::int as match_results`;
  const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
- return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['truncated',truncated],['settings',settings()],['loaded_at',new Date().toISOString()]]);
+ return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['agencies',agencies],['truncated',truncated],['settings',await settings(tx)],['loaded_at',new Date().toISOString()]]);
 }
 // Stored pairs with only the records they link to: small, independent of the full read, and explicit about
 // pairs whose property or buyer is outside the visible lists (they are reported, never silently dropped).
@@ -47,7 +51,7 @@ async function pairsRead(tx){
   tx`select p.*,(${tx.unsafe(PROPERTY_VISIBLE)}) as visible from properties p where p.id=any(${pids}::bigint[])`,
   tx`select i.*,(${tx.unsafe(INVESTOR_VISIBLE)}) as visible from investors i where i.id=any(${iids}::bigint[])`,
   tx`select (select count(*) from properties)::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
- return {match_results:rows,properties,investors,totals,settings:settings(),loaded_at:new Date().toISOString()};
+ return {match_results:rows,properties:await withAgencies(tx,properties,'properties'),investors:await withAgencies(tx,investors,'investors'),totals,settings:await settings(tx),loaded_at:new Date().toISOString()};
 }
 // Paged source candidates for the Izvori tab (newest first).
 async function sourcesPage(tx,a){
@@ -162,7 +166,7 @@ async function dispatch(tx,a){
  if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='pairs')return await pairsRead(tx);
- if(a.action==='catalog'){const value=String(a.country||'');return await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]})}
+ if(a.action==='catalog'){const value=String(a.country||'');const page=await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]});return {...page,items:await withAgencies(tx,page.items,a.table)}}
  if(a.action==='sources')return await sourcesPage(tx,a);
  if(a.action==='pair_diagnostics')return await pairDiagnostics(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};

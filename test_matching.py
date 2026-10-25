@@ -12,6 +12,8 @@ class MatchingTests(unittest.TestCase):
         self.prop = dict(country='Hrvatska', city='Zagreb', region='Grad Zagreb', property_type='Zgrada', condition='Za rušenje', price=100., renovation=50., other_costs=20., area=1000., estimated_value=250., source='https://example.org/property', legal='Uredno', legal_evidence_url='https://example.org/legal', valuation_evidence_url='https://example.org/valuation', buildable='Da', planning_evidence_url='https://example.org/planning', status='Aktivno', source_checked_on=datetime.now(timezone.utc).date().isoformat())
         self.criteria = dict(property_types=['Zgrada'], conditions=['Za rušenje'], cities=['zagreb'], regions=['Grad Zagreb'], min_area=500., max_area=1500., requires_buildable=True, min_roi=20., source_url='https://example.org/mandate', checked_at=datetime.now(timezone.utc).isoformat())
         self.buyer = dict(preferred_countries='Hrvatska', min_budget=0., max_budget=200., verified=1)
+        self.prop['contact_json']=json.dumps(dict(mode='direct',name='TEST seller',email='seller@example.org',evidence_url=self.prop['source'],record_reference=self.prop['source'],permitted=True))
+        self.buyer['contact_json']=json.dumps(dict(mode='agency',name='TEST agency',agency_name='TEST agency',email='buyer@example.org',evidence_url=self.criteria['source_url'],record_reference=self.criteria['source_url'],permitted=True,represents_record=True))
     def result(self, pair_checks=None):
         return evaluate(self.prop, dict(self.buyer, criteria_json=json.dumps(self.criteria)), pair_checks)
     def test_buyer_seat_does_not_replace_countries_of_demand(self):
@@ -191,4 +193,5 @@ class MatchingTests(unittest.TestCase):
                 self.assertEqual(p['title'],'existing'); self.assertIsNone(p['property_type']); c.close()
 
 if __name__=='__main__': unittest.main()
+
 

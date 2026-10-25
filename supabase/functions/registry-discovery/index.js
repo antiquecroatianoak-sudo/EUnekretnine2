@@ -45,7 +45,7 @@ Deno.serve(async req=>{
   if(body.action==='enrichment-country')return reply(await runCountry(sql,body.country));
   if(body.action==='registry'){
    await sql`select site_private.reconcile_listing_lifecycle()`;
-   const sources=await sql`select id,country,name,url,category from sources order by id`;
+   const sources=await sql`select id,country,name,url,category from sources where is_active order by id`;
    const runs=await sql`select source_id,body_json from discovery_runs where source_id like 'registry-%'`;
    const states={};for(const r of runs){try{states[r.source_id]=JSON.parse(r.body_json)}catch{}}
    for(const source of sources){

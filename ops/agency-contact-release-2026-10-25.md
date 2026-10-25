@@ -1,0 +1,17 @@
+# Objava kontakata, agencija i aktivnih izvora — 25.10.2026.
+
+Potvrđena Sites objava izvora 7d85fda7ff6c0a9ed9598e15ec44414e5e3cfa1b: deployment appgdep_6ade1c70bbd08191aaa9ffea023254ca, succeeded, owner-only pristup sačuvan. Postavke s predloškom, kontakti i pregled Agencija objavljeni.
+
+Supabase sites-platform v13, discovery-sync v13, registry-discovery v11. Prve dvije funkcije uključuju provjeru kontakta; registry-discovery je izmijenjen isključivo da registry lista vrati sources.is_active=true. Raniji pokušaj zamjene njegova neupotrijebljenog domain modula odbio je automatski pregled; nije ponovljen. Nova minimalna izmjena odobrenog filtriranja izvora uspješno je objavljena uz očuvan cijeli postojeći OIDC i national-enrichment kod.
+
+Primijenjene migracije record_bound_direct_or_agency_contacts i separate_active_import_sources_from_research. Postojeće ručne vrijednosti, povijest i source checkpointovi nisu obrisani. Zadnja SELECT provjera: 44 aktivna izvora, 70 izvan aktivnog uvoza, svaki s inactive_reason. To su registrirani izvori; odvojeni postojeći šest-izvorni discovery.py feed ostaje nepromijenjen. 'Aktivan' nije potvrda potpune pokrivenosti portala, pravne urednosti ili kupčeva interesa.
+
+Agencijska veza izvedena je iz stvarnog source_candidates.source_id i sources registra, uz točan URL zapisa; zasebna provjera upotrebljivog kontaktnog kanala ostaje potrebna. 1781 nekretnina povezana sa 7 agencija; u ovom skupu nije bilo povezanih investitora. Agencija je primarni dovoljan kontakt; ne tražiti privatne kontakte njezinih klijenata.
+
+Testirano: Node četiri kombinacije kontakata, manjkavi/pogrešni i zamijenjeni kontakti, čuvanje ručnih polja i privatnost teasera; povezivanje agencija na obje strane; domain input regresije i deset globalnih testnih profila; 18 Python matching testova; stvarni DB guard s četiri kombinacije, testni podaci vraćeni rollbackom; produkcijski build Sitesa. Puni Python discover nije potpuno prošao: nakon pribavljanja nedostajućih testnih podataka treba ponoviti; test_import očekuje staru obavijest bez kontakta i treba prilagoditi uz dodatne regresije. PostgreSQL CI i cijela stara DOM/API testna matrica nisu ponovno potvrđeni za ovaj paket. Browser preview nedostupan (connection refused); objavljena privatna stranica traži prijavu pa vlasnikov prijavljeni UI nije provjeren. Ne tvrditi da su svi testovi prošli.
+
+Ponovno uključen postojeći istraživački zadatak Širenje izvora i kupaca (6adcd3c47c3c8191a4ef30ab8b2bbfc3), svakih 6 sati, uz korisnikovo pravilo aktiviraj ili izdvoji. Zastarjeli podsjetnik Nastavak EU PR5 pauziran: PR5 je već spojen 24.10., a plan dopušta najviše 5 aktivnih automatizacija. Novo uključenje je potvrđeno, novi uspješan prolaz istraživanja još nije. Nije stvoren dodatni GitHub raspored.
+
+Predložak i kriteriji su u discovery_runs app-settings:source-cooperation:v1. Novim izvorima nisu poslane dodatne poruke. Globihomeu je ranije poslan odobreni odgovor Gmail message 1a1737df035774a5. Za ostale portale zadržati evidenciju zahtjeva, bez duplog slanja.
+
+Sljedeće: dovršiti prilagodbu starih testnih fixturea novom obveznom kontaktu, pokrenuti potpuni CI i pregledati ovaj branch prije spajanja. Za neaktivne izvore nastaviti pripremu dopuštenog pristupa i adaptera, uz stvarni dokaz prije aktivacije. Ne označavati svih 114 izvora aktivnima. Ne ponavljati migracije/objavu samo radi nastavka razgovora.

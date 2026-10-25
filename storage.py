@@ -17,12 +17,12 @@ CREATE TABLE IF NOT EXISTS match_results(property_id INTEGER NOT NULL,investor_i
 
 # Additive migration: old rows keep unknown criteria rather than invented values.
 EXTRA_COLUMNS = {
-    'properties': {'property_type': 'TEXT', 'condition': 'TEXT', 'region': 'TEXT',
+    'properties': {'contact_json': 'TEXT', 'property_type': 'TEXT', 'condition': 'TEXT', 'region': 'TEXT',
                    'buildable': 'TEXT', 'planning_evidence_url': 'TEXT',
                    'legal_evidence_url': 'TEXT', 'valuation_evidence_url': 'TEXT', 'available_until': 'TEXT',
                    # Date of an explicit, evidenced check of the source listing; never set by an ordinary save.
                    'source_checked_on': 'TEXT'},
-    'investors': {'criteria_json': "TEXT DEFAULT '{}'"},
+    'investors': {'contact_json': 'TEXT', 'criteria_json': "TEXT DEFAULT '{}'"},
 }
 
 def upgrade(c, postgres):
@@ -69,4 +69,5 @@ def connect(url=None, path=None):
                 c.execute(f'ALTER TABLE {table} ENABLE ROW LEVEL SECURITY')
     c.commit()
     return c
+
 
