@@ -7,6 +7,8 @@ on:
     paths:
       - discovery.py
       - source_batches.py
+      - property_connector.py
+      - test_property_connector.py
       - buyer_profiles.py
       - profile_imports.py
       - test_buyer_profiles.py
@@ -138,3 +140,34 @@ jobs:
         env:
           PYTHONUNBUFFERED: '1'
         run: python national_enrichment.py
+
+  property-groups:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    concurrency:
+      group: property-groups-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provjeri zajednički uvoznik pojedinačnih oglasa
+        run: python -m unittest -v test_property_connector test_registry_discovery test_source_batches test_buyer_profiles
+      - name: Skupno probno uvezi neaktivne kataloge bez automatske aktivacije
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python property_connector.py
+      - name: Sačuvaj potpuni ishod skupine
+        run: |
+          git config user.name 'EU platform source monitor'
+          git config user.email 'source-monitor@users.noreply.github.com'
+          git add data/property_imports.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sačuvaj ishod skupnog uvoza kataloga'
+            git pull --rebase origin main
+            git push origin main
+          fi
