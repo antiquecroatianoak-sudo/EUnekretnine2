@@ -55,3 +55,11 @@
 - Za svaku stranu zasebno zabilježiti izravni ili agencijski kanal, identitet zastupane strane/oglasa, izvor veze s agencijom i način kontaktiranja. Ne pretpostavljati da agencija zastupa kupca zato što samo oglašava nekretnine.
 - Ova dopuna ne uključuje automatsko slanje poruka, ne potvrđuje mandat, interes ili pravnu urednost i ne mijenja predaju posredovanja licenciranoj agenciji.
 - Programsku provjeru izravnog/agencijskog kanala i označavanje prikaza treba implementirati i testirati; spremljena uputa nije potvrda produkcijske primjene.
+
+## Zahtjevi agencijama za pristup i suradnju — pojašnjenje vlasnika 25.10.2026.
+
+- Buduće zahtjeve prilagoditi primatelju: agenciji za nekretnine ili agenciji s bazom investitora. Tražimo ažurirane ponude/potražnje i kriterije, uz mogućnost da agenciji ponudimo odgovarajuće rješenje za konkretan zapis.
+- Izravni osobni kontakti kupca/investitora ili vlasnika/prodavatelja NISU potrebni kada izvorna agencija omogućuje kontakt i obrađuje prijedlog za tu konkretnu zastupanu stranu. Ne uvjetovati suradnju otkrivanjem klijentskih kontakata i ne tražiti nepotrebne osobne podatke.
+- Kontakt agencije vrijedi simetrično za obje skupine izvora i obje strane para, uz utvrđenu vezu agencije s konkretnom nekretninom ili potražnjom investitora. Moguće su kombinacije izravno/izravno, izravno/agencija, agencija/izravno i agencija/agencija. Bez izravnog ili relevantnog agencijskog kanala zapis nije operativno koristan.
+- Predložena jezgra budućih zahtjeva (prilagoditi stvarnoj ponudi agencije): 'Zainteresirani smo za odobren pristup ponudama nekretnina i/ili kriterijima potencijalnih kupaca i investitora koje zastupate. Nije potrebno otkrivati njihove izravne kontakte ako vam možemo dostaviti prijedlog za konkretnu nekretninu ili potražnju, a vi ga proslijediti svom klijentu i voditi daljnji postupak. Molimo potvrdite takav kanal suradnje, dopuštenu uporabu podataka, način ažuriranja i uvjete pristupa.'
+- Ovo je predložak za buduće pojedinačne zahtjeve, nije nalog za automatsko slanje niti tvrdnja da je agencija već pristala na suradnju.
