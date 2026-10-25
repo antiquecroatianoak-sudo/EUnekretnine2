@@ -155,7 +155,7 @@ def main():
     now=datetime.now(timezone.utc);stamp=now.isoformat();prior={x['id']:x for x in previous.get('results',[])};results=[];selected=[];deadline=time.monotonic()+240
     for s in config.get('diagnostic_sources',[]):
         s=dict(s,body_json=config.get('states',{}).get('registry-'+str(s['id']),{}))
-        if classify(s)['group']!='structured_property_adapter':continue
+        if classify(s)['group']!='structured_property_adapter' and urlsplit(s['url']).hostname!='www.immobilier.notaires.fr':continue
         old=prior.get(s['id'],{});retry=old.get('retry_after') or s['body_json'].get('retry_after')
         if retry and datetime.fromisoformat(retry)>now:results.append(dict(id=s['id'],source_id='registry-'+str(s['id']),status='cooldown',retry_after=retry));continue
         # Acquisition profiles are not property catalogues, even if old categories are wrong.

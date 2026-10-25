@@ -236,6 +236,15 @@ def objects(value):
     elif isinstance(value,list):
         for v in value:yield from objects(v)
 
+def content_accept(url):
+    """Request the published representation, not HTML from JSON/XML services."""
+    path=urlsplit(url).path
+    if path.startswith(('/pub-services/inotr-www-annonces/v1/','/api/eco/biddit-bff/')):
+        return 'application/json'
+    if path.endswith('.xml'):return 'application/xml,text/xml;q=0.9'
+    if path=='/robots.txt':return 'text/plain'
+    return 'text/html,application/xhtml+xml'
+
 class Fetcher:
     def __init__(self,root):self.root=root;self.robots={};self.last=0;self.minimum_interval=2
     def raw(self,url):
@@ -248,7 +257,7 @@ class Fetcher:
         delay=self.minimum_interval-(time.monotonic()-self.last)
         if delay>0:time.sleep(delay)
         self.last=time.monotonic()
-        with build_opener(Redirect(),InterimHTTPSHandler()).open(Request(url,headers={'User-Agent':AGENT,'Accept':'text/html,application/xhtml+xml'}),timeout=15) as r:
+        with build_opener(Redirect(),InterimHTTPSHandler()).open(Request(url,headers={'User-Agent':AGENT,'Accept':content_accept(url)}),timeout=15) as r:
             safe_url(r.url,self.root)
             data=r.read(4_000_001)
             if len(data)>4_000_000:raise ValueError('Page exceeds transfer budget')
