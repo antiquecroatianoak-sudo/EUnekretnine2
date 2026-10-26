@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit, urlunsplit, urlencode,parse_qs
+from urllib.error import HTTPError
 
 EU=set('AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE'.split())
 COUNTRIES={'Austria':'AT','Belgium':'BE','Bulgaria':'BG','Croatia':'HR','Cyprus':'CY','Czech Republic':'CZ','Denmark':'DK','Estonia':'EE','Finland':'FI','France':'FR','Germany':'DE','Greece':'GR','Hungary':'HU','Ireland':'IE','Italy':'IT','Latvia':'LV','Lithuania':'LT','Luxembourg':'LU','Malta':'MT','Netherlands':'NL','Poland':'PL','Portugal':'PT','Romania':'RO','Slovakia':'SK','Slovenia':'SI','Spain':'ES','Sweden':'SE'}
@@ -272,14 +273,25 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
     stamp=datetime.now(timezone.utc).isoformat();previous=previous or {}
     pending=list(previous.get('pending') or [{'url':source['url'],'mode':'index'}])
     seen=set(previous.get('cycle_seen',[])) if previous.get('pending') else set()
-    rows=[];failed=[];pages=0;error=None
+    # Recheck known records even while a catalogue still has a pagination backlog.
+    # Only explicitly unavailable URLs are reported as removed; absence from an
+    # incomplete catalogue never proves removal.
+    for revisit in reversed(source.get('recheck_urls',[])[:10]):
+        revisit=safe_url(revisit,source['url'])
+        key=canonical(revisit)
+        seen.discard(key)
+        pending=[entry for entry in pending if canonical(entry['url'])!=key]
+        pending.insert(0,{'url':revisit,'mode':'detail'})
+    rows=[];failed=[];unavailable=[];pages=0;details=0;error=None
     while pending and pages<max_pages and time.monotonic()<deadline:
         entry=pending.pop(0);url=entry['url']
         if canonical(url) in seen:continue
         try:
-            url=safe_url(url,source['url']);page=catalogue_page(source,url,fetcher,Page);pages+=1
+            url=safe_url(url,source['url']);pages+=1
+            page=catalogue_page(source,url,fetcher,Page)
             nodes=[n for script in page.scripts for n in objects(script)]
             if entry['mode']=='detail':
+                details+=1
                 try:rows.append(primary_record(source,url,nodes,stamp,page))
                 except ValueError as exc:failed.append({'url':url,'reason':str(exc)})
             else:
@@ -295,9 +307,14 @@ def collect(source,previous,fetcher,deadline,max_pages=25):
                     target=safe_url(urljoin(url,href),source['url'])
                     if canonical(target) not in seen|queued:pending.append({'url':target,'mode':'index'});queued.add(canonical(target))
             seen.add(canonical(url))
+        except HTTPError as exc:
+            if exc.code in (404,410) and entry['mode']=='detail':
+                unavailable.append({'url':url,'http_status':exc.code,'checked_at':stamp})
+                seen.add(canonical(url));continue
+            pending.insert(0,entry);error=type(exc).__name__+': '+str(exc)[:240];break
         except Exception as exc:
             pending.insert(0,entry);error=type(exc).__name__+': '+str(exc)[:240];break
-    state={'source_id':'registry-'+str(source['id']),'status':'Pogreška' if error else 'Djelomično' if pending or failed else 'Uspješno','checked_at':stamp,'pending':pending,'cycle_seen':sorted(seen),'pages_processed':pages,'imported_count':len(rows),'failed_urls':failed,'error':error,'coverage_complete':False,'scope':'Shared primary JSON-LD connector; discovered pages only'}
+    state={'source_id':'registry-'+str(source['id']),'status':'Pogreška' if error else 'Djelomično' if pending or failed else 'Uspješno','checked_at':stamp,'pending':pending,'cycle_seen':sorted(seen),'pages_processed':pages,'detail_pages':details,'imported_count':len(rows),'failed_urls':failed,'unavailable_urls':unavailable,'error':error,'coverage_complete':False,'partial':bool(error or pending or failed),'next_url':pending[0]['url'] if pending else None,'stop_reason':'error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty','scope':'Shared primary JSON-LD connector; discovered pages only'}
     if error:state['retry_after']=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat()
     return rows,state
 
@@ -324,4 +341,5 @@ def main():
     print('PROPERTY_IMPORT_REPORT '+json.dumps(report,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
+
 
