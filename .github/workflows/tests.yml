@@ -51,6 +51,7 @@ jobs:
         run: python -m unittest discover -p 'test_*.py'
       - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
         run: |
+          node --test test_national_enrichment.mjs
           node test_recheck_failures.mjs
           node test_no_schema_activity.mjs
           node ops/test-unknown-availability.mjs
