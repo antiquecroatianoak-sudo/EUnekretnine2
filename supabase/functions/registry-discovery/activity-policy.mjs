@@ -26,10 +26,33 @@ export function evidenceSQL(url,f,stamp){
  and (coalesce(${f}->>'auction_at','')='' or site_private.safe_stamp(${f}->>'auction_at')>now())
  and (coalesce(${f}->>'bid_deadline_at','')='' or site_private.safe_stamp(${f}->>'bid_deadline_at')>now())`;
 }
-const SOURCE_PROOF=evidenceSQL('c.url',"(site_private.safe_json(c.body_json)->'facts')","coalesce(site_private.safe_json(c.body_json)->'facts'->>'checked_at',case when c.url ~ '^https://www[.](immobilier[.]notaires[.]fr|biddit[.]be)/' then c.last_seen end)");
-export const SOURCE_ACTIVE=`(${SOURCE_PROOF}) and not exists(select 1 from site_private.listing_lifecycle activity_l where activity_l.candidate_id=c.id and activity_l.state in ('expired','removed','missing_once'))`;
-export const PROPERTY_ACTIVE=`p.status not in ('Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno')
- and (rtrim(p.source,'/') in (select rtrim(c.url,'/') from source_candidates c where c.kind='property' and ${SOURCE_ACTIVE})
- or exists(select 1 from activity a where a.property_id=p.id and a.stage='Provjera aktivnosti oglasa' and ${evidenceSQL('p.source','site_private.safe_json(a.notes)',"site_private.safe_json(a.notes)->>'checked_at'")}))
- and not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed','missing_once'))`;
-
+// Unknown availability is retained; only documented closure/elapsed deadlines exclude it.
+export function closureState(row,now=Date.now()){
+ const f=row?.facts||{};
+ if(['expired'].includes(f.source_listing_state))return 'expired';
+ if(['removed','sold','withdrawn','inactive','closed'].includes(f.source_listing_state))return 'removed';
+ for(const k of ['deadline','auction_at','bid_deadline_at'])if(f[k]&&Number.isFinite(Date.parse(f[k]))&&Date.parse(f[k])<=now)return 'expired';
+ return null;
+}
+export function admissibleListing(row,now=Date.now()){
+ return row?.kind!=='property'||!closureState(row,now);
+}
+export function availabilityLabel(row,now=Date.now()){
+ return closureState(row,now)?'Potvrđeno neaktivan':explicitProof(row,now)?'Aktivnost potvrđena':'Dostupnost nije potvrđena';
+}
+export function retainedSQL(f){
+ return `coalesce(${f}->>'source_listing_state','') not in ('expired','removed','sold','withdrawn','inactive','closed')
+ and not coalesce(site_private.safe_stamp(${f}->>'deadline')<=now(),false)
+ and not coalesce(site_private.safe_stamp(${f}->>'auction_at')<=now(),false)
+ and not coalesce(site_private.safe_stamp(${f}->>'bid_deadline_at')<=now(),false)`;
+}
+const FACTS="(site_private.safe_json(c.body_json)->'facts')";
+const SOURCE_PROOF=evidenceSQL('c.url',FACTS,"coalesce(site_private.safe_json(c.body_json)->'facts'->>'checked_at',case when c.url ~ '^https://www[.](immobilier[.]notaires[.]fr|biddit[.]be)/' then c.last_seen end)");
+export const SOURCE_ACTIVE=`(${retainedSQL(FACTS)}) and not exists(select 1 from site_private.listing_lifecycle activity_l where activity_l.candidate_id=c.id and activity_l.state in ('expired','removed'))`;
+export const PROPERTY_ACTIVE=`coalesce(p.status,'') not in ('Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno')
+ and (p.bid_deadline_at is null or p.bid_deadline_at>now())
+ and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())
+ and p.id not in(select c.property_id from source_candidates c where c.kind='property' and c.property_id is not null and not (${SOURCE_ACTIVE}))
+ and coalesce(rtrim(p.source,'/'),'') not in(select rtrim(c.url,'/') from source_candidates c where c.kind='property' and c.url is not null and not (${SOURCE_ACTIVE}))`;
+export const PROPERTY_AVAILABILITY=`case when exists(select 1 from source_candidates c where c.kind='property' and rtrim(c.url,'/')=rtrim(p.source,'/') and ${SOURCE_PROOF} and ${SOURCE_ACTIVE})
+ or exists(select 1 from activity a where a.property_id=p.id and a.stage='Provjera aktivnosti oglasa' and ${evidenceSQL('p.source','site_private.safe_json(a.notes)',"site_private.safe_json(a.notes)->>'checked_at'")}) then 'Aktivnost potvrđena' else 'Dostupnost nije potvrđena' end`;

@@ -1,4 +1,4 @@
-import {explicitProof} from './activity-policy.mjs';
+import {explicitProof,admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {mergeCandidate} from './merge.mjs';
@@ -93,13 +93,14 @@ Deno.serve(async req=>{
   for(const row of body.candidates)if(row.kind==='property'&&row.facts.source_listing_state==='active'&&row.facts.source_status_evidence){
    row.facts.activity_record_url=row.url;row.facts.activity_evidence_url=row.facts.evidence_url||row.url;row.facts.checked_at=row.last_seen;
   }
-  const rejected=body.candidates.filter(r=>!explicitProof(r));
-  const accepted=body.candidates.filter(r=>explicitProof(r));
+  for(const row of body.candidates)if(row.kind==='property')row.facts.availability=availabilityLabel(row);
+  const rejected=body.candidates.filter(r=>!admissibleListing(r));
+  const accepted=body.candidates.filter(r=>admissibleListing(r));
   const result=await sql.begin(async tx=>{
    // Serialize only registry imports so URL duplicates cannot race between sources.
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
    let inserted=0,updated=0;
-   for(const row of rejected)await tx`update site_private.listing_lifecycle set state='missing_once',checked_at=now(),reason='Posljednja provjera nije potvrdila aktivnost oglasa' where candidate_id in (select id from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/'))`;
+   for(const row of rejected)await tx`insert into site_private.listing_lifecycle(candidate_id,state,checked_at,evidence_url,reason) select id,${closureState(row)},${row.last_seen}::timestamptz,${row.url},${row.facts.source_status_evidence||'Istekao dokumentirani rok'} from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/') and site_private.safe_stamp(last_seen)<=${row.last_seen}::timestamptz on conflict(candidate_id) do update set state=excluded.state,checked_at=excluded.checked_at,evidence_url=excluded.evidence_url,reason=excluded.reason where site_private.listing_lifecycle.checked_at is null or site_private.listing_lifecycle.checked_at<=excluded.checked_at`;
    for(const row of accepted){
     const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
     const merged=mergeCandidate(existing,row,source);

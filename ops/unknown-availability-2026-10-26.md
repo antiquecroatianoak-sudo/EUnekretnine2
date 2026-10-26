@@ -1,0 +1,5 @@
+# Retain unknown availability
+
+Owner changed the rule on 26 October: missing availability must not exclude a listing. Unknown and stale proof remain unconfirmed, while explicit closure and elapsed documented deadlines exclude the listing. Applies to API catalogues, counts, suggestions, manual saves, registry batch and snapshot sync. Confirmed-active labels still require the previous exact-source, fresh evidence. Both import paths record confirmed closures against an existing listing instead of relabelling them unknown. No schema migration, physical deletion, auth or RLS change.
+
+Validation: strict evidence tests, new unknown/closure/deadline tests, entrypoint syntax checks passed. Read-only production predicate returned 20,589 retained properties (not 20,589 confirmed-active offers). Publication status is recorded separately after deployment. No full authenticated UI/positive ingestion or all-source live validation claimed. Rollback is prior v14 function bundles stored before publication; no database rollback needed.

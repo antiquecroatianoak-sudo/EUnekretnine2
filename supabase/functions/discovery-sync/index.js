@@ -1,4 +1,4 @@
-import {explicitProof} from './activity-policy.mjs';
+import {admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import {mergeSnapshot} from './snapshot-merge.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
 import postgres from 'npm:postgres@3.4.7';
@@ -43,8 +43,10 @@ Deno.serve(async req=>{
  }catch(e){return reply({error:e.message||'Invalid input'},400)}
  try{
   const sql=db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:1,prepare:false,idle_timeout:5,connect_timeout:10});
-  const snapshot={...body.snapshot,candidates:body.snapshot.candidates.filter(r=>explicitProof(r))};
+  const snapshot={...body.snapshot,candidates:body.snapshot.candidates.filter(r=>admissibleListing(r)).map(r=>r.kind==='property'?{...r,facts:{...r.facts,availability:availabilityLabel(r)}}:r)};
   const result=await sql.begin(async tx=>{
+   for(const row of body.snapshot.candidates.filter(r=>!admissibleListing(r)))await tx`insert into site_private.listing_lifecycle(candidate_id,state,checked_at,evidence_url,reason) select id,${closureState(row)},${row.last_seen}::timestamptz,${row.url},${row.facts.source_status_evidence||'Istekao dokumentirani rok'} from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/') and site_private.safe_stamp(last_seen)<=${row.last_seen}::timestamptz on conflict(candidate_id) do update set state=excluded.state,checked_at=excluded.checked_at,evidence_url=excluded.evidence_url,reason=excluded.reason where site_private.listing_lifecycle.checked_at is null or site_private.listing_lifecycle.checked_at<=excluded.checked_at`;
+
    for(let n=0;n<snapshot.candidates.length;n+=100){
     const batch=snapshot.candidates.slice(n,n+100);
     const previous=await tx`select id,body_json from source_candidates where id=any(${batch.map(r=>r.id)}::text[]) for update`;

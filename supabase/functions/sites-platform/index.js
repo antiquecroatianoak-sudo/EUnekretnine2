@@ -1,4 +1,4 @@
-import {explicitProof,SOURCE_ACTIVE} from './activity-policy.mjs';
+import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
 import postgres from 'npm:postgres@3.4.7';
@@ -28,7 +28,7 @@ async function list(tx){
  if(t==='sources')return tx`select * from sources where is_active order by id limit ${LIMITS.sources}`;
  if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
  if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
- if(t==='source_candidates')return tx`select c.* from source_candidates c where c.kind<>'property' or ((${tx.unsafe(SOURCE_ACTIVE)}) and not exists(select 1 from site_private.listing_lifecycle l where l.candidate_id=c.id and l.state in ('expired','removed','missing_once'))) order by last_seen desc,id limit ${LIMITS.source_candidates}`;
+ if(t==='source_candidates')return tx`select c.* from source_candidates c where c.kind<>'property' or ((${tx.unsafe(SOURCE_ACTIVE)}) and not exists(select 1 from site_private.listing_lifecycle l where l.candidate_id=c.id and l.state in ('expired','removed'))) order by last_seen desc,id limit ${LIMITS.source_candidates}`;
  if(t==='match_results')return tx`select m.* from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id limit ${LIMITS.match_results}`;
  if(t==='notification_outbox')return tx`select n.* from notification_outbox n join properties p on p.id=n.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by n.id limit ${LIMITS.notification_outbox}`;
  if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id where a.property_id is null or exists(select 1 from properties p where p.id=a.property_id and ${tx.unsafe(PROPERTY_VISIBLE)}) order by a.id desc limit ${LIMITS.activity}`;
@@ -85,7 +85,7 @@ async function save(tx,table,input,id){
    if(rows[0]){const r={...JSON.parse(rows[0].body_json),last_seen:rows[0].last_seen,url:rows[0].url};if(explicitProof(r))proof={...r.facts,activity_record_url:r.url,activity_evidence_url:r.facts.activity_evidence_url||r.facts.evidence_url||r.url,checked_at:r.facts.checked_at||r.last_seen};}
    if(!proof){const [a]=await tx`select notes from activity where property_id=${Number(id)} and stage='Provjera aktivnosti oglasa' order by id desc limit 1`;try{proof=JSON.parse(a?.notes||'null')}catch{}}
   }
-  if(!explicitProof({kind:'property',url:data.source,facts:proof}))throw Error('Prije upisa potreban je svjež dokaz aktivnosti konkretnog oglasa.');
+  if(!admissibleListing({kind:'property',url:data.source,facts:proof}))throw Error('Potvrđeno neaktivan oglas nije dopušten za upis.');
  }
  let saved;
  if(id!=null){if(!Number.isSafeInteger(Number(id))||Number(id)<=0)throw Error('Nevaljana oznaka zapisa.');
@@ -96,7 +96,8 @@ async function save(tx,table,input,id){
 }
 async function prepare(tx,id){
  const rows=await tx`select * from source_candidates where id=${id} for update`;const r=rows[0];if(!r)throw Error('Kandidat nije pronađen.');
- if(r.kind==='property'&&!explicitProof({...JSON.parse(r.body_json),url:r.url,last_seen:r.last_seen}))throw Error('Oglas nema svježu potvrdu aktivnosti.');
+ if(r.kind==='property'&&!(await tx`select 1 from source_candidates c where c.id=${id} and ${tx.unsafe(SOURCE_ACTIVE)}`).length)throw Error('Oglas je potvrđeno neaktivan.');
+ if(r.kind==='property'&&!admissibleListing({...JSON.parse(r.body_json),url:r.url,last_seen:r.last_seen}))throw Error('Oglas je potvrđeno neaktivan.');
  if(r.property_id||r.investor_id)return {kind:r.kind,id:r.property_id||r.investor_id};
  const d=JSON.parse(r.body_json),f=d.facts||{};let result;
  if(r.kind==='property'){

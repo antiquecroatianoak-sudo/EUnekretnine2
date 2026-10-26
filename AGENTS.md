@@ -90,3 +90,11 @@
 - Provjeru automatizirati u svim putovima uvoza i ponavljati u postojećem rasporedu. Istek dokumentiranog roka odmah isključuje oglas; ne čekati sljedeći dohvat. Zastarjela/neuspjela ponovna provjera ne produljuje potvrdu aktivnosti.
 - Provjeriti i postojeće zapise. Dok nema svježeg pozitivnog dokaza, ne prikazivati ih kao aktivne niti uključivati u uparivanje. Ne mijenjati nepovezane ručne podatke ili druge aplikacije.
 - Obvezne regresije: aktivan, nepoznat, prodan/povučen, istekao, proturječan, budući datum provjere, zastarjela potvrda, ponovno otvoren oglas i pokušaj zaobilaženja drugim uvoznikom. Dokumentirana uputa nije potvrda da je programska provedba već objavljena.
+
+
+## Izmjena dostupnosti — najnovija uputa vlasnika 26.10.2026.
+
+- Ova uputa zamjenjuje raniji strogi zahtjev pozitivne potvrde aktivnosti za svaki upis/prikaz. Nedostatak podatka ili neuspjela provjera dostupnosti sami nisu razlog za odbijanje, uklanjanje ili isključenje iz mogućih parova.
+- Nepoznatu dostupnost zadržati uz oznaku 'Dostupnost nije potvrđena' i nastaviti automatske provjere. Ne prikazivati je kao potvrđeno aktivnu.
+- Potvrđeno prodane, povučene, neaktivne i istekle oglase i dalje odbijati/isključivati. Dokumentirani istek roka ima prednost pred oznakom aktivan.
+- Kontakti, kriteriji, pravni status, ovlasti i uvjeti za stvarnu priliku ostaju zasebne provjere. Ova promjena ne dopušta izmišljanje dostupnosti ni dokaza.
