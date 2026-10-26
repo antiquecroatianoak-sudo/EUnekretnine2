@@ -362,7 +362,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
             if entry['mode']=='detail':
                 details+=1
                 try:rows.append(primary_record(source,url,nodes,stamp,page))
-                except ValueError as exc:failed.append({'url':url,'reason':str(exc)})
+                except ValueError as exc:failed.append({'url':url,'mode':'detail','checked_at':stamp,'reason':str(exc)})
             else:
                 try:
                     rows.append(primary_record(source,url,nodes,stamp,page))
@@ -410,5 +410,6 @@ def main():
     print('PROPERTY_IMPORT_REPORT '+json.dumps(report,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
+
 
 

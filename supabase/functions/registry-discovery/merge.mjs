@@ -28,6 +28,7 @@ export function mergeCandidate(existing,row,source,now=Date.now()){
  // Retain user review fields and prior suggestions. Source evidence is refreshed separately.
  if(prior.match_suggestions)merged.match_suggestions=prior.match_suggestions;
  merged.facts={...(prior.facts||{})};
+ if(row.kind==='property')for(const k of ['source_listing_state','source_status_evidence','activity_record_url','activity_evidence_url','checked_at'])delete merged.facts[k];
  const notObserved=[];
  for(const [key,value] of Object.entries(row.facts)){
   if(value==null&&merged.facts[key]!=null)notObserved.push(key);
@@ -47,6 +48,7 @@ export function mergeCandidate(existing,row,source,now=Date.now()){
  merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';
  return merged;
 }
+
 
 
 

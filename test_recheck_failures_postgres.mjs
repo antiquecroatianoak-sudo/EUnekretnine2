@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {applyFailedRechecks,applyObservedClosures} from './supabase/functions/registry-discovery/recheck-failures.mjs';
+const require=createRequire(process.argv[2]+'/package.json'),{PGlite}=require('@electric-sql/pglite');
+const db=new PGlite(),source={id:51,url:'https://example.org/'},checked_at='2026-10-26T12:00:00Z';
+const sql=(parts,...args)=>db.query(parts.reduce((s,p,i)=>s+(i?'$'+i:'')+p,''),args).then(r=>r.rows);
+const validURL=(url,root)=>{if(new URL(url).origin!==new URL(root).origin)throw Error('Cross-source');return url};
+try{
+ await db.exec(`create schema site_private;
+ create function site_private.safe_stamp(v text) returns timestamptz language sql stable as 'select v::timestamptz';
+ create table source_candidates(id text primary key,source_id text,kind text,url text,last_seen text);
+ create table site_private.listing_lifecycle(candidate_id text primary key,state text,checked_at timestamptz,evidence_url text,reason text);
+ insert into source_candidates select n::text,'registry-51','property','https://example.org/'||n,'2026-10-25T12:00:00Z' from generate_series(1,5) n;
+ insert into source_candidates values('other','registry-99','property','https://example.org/other','2026-10-25T12:00:00Z');
+ insert into site_private.listing_lifecycle select id,'observed','2026-10-25T12:00:00Z',url,'Initial' from source_candidates;
+ update site_private.listing_lifecycle set state='removed' where candidate_id='1';
+ update site_private.listing_lifecycle set state='expired' where candidate_id='2';
+ update site_private.listing_lifecycle set checked_at='2026-10-27T12:00:00Z' where candidate_id='4';`);
+ const all=async()=>Object.fromEntries((await db.query('select candidate_id,state from site_private.listing_lifecycle order by candidate_id')).rows.map(r=>[r.candidate_id,r.state]));
+ const failed_urls=['1','2','3','4','other'].map(id=>({url:source.url+id,mode:'detail',checked_at}));
+ await applyFailedRechecks(sql,source,{checked_at,failed_urls},validURL);
+ assert.deepEqual(await all(),{'1':'removed','2':'expired','3':'missing_once','4':'observed','5':'observed',other:'observed'});
+ await applyFailedRechecks(sql,source,{checked_at,failed_urls:[],error:'TimeoutError'},validURL);
+ assert.equal((await all())['5'],'missing_once');assert.equal((await all())['1'],'removed');
+ const closed_urls=['3','4','other'].map(id=>({url:source.url+id,state:'removed',checked_at,evidence:'Primary sold label'}));
+ await applyObservedClosures(sql,source,{checked_at,closed_urls},validURL);
+ assert.equal((await all())['3'],'removed');assert.equal((await all())['4'],'observed');assert.equal((await all()).other,'observed');
+ await applyFailedRechecks(sql,source,{checked_at:'2026-10-28T12:00:00Z',failed_urls:[],error:'TimeoutError'},validURL);
+ assert.equal((await all())['3'],'removed','a later outage cannot reopen the confirmed closure');
+ assert.equal((await db.query('select count(*)::int n from source_candidates')).rows[0].n,6,'no listing is deleted or invented');
+ console.log('PostgreSQL lifecycle checks passed: closures survive outages, source and timestamp guards hold, new closure events update existing listings only.');
+}finally{await db.close()}

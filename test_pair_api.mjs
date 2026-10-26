@@ -10,7 +10,14 @@ writeFileSync(copy,readFileSync(new URL('index.js',dir),'utf8').replace("from 'n
 let dispatch;try{({dispatch}=await import(copy.href))}finally{rmSync(copy)}
 const {digest,PAIR_CONDITION,MATCH,CANDIDATE,PHASE}=await import('./supabase/functions/sites-platform/domain.mjs');
 const sql=postgres(process.env.PAIR_DB_URL,{max:1,onnotice:()=>{}});
-const run=a=>sql.begin(tx=>dispatch(tx,a));
+// Synthetic contact permissions belong only to these isolated TEST fixtures.
+const testContact=source=>({mode:'direct',name:'TEST ONLY',contact_url:source,evidence_url:source,record_reference:source,permitted:true});
+const run=async a=>{
+ if(a.action==='save_property'&&a.record?.source)a={...a,record:{...a.record,contact_json:testContact(a.record.source)}};
+ for(const p of await sql`select id,source from properties where contact_json is null`)if(p.source)await sql`update properties set contact_json=${JSON.stringify(testContact(p.source))} where id=${p.id}`;
+ for(const i of await sql`select id,criteria_json from investors where contact_json is null`){const u=JSON.parse(i.criteria_json||'{}').source_url;if(u)await sql`update investors set contact_json=${JSON.stringify(testContact(u))} where id=${i.id}`;}
+ return sql.begin(tx=>dispatch(tx,a));
+};
 const today=new Date().toISOString().slice(0,10),notes='Samo uz tramvajsku prugu';
 try{
  const [p]=await sql`insert into properties(country,city,title,source,price,area,renovation,other_costs,property_type,condition,status,source_checked_on,legal,legal_evidence_url)
@@ -86,7 +93,7 @@ try{
  // an explicit evidenced source check, and return to candidate when that check expires, keeping its history.
  const {SOURCE_FRESH,GUARD_REFUSED}=await import('./supabase/functions/sites-platform/domain.mjs');
  const [i2]=await sql`insert into investors(name,country,min_budget,max_budget,preferred_countries,notes,verified,criteria_json) values('TEST kupac bez budžeta','US',null,null,'Irska','',1,${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.ie/eoi',checked_at:new Date().toISOString()})}) returning id`;
- const land={title:'TEST Dublin',country:'Irska',city:'Dublin',property_type:'Zemljište',condition:'Neizgrađeno',status:'Aktivno',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal',source:'https://example.ie/l/1',price_basis:'asking'};
+ const land={contact_json:testContact('https://example.ie/l/1'),title:'TEST Dublin',country:'Irska',city:'Dublin',property_type:'Zemljište',condition:'Neizgrađeno',status:'Aktivno',price:90000,area:6120,renovation:0,other_costs:0,legal:'Uredno',legal_evidence_url:'https://example.ie/legal',source:'https://example.ie/l/1',price_basis:'asking'};
  const {id:p2}=await run({action:'save_property',record:{...land,source_checked_on:today}});
  const ids2={property_id:Number(p2),investor_id:Number(i2.id)};
  assert.equal((await sql`select source_checked_on from properties where id=${p2}`)[0].source_checked_on,null,'an ordinary save never records a source check');
@@ -183,3 +190,4 @@ try{
   if(process.env.PAIRS_RESPONSE_OUT)writeFileSync(process.env.PAIRS_RESPONSE_OUT,JSON.stringify({...real,expected_candidates:dbCandidates}));}
  console.log('Pair API checks passed: task, draft question, unverified and verified answers, pair-bound evidence, interest guard, invalidation on property change, record kept when discovery-sync drops a pair, explicit source check without budget, expiry back to candidate, guard refusal kept visible and excluded from ranking.');
 }finally{await sql.end()}
+

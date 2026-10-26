@@ -1,3 +1,5 @@
+import {applyFailedRechecks,applyObservedClosures} from './recheck-failures.mjs';
+import {explicitProof,admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {mergeCandidate} from './merge.mjs';
@@ -66,6 +68,11 @@ Deno.serve(async req=>{
   if(!/^registry-\d+$/.test(body.source_id||''))return reply({error:'Invalid source ID'},400);
   const [source]=await sql`select id,country,name,url,category from sources where id=${body.source_id.slice(9)}`;
   if(!source)return reply({error:'Unknown registered source'},400);
+  if(body.action==='checkpoint-status'){
+   if(!body.state||body.state.source_id!==body.source_id)throw Error('Invalid checkpoint receipt');
+   const [receipt]=await sql`select body_json::jsonb=${JSON.stringify(body.state)}::jsonb as saved from discovery_runs where source_id=${body.source_id}`;
+   return reply({saved:receipt?.saved===true});
+  }
   if(body.action==='checkpoint'){
    const s=body.state;
    if(!s||s.source_id!==body.source_id||!['Uspješno','Djelomično','Pogreška','Nepodržano'].includes(s.status)||!Array.isArray(s.pending)||!Array.isArray(s.cycle_seen)||!Number.isFinite(Date.parse(s.checked_at))||Math.abs(Date.now()-Date.parse(s.checked_at))>3600000)throw Error('Invalid checkpoint');
@@ -78,17 +85,26 @@ Deno.serve(async req=>{
     const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
     await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
    }
-   await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
+   await applyObservedClosures(sql,source,s,validURL);
+   await applyFailedRechecks(sql,source,s,validURL);
    await sql`select site_private.reconcile_listing_lifecycle()`;
+   await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
    return reply({saved:true});
   }
   if(body.action!=='batch')return reply({error:'Unknown action'},400);
   validateRows(body.candidates,source);
+  for(const row of body.candidates)if(row.kind==='property'&&row.facts.source_listing_state==='active'&&row.facts.source_status_evidence){
+   row.facts.activity_record_url=row.url;row.facts.activity_evidence_url=row.facts.evidence_url||row.url;row.facts.checked_at=row.last_seen;
+  }
+  for(const row of body.candidates)if(row.kind==='property')row.facts.availability=availabilityLabel(row);
+  const rejected=body.candidates.filter(r=>!admissibleListing(r));
+  const accepted=body.candidates.filter(r=>admissibleListing(r));
   const result=await sql.begin(async tx=>{
    // Serialize only registry imports so URL duplicates cannot race between sources.
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
    let inserted=0,updated=0;
-   for(const row of body.candidates){
+   for(const row of rejected)await tx`insert into site_private.listing_lifecycle(candidate_id,state,checked_at,evidence_url,reason) select id,${closureState(row)},${row.last_seen}::timestamptz,${row.url},${row.facts.source_status_evidence||'Istekao dokumentirani rok'} from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/') and site_private.safe_stamp(last_seen)<=${row.last_seen}::timestamptz on conflict(candidate_id) do update set state=excluded.state,checked_at=excluded.checked_at,evidence_url=excluded.evidence_url,reason=excluded.reason where site_private.listing_lifecycle.checked_at is null or site_private.listing_lifecycle.checked_at<=excluded.checked_at`;
+   for(const row of accepted){
     const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
     const merged=mergeCandidate(existing,row,source);
     if(existing){
@@ -101,8 +117,10 @@ Deno.serve(async req=>{
    await tx`select site_private.reconcile_listing_lifecycle()`;
    return {inserted,updated};
   });
-  return reply({...result,candidates:body.candidates.length});
+  return reply({...result,candidates:accepted.length,activity_rejected:rejected.length});
  }catch(e){console.error('registry-discovery',e?.name,e?.code,body.action==='enrichment-country'?String(e?.message).slice(0,200):'');return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
+
+
 
 

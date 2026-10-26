@@ -1,4 +1,5 @@
 import {evaluate,criteria,country,norm,validUrl,num,TYPES,REJECT,checkValid,sourceConditions,pairText,gap,settle,SOURCE_CONDITIONS,checkCondition,storedBuyerEligible,BUYER_RECORD} from './domain.mjs';
+import {contactRoute,SELLER_CONTACT,BUYER_CONTACT} from './domain.mjs';
 
 // Compatibility only: retain every original criterion and never invent budgets.
 const aliases=new Map([
@@ -22,6 +23,8 @@ export const EXCLUDED={BUYER_CRITERIA:'Kriteriji kupca nisu valjan JSON objekt',
 // `why`, when given, receives the reason a pair was not suggested (EXCLUDED values or 'Ne odgovara: <kriterij>').
 export function suggestion(p,i,now=Date.now(),pairChecks={},why=null){
  const out=reason=>{if(why)why.reason=reason;return null};
+ if(!contactRoute(p))return out(SELLER_CONTACT);
+ if(!contactRoute(i))return out(BUYER_CONTACT);
  const raw=criteria(i),notes=object(i.notes);if(raw._invalid)return out(EXCLUDED.BUYER_CRITERIA);
  const c={...raw,source_url:raw.source_url||raw.evidence_url||notes.official_url,
   checked_at:raw.checked_at||notes.checked_at};
@@ -70,3 +73,5 @@ export function pairFunnel(props,investors,now=Date.now(),checks=new Map()){
  }
  return f;
 }
+
+

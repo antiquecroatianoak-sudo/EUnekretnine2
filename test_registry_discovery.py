@@ -117,6 +117,7 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(rows[0]['facts']['auction_time_kind'],'auction_start')
         again,state=self.run_source(source,state,fetch,1)
         self.assertEqual(again,[]);self.assertEqual(state['next_page'],1)
+        self.assertEqual(state['closed_urls'][0]['state'],'expired')
     def test_notaires_changed_format_keeps_page_for_retry(self):
         root='https://www.immobilier.notaires.fr';base=root+'/pub-services/inotr-www-annonces/v1/annonces?typeTransactions=VAE&page=2&parPage=12'
         source=dict(SOURCE,id=28,url=root+'/fr/vente-aux-encheres-adjudication')
@@ -135,6 +136,14 @@ class RegistryTests(unittest.TestCase):
         data={'referenceCode':'301194','publicSaleStatus':'CLOSED','biddingEndDateTime':'2020-10-20T07:30:00Z'}
         rows,state=self.run_source(source,{'pending':[{'url':url}]},Fetch({root+'/api/eco/biddit-bff/lot/301194':json.dumps(data)}))
         self.assertEqual(rows,[]);self.assertEqual(state['pending'],[])
+        self.assertEqual(state['closed_urls'][0]['state'],'expired');self.assertEqual(state['closed_urls'][0]['url'],url)
+    def test_biddit_unknown_does_not_close_or_import_and_sold_is_reported(self):
+        root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
+        source=dict(SOURCE,id=27,url=root+'/fr/landing')
+        for status,expected in [('UNKNOWN',[]),('SOLD',['removed'])]:
+            data={'referenceCode':'301194','publicSaleStatus':status}
+            rows,state=self.run_source(source,{'pending':[{'url':url}]},Fetch({root+'/api/eco/biddit-bff/lot/301194':json.dumps(data)}))
+            self.assertEqual(rows,[]);self.assertEqual([x['state'] for x in state['closed_urls']],expected)
     def test_biddit_denial_preserves_detail_for_retry(self):
         root='https://www.biddit.be';url=root+'/fr/catalog/detail/301194'
         source=dict(SOURCE,id=27,url=root+'/fr/landing')
@@ -150,6 +159,21 @@ class RegistryTests(unittest.TestCase):
         with patch('registry_discovery.api',side_effect=api_call),patch('registry_discovery.process',return_value=([],state)),patch('registry_discovery.save_rows',side_effect=[TimeoutError(),(0,0)]),patch('builtins.print'):
             with self.assertRaisesRegex(RuntimeError,'registry-1'):main(max_workers=1)
         self.assertEqual(checkpoints,['registry-2'])
+    def test_lost_checkpoint_response_requires_exact_server_receipt(self):
+        from registry_discovery import save_checkpoint
+        state={'source_id':'registry-51','checked_at':'2026-10-26T12:00:00Z'}
+        with patch('registry_discovery.api',side_effect=[TimeoutError(),{'saved':True}]) as call:
+            self.assertTrue(save_checkpoint('registry-51',state)['saved'])
+            self.assertEqual([c.args[0]['action'] for c in call.call_args_list],['checkpoint','checkpoint-status'])
+            self.assertEqual(call.call_args_list[1].args[0]['state'],state)
+        for receipt in [{'saved':False},{'saved':1},{}]:
+            with patch('registry_discovery.api',side_effect=[TimeoutError(),receipt]):
+                with self.assertRaises(TimeoutError):save_checkpoint('registry-51',state)
+        from urllib.error import HTTPError
+        for code in (400,401,403):
+            with patch('registry_discovery.api',side_effect=HTTPError(ROOT,code,'Rejected',{},None)) as call:
+                with self.assertRaises(HTTPError):save_checkpoint('registry-51',state)
+                self.assertEqual(call.call_count,1)
     def test_persistence_auth_failure_stops_without_advancing_checkpoint(self):
         from urllib.error import HTTPError
         config={'sources':[dict(SOURCE,id=1),dict(SOURCE,id=2)],'states':{}}
@@ -356,5 +380,6 @@ class EmporiaTypographyTests(unittest.TestCase):
             self.record('House H706 - Zadar',canonical_url='https://example.com/other')
 
 if __name__=='__main__':unittest.main(max_workers=1)
+
 
 
