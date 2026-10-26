@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 18,
+  "kandidat_nekretnine": 19,
   "nedostupno": 10,
   "nije_relevantno": 16,
   "robots_zabrana": 5
@@ -92,6 +92,34 @@
    "title": "Ferienwohnung kaufen ⌂ Alpin-Resort Montafon in Gargellen - Direkt an der Skipiste Ferienwohnung in Gargellen kaufen"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-26T18:46:42.528128+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "https://www.amann-immobilien.com/modernes-wohnen-und-arbeiten-in-einem-haus-in-weiler-vorarlberg/",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/vorarlberg/feldkirch/wohnen-arbeiten-kombiniert-160-m-wohnflaeche-und-40-m-studio-1613997451/",
+     "seen": "2026-10-26T18:46:42.425868+00:00",
+     "url": "https://www.amann-immobilien.com/modernes-wohnen-und-arbeiten-in-einem-haus-in-weiler-vorarlberg/"
+    }
+   ],
+   "first_seen": "2026-10-26T18:46:42.425868+00:00",
+   "host": "amann-immobilien.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "signals": {
+    "areas": 12,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 2,
+    "property_words": 4
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Modernes Wohnen und Arbeiten in einem Haus - Weiler - Amann Immobilien GmbH"
+  },
+  {
    "check_note": "Page exceeds transfer budget",
    "checked_at": "2026-10-25T21:32:25.666125+00:00",
    "country_hint": null,
@@ -174,7 +202,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -230,7 +258,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "nedostupno"
   },
   {
@@ -250,7 +278,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "nedostupno"
   },
   {
@@ -270,7 +298,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -346,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -398,7 +426,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +454,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -446,7 +474,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "nedostupno"
   },
   {
@@ -854,7 +882,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "blokirano"
   },
   {
@@ -946,7 +974,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1406,7 +1434,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:30:45.837154+00:00",
+   "last_seen": "2026-10-26T18:46:42.425868+00:00",
    "status": "nedostupno"
   },
   {
@@ -1515,6 +1543,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-26T18:30:45.837154+00:00",
- "verified_at": "2026-10-26T18:30:45.939979+00:00"
+ "updated_at": "2026-10-26T18:46:42.425868+00:00",
+ "verified_at": "2026-10-26T18:46:42.528128+00:00"
 }
