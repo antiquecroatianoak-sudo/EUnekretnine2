@@ -17,6 +17,23 @@ class BuyerProfileTests(unittest.TestCase):
   f=self.parse();self.assertEqual(f["preferred_countries"],["HR"])
   self.assertIsNone(f["budget"]);self.assertEqual(f["contact_email"],"land@example.org")
   self.assertEqual(f["transaction_type"],"unconfirmed_acquisition_profile")
+  self.assertFalse(f['source_contact']['permitted'])
+ def test_agency_role_requires_observed_evidence(self):
+  c=copy.deepcopy(CONFIG);c['contact_mode']='agency'
+  with self.assertRaisesRegex(ValueError,'role evidence'):self.parse(config=c)
+  c['role_evidence']='We represent investors seeking properties.'
+  f=self.parse(TEXT+' '+c['role_evidence'],c)
+  self.assertEqual(f['source_contact']['mode'],'agency')
+  self.assertEqual(f['source_contact']['agency_name'],c['entity_name'])
+  self.assertTrue(f['source_contact']['represents_record'])
+  self.assertFalse(f['source_contact']['permitted'])
+ def test_invalid_contact_mode_rejected(self):
+  c=copy.deepcopy(CONFIG);c['contact_mode']='partner_confirmed'
+  with self.assertRaises(ValueError):self.parse(config=c)
+ def test_reviewed_buyer_configuration_overrides_generic_source_category(self):
+  from registry_discovery import buyer_source
+  self.assertTrue(buyer_source(dict(category='Službena objava',import_config={'buyer_profile':CONFIG})))
+  self.assertFalse(buyer_source(dict(category='Službena objava')))
  def test_changed_intent_rejected(self):
   with self.assertRaises(ValueError):self.parse(TEXT.replace(QUOTE,"We sell homes."))
  def test_contact_missing_rejected(self):
@@ -60,4 +77,5 @@ class BuyerProfileTests(unittest.TestCase):
   self.assertIsNone(state['error']);self.assertEqual(len(rows),1);self.assertFalse(rows[0]['verified'])
 
 if __name__=="__main__":unittest.main()
+
 

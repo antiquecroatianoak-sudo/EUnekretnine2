@@ -30,6 +30,14 @@ def profile_facts(url, page, config):
     links = [href.casefold().split("?", 1)[0] for href, _ in page.links]
     if email.casefold() not in haystack and "mailto:" + email.casefold() not in links:
         raise ValueError("Profile contact not observed on the acquisition page")
+    mode = config.get('contact_mode', 'direct')
+    if mode not in ('direct', 'agency'):
+        raise ValueError('Invalid acquisition contact mode')
+    role_evidence = config.get('role_evidence')
+    if mode == 'agency' and (not isinstance(role_evidence,str)
+                            or len(role_evidence)<20
+                            or normalized(role_evidence) not in haystack):
+        raise ValueError('Agency acquisition role evidence missing from this page')
     facts = dict(entity_name=name, identity_source_url=url,
                  intent_evidence=intent, intent_source_url=url,
                  contact_email=email, contact_url=url,
@@ -38,6 +46,14 @@ def profile_facts(url, page, config):
                  transaction_type="unconfirmed_acquisition_profile",
                  availability="Public criteria observed; mandate and specific interest remain unconfirmed",
                  field_evidence={}, evidence_excerpt=intent)
+    facts['source_contact'] = dict(mode=mode, name=name, email=email,
+                                  record_reference=url, evidence_url=url,
+                                  represents_record=True, permitted=False)
+    if mode == 'agency':
+        facts['source_contact']['agency_name'] = name
+        facts['agency_name'] = name
+        facts['buyer_role'] = 'Zastupnik investitora'
+        facts['role_evidence'] = role_evidence
     rules = config.get("fields", [])
     if not isinstance(rules, list) or len(rules) > 30:
         raise ValueError("Invalid acquisition field mapping")
@@ -63,3 +79,4 @@ def profile_facts(url, page, config):
     if not facts.get("preferred_countries") or not facts.get("property_types"):
         raise ValueError("Documented demand countries and property types are required")
     return facts
+

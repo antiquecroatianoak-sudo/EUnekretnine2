@@ -311,7 +311,7 @@ def save_rows(source_id,rows,state,api_call=api):
     return inserted,updated
 
 def buyer_source(source):
-    return bool(re.search(r'kupac|kupci|kupaca|investitor|akvizic|kriteriji|potražnja',source.get('category',''),re.I))
+    return bool(source.get('import_config',{}).get('buyer_profile') or re.search(r'kupac|kupci|kupaca|investitor|akvizic|kriteriji|potražnja',source.get('category',''),re.I))
 
 def emporia_record(source,url,page,nodes,now):
     """Parse the primary Emporia detail; never take values from related cards."""
@@ -722,6 +722,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
