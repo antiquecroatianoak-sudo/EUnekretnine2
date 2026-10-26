@@ -2,7 +2,7 @@ import {applyFailedRechecks,applyObservedClosures} from './recheck-failures.mjs'
 import {explicitProof,admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
-import {mergeCandidate} from './merge.mjs';
+import {persistBatch} from './persist-batch.mjs';
 import {runCountry} from './national-enrichment.mjs';
 const repo='antiquecroatianoak-sudo/EUnekretnine2',audience='eu-property-discovery:izpzsfiqvransehvmuzn';
 const jwks=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
@@ -102,18 +102,8 @@ Deno.serve(async req=>{
   const result=await sql.begin(async tx=>{
    // Serialize only registry imports so URL duplicates cannot race between sources.
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
-   let inserted=0,updated=0;
    for(const row of rejected)await tx`insert into site_private.listing_lifecycle(candidate_id,state,checked_at,evidence_url,reason) select id,${closureState(row)},${row.last_seen}::timestamptz,${row.url},${row.facts.source_status_evidence||'Istekao dokumentirani rok'} from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/') and site_private.safe_stamp(last_seen)<=${row.last_seen}::timestamptz on conflict(candidate_id) do update set state=excluded.state,checked_at=excluded.checked_at,evidence_url=excluded.evidence_url,reason=excluded.reason where site_private.listing_lifecycle.checked_at is null or site_private.listing_lifecycle.checked_at<=excluded.checked_at`;
-   for(const row of accepted){
-    const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
-    const merged=mergeCandidate(existing,row,source);
-    if(existing){
-     await tx`update source_candidates set title=${merged.title},country=${merged.country},url=${merged.url},body_json=${JSON.stringify(merged)},last_seen=${row.last_seen} where id=${existing.id} and last_seen<=${row.last_seen}`;updated++;
-    }else{
-     await tx`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${merged.id},${merged.source_id},${merged.kind},${merged.title},${merged.country},${merged.url},${JSON.stringify(merged)},${merged.last_seen})`;inserted++;
-    }
-    await tx`select site_private.sync_source_listing(${merged.id})`;
-   }
+   const {inserted,updated}=await persistBatch(tx,accepted,source);
    await tx`select site_private.reconcile_listing_lifecycle()`;
    return {inserted,updated};
   });
