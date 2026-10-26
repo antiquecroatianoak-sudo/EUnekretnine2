@@ -1,8 +1,8 @@
 {
  "counts": {
-  "blokirano": 3,
+  "blokirano": 4,
   "kandidat_nekretnine": 18,
-  "nedostupno": 9,
+  "nedostupno": 10,
   "nije_relevantno": 16,
   "robots_zabrana": 5
  },
@@ -174,7 +174,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -230,7 +230,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "nedostupno"
   },
   {
@@ -250,7 +250,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "nedostupno"
   },
   {
@@ -270,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -346,7 +346,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -398,7 +398,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +426,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -446,7 +446,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "nedostupno"
   },
   {
@@ -580,6 +580,26 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Stan 48 m² u Solunu, Grčka | kupiti, kupovinu apartmana cena: 200000€ | Grekodom Development Prodaja - Stan 48 m² u Solunu"
+  },
+  {
+   "check_note": "HTTP 301",
+   "checked_at": "2026-10-26T15:11:41.670227+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Firmenwebsite",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/kaernten/villach/gelegenheit-preissenkung-top-einfamilienhaus-in-villach-landskron-886866561/",
+     "seen": "2026-10-26T15:11:41.588144+00:00",
+     "url": "https://www.imc-consulting.at/immoilien"
+    }
+   ],
+   "first_seen": "2026-10-26T15:11:41.588144+00:00",
+   "host": "imc-consulting.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -834,7 +854,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "blokirano"
   },
   {
@@ -920,7 +940,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -978,6 +998,32 @@
    },
    "status": "nije_relevantno",
    "title": "Kostenlose Immobilienbewertung in 3 Minuten online : Kuttenberger Immobilien"
+  },
+  {
+   "check_note": "HTTP 403",
+   "checked_at": "2026-10-26T15:11:41.670227+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Alle Immobilienangebote",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/oberoesterreich/rohrbach/wohnen-mit-aussicht-generalsaniertes-wohnhaus-in-ruhiger-sackgassenlage-in-haslach-bei-rohrbach-1547448203/",
+     "seen": "2026-10-26T15:11:41.588144+00:00",
+     "url": "https://living-immo.com/kaeufer/immobilie-kaufen/"
+    },
+    {
+     "anchor": "Immobilien-Suchportal",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/oberoesterreich/rohrbach/wohnen-mit-aussicht-generalsaniertes-wohnhaus-in-ruhiger-sackgassenlage-in-haslach-bei-rohrbach-1547448203/",
+     "seen": "2026-10-26T15:11:41.588144+00:00",
+     "url": "https://living-immo.com/immobilienmarkt-angebotsuebersicht/"
+    }
+   ],
+   "first_seen": "2026-10-26T15:11:41.588144+00:00",
+   "host": "living-immo.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "status": "blokirano"
   },
   {
    "check_note": "HTTP 403",
@@ -1354,7 +1400,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:50:09.234020+00:00",
+   "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "nedostupno"
   },
   {
@@ -1463,6 +1509,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-26T08:50:09.234020+00:00",
- "verified_at": "2026-10-26T08:50:09.326691+00:00"
+ "updated_at": "2026-10-26T15:11:41.588144+00:00",
+ "verified_at": "2026-10-26T15:11:41.670227+00:00"
 }

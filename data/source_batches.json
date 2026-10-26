@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-26T08:36:04.589401+00:00",
+ "checked_at": "2026-10-26T14:53:20.269892+00:00",
  "source_count": 115,
  "inactive_count": 63,
  "groups": {
@@ -544,7 +544,7 @@
    "url": "https://www.propertymarket.com.mt/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+   "last_error": null,
    "retry_after": null
   },
   {
@@ -713,7 +713,7 @@
    "url": "https://www.bulgarianproperties.com/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
