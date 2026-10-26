@@ -9,6 +9,8 @@ on:
       - source_batches.py
       - property_connector.py
       - test_property_connector.py
+      - profile_imports.py
+      - test_profile_imports.py
       - buyer_profiles.py
       - profile_imports.py
       - test_buyer_profiles.py
@@ -81,11 +83,6 @@ jobs:
         env:
           PYTHONUNBUFFERED: '1'
         run: python source_batches.py
-      - name: Probno uvezi pregledane javne kriterije kupnje zajedničkim konektorom
-        id: profile_imports
-        continue-on-error: true
-        timeout-minutes: 6
-        run: python profile_imports.py
       - name: Uvezi aktualni registar i nastavi spremljene stranice
         id: registry
         continue-on-error: true
@@ -171,3 +168,35 @@ jobs:
             git -c rebase.autoStash=true pull --rebase origin main
             git push origin main
           fi
+
+  profile-imports:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    concurrency:
+      group: acquisition-profile-imports-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provjeri kriterije, kontakte i potvrdu upisa profila
+        run: python -m unittest -q test_buyer_profiles test_profile_imports
+      - name: Probno uvezi pregledane javne kriterije kupnje bez aktivacije
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python profile_imports.py
+      - name: Sačuvaj ishod provjere profila
+        run: |
+          git config user.name 'EU platform source monitor'
+          git config user.email 'source-monitor@users.noreply.github.com'
+          git add data/profile_imports.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sačuvaj provjeru uvoza profila kupaca'
+            git -c rebase.autoStash=true pull --rebase origin main
+            git push origin main
+          fi
+
