@@ -22,6 +22,15 @@ class NavigationTests(unittest.TestCase):
         found=self.discover('<script type="application/ld+json">'+json.dumps(graph)+'</script>')
         self.assertEqual(set(found),{'https://agency.example/flat/1234','https://agency.example/flat/5678'})
 
+    def test_observed_stoja_singular_detail_route_precedes_plural_categories(self):
+        detail='/en/nepremicnina/539697-sale-apartment-3-room-ljubljana-mesto-vic-rudnik-vic'
+        rental='/en/nepremicnina/545690-rent-business-premises-service-area-ljubljana'
+        found=self.discover('<a href="/en/nepremicnine/prodaja">Sale</a>'
+                            '<a href="'+rental+'">Office</a>'
+                            '<a href="'+detail+'">Apartment</a>')
+        self.assertEqual(found[0],'https://agency.example'+detail)
+        self.assertNotIn('https://agency.example'+rental,found)
+
     def test_observed_management_and_guide_urls_do_not_consume_detail_budget(self):
         text=''.join('<a href="'+u+'">'+label+'</a>' for u,label in [
             ('/property-management-inowai/','Property management'),

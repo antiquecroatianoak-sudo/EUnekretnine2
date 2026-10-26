@@ -51,7 +51,7 @@ def entity(value,nodes,url):
 
 def category_url(url):
     path=urlsplit(url).path
-    if re.search(r'/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}',path):return False
+    if re.search(r'/\d{3,}(?:[/-]|$)|[A-Z]{1,3}\d{4,}',path):return False
     return bool(re.search(r'for-sale|/search(?:/|$)|/properties/?$|/properties-title/|/aticos-en-venta\.html$|/venta/[^/]+/[^/]+/[^/]+/?$',path,re.I))
 
 def number(v):
@@ -211,19 +211,20 @@ def links(page,url,objects,safe_url,root):
                 candidates.insert(0,(n['url'],'structured listing'))
     found=[]
     for href,label in candidates:
-        if not isinstance(href,str) or not (label=='structured listing' or SALE.search(label+' '+href.replace('-',' ')) or '-pardavimas-' in href or re.search(r'/(?:property|properties|immobilien|immobile|nemovitost|nepremicnine|expose|listing|objekt|offer|detail)[/-]',href,re.I)):continue
+        if not isinstance(href,str) or not (label=='structured listing' or SALE.search(label+' '+href.replace('-',' ')) or '-pardavimas-' in href or re.search(r'/(?:property|properties|immobilien|immobile|nemovitost|nepremicnin[ae]|expose|listing|objekt|offer|detail)[/-]',href,re.I)):continue
         try:target=safe_url(urljoin(url,href),root)
         except (ValueError,OSError):continue
         path=urlsplit(target).path
         if (re.search(r'/(?:services?|news|research|about-us|careers?|vacancies|privacy|contact)(?:/|$)',path,re.I)
                 or re.search(r'property-management|facility-management|required-documents|stegastiko-daneio|times-akiniton',path,re.I)
+                or re.search(r'(?:^|[/-])(?:rent|rental|oddaja)(?:[/-]|$)',path,re.I)
                 or RENT.search(label+' '+href.replace('-',' '))):continue
         if canonical(target)!=canonical(root) and target not in found:found.append(target)
     # Individual numeric references outrank category/search/navigation pages.
     def priority(u):
         p=urlsplit(u).path
         category=category_url(u) or bool(re.search(r'/(?:search|property-types|properties-title)(?:/|$)',p,re.I))
-        detail=bool(re.search(r'(?:/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$)|,\d{4,}$)',p))
+        detail=bool(re.search(r'(?:/\d{3,}(?:[/-]|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$)|,\d{4,}$)',p))
         return (category,not detail)
     return sorted(found,key=priority)[:200]
 
