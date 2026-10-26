@@ -17,14 +17,15 @@ function tx(parts,...values){
 tx.unsafe=raw;
 try{
  await db.exec(`create schema site_private;
- create table source_candidates(id text primary key,property_id bigint,investor_id bigint);
+ create table source_candidates(id text primary key,property_id bigint,investor_id bigint,kind text,url text,body_json text);
  create table site_private.listing_lifecycle(candidate_id text,state text);
  create function site_private.safe_stamp(v text) returns timestamptz language sql stable as 'select v::timestamptz';
- create table properties(id bigint primary key,title text,country text,city text,region text,legal text,price real,bid_deadline_at timestamptz,available_until text);
+ create function site_private.safe_json(v text) returns jsonb language sql immutable as 'select v::jsonb';
+ create table properties(id bigint primary key,title text,country text,city text,region text,legal text,price real,bid_deadline_at timestamptz,available_until text,status text,source text);
  create table investors(id bigint primary key,name text,country text,preferred_countries text,verified int);
- insert into properties select n,'TEST ONLY '||n,'Hrvatska','Zagreb','Grad Zagreb','Uredno',100000,null,null from generate_series(1,10125) n;
+ insert into properties select n,'TEST ONLY '||n,'Hrvatska','Zagreb','Grad Zagreb','Uredno',100000,null,null,'Aktivno','https://example.org/listing/'||n from generate_series(1,10125) n;
  insert into investors select n,'TEST ONLY '||n,'US','Hrvatska',1 from generate_series(1,10042) n;
- insert into source_candidates values('expired','2',null);insert into site_private.listing_lifecycle values('expired','expired');`);
+ insert into source_candidates(id,property_id,investor_id) values('expired','2',null);insert into site_private.listing_lifecycle values('expired','expired');`);
  for(const table of ['properties','investors']){
   let after=0,through=null,ids=[];
   do{const page=await catalogPage(tx,{table,after,through,limit:137});
@@ -35,7 +36,7 @@ try{
   assert(ids.includes(table==='properties'?10125:10042),'records beyond 10,000 are reachable');
  }
  let page=await catalogPage(tx,{table:'properties',limit:3});
- await db.exec(`delete from properties where id=1;insert into properties values(10126,'NEW','Hrvatska','Zagreb','','Uredno',2,null,null)`);
+ await db.exec(`delete from properties where id=1;insert into properties values(10126,'NEW','Hrvatska','Zagreb','','Uredno',2,null,null,'Aktivno','https://example.org/listing/10126')`);
  const next=await catalogPage(tx,{table:'properties',after:page.next,through:page.through,limit:3});
  assert.deepEqual(next.items.map(r=>Number(r.id)),[5,6,7],'deletion before cursor cannot skip a row');
  assert.equal(next.through,10125,'new insert waits until refresh');
@@ -47,8 +48,9 @@ try{
  await assert.rejects(catalogPage(tx,{table:'properties',after:-1}));
  await assert.rejects(catalogPage(tx,{table:'secrets'}));await assert.rejects(catalogPage(tx,{table:'properties',record_id:'bad'}));
  await assert.rejects(catalogPage(tx,{table:'properties',limit:10001}));
- const now=Date.now(),p={...page.items[0],source:'https://example.org/10125',area:1000,renovation:0,other_costs:0,property_type:'Zemljište',condition:'Neizgrađeno',legal_evidence_url:'https://example.org/legal',source_checked_on:new Date(now).toISOString(),status:'Aktivno'};
- const i={...(await catalogPage(tx,{table:'investors',query:'TEST ONLY 10042'})).items[0],criteria_json:{property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.org/buyer',checked_at:new Date(now).toISOString()}};
+ const testContact=source=>({mode:'direct',name:'TEST ONLY',contact_url:source,evidence_url:source,record_reference:source,permitted:true});
+ const now=Date.now(),p={contact_json:testContact('https://example.org/10125'),...page.items[0],source:'https://example.org/10125',area:1000,renovation:0,other_costs:0,property_type:'Zemljište',condition:'Neizgrađeno',legal_evidence_url:'https://example.org/legal',source_checked_on:new Date(now).toISOString(),status:'Aktivno'};
+ const i={contact_json:testContact('https://example.org/buyer'),...(await catalogPage(tx,{table:'investors',query:'TEST ONLY 10042'})).items[0],criteria_json:{property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.org/buyer',checked_at:new Date(now).toISOString()}};
  assert.equal(Number(p.id),10125);assert.equal(Number(i.id),10042);
  assert.equal(suggestion(p,i,now).status,'Podudaranje kriterija','real evaluator accepts reachable records beyond both old caps');
  console.log('Catalog PostgreSQL checks passed: 10,125 properties and 10,042 buyers, complete keyset traversal, lifecycle exclusion, no duplicates/skips, high-water insert boundary, full search and matching beyond 10,000.');
