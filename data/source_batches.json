@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-25T21:33:43.522672+00:00",
+ "checked_at": "2026-10-26T01:03:28.030135+00:00",
  "source_count": 115,
  "inactive_count": 66,
  "groups": {
@@ -955,7 +955,7 @@
    "url": "https://www.ober-haus.lt/en/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-25T20:09:40.821233+00:00",
    "probe": {
@@ -1010,7 +1010,7 @@
    "url": "https://latio.lv/en/properties",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-25T20:09:40.821233+00:00",
    "probe": {
