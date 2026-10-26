@@ -133,6 +133,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/moedling/ein-haus-das-den-blick-nach-aussen-richtet-1947588322/",
      "seen": "2026-10-25T20:59:06.111259+00:00",
      "url": "https://app.immoviewer.com/portal/tour/3164444"
+    },
+    {
+     "anchor": "https://app.immoviewer.com/portal/tour/3127572?accessKey=6808",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1220-donaustadt/urlaubsfeeling-mit-wunderschoenem-haus-pool-traumgarten-913002343/",
+     "seen": "2026-10-26T08:34:45.614949+00:00",
+     "url": "https://app.immoviewer.com/portal/tour/3127572"
     }
    ],
    "first_seen": "2026-10-24T13:01:23.745437+00:00",
@@ -140,7 +146,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:15:07.855743+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -168,7 +174,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -224,7 +230,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "nedostupno"
   },
   {
@@ -264,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -340,7 +346,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -392,7 +398,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -420,7 +426,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -440,7 +446,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "nedostupno"
   },
   {
@@ -828,7 +834,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "blokirano"
   },
   {
@@ -914,7 +920,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1348,7 +1354,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:34:45.614949+00:00",
    "status": "nedostupno"
   },
   {
@@ -1457,6 +1463,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-26T08:17:17.482026+00:00",
- "verified_at": "2026-10-26T08:17:17.582005+00:00"
+ "updated_at": "2026-10-26T08:34:45.614949+00:00",
+ "verified_at": "2026-10-26T08:34:45.711709+00:00"
 }
