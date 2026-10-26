@@ -1,3 +1,4 @@
+import {explicitProof} from './activity-policy.mjs';
 import {mergeSnapshot} from './snapshot-merge.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
 import postgres from 'npm:postgres@3.4.7';
@@ -42,7 +43,7 @@ Deno.serve(async req=>{
  }catch(e){return reply({error:e.message||'Invalid input'},400)}
  try{
   const sql=db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:1,prepare:false,idle_timeout:5,connect_timeout:10});
-  const snapshot=body.snapshot;
+  const snapshot={...body.snapshot,candidates:body.snapshot.candidates.filter(r=>explicitProof(r))};
   const result=await sql.begin(async tx=>{
    for(let n=0;n<snapshot.candidates.length;n+=100){
     const batch=snapshot.candidates.slice(n,n+100);
@@ -63,4 +64,5 @@ Deno.serve(async req=>{
   return reply(result);
  }catch(e){console.error('discovery-sync failed',e?.code||e?.name);return reply({error:'Synchronization failed; transaction rolled back'},500)}
 });
+
 

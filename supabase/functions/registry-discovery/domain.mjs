@@ -251,3 +251,5 @@ export function rankAffordability(rows,props){
  }
  return rows;
 }
+
+

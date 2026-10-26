@@ -1,3 +1,4 @@
+import {explicitProof} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {mergeCandidate} from './merge.mjs';
@@ -84,11 +85,17 @@ Deno.serve(async req=>{
   }
   if(body.action!=='batch')return reply({error:'Unknown action'},400);
   validateRows(body.candidates,source);
+  for(const row of body.candidates)if(row.kind==='property'&&row.facts.source_listing_state==='active'&&row.facts.source_status_evidence){
+   row.facts.activity_record_url=row.url;row.facts.activity_evidence_url=row.facts.evidence_url||row.url;row.facts.checked_at=row.last_seen;
+  }
+  const rejected=body.candidates.filter(r=>!explicitProof(r));
+  const accepted=body.candidates.filter(r=>explicitProof(r));
   const result=await sql.begin(async tx=>{
    // Serialize only registry imports so URL duplicates cannot race between sources.
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
    let inserted=0,updated=0;
-   for(const row of body.candidates){
+   for(const row of rejected)await tx`update site_private.listing_lifecycle set state='missing_once',checked_at=now(),reason='Posljednja provjera nije potvrdila aktivnost oglasa' where candidate_id in (select id from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${row.url},'/'))`;
+   for(const row of accepted){
     const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
     const merged=mergeCandidate(existing,row,source);
     if(existing){
@@ -101,8 +108,9 @@ Deno.serve(async req=>{
    await tx`select site_private.reconcile_listing_lifecycle()`;
    return {inserted,updated};
   });
-  return reply({...result,candidates:body.candidates.length});
+  return reply({...result,candidates:accepted.length,activity_rejected:rejected.length});
  }catch(e){console.error('registry-discovery',e?.name,e?.code,body.action==='enrichment-country'?String(e?.message).slice(0,200):'');return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
+
 
 

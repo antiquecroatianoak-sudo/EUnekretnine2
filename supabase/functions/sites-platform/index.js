@@ -1,3 +1,5 @@
+import {explicitProof,SOURCE_ACTIVE} from './activity-policy.mjs';
+import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
@@ -15,7 +17,7 @@ const refresh=refreshSuggestions;
 // Deferred business phase (6364306499 C): preparing presentations for buyers, seller contact and agency hand-over
 // stay off until the owner starts the business. Reversible with BUSINESS_PHASE=on; it changes no data and never
 // sends anything (this function has no sending path); internal review and manual entry are never blocked.
-const settings=()=>({business_phase:Deno.env.get('BUSINESS_PHASE')==='on'});
+async function settings(tx){const rows=await tx`select body_json from discovery_runs where source_id='app-settings:source-cooperation:v1'`;let cooperation=null;try{cooperation=JSON.parse(rows[0]?.body_json||'null')}catch{}return {business_phase:Deno.env.get('BUSINESS_PHASE')==='on',inactive_sources:await tx`select id,name,url,inactive_reason from sources where not is_active order by name,id`,source_cooperation:cooperation,contact_policy:'direct_or_record_agency'}}
 // Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
 // Bounded initial payload. Catalogues continue through `catalog` keyset pages with server-side
 // search; source candidates continue through `sources`. These are page sizes, never overall maxima.
@@ -23,57 +25,78 @@ const LIMITS={properties:100,investors:100,sources:10000,source_candidates:500,d
 async function list(tx){
  const tables=Object.keys(LIMITS);
  const values=await Promise.all(tables.map(t=>{
+ if(t==='sources')return tx`select * from sources where is_active order by id limit ${LIMITS.sources}`;
  if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
  if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
- if(t==='source_candidates')return tx`select * from source_candidates order by last_seen desc,id limit ${LIMITS.source_candidates}`;
- if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id order by a.id desc limit ${LIMITS.activity}`;
+ if(t==='source_candidates')return tx`select c.* from source_candidates c where c.kind<>'property' or ((${tx.unsafe(SOURCE_ACTIVE)}) and not exists(select 1 from site_private.listing_lifecycle l where l.candidate_id=c.id and l.state in ('expired','removed','missing_once'))) order by last_seen desc,id limit ${LIMITS.source_candidates}`;
+ if(t==='match_results')return tx`select m.* from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id limit ${LIMITS.match_results}`;
+ if(t==='notification_outbox')return tx`select n.* from notification_outbox n join properties p on p.id=n.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by n.id limit ${LIMITS.notification_outbox}`;
+ if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id where a.property_id is null or exists(select 1 from properties p where p.id=a.property_id and ${tx.unsafe(PROPERTY_VISIBLE)}) order by a.id desc limit ${LIMITS.activity}`;
  return tx`select * from ${tx(t)} order by 1 limit ${LIMITS[t]}`;
 }));
+ values[0]=await withAgencies(tx,values[0],'properties');values[1]=await withAgencies(tx,values[1],'investors');
+ const agencies=await agencyDirectory(tx);
  const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
-  (select count(*) from properties)::int as properties_all,(select count(*) from investors)::int as investors_all,
-  (select count(*) from properties p where site_private.property_eligible(p) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
-  (select count(*) from investors i where site_private.investor_eligible(i) and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
-  (select count(*) from sources)::int as sources,(select count(*) from source_candidates)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
-  (select count(*) from activity)::int as activity,(select count(*) from notification_outbox)::int as notification_outbox,(select count(*) from match_results)::int as match_results`;
+  (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_all,(select count(*) from investors)::int as investors_all,
+  (select count(*) from properties p where site_private.property_eligible(p) and site_private.contact_usable(p.contact_json,p.source) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
+  (select count(*) from investors i where site_private.investor_eligible(i) and site_private.contact_usable(i.contact_json,i.criteria_json::jsonb->>'source_url') and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
+  (select count(*) from sources where is_active)::int as sources,(select count(*) from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)})::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
+  (select count(*) from activity)::int as activity,(select count(*) from notification_outbox n join properties p on p.id=n.property_id where ${tx.unsafe(PROPERTY_VISIBLE)})::int as notification_outbox,(select count(*) from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)})::int as match_results`;
  const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
- return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['truncated',truncated],['settings',settings()],['loaded_at',new Date().toISOString()]]);
+ return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['agencies',agencies],['truncated',truncated],['settings',await settings(tx)],['loaded_at',new Date().toISOString()]]);
 }
 // Stored pairs with only the records they link to: small, independent of the full read, and explicit about
 // pairs whose property or buyer is outside the visible lists (they are reported, never silently dropped).
 async function pairsRead(tx){
- const rows=await tx`select property_id,investor_id,result_json,updated from match_results order by property_id,investor_id`;
+ const rows=await tx`select m.property_id,m.investor_id,m.result_json,m.updated from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id`;
  const pids=[...new Set(rows.map(r=>Number(r.property_id)))],iids=[...new Set(rows.map(r=>Number(r.investor_id)))];
  const [properties,investors,[totals]]=await Promise.all([
-  tx`select p.*,(${tx.unsafe(PROPERTY_VISIBLE)}) as visible from properties p where p.id=any(${pids}::bigint[])`,
+  tx`select p.*,true as visible from properties p where p.id=any(${pids}::bigint[]) and ${tx.unsafe(PROPERTY_VISIBLE)}`,
   tx`select i.*,(${tx.unsafe(INVESTOR_VISIBLE)}) as visible from investors i where i.id=any(${iids}::bigint[])`,
-  tx`select (select count(*) from properties)::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
- return {match_results:rows,properties,investors,totals,settings:settings(),loaded_at:new Date().toISOString()};
+  tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
+ return {match_results:rows,properties:await withAgencies(tx,properties,'properties'),investors:await withAgencies(tx,investors,'investors'),totals,settings:await settings(tx),loaded_at:new Date().toISOString()};
 }
 // Paged source candidates for the Izvori tab (newest first).
 async function sourcesPage(tx,a){
  const offset=Number(a.offset??0),limit=Number(a.limit??LIMITS.source_candidates);
  if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>1000)throw Error('Nevaljana stranica izvora.');
- const [rows,[{n}]]=await Promise.all([tx`select * from source_candidates order by last_seen desc,id limit ${limit} offset ${offset}`,tx`select count(*)::int as n from source_candidates`]);
+ const [rows,[{n}]]=await Promise.all([tx`select c.* from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)} order by last_seen desc,id limit ${limit} offset ${offset}`,tx`select count(*)::int as n from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)}`]);
  return {source_candidates:rows,offset,total:n};
 }
 // Counts only: how the stored candidates arise and why the remaining property × buyer pairs are excluded.
 async function pairDiagnostics(tx){
- const props=await tx`select p.* from properties p where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) order by p.id`;
+ const props=await tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id`;
  const investors=await tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id`;
  const checks=pairCheckMap(await tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where kind='Odgovor'`);
  const [stored]=await tx`select count(*)::int as total,count(*) filter (where result_json::jsonb->>'status'=${MATCH})::int as matches,count(*) filter (where result_json::jsonb->>'status'<>${MATCH})::int as candidates,
-  (select count(*) from properties)::int as all_properties,(select count(*) from investors)::int as all_investors from match_results`;
+  (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as all_properties,(select count(*) from investors)::int as all_investors from match_results`;
  return {funnel:pairFunnel(props,investors,Date.now(),checks),stored,checked_at:new Date().toISOString()};
 }
 async function save(tx,table,input,id){
  const data=table==='properties'?propertyInput(input):investorInput(input);
- if(id!=null){if(!Number.isSafeInteger(Number(id))||Number(id)<=0)throw Error('Nevaljana oznaka zapisa.');
-  const rows=await tx`update ${tx(table)} set ${tx(data,...Object.keys(data))} where id=${Number(id)} returning id`;if(!rows.length)throw Error('Zapis nije pronađen.');return rows[0].id;
+ let proof=null;
+ if(table==='properties'){
+  if(['Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno'].includes(data.status))throw Error('Neaktivan oglas nije dopušten za upis.');
+  if(data.available_until&&Date.parse(data.available_until+'T23:59:59Z')<=Date.now())throw Error('Istekli oglas nije dopušten za upis.');
+  proof=input.activity_evidence;
+  try{if(typeof proof==='string')proof=JSON.parse(proof)}catch{throw Error('Nevaljan dokaz aktivnosti.');}
+  if(!proof&&id!=null){
+   const rows=await tx`select body_json,last_seen,url from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${data.source},'/') order by last_seen desc limit 1`;
+   if(rows[0]){const r={...JSON.parse(rows[0].body_json),last_seen:rows[0].last_seen,url:rows[0].url};if(explicitProof(r))proof={...r.facts,activity_record_url:r.url,activity_evidence_url:r.facts.activity_evidence_url||r.facts.evidence_url||r.url,checked_at:r.facts.checked_at||r.last_seen};}
+   if(!proof){const [a]=await tx`select notes from activity where property_id=${Number(id)} and stage='Provjera aktivnosti oglasa' order by id desc limit 1`;try{proof=JSON.parse(a?.notes||'null')}catch{}}
+  }
+  if(!explicitProof({kind:'property',url:data.source,facts:proof}))throw Error('Prije upisa potreban je svjež dokaz aktivnosti konkretnog oglasa.');
  }
- const rows=await tx`insert into ${tx(table)} ${tx(data,...Object.keys(data))} returning id`;return rows[0].id;
+ let saved;
+ if(id!=null){if(!Number.isSafeInteger(Number(id))||Number(id)<=0)throw Error('Nevaljana oznaka zapisa.');
+  const rows=await tx`update ${tx(table)} set ${tx(data,...Object.keys(data))} where id=${Number(id)} returning id`;if(!rows.length)throw Error('Zapis nije pronađen.');saved=rows[0].id;
+ }else{const rows=await tx`insert into ${tx(table)} ${tx(data,...Object.keys(data))} returning id`;saved=rows[0].id;}
+ if(proof)await tx`insert into activity(property_id,stage,notes,date) values(${saved},'Provjera aktivnosti oglasa',${JSON.stringify(proof)},${new Date().toISOString()})`;
+ return saved;
 }
 async function prepare(tx,id){
  const rows=await tx`select * from source_candidates where id=${id} for update`;const r=rows[0];if(!r)throw Error('Kandidat nije pronađen.');
+ if(r.kind==='property'&&!explicitProof({...JSON.parse(r.body_json),url:r.url,last_seen:r.last_seen}))throw Error('Oglas nema svježu potvrdu aktivnosti.');
  if(r.property_id||r.investor_id)return {kind:r.kind,id:r.property_id||r.investor_id};
  const d=JSON.parse(r.body_json),f=d.facts||{};let result;
  if(r.kind==='property'){
@@ -92,6 +115,7 @@ const optional=(v,max,label)=>v==null||v===''?null:text(v,max,label);
 // Permanent pair record with its history, review tasks, answers and stages (read only).
 async function pair(tx,a){
  const p=pairId(a.property_id),i=pairId(a.investor_id);
+ if(!(await tx`select 1 from properties p where p.id=${p} and ${tx.unsafe(PROPERTY_VISIBLE)}`).length)throw Error('Oglas nema važeću potvrdu aktivnosti.');
  const [record,history,tasks,answers,stages,current,properties,investors]=await Promise.all([
   tx`select * from site_private.pair_records where property_id=${p} and investor_id=${i}`,
   tx`select * from site_private.pair_history where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 100`,
@@ -140,9 +164,15 @@ async function sourceCheck(tx,a){
  const p=pairId(a.property_id),day=String(a.checked_on||''),evidence=text(a.evidence,2000,'dokaz provjere izvora');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(Date.parse(day))||new Date(day).toISOString().slice(0,10)!==day||day>new Date().toISOString().slice(0,10))throw Error('Datum provjere izvora mora biti valjan i ne u budućnosti.');
  if(a.status!=null&&!ACTIVE_STATUSES.includes(a.status))throw Error('Potvrđeni status mora biti jedan od: '+ACTIVE_STATUSES.join(', ')+'.');
+ const [original]=await tx`select source,status from properties where id=${p}`;
+ if(!original)throw Error('Nekretnina nije pronađena.');
+ const proof={source_listing_state:'active',source_status_evidence:evidence,activity_record_url:original.source,activity_evidence_url:original.source,checked_at:day===new Date().toISOString().slice(0,10)?new Date().toISOString():day+'T00:00:00Z'};
+ if(!ACTIVE_STATUSES.includes(a.status||original.status)||!explicitProof({kind:'property',url:original.source,facts:proof}))throw Error('Nema svježeg dokaza aktivnosti oglasa.');
  const rows=a.status!=null?await tx`update properties set source_checked_on=${day},status=${a.status} where id=${p} returning id`:await tx`update properties set source_checked_on=${day} where id=${p} returning id`;
  if(!rows.length)throw Error('Nekretnina nije pronađena.');
  await tx`insert into activity(property_id,stage,notes,date) values(${p},'Provjera',${'Provjera izvora oglasa '+day+(a.status?' (status: '+a.status+')':'')+': '+evidence},${new Date().toISOString()})`;
+ await tx`insert into activity(property_id,stage,notes,date) values(${p},'Provjera aktivnosti oglasa',${JSON.stringify(proof)},${proof.checked_at})`;
+ await tx`update site_private.listing_lifecycle set state='observed',checked_at=${proof.checked_at}::timestamptz,reason='Izričita ručna provjera aktivnosti' where candidate_id in(select id from source_candidates where property_id=${p}) and checked_at<${proof.checked_at}::timestamptz`;
  await refresh(tx);return {id:p};
 }
 // Confirmed interest and a closed deal are recorded only by a person, with evidence; the database guards the order.
@@ -162,7 +192,7 @@ async function dispatch(tx,a){
  if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='pairs')return await pairsRead(tx);
- if(a.action==='catalog'){const value=String(a.country||'');return await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]})}
+ if(a.action==='catalog'){const value=String(a.country||'');const page=await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]});return {...page,items:await withAgencies(tx,page.items,a.table)}}
  if(a.action==='sources')return await sourcesPage(tx,a);
  if(a.action==='pair_diagnostics')return await pairDiagnostics(tx);
  if(a.action==='refresh')return {pairs:await refresh(tx)};
@@ -213,4 +243,5 @@ Deno.serve(async req=>{
   });return reply(result);
  }catch(e){console.error('platform request failed',e?.code||e?.name);return reply({error:e?.name==='PostgresError'?'Baza nije spremila promjene. Pokušaj ponovno nakon provjere veze.':String(e?.message||'Zahtjev nije izvršen.')},400)}
 });
+
 
