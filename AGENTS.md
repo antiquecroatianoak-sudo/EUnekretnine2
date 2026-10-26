@@ -80,3 +80,13 @@
 - Predložak zahtjeva je u `ops/agency-partner-request.md`. Prilagoditi ga stvarnoj ponudi agencije; postojanje predloška ne znači slanje ili pristanak primatelja.
 - Vlasnik je 26.10.2026. zbog Claudeova limita izričito predao trenutačno kodiranje ChatGPT-u. Nastaviti iz aktualnog maina u zasebnoj grani uz relevantne testove. Ne slati iste naloge Claudeu niti pokretati dvostruki rad. Ova uputa nadomješta raniji način predaje kodiranja Claudeu za ovaj nastavak.
 
+
+## OBVEZNO: samo odmah provjereni aktivni oglasi — uputa vlasnika 26.10.2026.
+
+- Svaki oglas provjeriti prije trajnog upisa. Nepotvrđeni oglasi ne smiju se trajno spremati ni kao kandidati; dohvat i provjera smiju koristiti samo privremenu obradu.
+- Prihvaćanje zahtijeva svjež dokaz aktivnosti konkretnog izvornog oglasa/odobrenog feeda, vezan uz njegov identitet, URL i vrijeme provjere. HTTP 200, datum dohvata, prisutnost cijene ili oglas na kategorijskoj stranici sami nisu potvrda aktivnosti. Nepoznat ili proturječan status znači odbiti upis.
+- Prihvaćen aktivan oglas odmah uključiti u mogućnost uparivanja, uz ostala postojeća pravila o kontaktima i kriterijima. Aktivnost ne dokazuje pravnu urednost ili interes kupca.
+- Potvrđeno prodane, povučene, neaktivne i istekle oglase odbiti prije upisa, a postojeće ukloniti iz baza oglasa/kandidata te iz parova, ponuda, brojila, obavijesti i izvoza. Ne održavati paralelnu bazu takvih oglasa; minimalan tehnički trag odbijanja može sadržavati identifikator/hash, razlog i vrijeme, bez kopije oglasa.
+- Provjeru automatizirati u svim putovima uvoza i ponavljati u postojećem rasporedu. Istek dokumentiranog roka odmah isključuje oglas; ne čekati sljedeći dohvat. Zastarjela/neuspjela ponovna provjera ne produljuje potvrdu aktivnosti.
+- Provjeriti i postojeće zapise. Dok nema svježeg pozitivnog dokaza, ne prikazivati ih kao aktivne niti uključivati u uparivanje. Ne mijenjati nepovezane ručne podatke ili druge aplikacije.
+- Obvezne regresije: aktivan, nepoznat, prodan/povučen, istekao, proturječan, budući datum provjere, zastarjela potvrda, ponovno otvoren oglas i pokušaj zaobilaženja drugim uvoznikom. Dokumentirana uputa nije potvrda da je programska provedba već objavljena.
