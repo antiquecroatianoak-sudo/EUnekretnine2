@@ -174,7 +174,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -230,7 +230,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "nedostupno"
   },
   {
@@ -250,7 +250,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "nedostupno"
   },
   {
@@ -270,7 +270,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -346,7 +346,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -398,7 +398,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +426,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -446,7 +446,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "nedostupno"
   },
   {
@@ -854,7 +854,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "blokirano"
   },
   {
@@ -879,6 +879,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/melk/raika-filiale-kaufen-1006616290/",
      "seen": "2026-10-25T20:40:28.702267+00:00",
      "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/a19edb9d864b0b5d6cc0e8125e42394ce08c3ca7/a19edb9d864b0b5d6cc0e8125e42394ce08c3ca7.pdf"
+    },
+    {
+     "anchor": "Immobilien Verkaufen oder Vermieten",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/korneuburg/bungalow-mit-garage-im-rohbauzustand-nach-ihren-ideen-fertigstellen-1085447545/",
+     "seen": "2026-10-26T18:30:45.837154+00:00",
+     "url": "https://interface.ris.immo/d4d2d25c-ace5-4df4-9e74-50fd9bf3b25a/uploads/e6f2d96cf7a2f9ad896355fc60be6d530cd64388/e6f2d96cf7a2f9ad896355fc60be6d530cd64388.pdf"
     }
    ],
    "first_seen": "2026-10-25T12:59:27.949622+00:00",
@@ -886,7 +892,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:40:28.702267+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -940,7 +946,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1400,7 +1406,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T15:11:41.588144+00:00",
+   "last_seen": "2026-10-26T18:30:45.837154+00:00",
    "status": "nedostupno"
   },
   {
@@ -1509,6 +1515,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-26T15:11:41.588144+00:00",
- "verified_at": "2026-10-26T15:11:41.670227+00:00"
+ "updated_at": "2026-10-26T18:30:45.837154+00:00",
+ "verified_at": "2026-10-26T18:30:45.939979+00:00"
 }
