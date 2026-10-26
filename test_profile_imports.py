@@ -1,5 +1,6 @@
 import copy
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timezone
 from profile_imports import run
 from registry_discovery import Page, listing_record
@@ -17,7 +18,8 @@ class ProfileImportTests(unittest.TestCase):
             def __init__(self,url):pass
             def get(self,url):return '<h1>Acquisition profile</h1>'+TEXT
         def api(body):calls.append(body);return response
-        result=run(config,api,Fetch,Page,listing_record,datetime(2026,10,26,tzinfo=timezone.utc))
+        with patch('registry_discovery.safe_url',side_effect=lambda u,r:u):
+            result=run(config,api,Fetch,Page,listing_record,datetime(2026,10,26,tzinfo=timezone.utc))
         return result,calls
 
     def test_unconfirmed_write_cannot_report_success(self):
@@ -38,6 +40,22 @@ class ProfileImportTests(unittest.TestCase):
         self.assertFalse(row['verified'])
         self.assertFalse(row['facts']['source_contact']['permitted'])
         self.assertEqual(result['results'][0]['status'],'batch_confirmed')
+        self.assertTrue(result['results'][0]['normal_refresh_confirmed'])
+        self.assertEqual(len(calls),2)
+
+    def test_changed_normal_refresh_cannot_recommend_activation(self):
+        calls=[]
+        class Fetch:
+            def __init__(self,url):self.count=0
+            def get(self,url):
+                self.count+=1
+                return '<h1>Acquisition profile</h1>'+TEXT if self.count==1 else '<h1>Page changed</h1>'
+        def api(body):calls.append(body);return {'candidates':1,'inserted':0,'updated':1}
+        with patch('registry_discovery.safe_url',side_effect=lambda u,r:u):
+            result=run(self.config(),api,Fetch,Page,listing_record)
+        self.assertEqual(result['results'][0]['status'],'failed')
+        self.assertEqual(len(calls),1)
+        self.assertFalse(result['activation_performed'])
 
 
 if __name__=='__main__':unittest.main()
