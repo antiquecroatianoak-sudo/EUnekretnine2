@@ -9,3 +9,11 @@ Validation before attempted deployment: JS policy tests and all three entrypoint
 Physical cleanup remains deferred after automatic review rejected destructive/history-wide cleanup and broad schema rollout. Do not execute the draft PR26 migration by another channel. Claude follow-up: issue1 comment6417376263. A separate hourly check starts26 October21:00 Europe/Zagreb for24 checks. No guarantee Claude is available then.
 
 Rollback: redeploy the exact original v13 bundles captured before this change; no schema or data restoration is needed because this release does not delete them.
+
+## Confirmed production publication
+
+All three functions successfully deployed as ACTIVE v14: sites-platform, registry-discovery and discovery-sync. Downloaded deployed bundles match every planned file exactly. Unauthenticated POSTs to all three returned HTTP401 after deployment. The custom authentication identity and claims checks were preserved.
+
+Independent post-deploy SELECT:17 activity-eligible properties;20,717 property rows,81 investors and117 activity records preserved. No schema migration, physical deletion or history cleanup was executed. These counts are not evidence of legal clearance, contact permission or buyer interest.
+
+Authenticated user UI and a fresh normal-ingestion positive/negative server batch were not exercised in this session; do not describe them as end-to-end verified. Code is preserved in draft PR27 (head before this checkpoint8c002167afa063b6c69f655bb809ae1ed41208e4); it is not merged into main. Legacy integration fixtures still need alignment with the new fail-closed behavior before merging. Draft PR26 remains unapplied and must not be deployed as a substitute for this narrower release.
