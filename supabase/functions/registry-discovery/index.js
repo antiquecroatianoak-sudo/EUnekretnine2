@@ -79,6 +79,11 @@ Deno.serve(async req=>{
     const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
     await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
    }
+   for(const failed of (s.failed_urls||[]).filter(x=>x.mode==='detail')){
+    validURL(failed.url,source.url);
+    await sql`update site_private.listing_lifecycle set state='missing_once',checked_at=${s.checked_at}::timestamptz,reason='Aktivnost nije potvrđena pri posljednjoj provjeri' where candidate_id in(select id from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${failed.url},'/')) and checked_at<${s.checked_at}::timestamptz`;
+   }
+   if(s.error)await sql`update site_private.listing_lifecycle l set state='missing_once',checked_at=${s.checked_at}::timestamptz,reason='Izvor nije osvježen; potrebna ponovna potvrda aktivnosti' from source_candidates c where c.id=l.candidate_id and c.kind='property' and c.source_id=${body.source_id} and site_private.safe_stamp(c.last_seen)<${s.checked_at}::timestamptz and l.checked_at<${s.checked_at}::timestamptz`;
    await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
    await sql`select site_private.reconcile_listing_lifecycle()`;
    return reply({saved:true});

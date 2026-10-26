@@ -26,7 +26,8 @@ export function evidenceSQL(url,f,stamp){
  and (coalesce(${f}->>'auction_at','')='' or site_private.safe_stamp(${f}->>'auction_at')>now())
  and (coalesce(${f}->>'bid_deadline_at','')='' or site_private.safe_stamp(${f}->>'bid_deadline_at')>now())`;
 }
-export const SOURCE_ACTIVE=evidenceSQL('c.url',"(site_private.safe_json(c.body_json)->'facts')","coalesce(site_private.safe_json(c.body_json)->'facts'->>'checked_at',case when c.url ~ '^https://www[.](immobilier[.]notaires[.]fr|biddit[.]be)/' then c.last_seen end)");
+const SOURCE_PROOF=evidenceSQL('c.url',"(site_private.safe_json(c.body_json)->'facts')","coalesce(site_private.safe_json(c.body_json)->'facts'->>'checked_at',case when c.url ~ '^https://www[.](immobilier[.]notaires[.]fr|biddit[.]be)/' then c.last_seen end)");
+export const SOURCE_ACTIVE=`(${SOURCE_PROOF}) and not exists(select 1 from site_private.listing_lifecycle activity_l where activity_l.candidate_id=c.id and activity_l.state in ('expired','removed','missing_once'))`;
 export const PROPERTY_ACTIVE=`p.status not in ('Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno')
  and (rtrim(p.source,'/') in (select rtrim(c.url,'/') from source_candidates c where c.kind='property' and ${SOURCE_ACTIVE})
  or exists(select 1 from activity a where a.property_id=p.id and a.stage='Provjera aktivnosti oglasa' and ${evidenceSQL('p.source','site_private.safe_json(a.notes)',"site_private.safe_json(a.notes)->>'checked_at'")}))
