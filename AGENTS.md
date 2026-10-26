@@ -70,3 +70,13 @@
 - Ne poistovjećivati zastupnika s pravnim vlasnikom. Agencija je prodajni kontakt/zastupnik i vodi daljnji postupak sa svojim klijentom. Izvorni oglas ili potražnja ostaju vezani uz agenciju jasnom referencom.
 - Grupiranje koristiti za obje baze i buduće uvoze. Izvorne veze određuju agenciju; javni portal, sjedište ili sličan naziv sami ne uspostavljaju zastupanje. Način obraćanja agenciji mora biti upotrebljiv; ne izmišljati e-mail/telefon niti potvrdu pristupa API-ju.
 - U uvodu budućih mailova agencijama objasniti obostranu korist: nudimo agenciji nekretninu za njezina kupca/investitora ili potencijalnog kupca/investitora za nekretninu koju zastupa; agencija ostaje kontakt i vodi postupak. Zatraženi pristup podacima služi tom uparivanju, bez zahtjeva za otkrivanjem izravnih klijentskih kontakata.
+
+## Partnerski model i naknada — mjerodavna uputa vlasnika 26.10.2026.
+
+- Agencije koje izričito e-poštom pristanu na suradnju i dostavu podataka voditi kao partnere za potvrđeni opseg suradnje. Sačuvati referencu potvrde, datum, dopuštena polja/uporabu i uvjete. Automatska potvrda primitka e-maila nije pristanak.
+- Usluga je ponuditi agenciji rješenje njezine konkretne potražnje: investitora za nekretninu koju zastupa ili odgovarajuću nekretninu za njezina investitora. Izravni kontakti njezinih klijenata nisu potrebni ako agencija omogućuje upotrebljiv kanal vezan uz konkretan zapis, na obje strane podudaranja.
+- Agencija je zastupnik i operativni kontakt, ne pretpostavljeni pravni vlasnik. Ona vodi daljnju komunikaciju, posredovanje i prodaju. Naknadu tražimo OD AGENCIJE, prema unaprijed dogovorenim uvjetima i tek nakon uspješno dovršene prodaje; ranije pretpostavke o naplati kupcu nisu mjerodavne.
+- Potvrda partnerstva, dopuštenje uporabe podataka, tehnička aktivacija uvoza, aktualnost konkretnog oglasa, dokumentirana potražnja, pisani interes i prihvaćen dogovor o proviziji zasebne su činjenice. Ne izvoditi jednu iz druge niti jamčiti točnost svih zapisa samo na temelju partnerskog statusa.
+- Predložak zahtjeva je u `ops/agency-partner-request.md`. Prilagoditi ga stvarnoj ponudi agencije; postojanje predloška ne znači slanje ili pristanak primatelja.
+- Vlasnik je 26.10.2026. zbog Claudeova limita izričito predao trenutačno kodiranje ChatGPT-u. Nastaviti iz aktualnog maina u zasebnoj grani uz relevantne testove. Ne slati iste naloge Claudeu niti pokretati dvostruki rad. Ova uputa nadomješta raniji način predaje kodiranja Claudeu za ovaj nastavak.
+

@@ -25,6 +25,29 @@ def types(node):
     v=node.get('@type',[])
     return {v} if isinstance(v,str) else set(v) if isinstance(v,list) and all(isinstance(x,str) for x in v) else set()
 
+def entity(value,nodes,url):
+    """Resolve an explicit JSON-LD reference within this response only.
+
+    No network lookup and no fallback to an unrelated page organisation. A
+    conflicting definition is evidence to review, not permission to pick one.
+    """
+    if isinstance(value,str):value={'@id':value}
+    if not isinstance(value,dict):return value
+    identity=value.get('@id')
+    if not isinstance(identity,str) or not identity:return value
+    identity=urljoin(url,identity)
+    definitions=[]
+    for node in nodes:
+        if (isinstance(node,dict) and isinstance(node.get('@id'),str)
+                and urljoin(url,node['@id'])==identity and set(node)-{'@id'}):
+            if node not in definitions:definitions.append(node)
+    if len(definitions)>1:raise ValueError('ambiguous_linked_entity')
+    if not definitions:
+        if set(value)=={'@id'}:raise ValueError('unresolved_linked_entity')
+        return value
+    if set(value)-{'@id'} and value!=definitions[0]:raise ValueError('ambiguous_linked_entity')
+    return definitions[0]
+
 def category_url(url):
     path=urlsplit(url).path
     if re.search(r'/\d{3,}(?:/|$)|[A-Z]{1,3}\d{4,}',path):return False
@@ -130,22 +153,24 @@ def primary_record(source,url,nodes,stamp,page=None):
     if not isinstance(title,str) or len(title.strip())<8:raise ValueError('primary_title_missing')
     offers=n.get('offers');offers=offers if isinstance(offers,list) else [offers]
     if len(offers)!=1 or not isinstance(offers[0],dict):raise ValueError('single_offer_required')
-    offer=offers[0];item=offer.get('itemOffered') or n.get('mainEntity') or n
+    offer=entity(offers[0],nodes,url)
+    item=entity(offer.get('itemOffered') or n.get('mainEntity') or n,nodes,url)
     if not isinstance(item,dict):raise ValueError('property_object_required')
     if item is not n and not types(item)&TYPES.keys():raise ValueError('property_type_required')
     words=title+' '+(description if isinstance(description,str) else '')
     explicit='OfferForPurchase' in types(offer) or str(offer.get('businessFunction','')).rsplit('/',1)[-1]=='Sell' or bool(SALE.search(words))
     if not explicit or RENT.search(words):raise ValueError('unambiguous_sale_required')
-    address=item.get('address') or n.get('address')
+    address=entity(item.get('address') or n.get('address'),nodes,url)
     if not isinstance(address,dict):raise ValueError('property_address_country_required')
     country=address.get('addressCountry')
     if isinstance(country,dict):country=country.get('identifier') or country.get('name')
     country=COUNTRIES.get(country,country)
     if country not in EU:raise ValueError('explicit_eu_property_country_required')
-    seller=offer.get('seller') or offer.get('offeredBy') or n.get('provider')
+    seller=entity(offer.get('seller') or offer.get('offeredBy') or n.get('provider'),nodes,url)
     if not isinstance(seller,dict) or not isinstance(seller.get('name'),str) or not seller['name'].strip():raise ValueError('record_bound_seller_required')
     point=seller.get('contactPoint') or seller
     if isinstance(point,list):point=point[0] if len(point)==1 else {}
+    point=entity(point,nodes,url)
     if not isinstance(point,dict):raise ValueError('record_bound_contact_required')
     email=point.get('email') or seller.get('email');phone=point.get('telephone') or seller.get('telephone')
     email=email if isinstance(email,str) and re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email) else None
@@ -155,6 +180,10 @@ def primary_record(source,url,nodes,stamp,page=None):
     if raw_price is not None and price is None:raise ValueError('invalid_price')
     if price is not None and (not isinstance(currency,str) or not re.fullmatch('[A-Z]{3}',currency)):raise ValueError('price_currency_required')
     facts={'transaction_type':'sale','evidence_excerpt':words[:1600],'advertised_location':address,'country_basis':'Primary property addressCountry','asking_price':price if currency=='EUR' else None,'advertised_price':price,'currency':currency,'contact_evidence_url':url,'agency_evidence_url':url,'source_contact':{'name':seller['name'],'email':email,'phone':phone,'evidence_url':url,'record_reference':url,'permitted':False},'availability':'Izvorni oglas opažen; aktualna dostupnost i pravna urednost nisu potvrđene.'}
+    facts['source_contact']['represents_record']=True
+    if 'RealEstateAgent' in types(seller):
+        facts['source_contact'].update(mode='agency',agency_name=seller['name'])
+        facts['agency_name']=seller['name']
     mapped={TYPES[t] for t in types(item) if t in TYPES and TYPES[t]}
     if len(mapped)==1:facts['property_type']=mapped.pop()
     area=item.get('floorSize')
@@ -201,6 +230,16 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
             result.update(status='batch_confirmed' if rows else 'no_current_auction_records',adapter='existing_notaires_public_api',pages_processed=state['pages_processed'])
             return result
         f=Fetcher(source['url']);page=catalogue_page(source,source['url'],f,Page)
+        # Some registry sources already point to one primary sale detail.
+        # Try its evidence before following related cards or navigation links.
+        nodes=[n for script in page.scripts for n in objects(script)]
+        try:root_row=primary_record(source,source['url'],nodes,stamp,page)
+        except ValueError:root_row=None
+        if root_row is not None:
+            saved=api({'action':'batch','source_id':result['source_id'],'candidates':[root_row]})
+            if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
+            result.update(inserted=saved.get('inserted',0),updated=saved.get('updated',0),status='batch_confirmed',pages_processed=1)
+            return result
         urls=links(page,source['url'],objects,safe_url,source['url'])[:2]
         if not urls:result.update(status='no_structured_detail_links');return result
         queue=[(url,1) for url in urls];seen={canonical(source['url'])};pages=0
@@ -285,3 +324,4 @@ def main():
     print('PROPERTY_IMPORT_REPORT '+json.dumps(report,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
+

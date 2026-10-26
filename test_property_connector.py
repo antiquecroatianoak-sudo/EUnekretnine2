@@ -66,6 +66,86 @@ class NotairesCheckpointTests(unittest.TestCase):
         self.assertIsNone(rows[0]['facts']['advertised_area'])
         self.assertEqual(rows[0]['facts']['area_conflict']['structured_area_m2'],77.44)
 
+class LinkedAgencyTests(unittest.TestCase):
+    """The offer's agency reference is sufficient; no client contact needed."""
+    def setUp(self):
+        fixture=PrimaryListingTests();fixture.setUp()
+        self.url=fixture.url;self.n=fixture.n
+        self.n['offers']['seller']={'@id':'#agency'}
+        self.agency={'@id':self.url+'#agency','@type':'RealEstateAgent',
+                     'name':'Partner Agency','contactPoint':{'@id':'#contact'}}
+        self.contact={'@id':self.url+'#contact','@type':'ContactPoint',
+                      'email':'offers@agency.example'}
+    def parse(self):
+        return primary_record({'id':66,'country':'AT'},self.url,
+                              [self.n,self.agency,self.contact],
+                              '2026-10-26T06:00:00Z')
+    def test_seller_contact_is_record_bound(self):
+        f=self.parse()['facts'];c=f['source_contact']
+        self.assertEqual(c['email'],'offers@agency.example')
+        self.assertEqual(c['mode'],'agency')
+        self.assertEqual(c['agency_name'],'Partner Agency')
+        self.assertTrue(c['represents_record'])
+        self.assertFalse(c['permitted'])
+        self.assertFalse(self.parse()['verified'])
+    def test_missing_agency_reference_does_not_use_unrelated_page_agency(self):
+        self.n['offers']['seller']={'@id':'#other'}
+        with self.assertRaisesRegex(ValueError,'unresolved_linked_entity'):self.parse()
+    def test_conflicting_agency_definitions_rejected(self):
+        other=dict(self.agency,name='Other Agency')
+        with self.assertRaisesRegex(ValueError,'ambiguous_linked_entity'):
+            primary_record({'id':66},self.url,[self.n,self.agency,self.contact,other],'2026-10-26T06:00:00Z')
+    def test_conflicting_contact_definitions_rejected(self):
+        other=dict(self.contact,email='different@agency.example')
+        with self.assertRaisesRegex(ValueError,'ambiguous_linked_entity'):
+            primary_record({'id':66},self.url,[self.n,self.agency,self.contact,other],'2026-10-26T06:00:00Z')
+    def test_reference_outside_page_is_never_fetched(self):
+        self.n['offers']['seller']={'@id':'https://other.example/agency'}
+        with self.assertRaisesRegex(ValueError,'unresolved_linked_entity'):self.parse()
+    def test_full_linked_offer_and_property_keep_property_country_and_area(self):
+        from registry_discovery import objects
+        original=copy.deepcopy(self.n['offers']);item=original['itemOffered']
+        item['@id']='#house';item['address']['@id']='#address'
+        original.update({'@id':'#offer','itemOffered':{'@id':'#house'}})
+        address=item['address'];item['address']={'@id':'#address'}
+        self.n['offers']={'@id':'#offer'}
+        nodes=list(objects({'@graph':[self.n,original,item,address,self.agency,self.contact]}))
+        r=primary_record({'id':66,'country':'AT'},self.url,nodes,'2026-10-26T06:00:00Z')
+        self.assertEqual(r['country'],'HR')
+        self.assertEqual(r['facts']['advertised_area']['value'],80)
+    def test_linked_organisation_is_not_automatically_agency(self):
+        self.agency['@type']='Organization'
+        self.assertNotIn('mode',self.parse()['facts']['source_contact'])
+    def test_linked_agency_does_not_make_rental_a_sale(self):
+        self.n['name']='House for rent in Split'
+        with self.assertRaisesRegex(ValueError,'unambiguous_sale_required'):self.parse()
+
+class PrimarySourceProbeTests(unittest.TestCase):
+    def test_source_detail_is_imported_without_following_related_listing(self):
+        import json
+        from property_connector import run_source
+        from registry_discovery import Page,objects
+        n=PrimaryListingTests();n.setUp();url=n.url;calls=[];fetched=[]
+        class Fetch:
+            def __init__(self,u):pass
+            def get(self,u):
+                fetched.append(u)
+                return '<script type="application/ld+json">'+json.dumps(n.n)+'</script><a href="/property/456">Other house for sale</a>'
+        def api(body):calls.append(body);return {'candidates':1,'inserted':1,'updated':0}
+        r=run_source({'id':66,'name':'Agency','url':url},api,Fetch,Page,objects,lambda u,r:u,'2026-10-26T06:00:00Z')
+        self.assertEqual(r['status'],'batch_confirmed');self.assertEqual(fetched,[url])
+        self.assertEqual(calls[0]['candidates'][0]['url'],url)
+    def test_source_detail_requires_confirmed_write(self):
+        import json
+        from property_connector import run_source
+        from registry_discovery import Page,objects
+        n=PrimaryListingTests();n.setUp()
+        class Fetch:
+            def __init__(self,u):pass
+            def get(self,u):return '<script type="application/ld+json">'+json.dumps(n.n)+'</script>'
+        r=run_source({'id':66,'name':'Agency','url':n.url},lambda body:{'candidates':1,'inserted':0,'updated':0},Fetch,Page,objects,lambda u,r:u,'2026-10-26T06:00:00Z')
+        self.assertEqual(r['status'],'failed');self.assertIn('write_not_confirmed',r['error'])
+
 class DiscoveryAndLatioTests(unittest.TestCase):
     def page(self,title='For sale house in Riga',agent=True,canonical=True):
         from registry_discovery import Page
@@ -162,3 +242,4 @@ class OberCatalogueTests(unittest.TestCase):
         self.assertIn('type=Apartment+for+sale',fetch.url);self.assertIn('page=2',p.next[0]);self.assertEqual(len(p.links),1)
 
 if __name__=='__main__':unittest.main()
+
