@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 from urllib.request import Request, build_opener, HTTPRedirectHandler, HTTPSHandler
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.robotparser import RobotFileParser
 from sync_discovery import request_token, call as legacy_call
 from public_land_sources import PUBLIC_LAND_CALLS, public_land_record
@@ -310,6 +310,18 @@ def save_rows(source_id,rows,state,api_call=api):
     state.update(inserted_count=inserted,updated_count=updated)
     return inserted,updated
 
+def save_checkpoint(source_id,state,api_call=None):
+    api_call=api_call or api
+    body={'action':'checkpoint','source_id':source_id,'state':state}
+    try:return api_call(body)
+    except (TimeoutError,URLError) as error:
+        if isinstance(error,HTTPError):raise
+        # A lost response does not prove a lost commit. Confirm the exact state;
+        # never advance from a timestamp alone or replay a write blindly.
+        receipt=api_call(dict(body,action='checkpoint-status'))
+        if receipt.get('saved') is True:return receipt
+        raise error
+
 def buyer_source(source):
     return bool(source.get('import_config',{}).get('buyer_profile') or re.search(r'kupac|kupci|kupaca|investitor|akvizic|kriteriji|potražnja',source.get('category',''),re.I))
 
@@ -413,7 +425,11 @@ def listing_record(source,url,page,kind,now):
 def process_biddit(source,previous,fetcher,deadline,max_pages):
     now=datetime.now(timezone.utc);stamp=now.isoformat();root='https://www.biddit.be'
     pending=[p for p in (previous or {}).get('pending',[]) if re.fullmatch(r'https://www\.biddit\.be/fr/catalog/detail/\d+',p.get('url',''))]
-    rows=[];pages=0;error=None
+    known={p['url'] for p in pending}
+    for url in reversed(source.get('recheck_urls',[])[:10]):
+        if re.fullmatch(r'https://www\.biddit\.be/fr/catalog/detail/\d+',url) and url not in known:
+            pending.insert(0,{'url':url,'mode':'detail','sale':True});known.add(url)
+    rows=[];closed=[];pages=0;error=None
     try:
         if not pending:
             index=ET.fromstring(fetcher.get(root+'/stg/eco/sitemap_index.xml'))
@@ -442,13 +458,15 @@ def process_biddit(source,previous,fetcher,deadline,max_pages):
                 row['title']=title[:240]
                 row['facts'].update(advertised_location=prop.get('address'),deadline=end.isoformat(),asking_price=data.get('startingPrice'),currency='EUR',price_basis='Auction starting price; not current bid or total cost',source_listing_state='active',source_status_evidence='publicSaleStatus=CURRENT; future biddingEndDateTime',evidence_url=root+'/api/eco/biddit-bff/lot/'+code,property_count=len(props),availability='Active public lot at check time; legal status and costs unverified')
                 rows.append(row)
+            elif data.get('soldTimestamp') or data.get('withdrawnTimestamp') or data.get('publicSaleStatus') in ('CLOSED','SOLD','WITHDRAWN','CANCELLED') or (end and end<=now):
+                closed.append({'url':item['url'],'state':'expired' if end and end<=now else 'removed','checked_at':stamp,'evidence':'Biddit publicSaleStatus='+str(data.get('publicSaleStatus'))+'; checked biddingEndDateTime/soldTimestamp/withdrawnTimestamp'})
             pending.pop(0)
     except Exception as exc:
         error=type(exc).__name__+': '+str(exc)[:240]
-    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Djelomično' if pending else 'Uspješno',pending=pending,cycle_seen=[],pages_processed=pages,detail_pages=pages,imported_count=len(rows),error=error,error_kind='fetch_failed' if error else None,partial=bool(pending or error),coverage_complete=False,exhausted=False,stop_reason='error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty')
+    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Djelomično' if pending else 'Uspješno',pending=pending,closed_urls=closed,cycle_seen=[],pages_processed=pages,detail_pages=pages,imported_count=len(rows),error=error,error_kind='fetch_failed' if error else None,partial=bool(pending or error),coverage_complete=False,exhausted=False,stop_reason='error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty')
 
 def process_notaires(source,previous,fetcher,deadline,max_pages):
-    now=datetime.now(timezone.utc);stamp=now.isoformat();rows=[];pages=0;error=None
+    now=datetime.now(timezone.utc);stamp=now.isoformat();rows=[];closed=[];pages=0;error=None
     page=int((previous or {}).get('next_page') or 1);complete=False
     base='https://www.immobilier.notaires.fr/pub-services/inotr-www-annonces/v1/annonces'
     try:
@@ -459,13 +477,17 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
                 raise ValueError('Notaires public listing format changed')
             batch=[]
             for item in data['annonceResumeDto']:
-                if item.get('typeTransaction')!='VAE' or item.get('statut')!='LIGNE' or item.get('publiable')!='OUI':continue
-                if any(item.get(k)!='NON' for k in ('bienVendu','bienRetire','venteReportee')):continue
-                when=datetime.fromisoformat(item['seanceDate'].replace('Z','+00:00')) if item.get('seanceDate') else None
-                if not when or when<=now:continue
+                if item.get('typeTransaction')!='VAE':continue
                 url=item.get('urlDetailAnnonceFr','')
                 if not re.fullmatch(r'https://www\.immobilier\.notaires\.fr/fr/annonce-immo/adjudication/[^?#]+/\d+',url):
                     raise ValueError('Notaires detail URL format changed')
+                when=datetime.fromisoformat(item['seanceDate'].replace('Z','+00:00')) if item.get('seanceDate') else None
+                if item.get('bienVendu')=='OUI' or item.get('bienRetire')=='OUI' or item.get('venteReportee')=='OUI' or (when and when<=now):
+                    closed.append({'url':url,'state':'expired' if when and when<=now else 'removed','checked_at':stamp,'evidence':'Notaires primary sale flags or elapsed seanceDate'})
+                    continue
+                if item.get('statut')!='LIGNE' or item.get('publiable')!='OUI':continue
+                if any(item.get(k)!='NON' for k in ('bienVendu','bienRetire','venteReportee')):continue
+                if not when:continue
                 kind={'MAI':'Kuća','APP':'Stan','TER':'Zemljište'}.get(item.get('typeBien'))
                 title=(kind or item.get('typeBien','Nekretnina'))+' — '+str(item.get('communeNom') or item.get('localiteNom') or item['annonceId'])
                 row=listing_record(source,url,Page('<title>Notaires public auction listing</title>'),'property',stamp)
@@ -486,7 +508,7 @@ def process_notaires(source,previous,fetcher,deadline,max_pages):
                 complete=True;page=1;break
             page+=1
     except Exception as exc:error=type(exc).__name__+': '+str(exc)[:240]
-    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],cycle_seen=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
+    return rows,dict(source_id='registry-'+str(source['id']),checked_at=stamp,status='Pogreška' if error else 'Uspješno' if complete else 'Djelomično',pending=[],closed_urls=closed,cycle_seen=[],next_page=page,pages_processed=pages,detail_pages=len(rows),imported_count=len(rows),error=error,partial=bool(error or not complete),coverage_complete=False,exhausted=False,scope='Public upcoming notarial auction pages only',stop_reason='error' if error else 'public_page_cycle_complete' if complete else 'runtime_or_page_budget')
 
 def process(source,state,fetcher,deadline,max_pages=25):
     if source.get('import_config',{}).get('shared_structured_property') is True:
@@ -539,7 +561,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
             if revisit not in queued:
                 pending.insert(0,{'url':revisit,'mode':'detail','sale':True});queued.add(revisit)
     records=[]; pages=0; index_pages=0; detail_pages=0; errors=[]; exhausted=False; error_kind=None; skipped_non_sale=0; redirect_error=None
-    failed=list(previous.get('failed_urls',[]));unavailable=[]
+    failed=list(previous.get('failed_urls',[]));unavailable=[];closed=[]
     if kind=='property' and not pattern:
         return [],dict(source_id=sid,status='Nepodržano',checked_at=now,pending=pending,cycle_seen=list(seen),pages_processed=0,imported_count=0,exhausted=False,error='No validated detail URL adapter; research automation must supply one')
     while pending and pages<max_pages and time.monotonic()<deadline:
@@ -581,6 +603,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
                     if not re.search(r'\b(?:woonhuis|appartement|villa|garage|winkel|bedrijfspand|perceel|grond|woning)\b',text,re.I):
                         raise ValueError('No real-estate type on auction detail; adapter needs review')
                     if re.search(r'Status:\s*(?:ingetrokken|verkocht|afgelast)',text,re.I):
+                        closed.append({'url':url,'state':'removed','checked_at':now,'evidence':'Primary auction status explicitly withdrawn, sold or cancelled'})
                         seen.add(url);skipped_non_sale+=1;continue
                     extra['price_note']='Inzetpremie is an auction premium, not a property asking price; no price inferred.'
                 if host=='evarzytynes.lt':
@@ -591,6 +614,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
                     if closing:
                         end=datetime.strptime(closing[1],'%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo('Europe/Vilnius'))
                         if end<=datetime.fromisoformat(now):
+                            closed.append({'url':url,'state':'expired','checked_at':now,'evidence':'Primary Pabaigos data has elapsed'})
                             seen.add(url);skipped_non_sale+=1;continue
                         extra['deadline']=end.isoformat()
                     amount=re.search(r'Pradinė pardavimo kaina:\s*([\d\s\u00a0]+(?:,\d+)?)\s*Eur',text)
@@ -643,7 +667,7 @@ def process(source,state,fetcher,deadline,max_pages=25):
             if isinstance(e,RejectedRedirect):redirect_error=e.details
             pending.insert(0,item);errors.append(type(e).__name__+': '+str(e)[:240]);error_kind=failure_type(e);break
     exhausted=not pending and not errors
-    state=dict(source_id=sid,status='Pogreška' if errors else 'Djelomično' if pending or failed else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,index_pages=index_pages,detail_pages=detail_pages,imported_count=len(records),failed_urls=failed,unavailable_urls=unavailable,queue_exhausted=exhausted,exhausted=False,coverage_complete=False,scope='Discovered permitted pages only; not the whole portal',partial=bool(pending or failed),error='; '.join(errors) or None,stop_reason='error' if errors else 'discovered_queue_empty' if exhausted else 'runtime_or_page_budget')
+    state=dict(source_id=sid,status='Pogreška' if errors else 'Djelomično' if pending or failed else 'Uspješno',checked_at=now,pending=pending,cycle_seen=sorted(seen),next_url=pending[0]['url'] if pending else None,pages_processed=pages,index_pages=index_pages,detail_pages=detail_pages,imported_count=len(records),failed_urls=failed,unavailable_urls=unavailable,closed_urls=closed,queue_exhausted=exhausted,exhausted=False,coverage_complete=False,scope='Discovered permitted pages only; not the whole portal',partial=bool(pending or failed),error='; '.join(errors) or None,stop_reason='error' if errors else 'discovered_queue_empty' if exhausted else 'runtime_or_page_budget')
     state.update(error_kind=error_kind,skipped_non_sale=skipped_non_sale)
     if redirect_error:state['rejected_redirect']=redirect_error
     if error_kind in ('access_blocked','rate_limited','robots_disallowed'):
@@ -694,7 +718,7 @@ def main(max_workers=3):
             # Small transactions prevent the legacy 2 MB whole-snapshot limit from blocking growth.
             try:
                 save_rows(sid,rows,state)
-                result=api({'action':'checkpoint','source_id':sid,'state':state})
+                result=save_checkpoint(sid,state)
             except Exception as error:
                 # Never advance a checkpoint after an incomplete write. Already
                 # saved batches are deduplicated when the old checkpoint is retried.
@@ -703,7 +727,7 @@ def main(max_workers=3):
                 if isinstance(error,HTTPError) and error.code in (401,403):
                     stop.set();raise
                 persistence_failures.append(sid)
-                print(sid,'Persistence failed; previous checkpoint retained:',type(error).__name__)
+                print(sid,'Persistence acknowledgement failed; checkpoint must be reloaded:',type(error).__name__)
                 continue
             print(sid,state['status'],'pages',state['pages_processed'],'candidates',len(rows),'inserted',state.get('inserted_count',0),'updated',state.get('updated_count',0),'pending',len(state.get('pending',[])),'stop',state.get('stop_reason'),'checkpoint',result.get('saved'))
         return persistence_failures
@@ -722,6 +746,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 

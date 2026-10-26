@@ -4,10 +4,11 @@ import {CANDIDATE,PHASE} from './supabase/functions/discovery-sync/domain.mjs';
 import {mergeCandidate,reopens,candidateCountry} from './supabase/functions/registry-discovery/merge.mjs';
 const now=Date.parse('2026-10-22T12:00:00Z'),day=new Date(now).toISOString().slice(0,10);
 // A public authority imported from an official call: no budget is published.
-const buyer={id:1,name:'Galway County Council — javna potražnja za zemljištem',preferred_countries:'Irska',min_budget:null,max_budget:null,verified:0,
+const testContact=source=>({mode:'direct',name:'TEST ONLY',contact_url:source,evidence_url:source,record_reference:source,permitted:true});
+const buyer={contact_json:testContact('https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition'),id:1,name:'Galway County Council — javna potražnja za zemljištem',preferred_countries:'Irska',min_budget:null,max_budget:null,verified:0,
  notes:'Javni oglas potražnje; identitet krajnjeg kupca i interes za pojedinu nekretninu nisu potvrđeni.',
  criteria_json:JSON.stringify({property_types:['Zemljište'],regions:['Galway'],source_url:'https://www.galway.ie/en/housing/housing-delivery/land-property-acquisition',checked_at:'2026-10-22T09:39:02Z'})};
-const land={id:7,country:'Irska',region:'Galway',property_type:'Zemljište',source:'https://example.ie/listing/7',price:180000,renovation:null,other_costs:null,status:'Aktivno',source_checked_on:day,legal:'Nepoznato'};
+const land={contact_json:testContact('https://example.ie/listing/7'),id:7,country:'Irska',region:'Galway',property_type:'Zemljište',source:'https://example.ie/listing/7',price:180000,renovation:null,other_costs:null,status:'Aktivno',source_checked_on:day,legal:'Nepoznato'};
 
 // A buyer need not disclose a budget (owner, 6344490047/6344511552): an unknown budget is never a gap.
 let r=suggestion(land,buyer,now);
@@ -72,7 +73,7 @@ assert.equal(mergeCandidate(null,row,source,now).verified,false);
 {const {pairFunnel,EXCLUDED}=await import('./supabase/functions/discovery-sync/suggestions.mjs');
  const f=pairFunnel([land,{...land,id:8,property_type:null},{...land,id:9,property_type:'Kuća'},{...land,id:10,country:'Slovenija'},{...land,id:11,source:''}],[buyer],now);
  assert.equal(f.pairs,5);assert.equal(f.country_mismatch,1);
- assert.deepEqual(f.excluded,{[EXCLUDED.PROPERTY_TYPE]:1,[EXCLUDED.TYPE]:1,[EXCLUDED.PROPERTY_SOURCE]:1});
+ assert.deepEqual(f.excluded,{[EXCLUDED.PROPERTY_TYPE]:1,[EXCLUDED.TYPE]:1,['Upotrebljiv kontakt prodavatelja ili njegove agencije']:1});
  assert.equal(Object.values(f.suggested).reduce((a,b)=>a+b,0),1);
  assert.equal(f.properties_without_type,1);assert.equal(f.properties_without_source,1);
  const why={};assert.equal(suggestion({...land,region:'Dublin'},buyer,now,{},why),null);assert.equal(why.reason,'Ne odgovara: Regija');}
@@ -95,3 +96,4 @@ assert.equal(candidateCountry(row,{...source,url:'https://legacy.example.org'}),
 console.log('Agency country, invalid country and manual review preservation tests passed');
 
 }
+

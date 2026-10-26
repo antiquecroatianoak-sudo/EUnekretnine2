@@ -51,6 +51,9 @@ jobs:
         run: python -m unittest discover -p 'test_*.py'
       - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
         run: |
+          node test_recheck_failures.mjs
+          node test_no_schema_activity.mjs
+          node ops/test-unknown-availability.mjs
           node test_verification.mjs
           node test_public_land.mjs
           node test_domain_input.mjs
@@ -62,7 +65,9 @@ jobs:
           PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json
         run: |
           npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund @electric-sql/pglite@0.3.14 esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+          node test_recheck_failures_postgres.mjs "$RUNNER_TEMP/dom"
           node sites-review/scripts/test-catalog.mjs "$RUNNER_TEMP/dom"
           node sites-review/scripts/test-source-buyer-sync.mjs "$RUNNER_TEMP/dom"
           bash ops/run-dom-check.sh "$RUNNER_TEMP/dom"
+
 

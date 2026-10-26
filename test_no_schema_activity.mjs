@@ -16,6 +16,7 @@ for(const k of ['deadline','auction_at','bid_deadline_at']){
 assert(!explicitProof({...row,facts:{}},now));
 assert(explicitProof({kind:'buyer'},now));
 assert(SOURCE_ACTIVE.includes('source_listing_state'));
-assert(PROPERTY_ACTIVE.includes('missing_once'));
+assert(!PROPERTY_ACTIVE.includes('missing_once'));
 assert(!/activity_evidence\s*[,)]/.test(PROPERTY_ACTIVE));
 console.log('No-schema activity policy: status, source identity, time boundaries and expired deadlines passed');
+

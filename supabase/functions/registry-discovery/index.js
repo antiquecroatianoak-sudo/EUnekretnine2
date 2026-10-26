@@ -1,3 +1,4 @@
+import {applyFailedRechecks,applyObservedClosures} from './recheck-failures.mjs';
 import {explicitProof,admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
@@ -67,6 +68,11 @@ Deno.serve(async req=>{
   if(!/^registry-\d+$/.test(body.source_id||''))return reply({error:'Invalid source ID'},400);
   const [source]=await sql`select id,country,name,url,category from sources where id=${body.source_id.slice(9)}`;
   if(!source)return reply({error:'Unknown registered source'},400);
+  if(body.action==='checkpoint-status'){
+   if(!body.state||body.state.source_id!==body.source_id)throw Error('Invalid checkpoint receipt');
+   const [receipt]=await sql`select body_json::jsonb=${JSON.stringify(body.state)}::jsonb as saved from discovery_runs where source_id=${body.source_id}`;
+   return reply({saved:receipt?.saved===true});
+  }
   if(body.action==='checkpoint'){
    const s=body.state;
    if(!s||s.source_id!==body.source_id||!['Uspješno','Djelomično','Pogreška','Nepodržano'].includes(s.status)||!Array.isArray(s.pending)||!Array.isArray(s.cycle_seen)||!Number.isFinite(Date.parse(s.checked_at))||Math.abs(Date.now()-Date.parse(s.checked_at))>3600000)throw Error('Invalid checkpoint');
@@ -79,13 +85,10 @@ Deno.serve(async req=>{
     const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
     await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
    }
-   for(const failed of (s.failed_urls||[]).filter(x=>x.mode==='detail')){
-    validURL(failed.url,source.url);
-    await sql`update site_private.listing_lifecycle set state='missing_once',checked_at=${s.checked_at}::timestamptz,reason='Aktivnost nije potvrđena pri posljednjoj provjeri' where candidate_id in(select id from source_candidates where kind='property' and rtrim(url,'/')=rtrim(${failed.url},'/')) and checked_at<${s.checked_at}::timestamptz`;
-   }
-   if(s.error)await sql`update site_private.listing_lifecycle l set state='missing_once',checked_at=${s.checked_at}::timestamptz,reason='Izvor nije osvježen; potrebna ponovna potvrda aktivnosti' from source_candidates c where c.id=l.candidate_id and c.kind='property' and c.source_id=${body.source_id} and site_private.safe_stamp(c.last_seen)<${s.checked_at}::timestamptz and l.checked_at<${s.checked_at}::timestamptz`;
-   await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
+   await applyObservedClosures(sql,source,s,validURL);
+   await applyFailedRechecks(sql,source,s,validURL);
    await sql`select site_private.reconcile_listing_lifecycle()`;
+   await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
    return reply({saved:true});
   }
   if(body.action!=='batch')return reply({error:'Unknown action'},400);
@@ -117,6 +120,7 @@ Deno.serve(async req=>{
   return reply({...result,candidates:accepted.length,activity_rejected:rejected.length});
  }catch(e){console.error('registry-discovery',e?.name,e?.code,body.action==='enrichment-country'?String(e?.message).slice(0,200):'');return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
+
 
 
 
