@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 from storage import connect
 from matching import PROPERTY_TYPES, CONDITIONS, MATCH, COUNTRY_NAMES, country_name, evaluate, refresh_matches
+from active_listings import checked_activity, activity_valid
 
 def url(value):
     parsed = urlparse(value)
@@ -27,6 +28,10 @@ def validate(item):
         raise ValueError('Datum provjere mora imati vremensku zonu i ne smije biti u budućnosti.')
     if item.get('source_verified') is not True or item.get('listing_active') is not True:
         raise ValueError('Izvor i aktivnost oglasa moraju biti provjereni.')
+    proof=checked_activity(item['source'],item['evidence_url'],item.get('activity_evidence_text',''),item['checked_at'])
+    if item.get('available_until'): proof['available_until']=item['available_until']
+    if not activity_valid(item['source'],proof,item['checked_at']):
+        raise ValueError('Potreban je izvorni dokaz aktivnosti konkretnog oglasa unutar 24 sata i važeći rok.')
     if item.get('legal') not in ('Nepoznato', 'Uredno', 'Komplikacije'):
         raise ValueError('Potreban je status pravne provjere.')
     for field, allowed in [('property_type', PROPERTY_TYPES), ('condition', CONDITIONS)]:
@@ -54,7 +59,8 @@ def run(c, items):
         for item in items:
             if c.execute('SELECT id FROM imports WHERE source_url=?', (item['source'],)).fetchone(): continue
             if c.execute('SELECT id FROM properties WHERE source=?', (item['source'],)).fetchone(): continue
-            fields = ('country','city','title','price','area','source','legal','renovation','other_costs','estimated_value','property_type','condition','region','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until')
+            item=dict(item,activity_evidence=json.dumps(checked_activity(item['source'],item['evidence_url'],item['activity_evidence_text'],item['checked_at'],**({'available_until':item['available_until']} if item.get('available_until') else {})),ensure_ascii=False))
+            fields = ('country','city','title','price','area','source','legal','renovation','other_costs','estimated_value','property_type','condition','region','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','activity_evidence')
             # The import itself is the evidenced check: active listing, verified source, evidence URL and its date.
             p = c.execute('INSERT INTO properties('+','.join(fields)+',updated,status,source_checked_on) VALUES('+','.join('?' for _ in range(len(fields)+3))+') RETURNING id',
                           tuple(item.get(f) for f in fields)+(item['checked_at'],'Aktivno',item['checked_at'][:10])).fetchone()
@@ -85,5 +91,6 @@ if __name__ == '__main__':
     c = connect()
     try: print('Integrirano zapisa:', run(c, items))
     finally: c.close()
+
 
 

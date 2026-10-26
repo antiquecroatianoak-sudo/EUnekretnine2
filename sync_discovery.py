@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.parse import quote
 from urllib.error import HTTPError
+from active_listings import candidate_active
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/discovery-sync'
 AUDIENCE='eu-property-discovery:izpzsfiqvransehvmuzn'
@@ -63,6 +64,7 @@ def main():
     else:
         raise RuntimeError('Endpoint accepted an incorrect audience.')
     snapshot=json.loads(Path('data/discovered_candidates.json').read_text(encoding='utf-8'))
+    snapshot['candidates']=[r for r in snapshot['candidates'] if candidate_active(r)]
     count=0
     for batch in snapshot_batches(snapshot):
         result=call(request_token(),{'action':'sync','snapshot':batch})
@@ -75,4 +77,5 @@ def main():
 
 if __name__=='__main__':
     main()
+
 

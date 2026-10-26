@@ -166,7 +166,9 @@ class MatchingTests(unittest.TestCase):
         self.assertEqual(self.result()['status'],CANDIDATE)
     def test_refresh_updates_same_pair_after_criteria_change(self):
         c=connect(path=':memory:')
+        from active_listings import checked_activity
         prop=dict(self.prop,title='TEST')
+        prop['activity_evidence']=json.dumps(checked_activity(prop['source'],prop['source'],'Explicit primary listing status active',datetime.now(timezone.utc).isoformat()))
         c.execute('INSERT INTO properties('+','.join(prop)+') VALUES('+','.join('?' for _ in prop)+')',tuple(prop.values()))
         buyer=dict(self.buyer,name='TEST',criteria_json=json.dumps(self.criteria))
         c.execute('INSERT INTO investors('+','.join(buyer)+') VALUES('+','.join('?' for _ in buyer)+')',tuple(buyer.values()))
@@ -191,4 +193,5 @@ class MatchingTests(unittest.TestCase):
                 self.assertEqual(p['title'],'existing'); self.assertIsNone(p['property_type']); c.close()
 
 if __name__=='__main__': unittest.main()
+
 

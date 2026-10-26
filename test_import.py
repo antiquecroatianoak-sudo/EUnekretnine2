@@ -7,7 +7,7 @@ from import_verified import run
 class ImportTests(unittest.TestCase):
     def setUp(self):
         self.c = connect(path=':memory:')
-        self.item = dict(country='Francuska',city='Test',title='TESTNI ZAPIS',source='https://example.org/test',evidence_url='https://example.org/evidence',checked_at='2026-10-15T12:00:00Z',source_verified=True,listing_active=True,legal='Uredno',legal_evidence_url='https://example.org/legal',price=100.,area=10.,renovation=20.,other_costs=10.,estimated_value=200.,valuation_evidence_url='https://example.org/valuation')
+        self.item = dict(country='Francuska',city='Test',title='TESTNI ZAPIS',source='https://example.org/test',evidence_url='https://example.org/evidence',checked_at=datetime.now(timezone.utc).isoformat(),activity_evidence_text='Primary listing explicitly confirmed available for sale',source_verified=True,listing_active=True,legal='Uredno',legal_evidence_url='https://example.org/legal',price=100.,area=10.,renovation=20.,other_costs=10.,estimated_value=200.,valuation_evidence_url='https://example.org/valuation')
     def tearDown(self): self.c.close()
     def count(self, table): return self.c.execute('SELECT COUNT(*) AS n FROM '+table).fetchone()['n']
     def test_integrate_then_outbox_and_deduplicate(self):
@@ -42,4 +42,5 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(self.count('notification_outbox'),0)
 
 if __name__=='__main__': unittest.main()
+
 

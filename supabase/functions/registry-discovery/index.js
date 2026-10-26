@@ -2,6 +2,7 @@ import postgres from 'npm:postgres@3.4.7';
 import {createRemoteJWKSet,jwtVerify} from 'npm:jose@6.1.0';
 import {mergeCandidate} from './merge.mjs';
 import {runCountry} from './national-enrichment.mjs';
+import {candidateActive} from './active-listings.mjs';
 const repo='antiquecroatianoak-sudo/EUnekretnine2',audience='eu-property-discovery:izpzsfiqvransehvmuzn';
 const jwks=createRemoteJWKSet(new URL('https://token.actions.githubusercontent.com/.well-known/jwks'));
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
@@ -76,7 +77,7 @@ Deno.serve(async req=>{
    for(const u of s.unavailable_urls||[]){
     await sql`select site_private.mark_listing_unavailable(${u.url},${u.http_status},${s.checked_at}::timestamptz)`;
     const note='Izvor nedostupan pri provjeri '+s.checked_at+' (HTTP '+u.http_status+'); prodaja nije dokazana';
-    await sql`update source_candidates set body_json=jsonb_set(jsonb_set(body_json::jsonb,'{facts,availability}',to_jsonb(${note}::text),true),'{verification,availability}',to_jsonb(${note}::text),true)::text where rtrim(url,'/')=rtrim(${u.url},'/')`;
+    await sql`select site_private.exclude_listing_url(${u.url})`;
    }
    await sql`insert into discovery_runs(source_id,status,checked_at,body_json) values(${body.source_id},${s.status},${s.checked_at},${JSON.stringify(s)}) on conflict(source_id) do update set status=excluded.status,checked_at=excluded.checked_at,body_json=excluded.body_json where discovery_runs.checked_at<=excluded.checked_at`;
    await sql`select site_private.reconcile_listing_lifecycle()`;
@@ -84,11 +85,22 @@ Deno.serve(async req=>{
   }
   if(body.action!=='batch')return reply({error:'Unknown action'},400);
   validateRows(body.candidates,source);
+  for(const row of body.candidates){
+   const f=row.facts;
+   if(row.kind==='property'&&f.source_listing_state==='active'&&f.source_status_evidence){
+    // The authenticated parser supplies an explicit status for this fresh response.
+    f.activity_record_url=row.url;f.activity_evidence_url=f.evidence_url||row.url;
+    f.checked_at=row.last_seen;
+   }
+  }
+  const rejected=body.candidates.filter(r=>!candidateActive(r));
+  const accepted=body.candidates.filter(r=>candidateActive(r));
   const result=await sql.begin(async tx=>{
    // Serialize only registry imports so URL duplicates cannot race between sources.
    await tx`select pg_advisory_xact_lock(1422569624,2)`;
    let inserted=0,updated=0;
-   for(const row of body.candidates){
+   for(const row of rejected)await tx`select site_private.exclude_listing_url(${row.url})`;
+   for(const row of accepted){
     const [existing]=await tx`select * from source_candidates where (rtrim(url,'/')=rtrim(${row.url},'/') and kind=${row.kind}) or id=${row.id} order by (id=${row.id}) desc limit 1 for update`;
     const merged=mergeCandidate(existing,row,source);
     if(existing){
@@ -101,8 +113,9 @@ Deno.serve(async req=>{
    await tx`select site_private.reconcile_listing_lifecycle()`;
    return {inserted,updated};
   });
-  return reply({...result,candidates:body.candidates.length});
+  return reply({...result,candidates:accepted.length,activity_rejected:rejected.length});
  }catch(e){console.error('registry-discovery',e?.name,e?.code,body.action==='enrichment-country'?String(e?.message).slice(0,200):'');return reply({error:'Registry operation failed',detail:e instanceof Error?e.message:'Unknown error'},400)}
 });
+
 
 

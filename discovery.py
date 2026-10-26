@@ -157,9 +157,11 @@ def scan(previous=None,fetcher=fetch,now=None,sources=SOURCES):
     return dict(schema_version=1,generated_at=timestamp,sources=SOURCES,runs=runs,candidates=sorted(records.values(),key=lambda r:r['id']))
 
 def main():
+    from active_listings import candidate_active
     parser=argparse.ArgumentParser();parser.add_argument('--output',default=str(ROOT/'data'/'discovered_candidates.json'));args=parser.parse_args()
     path=Path(args.output);previous=json.loads(path.read_text()) if path.exists() else None
     result=scan(previous)
+    result['candidates']=[r for r in result['candidates'] if candidate_active(r)]
     path.parent.mkdir(parents=True,exist_ok=True)
     temp=path.with_suffix('.tmp');temp.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');temp.replace(path)
     for run in result['runs']:print(run['source_id'],run['status'],run['count'],run.get('error',''))
@@ -167,3 +169,4 @@ def main():
     if any(r['status']=='Pogreška' for r in result['runs']):raise SystemExit(1)
 
 if __name__=='__main__':main()
+

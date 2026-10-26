@@ -3,7 +3,7 @@ import {MATCH,country,norm,criteria,pairCheckMap,rankAffordability,gap,settle,GU
 export async function refreshSuggestions(tx){
  await tx`select pg_advisory_xact_lock(2261022)`;
  await tx`select site_private.reconcile_listing_lifecycle()`;
- const props=await tx`select p.* from properties p where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) order by p.id`;
+ const props=await tx`select p.* from properties p where site_private.listing_activity_valid(p.source,site_private.safe_json(p.activity_evidence),now()) and not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) order by p.id`;
  const investors=await tx`select i.* from investors i where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed')) order by i.id`;
  // Verified pair-specific answers (ops/pair-records.sql) close only the items they were recorded for.
  const checks=pairCheckMap(await tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where kind='Odgovor'`);
@@ -41,3 +41,4 @@ export async function refreshSuggestions(tx){
  await tx`update notification_outbox n set status='Potrebna ponovna provjera' where n.status='Spremno' and not exists(select 1 from match_results m where m.property_id=n.property_id and m.result_json::jsonb->>'status'=${MATCH})`;
  return Number((await tx`select count(*) as n from match_results`)[0].n);
 }
+
