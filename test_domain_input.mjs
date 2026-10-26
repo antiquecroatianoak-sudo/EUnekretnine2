@@ -166,3 +166,7 @@ for(const actual of globalCases.cases){
  assert.equal(evaluate(full,{...buyer,country:actual.country}).status,evaluate(full,buyer).status,actual.name+' seat must not restrict EU interests');
 }
 console.log('Ten sourced global-group input regressions passed; current mandates and individual-property interest remain unverified.');
+
+// Unknown-seat registry profiles must persist without fabricating demand geography.
+await import('./test_registry_country.mjs');
+

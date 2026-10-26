@@ -5,13 +5,15 @@
    "source_id": "registry-107",
    "status": "failed",
    "error": "HTTPError: HTTP Error 400: Bad Request",
-   "retry_after": "2026-10-27T07:50:06.353196+00:00"
+   "previous_error": "HTTPError: HTTP Error 400: Bad Request",
+   "retry_reason": "Confirmed server NOT NULL country defect corrected; this resets a failed database write only, not source access denial"
   },
   {
    "source_id": "registry-110",
    "status": "failed",
    "error": "HTTPError: HTTP Error 400: Bad Request",
-   "retry_after": "2026-10-27T07:50:06.353196+00:00"
+   "previous_error": "HTTPError: HTTP Error 400: Bad Request",
+   "retry_reason": "Confirmed server NOT NULL country defect corrected; this resets a failed database write only, not source access denial"
   }
  ],
  "activation_performed": false

@@ -20,7 +20,7 @@ def state(row):
 
 def classify(row):
     s = state(row)
-    error = str(s.get("error") or row.get("inactive_reason") or "")
+    error = ' '.join(str(v) for v in (s.get('error'),row.get('inactive_reason')) if v)
     url = urlsplit(row["url"])
     if ACCESS.search(error):
         group = "approved_access_required"
@@ -54,6 +54,8 @@ def build_report(rows, previous=None, now=None):
         for key in ("probe_at", "probe", "probe_retry_after"):
             if key in old and old.get("url") == item["url"]:
                 item[key] = old[key]
+        if item.get('probe',{}).get('status')=='access_blocked':
+            item['group']='approved_access_required'
         sources.append(item)
     return dict(schema_version=1, checked_at=now.isoformat(),
                 source_count=len(sources),
@@ -144,3 +146,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

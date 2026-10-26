@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {candidateCountry,mergeCandidate} from './supabase/functions/registry-discovery/merge.mjs';
+const source={url:'https://777capital.com/acquisition-profile-real-estate-purchase/',country:null};
+const row={kind:'buyer',url:source.url,first_seen:'2026-10-26T07:00:00Z',last_seen:'2026-10-26T07:00:00Z',facts:{preferred_countries:['DE'],contact_email:'transactions@777capital.com'}};
+assert.equal(candidateCountry(row,source),'');
+assert.equal(candidateCountry(row,{...source,country:''}),'');
+assert.equal(candidateCountry(row,{...source,country:'CH'}),'CH');
+const prior={id:'existing',body_json:JSON.stringify({first_seen:'2026-10-24T07:00:00Z',status:'Ručno pregledano',verified:true,facts:{manual_note:'Keep this'}})};
+const saved=mergeCandidate(prior,row,source);
+assert.equal(saved.country,'');
+assert.deepEqual(saved.facts.preferred_countries,['DE']);
+assert.equal(saved.facts.manual_note,'Keep this');
+assert.equal(saved.first_seen,'2026-10-24T07:00:00Z');
+assert.equal(saved.status,'Ručno pregledano');
+assert.equal(saved.verified,true);
+assert.throws(()=>candidateCountry({...row,kind:'property',country:null},{url:'https://immonestor.at/',country:'AT'}),/Missing supported property country/);
+console.log('Buyer country persistence: unknown seat, foreign seat, demand separation and review preservation passed.');
