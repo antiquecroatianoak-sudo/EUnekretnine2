@@ -1,0 +1,77 @@
+[
+  {
+    "source_id": 110,
+    "url": "https://777capital.com/acquisition-profile-real-estate-purchase/",
+    "entity_name": "777 Capital Partners",
+    "intent_evidence": "We buy residential and commercial real estate",
+    "contact_email": "transactions@777capital.com",
+    "fields": [
+      {
+        "field": "preferred_countries",
+        "value": [
+          "DE"
+        ],
+        "evidence": "German A-cities (incl. suburbs) as well as German B, C and D-cities in economically strong regions"
+      },
+      {
+        "field": "property_types",
+        "value": [
+          "Zgrada",
+          "Poslovni prostor"
+        ],
+        "evidence": "Residential (Residential, Senior Living, Co-Living, Micro-Living, Serviced Apartments), Office, Light Industrial, Hotel & Serviced Apartments"
+      },
+      {
+        "field": "conditions",
+        "value": [
+          "Opportunistic and value-add, also ongoing or unfinished development projects",
+          "Minimum EUR 15 million Total investment costs"
+        ],
+        "evidence": "Opportunistic and value-add, also ongoing or unfinished development projects Volume Minimum EUR 15 million Total investment costs"
+      }
+    ]
+  },
+  {
+    "source_id": 107,
+    "url": "https://guetig-group.com/purchase-profile-real-estate/",
+    "entity_name": "Guetig Group",
+    "intent_evidence": "Property quality: 2-4 star / business hotels with 80 rooms or more",
+    "contact_email": "contact@guetig-group.com",
+    "contact_mode": "agency",
+    "role_evidence": "the Guetig Group brokers real estate, traditional commercial properties, and real estate projects of all asset classes to our investors.",
+    "fields": [
+      {
+        "field": "preferred_countries",
+        "value": [
+          "DE",
+          "AT",
+          "IE",
+          "NL",
+          "LU",
+          "FR",
+          "BE",
+          "ES",
+          "PT",
+          "IT"
+        ],
+        "evidence": "Germany – Top 20 cities Austria, Vienna only Great Britain and Ireland, capital cities, only prime locations Netherlands, Top 5 cities Luxembourg France and Belgium, capital cities, Top 15 cities Scandinavia, capital cities Spain and Portugal, capital cities and metropolitan areas Italy, Milan and Rome"
+      },
+      {
+        "field": "property_types",
+        "value": [
+          "Poslovni prostor"
+        ],
+        "evidence": "Property quality: 2-4 star / business hotels with 80 rooms or more"
+      },
+      {
+        "field": "conditions",
+        "value": [
+          "Hotel: 2-4 star / business hotels with 80 rooms or more",
+          "Off-market only; no fractional ownership; authorization to sell required",
+          "Capital-city/top-city restrictions apply; see original profile"
+        ],
+        "evidence": "Please do not offer individual condominiums or properties with partial ownership. We operate exclusively in the off-market sector."
+      }
+    ]
+  }
+]
