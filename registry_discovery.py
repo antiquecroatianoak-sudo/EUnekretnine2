@@ -545,6 +545,11 @@ def process(source,state,fetcher,deadline,max_pages=25):
     pending=[dict(item) for item in previous.get('pending',[]) if in_scope(item['url'],root,config)]
     reset_scope=bool(previous.get('pending')) and not pending
     buyer_index=kind=='buyer' and bool(re.search(r'/oglasi-nakup/',root))
+    # Old catalogue checkpoints can predate a reviewed acquisition profile.
+    # Its exact page must use the buyer parser, never a missing detail regex.
+    if kind=='buyer' and config.get('buyer_profile'):
+        pending=[{'url':root,'mode':'buyer','sale':False}]
+        previous={**previous,'cycle_seen':[]}
     if not pending:pending=[{'url':u,'mode':'buyer' if kind=='buyer' and not buyer_index else 'index','sale':bool(SALE.search(u)) or config.get('sale_scope') is True or hostkey(urlsplit(root).hostname) in ('openbareverkoop.nl','evarzytynes.lt')} for u in (config.get('entry_urls') or [root])]
     if hostkey(urlsplit(root).hostname) in ('openbareverkoop.nl','evarzytynes.lt'):
         for item in pending:item['sale']=True

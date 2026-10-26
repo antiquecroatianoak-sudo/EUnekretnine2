@@ -76,6 +76,26 @@ class BuyerProfileTests(unittest.TestCase):
    rows,state=process(source,None,Fetch(),time.monotonic()+5,1)
   self.assertIsNone(state['error']);self.assertEqual(len(rows),1);self.assertFalse(rows[0]['verified'])
 
+class ResumedBuyerProfileTests(unittest.TestCase):
+ def test_old_catalog_checkpoint_uses_reviewed_buyer_parser(self):
+  import time
+  from unittest.mock import patch
+  from registry_discovery import process
+  html='<h1>Acquisition profile</h1>'+TEXT+'<a href="/sale/">For sale</a>'
+  class Fetch:
+   def get(self,url):
+    self_url=url
+    assert self_url==URL
+    return html
+  source=dict(id=107,country='HR',url=URL,category='Investitor',import_config={'buyer_profile':CONFIG})
+  old={'pending':[{'url':URL,'mode':'index','sale':False}],'cycle_seen':[URL]}
+  with patch('registry_discovery.safe_url',side_effect=lambda u,r:u):
+   rows,state=process(source,old,Fetch(),time.monotonic()+5,1)
+  self.assertIsNone(state['error']);self.assertEqual(len(rows),1)
+  self.assertEqual(rows[0]['kind'],'buyer');self.assertFalse(rows[0]['verified'])
+  self.assertFalse(rows[0]['facts']['source_contact']['permitted'])
+  self.assertEqual(state['pending'],[])
+
 if __name__=="__main__":unittest.main()
 
 
