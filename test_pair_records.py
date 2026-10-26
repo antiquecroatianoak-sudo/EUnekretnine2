@@ -36,7 +36,7 @@ def build_schema(cur):
     cur.execute('alter table investors add column if not exists contact_json text')
     # Not part of the pair-review export but read by sites-platform `read`: minimal test-only shapes,
     # columns as in storage.SCHEMA. They hold no production structure beyond what the app already reads.
-    cur.execute('create table public.sources(id bigserial primary key,country text,name text,url text,category text,is_active boolean not null default true)')
+    cur.execute('create table public.sources(id bigserial primary key,country text,name text,url text,category text,is_active boolean not null default true,inactive_reason text)')
     cur.execute('create table public.discovery_runs(source_id text primary key,status text not null,checked_at text not null,body_json text not null)')
     cur.execute('create table public.imports(id bigserial primary key,source_url text unique not null,checked_at text not null,evidence_url text not null,property_id integer not null)')
 
