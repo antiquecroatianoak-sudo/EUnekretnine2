@@ -1,5 +1,18 @@
 {
- "checked_at": "2026-10-26T07:27:47.539250+00:00",
- "results": [],
+ "checked_at": "2026-10-26T07:50:06.353196+00:00",
+ "results": [
+  {
+   "source_id": "registry-107",
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 400: Bad Request",
+   "retry_after": "2026-10-27T07:50:06.353196+00:00"
+  },
+  {
+   "source_id": "registry-110",
+   "status": "failed",
+   "error": "HTTPError: HTTP Error 400: Bad Request",
+   "retry_after": "2026-10-27T07:50:06.353196+00:00"
+  }
+ ],
  "activation_performed": false
 }
