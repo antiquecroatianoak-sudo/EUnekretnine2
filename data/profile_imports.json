@@ -1,28 +1,5 @@
 {
- "checked_at": "2026-10-26T08:03:28.660561+00:00",
- "results": [
-  {
-   "source_id": "registry-107",
-   "status": "batch_confirmed",
-   "url": "https://guetig-group.com/purchase-profile-real-estate/",
-   "inserted": 0,
-   "updated": 1,
-   "normal_refresh_confirmed": true,
-   "refresh_inserted": 0,
-   "refresh_updated": 1,
-   "note": "Verify stored evidence before source activation"
-  },
-  {
-   "source_id": "registry-110",
-   "status": "batch_confirmed",
-   "url": "https://777capital.com/acquisition-profile-real-estate-purchase/",
-   "inserted": 0,
-   "updated": 1,
-   "normal_refresh_confirmed": true,
-   "refresh_inserted": 0,
-   "refresh_updated": 1,
-   "note": "Verify stored evidence before source activation"
-  }
- ],
+ "checked_at": "2026-10-26T08:11:39.479948+00:00",
+ "results": [],
  "activation_performed": false
 }
