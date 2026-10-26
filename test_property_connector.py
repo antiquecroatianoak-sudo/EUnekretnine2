@@ -133,7 +133,8 @@ class PrimarySourceProbeTests(unittest.TestCase):
                 return '<script type="application/ld+json">'+json.dumps(n.n)+'</script><a href="/property/456">Other house for sale</a>'
         def api(body):calls.append(body);return {'candidates':1,'inserted':1,'updated':0}
         r=run_source({'id':66,'name':'Agency','url':url},api,Fetch,Page,objects,lambda u,r:u,'2026-10-26T06:00:00Z')
-        self.assertEqual(r['status'],'batch_confirmed');self.assertEqual(fetched,[url])
+        self.assertEqual(r['status'],'batch_confirmed');self.assertEqual(fetched,[url,url])
+        self.assertTrue(r['normal_refresh_confirmed'])
         self.assertEqual(calls[0]['candidates'][0]['url'],url)
     def test_source_detail_requires_confirmed_write(self):
         import json
@@ -242,4 +243,5 @@ class OberCatalogueTests(unittest.TestCase):
         self.assertIn('type=Apartment+for+sale',fetch.url);self.assertIn('page=2',p.next[0]);self.assertEqual(len(p.links),1)
 
 if __name__=='__main__':unittest.main()
+
 

@@ -291,6 +291,7 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
             saved=api({'action':'batch','source_id':result['source_id'],'candidates':[root_row]})
             if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:raise RuntimeError('write_not_confirmed')
             result.update(inserted=saved.get('inserted',0),updated=saved.get('updated',0),status='batch_confirmed',pages_processed=1)
+            result.update(confirm_normal_refresh(source,f,api,safe_url,deadline))
             return result
         urls=links(page,source['url'],objects,safe_url,source['url'])[:2]
         if not urls:result.update(status='no_structured_detail_links');return result
@@ -314,13 +315,30 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
             except ValueError as e:result['rejections'].append({'url':url,'reason':str(e)[:240]})
         result['pages_processed']=pages
         result['status']='batch_confirmed' if result['inserted']+result['updated'] else 'format_or_evidence_required'
+        if result['status']=='batch_confirmed':
+            result.update(confirm_normal_refresh(source,f,api,safe_url,deadline))
     except Exception as e:
         result.update(status='failed',error=type(e).__name__+': '+str(e)[:240],retry_after=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat())
     return result
 
-def collect(source,previous,fetcher,deadline,max_pages=25):
+def confirm_normal_refresh(source,fetcher,api,url_validator,deadline):
+    """Require a fresh normal-path batch before this trial can support activation."""
+    rows,state=collect(source,None,fetcher,deadline,max_pages=3,url_validator=url_validator)
+    if state.get('error') or not rows:
+        raise RuntimeError('Normal shared refresh did not confirm records: '+str(state.get('error')))
+    inserted=updated=0
+    for row in rows:
+        saved=api({'action':'batch','source_id':'registry-'+str(source['id']),'candidates':[row]})
+        if saved.get('candidates')!=1 or saved.get('inserted',0)+saved.get('updated',0)!=1:
+            raise RuntimeError('Normal shared refresh write not confirmed')
+        inserted+=saved.get('inserted',0);updated+=saved.get('updated',0)
+    return {'normal_refresh_confirmed':True,'refresh_inserted':inserted,'refresh_updated':updated,
+            'refresh_pages':state['pages_processed'],'coverage_complete':False}
+
+def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
     """Normal registry path only after the source's sample has been reviewed."""
     from registry_discovery import Page,objects,safe_url
+    safe_url=url_validator or safe_url
     stamp=datetime.now(timezone.utc).isoformat();previous=previous or {}
     pending=list(previous.get('pending') or [{'url':source['url'],'mode':'index'}])
     seen=set(previous.get('cycle_seen',[])) if previous.get('pending') else set()
