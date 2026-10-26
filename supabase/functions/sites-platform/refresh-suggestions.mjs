@@ -1,9 +1,11 @@
+import {hydrateContacts} from './hydrate-contacts.mjs';
 import {PROPERTY_ACTIVE} from './activity-policy.mjs';
 import {suggestion} from './suggestions.mjs';
 import {MATCH,country,norm,criteria,pairCheckMap,rankAffordability,gap,settle,GUARD_REFUSED} from './domain.mjs';
 export async function refreshSuggestions(tx){
  await tx`select pg_advisory_xact_lock(2261022)`;
  await tx`select site_private.reconcile_listing_lifecycle()`;
+ await hydrateContacts(tx);
  const props=await tx`select p.* from properties p where ${tx.unsafe(PROPERTY_ACTIVE)} and not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) order by p.id`;
  const investors=await tx`select i.* from investors i where not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed')) order by i.id`;
  // Verified pair-specific answers (ops/pair-records.sql) close only the items they were recorded for.
