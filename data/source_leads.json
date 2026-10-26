@@ -1,9 +1,9 @@
 {
  "counts": {
   "blokirano": 3,
-  "kandidat_nekretnine": 17,
-  "nedostupno": 8,
-  "nije_relevantno": 14,
+  "kandidat_nekretnine": 18,
+  "nedostupno": 9,
+  "nije_relevantno": 16,
   "robots_zabrana": 5
  },
  "leads": [
@@ -224,7 +224,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "status": "nedostupno"
   },
   {
@@ -244,7 +244,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "status": "nedostupno"
   },
   {
@@ -264,7 +264,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -340,7 +340,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -392,7 +392,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -440,7 +440,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "status": "nedostupno"
   },
   {
@@ -605,6 +605,34 @@
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-26T08:17:17.582005+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www.immodealer.at",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1170-hernals/-architektonisches-meisterwerk-mit-pool-garage-premium-ausstattung-1127782280/",
+     "seen": "2026-10-26T08:17:17.482026+00:00",
+     "url": "https://www.immodealer.at/"
+    }
+   ],
+   "first_seen": "2026-10-26T08:17:17.482026+00:00",
+   "host": "immodealer.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "signals": {
+    "areas": 12,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 10,
+    "property_words": 36
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobilienmakler Wien & Niederösterreich | Immodealer Immodealer – Immobilienmakler für Wien und Niederösterreich"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
    "checked_at": "2026-10-24T09:37:27.517651+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -756,6 +784,34 @@
    "title": "Home - Swiss Life Select Österreich GmbH"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-26T08:17:17.582005+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "IMMOTOTAL | 360°-VR Rundgang",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1230-liesing/mauer-freistehendes-einfamilienhaus-in-gruenruhelage-mit-sonnigem-eigengarten-916223461/",
+     "seen": "2026-10-26T08:17:17.482026+00:00",
+     "url": "https://immototal.at/360/879"
+    }
+   ],
+   "first_seen": "2026-10-26T08:17:17.482026+00:00",
+   "host": "immototal.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 1
+   },
+   "status": "nije_relevantno",
+   "title": "IMMOTOTAL Obj. 879"
+  },
+  {
    "check_note": "HTTP 403",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": "DE",
@@ -772,7 +828,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "status": "blokirano"
   },
   {
@@ -858,7 +914,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1057,6 +1113,34 @@
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-26T08:17:17.582005+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1170-hernals/preisreduktion-viel-platz-auf-kleinen-raum-wo-gemuetlichkeit-auf-lebensqualitaet-trifft-787194437/",
+     "seen": "2026-10-26T08:17:17.482026+00:00",
+     "url": "https://www.remax.at/Immobilienmakler/Josef-Kottulinsky-70831203"
+    }
+   ],
+   "first_seen": "2026-10-26T08:17:17.482026+00:00",
+   "host": "remax.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": "Security Verification"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T13:01:23.837633+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -1130,6 +1214,26 @@
    ],
    "last_seen": "2026-10-23T19:00:28.832808+00:00",
    "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://auth.justimmo.at/",
+   "checked_at": "2026-10-26T08:17:17.582005+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "www",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1140-penzing/einfamilienhaus-in-idyllischer-waldrandlage-im-augustinerwald-1311123774/",
+     "seen": "2026-10-26T08:17:17.482026+00:00",
+     "url": "https://service.justimmo.at/objekt/565413/www.wbimmo.at"
+    }
+   ],
+   "first_seen": "2026-10-26T08:17:17.482026+00:00",
+   "host": "service.justimmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1312,7 +1416,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T09:47:49.771787+00:00",
+   "last_seen": "2026-10-26T08:17:17.482026+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1353,6 +1457,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-26T07:43:14.048733+00:00",
- "verified_at": "2026-10-26T07:43:14.145110+00:00"
+ "updated_at": "2026-10-26T08:17:17.482026+00:00",
+ "verified_at": "2026-10-26T08:17:17.582005+00:00"
 }
