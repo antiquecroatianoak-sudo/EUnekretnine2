@@ -95,6 +95,44 @@ def latio_record(source,url,page,stamp):
         else:facts['land_area_m2']=amount
     return {'id':'registry:property:'+hashlib.sha256(canonical(url).encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'LV','url':canonical(url),'first_seen':stamp,'last_seen':stamp,'verified':False,'status':'Za provjeru','facts':facts}
 
+def bulgarian_record(source,url,page,stamp):
+    """Reviewed single-price English sale detail; never a development price range."""
+    reference=re.fullmatch(r'/[^/]+/AD(\d+)BG_[^/]+\.html',urlsplit(url).path)
+    if not reference or page is None:raise ValueError('bulgarian_primary_detail_required')
+    if canonical(page.meta.get('og:url',''))!=canonical(url):raise ValueError('bulgarian_canonical_mismatch')
+    heading=' '.join(' '.join(page.title).split())
+    location=re.match(r'^(House|Villa|Studio|(?:\d-bedroom )?apartment|Land|Regulated plot) for sale in ([^,]{2,80}), Bulgaria\.',heading,re.I)
+    if not location:raise ValueError('bulgarian_single_sale_and_country_required')
+    title=page.meta.get('og:title','').strip()
+    if len(title)<8:raise ValueError('bulgarian_primary_title_required')
+    text=' '.join(' '.join(page.text).split())
+    # The primary enquiry card precedes the related-property cards. Require a
+    # single EUR amount and explicit Area label; ranges/from prices fail closed.
+    prices=list(re.finditer(r'REQUEST DETAILS\s+€\s*([\d ]+)\s*(\([^)]*\))?\s*Area:\s*(\d+(?:[.,]\d+)?)\s*m\s*[²2]',text))
+    values={(number(m[1].replace(' ','')),number(m[3].replace(',','.')),m[2] or '') for m in prices}
+    if len(values)!=1 or any(v[0] is None or v[1] is None for v in values):raise ValueError('bulgarian_single_primary_price_required')
+    price,area,note=values.pop()
+    contacts=list(re.finditer(r'Property ref:\s*([A-Za-z0-9 -]*\b'+reference[1]+r')\s+When calling, please quote the property reference number\.\s*(\+\d[\d ()-]{6,30})',text))
+    if len(contacts)!=1:raise ValueError('bulgarian_reference_bound_contact_required')
+    ref=contacts[0][1].strip();phone=contacts[0][2].strip()
+    if len(re.sub(r'\D','',phone))<7:raise ValueError('bulgarian_reference_bound_contact_required')
+    kind=location[1].casefold()
+    mapped='Kuća' if kind in ('house','villa') else 'Zemljište' if kind in ('land','regulated plot') else 'Stan'
+    facts={'transaction_type':'sale','reference':ref,'property_type':mapped,'currency':'EUR','asking_price':price,'advertised_price':price,
+           'advertised_area':{'value':area,'unitCode':'MTK'},
+           'advertised_location':{'addressLocality':location[2],'addressCountry':'BG'},
+           'country_basis':'Primary HTML title explicitly names Bulgaria and property locality',
+           'price_basis':'Advertised net asking price; VAT additional' if 'without VAT' in note else 'asking_price',
+           'price_note':note,'source_contact':{'mode':'agency','name':'Bulgarian Properties','agency_name':'Bulgarian Properties','phone':phone,'record_reference':url,'evidence_url':url,'represents_record':True,'permitted':False},
+           'evidence_excerpt':'Primary single-price sale '+ref+'; '+location[2]+'; '+str(price)+' EUR; reference-bound agency phone.',
+           'availability':'Prodajni oglas opažen; aktualnost i pravna urednost nisu potvrđene.'}
+    described=[float(v.replace(',','.')) for v in re.findall(r'house with an area of\s*[\u200b\u200c\u200d\s]*(\d+(?:[.,]\d+)?)\s*sq\.m',text,re.I)]
+    if any(abs(v-area)>0.01 for v in described):
+        facts['area_conflict']={'primary_card_m2':area,'description_building_m2':described}
+        facts.pop('advertised_area')
+    url=canonical(url)
+    return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'BG','url':url,'first_seen':stamp,'last_seen':stamp,'verified':False,'status':'Za provjeru','facts':facts}
+
 def ober_record(source,url,page,stamp):
     if page is None or not re.search(r'-pardavimas-[^/]+,\d+$',urlsplit(url).path):raise ValueError('ober_sale_detail_required')
     if canonical(page.meta.get('og:url',''))!=canonical(url):raise ValueError('ober_canonical_mismatch')
@@ -148,6 +186,7 @@ def catalogue_page(source,url,fetcher,Page):
 def primary_record(source,url,nodes,stamp,page=None):
     if urlsplit(url).hostname=='latio.lv':return latio_record(source,url,page,stamp)
     if urlsplit(url).hostname=='www.ober-haus.lt':return ober_record(source,url,page,stamp)
+    if urlsplit(url).hostname=='www.bulgarianproperties.com':return bulgarian_record(source,url,page,stamp)
     matching=[n for n in nodes if types(n)&TYPES.keys() and isinstance(n.get('url'),str) and canonical(urljoin(url,n['url']))==canonical(url)]
     if len(matching)!=1:raise ValueError('primary_identity_missing_or_ambiguous')
     n=matching[0];title=n.get('name');description=n.get('description','')

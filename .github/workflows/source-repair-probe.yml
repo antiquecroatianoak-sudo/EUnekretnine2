@@ -1,10 +1,10 @@
 name: Read-only inactive source repair evidence
 on:
   pull_request:
-    paths: [source_repair_probe.py, .github/workflows/source-repair-probe.yml]
+    paths: [source_repair_probe.py, property_connector.py, test_bulgarian_listing.py, .github/workflows/source-repair-probe.yml]
   push:
     branches: [main]
-    paths: [source_repair_probe.py, .github/workflows/source-repair-probe.yml]
+    paths: [source_repair_probe.py, property_connector.py, test_bulgarian_listing.py, .github/workflows/source-repair-probe.yml]
   workflow_dispatch:
 permissions:
   contents: read
