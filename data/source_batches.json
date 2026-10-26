@@ -1,11 +1,11 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-26T08:19:12.273189+00:00",
+ "checked_at": "2026-10-26T08:36:04.589401+00:00",
  "source_count": 115,
- "inactive_count": 64,
+ "inactive_count": 63,
  "groups": {
-  "structured_property_adapter": 23,
-  "operating_monitor": 51,
+  "structured_property_adapter": 22,
+  "operating_monitor": 52,
   "approved_access_required": 31,
   "fetch_or_persistence_failure": 4,
   "listing_layout": 2,
@@ -544,7 +544,7 @@
    "url": "https://www.propertymarket.com.mt/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
    "retry_after": null
   },
   {
@@ -711,8 +711,8 @@
    "id": "68",
    "name": "Bulgarian Properties",
    "url": "https://www.bulgarianproperties.com/",
-   "is_active": false,
-   "group": "structured_property_adapter",
+   "is_active": true,
+   "group": "operating_monitor",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
@@ -1359,7 +1359,7 @@
    "url": "https://guetig-group.com/purchase-profile-real-estate/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "last_error": "TypeError: first argument must be string or compiled pattern",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
@@ -1403,7 +1403,7 @@
    "url": "https://777capital.com/acquisition-profile-real-estate-purchase/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "No validated detail URL adapter; research automation must supply one",
+   "last_error": "TypeError: first argument must be string or compiled pattern",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
