@@ -28,13 +28,26 @@ def run(config, api, fetcher_factory, page_class, listing_record, now=None, prev
             if profile.get("url", "").rstrip("/") != source["url"].rstrip("/"):
                 raise ValueError("Reviewed profile URL differs from registered source")
             source = dict(source, import_config=settings)
-            page = page_class(fetcher_factory(source["url"]).get(source["url"]))
+            fetcher = fetcher_factory(source['url'])
+            page = page_class(fetcher.get(source["url"]))
             row = listing_record(source, source["url"], page, "buyer", now.isoformat())
             response = api(dict(action="batch", source_id=sid, candidates=[row]))
             if response.get("candidates") != 1 or response.get("inserted",0)+response.get("updated",0) != 1:
                 raise RuntimeError("Batch did not confirm the candidate write")
+            # Exercise the regular registry parser with a fresh, rate-limited
+            # request before recommending activation. No import cursor is saved.
+            from registry_discovery import process
+            import time
+            refreshed,state=process(source,None,fetcher,time.monotonic()+60,max_pages=1)
+            if state.get('error') or len(refreshed)!=1:
+                raise RuntimeError('Normal profile refresh did not confirm one record: '+str(state.get('error')))
+            refresh_response=api(dict(action='batch',source_id=sid,candidates=refreshed))
+            if refresh_response.get('candidates')!=1 or refresh_response.get('inserted',0)+refresh_response.get('updated',0)!=1:
+                raise RuntimeError('Normal profile refresh write not confirmed')
             results.append(dict(source_id=sid,status="batch_confirmed",url=row["url"],
                                 inserted=response.get("inserted",0),updated=response.get("updated",0),
+                                normal_refresh_confirmed=True,
+                                refresh_inserted=refresh_response.get('inserted',0),refresh_updated=refresh_response.get('updated',0),
                                 note="Verify stored evidence before source activation"))
         except Exception as error:
             # No activation, no registry checkpoint mutation, no fallback to invented facts.
@@ -51,3 +64,4 @@ def main():
     temp.replace(path)
     print(json.dumps(report,ensure_ascii=False))
 if __name__=="__main__":main()
+
