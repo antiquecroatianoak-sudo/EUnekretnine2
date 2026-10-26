@@ -8,6 +8,10 @@ export function candidateCountry(row,source){
   if(!Object.hasOwn(COUNTRIES,row.country))throw Error('Missing supported property country');
   return COUNTRIES[row.country];
  }
+ // Unknown buyer seat remains unknown. The storage column is NOT NULL and
+ // legacy research candidates represent unknown with an empty string; demand
+ // geography remains independently documented in facts.preferred_countries.
+ if(row.kind==='buyer'&&!source.country)return '';
  return COUNTRIES[source.country]||({'France':'Francuska'}[source.country])||source.country;
 }
 // Same rule as public_land_sources.reopens: only an explicit active state with a
@@ -43,4 +47,6 @@ export function mergeCandidate(existing,row,source,now=Date.now()){
  merged.facts.verification_note=merged.verification.classification+'; aktualnost, identitet i pravno stanje nisu potvrđeni samim uvozom.';
  return merged;
 }
+
+
 

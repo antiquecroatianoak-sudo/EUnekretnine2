@@ -14,6 +14,17 @@ class BatchTests(unittest.TestCase):
     def test_active_source_is_not_probed_twice(self):
         r = row();r["is_active"]=True
         self.assertFalse(due(classify(r),NOW))
+    def test_latest_denial_is_not_hidden_by_old_unsupported_state(self):
+        r=classify(row(body_json={'status':'Nepodržano','error':'No validated detail URL adapter'},
+                       inactive_reason='Detail fetch HTTP 403: Forbidden'))
+        self.assertEqual(r['group'],'approved_access_required')
+        self.assertFalse(due(r,NOW))
+    def test_preserved_denied_probe_stays_blocked_after_cooldown(self):
+        previous={'sources':[dict(id=1,url='https://example.org/',
+            probe_at=(NOW-timedelta(days=2)).isoformat(),probe={'status':'access_blocked'})]}
+        report=build_report([row(body_json={'status':'Nepodržano'})],previous,NOW)
+        self.assertEqual(report['sources'][0]['group'],'approved_access_required')
+        self.assertFalse(due(report['sources'][0],NOW))
     def test_pdf_separated_from_html(self):
         r = row();r["url"]="https://example.org/criteria.pdf"
         self.assertEqual(classify(r)["group"],"pdf_acquisition_profiles")
@@ -40,3 +51,4 @@ class BatchTests(unittest.TestCase):
         self.assertEqual(r["groups"]["buyer_acquisition_pages"],1)
 
 if __name__=="__main__":unittest.main()
+
