@@ -13,6 +13,7 @@ const sql=postgres(process.env.PAIR_DB_URL,{max:1,onnotice:()=>{}});
 // Synthetic contact permissions belong only to these isolated TEST fixtures.
 const testContact=source=>({mode:'direct',name:'TEST ONLY',contact_url:source,evidence_url:source,record_reference:source,permitted:true});
 const run=async a=>{
+ if(a.action==='save_property'&&a.record?.source)a={...a,record:{...a.record,contact_json:testContact(a.record.source)}};
  for(const p of await sql`select id,source from properties where contact_json is null`)if(p.source)await sql`update properties set contact_json=${JSON.stringify(testContact(p.source))} where id=${p.id}`;
  for(const i of await sql`select id,criteria_json from investors where contact_json is null`){const u=JSON.parse(i.criteria_json||'{}').source_url;if(u)await sql`update investors set contact_json=${JSON.stringify(testContact(u))} where id=${i.id}`;}
  return sql.begin(tx=>dispatch(tx,a));
