@@ -61,6 +61,8 @@ def evidence(source, url, page):
     if reference:
         found = re.search(r'\b'+reference[1]+r'\b', text)
         if found: result['reference_sample'] = text[max(0, found.start()-100):found.end()+1800]
+    result['field_samples'] = [text[max(0,m.start()-100):m.end()+200]
+                              for m in list(re.finditer(r'Price|Asking price|Sales price|Agent|Broker|€|EUR|Cena|Kontakt',text))[:12]]
     if str(source['id']) in ('94', '107', '110'):
         result['criteria_sample'] = text[1000:3500]
     return result
