@@ -217,7 +217,10 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(len(rows),1)
     def test_one_rejected_candidate_does_not_drop_the_rest(self):
         from urllib.error import HTTPError
-        good={'kind':'property','url':FIRST,'id':'good'};bad={'kind':'property','url':SECOND,'id':'bad'}
+        from active_listings import checked_activity
+        stamp=datetime.now(timezone.utc).isoformat()
+        good={'kind':'property','url':FIRST,'id':'good','last_seen':stamp,'facts':checked_activity(FIRST,FIRST,'Explicit primary listing status active',stamp)}
+        bad={'kind':'property','url':SECOND,'id':'bad','last_seen':stamp,'facts':checked_activity(SECOND,SECOND,'Explicit primary listing status active',stamp)}
         def api(body):
             if any(r['id']=='bad' for r in body['candidates']):raise HTTPError('https://db.example/',400,'Invalid',{},io.BytesIO(b'{"detail":"Invalid candidate"}'))
             return {'inserted':len(body['candidates'])}
@@ -227,7 +230,7 @@ class RegistryTests(unittest.TestCase):
     def test_auth_failure_is_not_swallowed(self):
         from urllib.error import HTTPError
         def api(body):raise HTTPError('https://db.example/',401,'Unauthorized',{},None)
-        with self.assertRaises(HTTPError):save_rows('registry-40',[{'kind':'property','url':FIRST}],{},api)
+        with self.assertRaises(HTTPError):save_rows('registry-40',[{'kind':'buyer','url':FIRST}],{},api)
     def test_slovak_homepage_imports_sales_without_importing_rentals(self):
         root='https://www.nehnutelnosti.sk/';sale=root+'detail/salehash/pekny-byt';rent=root+'detail/renthash/pekny-byt'
         source=dict(SOURCE,url=root)
@@ -356,5 +359,6 @@ class EmporiaTypographyTests(unittest.TestCase):
             self.record('House H706 - Zadar',canonical_url='https://example.com/other')
 
 if __name__=='__main__':unittest.main(max_workers=1)
+
 
 

@@ -20,6 +20,7 @@ from sync_discovery import request_token, call as legacy_call
 from public_land_sources import PUBLIC_LAND_CALLS, public_land_record
 import source_leads
 from agency_listings import AGENCIES, JUSTIMMO, RejectedListing, primary_data
+from active_listings import candidate_active, checked_activity
 
 ENDPOINT='https://izpzsfiqvransehvmuzn.supabase.co/functions/v1/registry-discovery'
 AGENT='EUPropertyResearch/0.2'
@@ -284,6 +285,20 @@ def api(body,token=None):
     with urlopen(req,timeout=90) as r:return json.load(r)
 
 def save_rows(source_id,rows,state,api_call=api):
+    accepted=[]
+    rejected=0
+    for row in rows:
+        if row.get('kind')=='property':
+            f=row.get('facts',{})
+            # Only status already established by the source-specific parser is bound here.
+            if f.get('source_listing_state')=='active' and f.get('source_status_evidence'):
+                f.update(checked_activity(row['url'],f.get('evidence_url') or row['url'],f['source_status_evidence'],row['last_seen']))
+            if not candidate_active(row):
+                rejected+=1
+                continue
+        accepted.append(row)
+    rows=accepted
+    state['activity_rejected_count']=rejected
     # Old persisted queues may contain both /view/id and /view/id/. Keep one
     # canonical row per batch so one duplicate cannot reject 100 good records.
     unique={}
@@ -397,6 +412,12 @@ def listing_record(source,url,page,kind,now):
             if isinstance(offers,dict) and str(offers.get('availability','')).rsplit('/',1)[-1] in ('SoldOut','Discontinued'):
                 facts['source_listing_state']='removed'
                 facts['source_status_evidence']=str(offers['availability'])
+            # An explicit offer must belong to this exact listing, never a related card.
+            if (isinstance(offers,dict) and isinstance(node.get('url'),str)
+                and canonical(urljoin(url,node['url'])).rstrip('/')==canonical(url).rstrip('/')
+                and str(offers.get('availability','')).rsplit('/',1)[-1]=='InStock'
+                and facts.get('source_listing_state')!='removed'):
+                facts.update(checked_activity(url,url,'Primary listing offers.availability='+str(offers['availability']),now))
     if kind=='buyer':
         demand=DEMAND.search(text)
         if demand:
@@ -722,6 +743,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 

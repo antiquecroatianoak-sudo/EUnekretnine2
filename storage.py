@@ -21,7 +21,7 @@ EXTRA_COLUMNS = {
                    'buildable': 'TEXT', 'planning_evidence_url': 'TEXT',
                    'legal_evidence_url': 'TEXT', 'valuation_evidence_url': 'TEXT', 'available_until': 'TEXT',
                    # Date of an explicit, evidenced check of the source listing; never set by an ordinary save.
-                   'source_checked_on': 'TEXT'},
+                   'source_checked_on': 'TEXT', 'activity_evidence': 'TEXT'},
     'investors': {'criteria_json': "TEXT DEFAULT '{}'"},
 }
 
@@ -69,4 +69,5 @@ def connect(url=None, path=None):
                 c.execute(f'ALTER TABLE {table} ENABLE ROW LEVEL SECURITY')
     c.commit()
     return c
+
 

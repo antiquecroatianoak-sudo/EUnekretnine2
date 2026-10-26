@@ -73,6 +73,9 @@ def primary_data(host,url,nodes,page):
         facts.update(advertised_price=amount,asking_price=amount if currency=='EUR' else None,currency=currency)
     if str(offer.get('availability','')).rsplit('/',1)[-1] in ('SoldOut','Discontinued'):
         facts.update(source_listing_state='removed',source_status_evidence=str(offer['availability']))
+    elif str(offer.get('availability','')).rsplit('/',1)[-1]=='InStock':
+        facts.update(source_listing_state='active',source_status_evidence='Primary listing offers.availability='+str(offer['availability']))
     p=urlsplit(url)
     canonical=urlunsplit(('https',p.netloc,p.path,'',''))
     return title.strip(),c,facts,canonical
+

@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timezone
 from matching import valid_url, number, refresh_matches, COUNTRY_NAMES, country_name
 from public_land_sources import keep_closed_state
+from active_listings import candidate_active
 
 
 def sync_snapshot(c, snapshot):
@@ -19,6 +20,8 @@ def sync_snapshot(c, snapshot):
         if not isinstance(row.get('facts'),dict): raise ValueError('Nedostaju izvorne činjenice kandidata.')
     now=datetime.now(timezone.utc)
     for row in snapshot['candidates']:
+        if not candidate_active(row,now):
+            continue
         prior=c.execute('SELECT body_json FROM source_candidates WHERE id=?',(row['id'],)).fetchone()
         if prior:
             # Same rule as merge.mjs: missing data in a new fetch never reopens a closed call.
@@ -61,11 +64,12 @@ def prepare_for_review(c, candidate_id):
     row=c.execute('SELECT * FROM source_candidates WHERE id=?',(candidate_id,)).fetchone()
     if row is None: raise ValueError('Kandidat nije pronađen.')
     row=dict(row); data=json.loads(row['body_json']); facts=data['facts']
+    if not candidate_active(data): raise ValueError('Nema svježe potvrde aktivnosti oglasa; upis nije dopušten.')
     if row['property_id'] or row['investor_id']: return row['kind'],row['property_id'] or row['investor_id']
     if row['kind']=='property':
         # A sale notice may describe multiple lots. No lot facts are inferred.
-        result=c.execute('INSERT INTO properties(country,title,source,price,renovation,other_costs,legal,status,updated) VALUES(?,?,?,?,?,?,?,?,?) RETURNING id',
-                         (row['country'],row['title'],row['url'],facts.get('asking_price'),None,None,'Nepoznato','Provjera',row['last_seen'])).fetchone()
+        result=c.execute('INSERT INTO properties(country,title,source,price,renovation,other_costs,legal,status,updated,activity_evidence,source_checked_on) VALUES(?,?,?,?,?,?,?,?,?,?,?) RETURNING id',
+                         (row['country'],row['title'],row['url'],facts.get('asking_price'),None,None,'Nepoznato','Aktivno',row['last_seen'],json.dumps(facts,ensure_ascii=False),facts['checked_at'][:10])).fetchone()
         c.execute('UPDATE source_candidates SET property_id=? WHERE id=?',(result['id'],candidate_id))
     else:
         draft=buyer_draft(row,facts)
@@ -74,3 +78,4 @@ def prepare_for_review(c, candidate_id):
         c.execute('UPDATE source_candidates SET investor_id=? WHERE id=?',(result['id'],candidate_id))
     refresh_matches(c)
     return row['kind'],result['id']
+

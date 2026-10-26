@@ -5,6 +5,7 @@ import re
 import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
+from active_listings import property_active
 
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
@@ -277,6 +278,12 @@ def evaluate(prop, investor, pair_checks=None):
 def refresh_matches(c):
     """Refresh latest results without committing the caller's transaction."""
     props = [dict(r) for r in c.execute('SELECT * FROM properties')]
+    props = [p for p in props if property_active(p)]
+    # Recalculation cannot retain pairs belonging to an expired activity proof.
+    active_ids={p['id'] for p in props}
+    for row in c.execute('SELECT DISTINCT property_id FROM match_results').fetchall():
+        if row['property_id'] not in active_ids:
+            c.execute('DELETE FROM match_results WHERE property_id=?',(row['property_id'],))
     investors = [dict(r) for r in c.execute('SELECT * FROM investors')]
     linked = {r['investor_id']: json.loads(r['body_json']).get('facts', {}) for r in c.execute(
         'SELECT investor_id,body_json FROM source_candidates WHERE investor_id IS NOT NULL')}
@@ -302,3 +309,4 @@ def ranked_matches(c):
         rows.append(item)
     order = {MATCH: 0, CANDIDATE: 1, REJECT: 2}
     return sorted(rows, key=lambda r: (order[r['status']], -r['score'], r['property_id'], r['investor_id']))
+

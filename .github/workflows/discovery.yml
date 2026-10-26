@@ -50,6 +50,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Provjeri obvezni filtar aktivnosti oglasa
+        run: |
+          python -m unittest -v test_active_listings
+          node test_active_listings.mjs
       - name: Testiraj prepoznavanje službenih javnih kupaca
         run: |
           python -m unittest -v test_public_land_sources
@@ -199,4 +203,5 @@ jobs:
             git -c rebase.autoStash=true pull --rebase origin main
             git push origin main
           fi
+
 
