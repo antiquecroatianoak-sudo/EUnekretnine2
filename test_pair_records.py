@@ -32,6 +32,8 @@ def build_schema(cur):
     for r in SCHEMA['rls']:
         if r['rowsecurity']:
             cur.execute(f'alter table {r["schemaname"]}.{r["tablename"]} enable row level security')
+    cur.execute('alter table properties add column if not exists contact_json text')
+    cur.execute('alter table investors add column if not exists contact_json text')
     # Not part of the pair-review export but read by sites-platform `read`: minimal test-only shapes,
     # columns as in storage.SCHEMA. They hold no production structure beyond what the app already reads.
     cur.execute('create table public.sources(id bigserial primary key,country text,name text,url text,category text)')
@@ -80,3 +82,4 @@ class PairRecordsMigrationTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
