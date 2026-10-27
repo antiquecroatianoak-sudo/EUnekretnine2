@@ -1,17 +1,5 @@
 {
- "checked_at": "2026-10-27T10:04:27.070394+00:00",
- "results": [
-  {
-   "source_id": "registry-94",
-   "status": "batch_confirmed",
-   "url": "https://www.cp-ag.at/en/contact/project-purchase/",
-   "inserted": 1,
-   "updated": 0,
-   "normal_refresh_confirmed": true,
-   "refresh_inserted": 0,
-   "refresh_updated": 1,
-   "note": "Verify stored evidence before source activation"
-  }
- ],
+ "checked_at": "2026-10-27T10:18:22.446777+00:00",
+ "results": [],
  "activation_performed": false
 }
