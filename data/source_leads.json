@@ -1,10 +1,10 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 19,
+  "kandidat_nekretnine": 21,
   "nedostupno": 10,
   "nije_relevantno": 16,
-  "robots_zabrana": 5
+  "robots_zabrana": 6
  },
  "leads": [
   {
@@ -202,7 +202,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -230,7 +230,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T07:03:38.544797+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -258,7 +258,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "nedostupno"
   },
   {
@@ -278,7 +278,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "nedostupno"
   },
   {
@@ -298,7 +298,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -374,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +426,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -454,7 +454,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -474,7 +474,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "nedostupno"
   },
   {
@@ -656,6 +656,26 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Makler Wienerwald & Wien Umgebung | KIEGLER Immobilien Unsere aktuellen Angebote"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://immobilien-kurz.com/robots.txt",
+   "checked_at": "2026-10-27T08:04:28.374794+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "https://www.immobilien-kurz.at/datenschutz/",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/andere-laender/schweiz/3-sterne-hotel-im-beliebtesten-thermalkurort-in-der-schweiz-612183416/",
+     "seen": "2026-10-27T08:04:28.293266+00:00",
+     "url": "https://www.immobilien-kurz.at/datenschutz/"
+    }
+   ],
+   "first_seen": "2026-10-27T08:04:28.293266+00:00",
+   "host": "immobilien-kurz.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "status": "robots_zabrana"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -882,8 +902,36 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "blokirano"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T08:04:28.374794+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Domy na sprzedaż w Portugalii",
+     "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/dom/cala-polska?description=willa",
+     "seen": "2026-10-27T08:04:28.293266+00:00",
+     "url": "https://www.imovirtual.com/pt/resultados/comprar/moradia/todo-o-pais"
+    }
+   ],
+   "first_seen": "2026-10-27T08:04:28.293266+00:00",
+   "host": "imovirtual.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "signals": {
+    "areas": 45,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 74,
+    "property_words": 15
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Moradias para comprar - Casas para comprar | Imovirtual.com Moradias para comprar: Todo o país"
   },
   {
    "check_note": "robots.txt disallows this URL",
@@ -974,7 +1022,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1124,7 +1172,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T15:59:08.882925+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "signals": {
     "areas": 2,
     "buyer_words": 0,
@@ -1387,6 +1435,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1210-floridsdorf/liegenschaft-mit-entwicklungspotenzial-in-strebersdorf-russbergstrasse-83-videobesichtigung-2075074916/",
      "seen": "2026-10-26T07:43:14.048733+00:00",
      "url": "https://storage.justimmo.at/file/4yIIE3lhCHUn4GjxMlabRU.mov"
+    },
+    {
+     "anchor": "Gesamtdokument Kauf Immobär",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/oberoesterreich/wels/die-schoene-rosa-charmantes-zinshaus-in-der-ringstrasse-wels-1939165356/",
+     "seen": "2026-10-27T08:04:28.293266+00:00",
+     "url": "https://storage.justimmo.at/file/5ITF8BvDOZaCGUWvjzfPMe.pdf"
     }
    ],
    "first_seen": "2026-10-26T07:43:14.048733+00:00",
@@ -1394,8 +1448,36 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T07:43:14.048733+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "robots_zabrana"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T08:04:28.374794+00:00",
+   "country_hint": "RO",
+   "evidence": [
+    {
+     "anchor": "Domy na sprzedaż w Rumunii",
+     "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/dom/cala-polska?description=willa",
+     "seen": "2026-10-27T08:04:28.293266+00:00",
+     "url": "https://www.storia.ro/ro/rezultate/vanzare/casa/toata-romania"
+    }
+   ],
+   "first_seen": "2026-10-27T08:04:28.293266+00:00",
+   "host": "storia.ro",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "signals": {
+    "areas": 38,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 74,
+    "property_words": 133
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Case de vânzare | Storia.ro Case de vânzare: Toată România"
   },
   {
    "check_note": "HTTP 403",
@@ -1434,7 +1516,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T18:46:42.425868+00:00",
+   "last_seen": "2026-10-27T08:04:28.293266+00:00",
    "status": "nedostupno"
   },
   {
@@ -1543,6 +1625,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T07:44:24.885500+00:00",
- "verified_at": "2026-10-27T07:44:26.326620+00:00"
+ "updated_at": "2026-10-27T08:04:28.293266+00:00",
+ "verified_at": "2026-10-27T08:04:28.374794+00:00"
 }
