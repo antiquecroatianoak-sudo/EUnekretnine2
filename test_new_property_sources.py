@@ -24,6 +24,10 @@ class InterfarmsTests(unittest.TestCase):
   with self.assertRaises(ValueError):self.parse()
  def test_native_currency_never_eur(self):
   self.text=self.text.replace('Prijs op aanvraag','DKK 1.234.567,-');r=self.parse();self.assertIsNone(r['facts']['asking_price']);self.assertEqual(r['facts']['advertised_price'],1234567)
+ def test_primary_state_overrides_old_sale_header(self):
+  self.text=self.text.replace('Beschrijving','Kenmerken Staat Verkocht Beschrijving');self.assertEqual(self.parse()['facts']['source_listing_state'],'removed')
+ def test_price_keeps_cents(self):
+  self.text=self.text.replace('Prijs op aanvraag','EUR 123.456,78');self.assertEqual(self.parse()['facts']['asking_price'],123456.78)
  def test_index_not_detail(self):
   self.url='https://interfarms.com/nl/aanbod'
   with self.assertRaises(ValueError):self.parse()
