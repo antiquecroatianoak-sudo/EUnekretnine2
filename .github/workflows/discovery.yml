@@ -33,6 +33,9 @@ on:
       - test_registry_discovery.py
       - test_population_refresh.py
       - sync_discovery.py
+      - supabase/functions/discovery-sync/index.js
+      - supabase/functions/registry-discovery/index.js
+      - test_public_identity.mjs
       - .github/workflows/discovery.yml
 permissions:
   contents: write
@@ -77,7 +80,9 @@ jobs:
       - name: Provjeri nastavak uvoza, duplikate i valute
         run: python -m unittest -v test_inquiry_contacts test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches test_buyer_profiles
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
-        run: node test_verification.mjs
+        run: |
+          node test_verification.mjs
+          node test_public_identity.mjs
       - name: Skupno dijagnosticiraj neaktivne izvore bez aktivacije ili promjene uvoznih cursora
         id: source_batches
         continue-on-error: true
