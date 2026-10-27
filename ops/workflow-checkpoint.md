@@ -63,3 +63,35 @@ Pisanja jednog para serijaliziraju se: `pg_advisory_xact_lock(2261027, property)
 - Provjera u prijavljenom vlasnikovu računu.
 - Fotografije u prezentaciji: potreban je zaseban postupak provjere prava i anonimizacije.
 - Uključivanje poslovne faze je vlasnikova odluka.
+
+## Neovisni pregled 6446780533 (head `c9e2ff5`) — ispravci
+1. **P1 — kronologija odgovora.** Prije je vrijedio zadnji *upisani* odgovor, pa je naknadno upisan stariji interes nadjačavao novije povlačenje.
+   - Sada vrijedi `effectiveResponse` (`offer.mjs`): odlučuje dokumentirani `responded_on`, a ne redoslijed upisa, za sve verzije para. Isti izračun koriste backend i UI.
+   - Za odgovore istog dana koji se razlikuju, interes vrijedi samo ako izričito zamjenjuje (`supersedes`) svaki odgovor tog dana koji nije interes. Inače je stanje nejasno i predaja nije moguća.
+   - Zamijeniti se mogu samo raniji odgovori bez interesa, i to samo novim interesom.
+2. **P1 — valjanost paketa.**
+   - Paket ostaje nepromjenjiv povijesni zapis. Njegova valjanost (`validity`: valjan, razlozi) računa se pri svakom čitanju prema verziji, snimci podataka i dokaza te važećem odgovoru.
+   - UI opozvani paket označava „OPOZVAN / ZASTARIO — NE ZA PREDAJU” i navodi razloge. Moguć je samo arhivski izvoz, s oznakom `ARHIVA — NE ZA PREDAJU`.
+3. **P1 — opseg odobrenja.**
+   - `fingerprint` sada obuhvaća zapise i snimku dokaza para: provjerene odgovore, zadatke, svjež rezultat i `EVAL_VERSION`. Vremenske oznake dodira i `info` bilješke nisu uključene.
+   - Novi dokaz koji i dalje daje podudaranje poništava odobrenje i paket.
+4. **Utrka s uređivanjem.** Pisanja tijeka ponude zaključavaju nekretninu i zahtjev s `FOR SHARE`. Istodobna izmjena se ili vidi, ili čeka. Dokaz upisan u međuvremenu mijenja fingerprint i paket postaje nevaljan pri sljedećem čitanju.
+
+**Regresije kroz stvarni `dispatch`** (`test_offer_workflow.mjs`):
+- odobrenje prije oba datuma;
+- stariji interes upisan nakon novijeg povlačenja, na istoj i na drugoj verziji;
+- odbijanje;
+- stvarno kasniji interes;
+- nejasan isti dan i izričita zamjena;
+- povlačenje nakon paketa;
+- dokaz B nakon dokaza A;
+- istodobna izmjena tijekom pripreme paketa.
+
+**Mutacijske provjere:** test pada za sve četiri vraćene greške (redoslijed upisa, fingerprint bez dokaza, bez `FOR SHARE`, paket uvijek valjan).
+
+**DOM provjera** na stvarnom odgovoru pokriva:
+- valjan i opozvan paket;
+- arhivski izvoz;
+- zamjenu odgovora istog dana.
+
+**Stalno pravilo suradnje (PR #5, 6446389085)** još nije u `AGENTS.md`. Sigurnosna provjera ove sesije odbila je upis iz komentara, a vlasnikova izravna potvrda u Claude sesiji još nije stigla.

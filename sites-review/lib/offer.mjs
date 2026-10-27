@@ -23,10 +23,21 @@ export function presentation(p,i,r,code){
   photos:'Fotografije nisu priložene: prilažu se tek nakon provjere prava korištenja i anonimizacije.',
   withheld:t.withheld};
 }
-// A complete, deterministic snapshot is hashed with SHA-256; a changed field cannot reuse approval.
-export async function fingerprint(p,i){
+// Version of the evaluation rules an approval was given under; a rule change requires a new review.
+export const EVAL_VERSION='pair-rules-2026-10-27';
+// Pair evidence an approval covers: verified answers, review tasks and the fresh result. Timestamps that only
+// record when something was touched (updated_at, recorded_at, info notes) are left out so they cannot void approvals.
+export function evidenceSnapshot(answers,tasks,result){
+ return {version:EVAL_VERSION,
+  answers:[...answers].map(a=>({id:String(a.id),requirement:a.requirement,status:a.status,digest:a.digest??null,evidence:a.evidence??null,outcome:a.outcome??null,answered_on:a.answered_on==null?null:String(a.answered_on instanceof Date?a.answered_on.toISOString().slice(0,10):a.answered_on)})).sort((a,b)=>a.id.localeCompare(b.id)),
+  tasks:[...tasks].map(t=>({requirement:t.requirement,status:t.status,evidence:t.evidence??null,checked_at:t.checked_at instanceof Date?t.checked_at.toISOString():t.checked_at??null})).sort((a,b)=>a.requirement.localeCompare(b.requirement)),
+  result:{status:result.status,score:result.score??null,reasons:result.reasons||[],missing:result.missing||[],rejected:result.rejected||[]}};
+}
+// A complete, deterministic snapshot of both records and the pair evidence is hashed with SHA-256;
+// a changed field or changed evidence cannot reuse an approval.
+export async function fingerprint(p,i,evidence=null){
  const stable=v=>v instanceof Date?v.toISOString():Array.isArray(v)?v.map(stable):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])])):v;
- const value=JSON.stringify(stable([p,i]));const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('');
+ const value=JSON.stringify(stable(evidence?[p,i,evidence]:[p,i]));const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 // `fresh` is the result recomputed now with the current rules; `stored` is the last accepted calculation.
 // Both must confirm a real opportunity. The score (fit) is reported separately from reliability.
@@ -46,14 +57,39 @@ export function reviewSides(r){
 }
 export const requestIdentity=i=>String(criteria(i).buyer_identity_id||i.id);
 export const RESPONSES=['Zainteresiran','Trebam dodatne podatke','Ne odgovara','Interes povučen'];
+export const INTEREST='Zainteresiran';
+// The business-valid response follows the documented chronology (responded_on), never the order of entry.
+// Responses on the latest day decide together: when they disagree, interest counts only if it explicitly
+// supersedes each other response of that day; otherwise the state is ambiguous and no interest is valid.
+export function effectiveResponse(responses){
+ const list=(responses||[]).filter(r=>r&&RESPONSES.includes(r.response)&&/^\d{4}-\d{2}-\d{2}$/.test(String(r.responded_on||'')));
+ if(!list.length)return {response:null,ambiguous:false,reason:'Nema pisanog odgovora'};
+ const last=list.reduce((m,r)=>r.responded_on>m?r.responded_on:m,'');
+ const day=list.filter(r=>r.responded_on===last);
+ if(day.length===1)return {response:day[0],ambiguous:false,reason:null};
+ const positive=day.filter(r=>r.response===INTEREST);
+ // Without interest that day there is nothing to confirm: the last recorded non-interest response stands.
+ if(!positive.length)return {response:day.at(-1),ambiguous:false,reason:null};
+ const cleared=new Set(positive.flatMap(r=>(r.supersedes||[]).map(String)));
+ if(day.every(r=>r.response===INTEREST||cleared.has(String(r.id))))return {response:positive.at(-1),ambiguous:false,reason:null};
+ return {response:null,ambiguous:true,reason:'Više različitih odgovora istog dana ('+last+'); novi interes mora izričito zamijeniti ostale odgovore tog dana.'};
+}
 const validDay=day=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day))&&new Date(day).toISOString().slice(0,10)===day;
 // A written response to one version. `after` is the day the version was approved: an earlier date cannot answer it.
-export function responseInput(a,{now=Date.now(),after=null}={}){
+export function responseInput(a,{now=Date.now(),after=null,previous=[]}={}){
  if(!RESPONSES.includes(a.response))throw Error('Odaberi izričit odgovor kupca.');
  const o={response:a.response};for(const k of ['body','evidence','channel','respondent']){if(typeof a[k]!=='string'||!a[k].trim()||a[k].length>8000)throw Error('Nedostaje podatak: '+k);o[k]=a[k].trim()}
  const day=String(a.responded_on||'');if(!validDay(day)||day>new Date(now).toISOString().slice(0,10))throw Error('Datum odgovora nije valjan.');
  if(after&&day<after)throw Error('Odgovor ne može prethoditi odobrenju ove verzije ('+after+').');
- if(a.written!==true)throw Error('Potreban je pisani odgovor uz dokaz.');return {...o,responded_on:day,written:true};
+ if(a.written!==true)throw Error('Potreban je pisani odgovor uz dokaz.');
+ // Renewed interest on the same day as another response must name the responses it replaces.
+ let supersedes=[];
+ if(a.supersedes!=null){
+  if(o.response!==INTEREST||!Array.isArray(a.supersedes)||!a.supersedes.length||a.supersedes.length>50)throw Error('Zamjena ranijih odgovora moguća je samo uz novi izričit interes.');
+  supersedes=[...new Set(a.supersedes.map(String))];
+  for(const sid of supersedes){const r=previous.find(x=>String(x.id)===sid);if(!r||r.response===INTEREST||r.responded_on>day)throw Error('Zamijenjeni odgovor nije valjan raniji odgovor bez interesa.')}
+ }
+ return {...o,responded_on:day,written:true,...(supersedes.length?{supersedes}:{})};
 }
 export const HANDOFF_FIELDS=[['agency_name','Naziv ovlaštene agencije'],['agency_channel','Dogovoreni kanal agencije'],['mandate_evidence','Dokaz ovlasti / partnerstva agencije'],
  ['sharing_permission','Dokaz dopuštenja dijeljenja podataka s agencijom'],['fee_terms','Dogovoreni iznos ili način obračuna naknade'],['fee_evidence','Dokaz da je agencija prihvatila uvjete naknade'],['open_questions','Otvorena pitanja i ograničenja (ili izričito: nema)']];
@@ -76,7 +112,7 @@ export function packageSections(h){
    row('Stanja',(c.conditions||[]).join(', ')),row('Površina',[c.min_area,c.max_area].some(x=>x!=null)?v(c.min_area)+' – '+v(c.max_area)+' m²':null),row('Izvor zahtjeva',c.source_url)]],
   ['Pisani odgovor kupca',[row('Odgovor',r.response),row('Datum',r.responded_on),row('Odgovorio',r.respondent),row('Kanal',r.channel),row('Dokaz',r.evidence),row('Tekst',r.body)]],
   ['Kontaktni kanali',[row('Prodavatelj',h.contacts?.seller?h.contacts.seller.label+': '+h.contacts.seller.name:'Nije potvrđen'),row('Kupac',h.contacts?.buyer?h.contacts.buyer.label+': '+h.contacts.buyer.name:'Nije potvrđen')]],
-  ['Otvoreno',[row('Otvorena pitanja',h.open_questions),row('Status',h.status)]]];
+  ['Otvoreno',[row('Otvorena pitanja',h.open_questions),row('Status',h.validity?h.validity.valid?'Valjan za predaju (nije poslan)':'OPOZVAN / ZASTARIO — NE ZA PREDAJU: '+h.validity.reasons.join('; '):h.status)]]];
 }
 export const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function presentationHtml(o,{version=1,approved=false}={}){

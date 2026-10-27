@@ -20,7 +20,10 @@ const synthetic={workflow:{property:{id:'1',title:'TEST ONLY Lukavec',source:'ht
  readiness:{ready:true,blockers:[],fit:100,reliability:'Provjere para su dovršene; interes nije potvrđen'},contacts:{seller:{label:'Izravan kontakt',name:'TEST ONLY'},buyer:{label:'Kontakt preko agencije',name:'TEST ONLY agencija kupca'}},business_phase:true,
  offers:[{id:'10',number:1,presentation,current:true,approved:true,approved_on:'2026-10-27',responses:[{id:'12',offer_id:'10',response:'Zainteresiran',body:'Zanima nas.',evidence:'E-pošta',channel:'E-pošta',respondent:'TEST ONLY',responded_on:'2026-10-27',version_current:true}]},
   {id:'11',number:2,presentation:{...presentation,code:'EU-TEST2'},current:true,approved:false,approved_on:null,responses:[]}],
- history:[{id:'12',type:'response',offer_id:'10',response:'Zainteresiran',responded_on:'2026-10-27',version_current:true},{id:'13',type:'handoff',offer_id:'10',version:1,agency_name:'TEST ONLY agencija',agency_channel:'Portal',mandate_evidence:'Ugovor',sharing_permission:'Suglasnost',fee_terms:'2 %',fee_evidence:'Dodatak',open_questions:'Nema',fee_payer:'Agencija',fee_due:'Tek nakon uspješno dovršene prodaje',status:'Interni paket — nije poslan',prepared_at:'2026-10-27T10:00:00Z',property:{title:'TEST ONLY Lukavec'},buyer:{name:'TEST ONLY kupac'},criteria:{},buyer_response:{response:'Zainteresiran'},contacts:{},documents:{}}]},
+ effective:{response:{id:'12',type:'response',offer_id:'10',version:1,response:'Zainteresiran',responded_on:'2026-10-27',version_current:true},ambiguous:false,reason:null},
+ history:[{id:'9',type:'response',offer_id:'10',response:'Interes povučen',body:'Povlačimo.',responded_on:new Date().toISOString().slice(0,10),version_current:true},{id:'12',type:'response',offer_id:'10',response:'Zainteresiran',responded_on:'2026-10-27',version_current:true},
+  {id:'8',type:'handoff',offer_id:'10',version:1,agency_name:'TEST ONLY stara agencija',sharing_permission:'Suglasnost',fee_payer:'Agencija',fee_due:'Tek nakon uspješno dovršene prodaje',fee_terms:'2 %',status:'Interni paket — nije poslan',prepared_at:'2026-10-26T10:00:00Z',validity:{valid:false,reasons:['Važeći odgovor kupca (2026-10-27) je: Interes povučen'],checked_at:'2026-10-27T10:00:00Z'},buyer_response:{},contacts:{},documents:{}},
+  {id:'13',type:'handoff',offer_id:'10',version:1,validity:{valid:true,reasons:[],checked_at:'2026-10-27T10:00:00Z'},agency_name:'TEST ONLY agencija',agency_channel:'Portal',mandate_evidence:'Ugovor',sharing_permission:'Suglasnost',fee_terms:'2 %',fee_evidence:'Dodatak',open_questions:'Nema',fee_payer:'Agencija',fee_due:'Tek nakon uspješno dovršene prodaje',status:'Interni paket — nije poslan',prepared_at:'2026-10-27T10:00:00Z',property:{title:'TEST ONLY Lukavec'},buyer:{name:'TEST ONLY kupac'},criteria:{},buyer_response:{response:'Zainteresiran'},contacts:{},documents:{}}]},
  requests:{identity_id:'2',count:2,items:[{id:'2',root:true,name:'TEST ONLY kupac',country:'US',preferred_countries:'Hrvatska',request_label:'Izvorni profil',criteria_json:'{}',verified:1},{id:'3',root:false,name:'TEST ONLY kupac',country:'US',preferred_countries:'Hrvatska',request_label:'Kuća',criteria_json:JSON.stringify({buyer_identity_id:'2',request_label:'Kuća',property_types:['Kuća'],conditions:['Za obnovu']}),verified:0}]},
  secrets:['Lukavec','example.org']};
 const real=process.env.WORKFLOW_RESPONSE&&existsSync(process.env.WORKFLOW_RESPONSE);
@@ -54,10 +57,31 @@ await act(async()=>{$$('label.checkbox input').at(-1).click()});
 await act(async()=>{button('Spremi odgovor').click()});await wait();
 const sent=posts.find(b=>b.action==='offer_response');
 assert.equal(sent.offer_id,approved.id);assert.equal(sent.response,'Ne odgovara');assert.equal(sent.written,true);assert.equal(sent.evidence,'E-pošta TEST 2');
-const pkg=w.history.find(e=>e.type==='handoff');
-if(pkg){const details=$$('details').find(d=>d.querySelector('summary').textContent.includes('Paket za'));assert(details,'package listed');
- for(const t of ['Agencija i ovlasti','Dopuštenje dijeljenja','Naknada','Tek nakon uspješno dovršene prodaje','Pisani odgovor kupca','Ništa nije poslano'])assert(details.textContent.includes(t),t);
- assert(!details.querySelector('textarea'),'package is readable sections, not a raw JSON box');}
+assert.equal('kind' in sent,false);assert.equal('supersedes' in sent,false,'a non-interest response never replaces others');
+// Renewed interest on a day that already has non-interest responses must name the ones it replaces.
+const todayNegatives=w.history.filter(e=>e.type==='response'&&e.response!=='Zainteresiran'&&e.responded_on===new Date().toISOString().slice(0,10));
+assert(todayNegatives.length>0,'fixture has a same-day non-interest response');
+await act(async()=>{button('Upiši pisani odgovor').click()});
+await setValue(field('Odgovor kupca'),'Zainteresiran');
+const replace=$('fieldset.offer-supersede');assert(replace,'same-day responses are offered for explicit replacement');
+assert.equal(replace.querySelectorAll('input').length,todayNegatives.length);
+await setValue(field('Tko je odgovorio (kupac ili ovlaštena agencija)'),'TEST ONLY kupac');await setValue($('label.field textarea'),'Ponovno zainteresirani.');
+await setValue(field('Dokaz pisanog odgovora (referenca poruke ili dokumenta)'),'E-pošta TEST 3');await setValue(field('Kanal primitka'),'E-pošta');
+await act(async()=>{replace.querySelector('input').click()});
+await act(async()=>{$$('label.checkbox input').at(-1).click()});
+await act(async()=>{button('Spremi odgovor').click()});await wait();
+const renewed=posts.filter(b=>b.action==='offer_response').at(-1);
+assert.deepEqual(renewed.supersedes,[todayNegatives[0].id]);assert.equal(renewed.response,'Zainteresiran');
+// Packages: history is kept; validity comes from the server; a revoked package is unmistakably not for hand-over.
+const packages=w.history.filter(e=>e.type==='handoff'),shown=$$('details.package');
+assert.equal(shown.length,packages.length,'every package stays in history');
+assert(packages.some(h=>h.validity?.valid===true)&&packages.some(h=>h.validity?.valid===false),'fixture has a valid and a revoked package');
+for(const h of packages){const el=shown.find(d=>d.querySelector('summary').textContent.includes(h.agency_name)&&d.querySelector('summary').textContent.includes(h.validity.valid?'valjan za predaju':'NE ZA PREDAJU'));assert(el,'package '+h.id+' shown with its validity');
+ for(const t of ['Agencija i ovlasti','Dopuštenje dijeljenja','Naknada','Tek nakon uspješno dovršene prodaje','Pisani odgovor kupca','Ništa nije poslano'])assert(el.textContent.includes(t),t);
+ assert(!el.querySelector('textarea'),'package is readable sections, not a raw JSON box');
+ const download=[...el.querySelectorAll('button')].at(-1).textContent;
+ if(h.validity.valid)assert.equal(download,'Preuzmi interni paket (JSON)');
+ else{assert.equal(download,'Preuzmi arhivsku kopiju — NE ZA PREDAJU');for(const r of h.validity.reasons)assert(el.textContent.includes(r),r);assert(el.textContent.includes('OPOZVAN / ZASTARIO — NE ZA PREDAJU'));}}
 // Business phase off: no responses or hand-over can be started.
 posts.length=0;respond=b=>b.action==='workflow'?{...fixture.workflow,business_phase:false}:{id:99};
 await act(async()=>{root.unmount()});root=createRoot($('#root'));
@@ -103,4 +127,4 @@ assert.equal(posts.filter(b=>b.action==='save_request').at(-1).request_id,other.
 // Mobile: the panels declare single-column layouts below 600px (visual review on a real phone is still required).
 assert(document.body.innerHTML.includes('@media(max-width:600px){.two-cols{grid-template-columns:1fr}'));
 await act(async()=>{root.unmount()});
-console.log('Offer workflow DOM checks passed'+(real?' on the real API response':' (synthetic response; real response not supplied)')+': fresh review with separate fit and reliability, identifier-free previews, explicit approval and written responses, business phase gate, readable agency package, escaped text, errors with retry, separate buyer requests.');
+console.log('Offer workflow DOM checks passed'+(real?' on the real API response':' (synthetic response; real response not supplied)')+': fresh review with separate fit and reliability, identifier-free previews, explicit approval and written responses, same-day renewal by explicit replacement, business phase gate, readable agency packages with revoked ones marked not for hand-over, escaped text, errors with retry, separate buyer requests.');

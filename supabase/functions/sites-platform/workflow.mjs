@@ -1,7 +1,7 @@
 import {criteria,investorInput,contactRoute,pairCheckMap,REJECT} from './domain.mjs';
 import {PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
 import {suggestion} from './suggestions.mjs';
-import {presentation,fingerprint,reviewReadiness,reviewSides,requestIdentity,responseInput,handoffInput,changeOf} from './offer.mjs';
+import {presentation,fingerprint,evidenceSnapshot,reviewReadiness,reviewSides,requestIdentity,responseInput,handoffInput,changeOf,effectiveResponse,INTEREST} from './offer.mjs';
 // Buyer requests, final review, versioned anonymous presentations, written responses and the internal agency
 // package (plan #46). Nothing here sends anything; every record is an append-only activity event.
 const id=v=>{if(!Number.isSafeInteger(Number(v))||Number(v)<=0)throw Error('Nevaljana oznaka.');return Number(v)};
@@ -18,29 +18,56 @@ async function events(tx,p,i){
 async function append(tx,p,i,data){const [r]=await tx`insert into activity(property_id,investor_id,stage,notes,date) values(${p},${i},${STAGE},${JSON.stringify(data)},${new Date().toISOString()}) returning id`;return String(r.id)}
 const dayOf=v=>{const t=Date.parse(v);return Number.isFinite(t)?new Date(t).toISOString().slice(0,10):null};
 // The final review always recomputes the pair with the current rules and data; the stored result is shown beside it.
-async function state(tx,a){
+// Writes lock both records FOR SHARE: a concurrent edit either commits first (and is seen here) or waits until
+// this transaction ends; evidence written meanwhile changes the fingerprint and voids the result at the next read.
+async function state(tx,a,{write=false}={}){
  const p=id(a.property_id),i=id(a.investor_id);
+ const lock=write?tx`for share`:tx``;
  const [[property],[investor],[match],history,answers,tasks,changes]=await Promise.all([
-  tx`select p.* from properties p where p.id=${p} and ${tx.unsafe(PROPERTY_VISIBLE)}`,
-  tx`select i.* from investors i where i.id=${i} and ${tx.unsafe(INVESTOR_VISIBLE)}`,
+  tx`select p.* from properties p where p.id=${p} and ${tx.unsafe(PROPERTY_VISIBLE)} ${lock}`,
+  tx`select i.* from investors i where i.id=${i} and ${tx.unsafe(INVESTOR_VISIBLE)} ${lock}`,
   tx`select result_json,updated from match_results where property_id=${p} and investor_id=${i}`,events(tx,p,i),
-  tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where property_id=${p} and investor_id=${i} and kind='Odgovor'`,
+  tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where property_id=${p} and investor_id=${i} and kind='Odgovor' order by id`,
   tx`select requirement,status,status_reason,checked_at,evidence from site_private.match_review_tasks where property_id=${p} and investor_id=${i} order by requirement`,
   tx`select event,status,missing,rejected,recorded_at from site_private.pair_history where property_id=${p} and investor_id=${i} order by recorded_at desc,id desc limit 2`]);
  if(!property||!investor)throw Error('Nekretnina ili zahtjev više nisu dostupni u operativnom katalogu.');
  const why={},fresh=suggestion(property,investor,Date.now(),pairCheckMap(answers).get(property.id+'-'+investor.id),why)||
   {status:REJECT,score:null,reasons:[],missing:[],rejected:[why.reason||'Par ne prolazi aktualna pravila uparivanja'],gaps:{property:[],buyer:[],pair:[]},info:[]};
  const stored=parse(match?.result_json)||null;
- const fp=await fingerprint(property,investor),readiness=reviewReadiness(property,investor,fresh,stored);
+ // Approvals cover the records and the pair evidence under the current rule version.
+ const fp=await fingerprint(property,investor,evidenceSnapshot(answers,tasks,fresh)),readiness=reviewReadiness(property,investor,fresh,stored);
  const offers=history.filter(e=>e.type==='version').map(o=>{
   const approval=history.find(e=>e.type==='approval'&&e.offer_id===o.id&&e.fingerprint===o.fingerprint);
   return {...o,current:o.fingerprint===fp,approved:!!approval,approved_on:approval?dayOf(approval.date):null,responses:history.filter(e=>e.type==='response'&&e.offer_id===o.id)};
  });
- return {property,investor,result:fresh,stored,sides:reviewSides(fresh),tasks,change:changeOf(changes),readiness,fingerprint:fp,offers,history,
+ // One business-valid response for the pair, across all versions, by documented chronology.
+ const effective=effectiveResponse(history.filter(e=>e.type==='response'));
+ const s={property,investor,result:fresh,stored,sides:reviewSides(fresh),tasks,change:changeOf(changes),readiness,fingerprint:fp,offers,effective,
   contacts:{seller:contactRoute(property),buyer:contactRoute(investor)}};
+ // A stored package stays as an immutable historical record; whether it may be handed over is recomputed every time.
+ s.history=history.map(e=>e.type==='handoff'?{...e,validity:packageValidity(e,s)}:e);
+ return s;
 }
-// The latest written response across all versions decides: a newer withdrawal or rejection cancels older interest.
-export const latestResponse=history=>history.filter(e=>e.type==='response').at(-1)||null;
+// Why a version can or cannot start a hand-over now (empty list = it can).
+function handoverBlockers(offer,s){
+ const out=[],r=s.effective.response;
+ if(!offer)return ['Verzija ponude više ne postoji'];
+ if(!offer.current)out.push('Podaci ili dokazi para promijenili su se nakon ove verzije');
+ if(!offer.approved)out.push('Verzija nije odobrena');
+ if(!s.readiness.ready)out.push('Završni pregled više nije spreman: '+s.readiness.blockers.join('; '));
+ if(s.effective.ambiguous)out.push(s.effective.reason);
+ else if(!r)out.push('Nema pisanog odgovora kupca');
+ else if(r.response!==INTEREST)out.push('Važeći odgovor kupca ('+r.responded_on+') je: '+r.response);
+ else if(r.offer_id!==offer.id)out.push('Važeći interes odnosi se na verziju '+(r.version??'?')+', ne na ovu');
+ else if(r.version_current!==true)out.push('Interes je zabilježen uz zastarjelu verziju');
+ return out;
+}
+function packageValidity(h,s){
+ const offer=s.offers.find(o=>o.id===h.offer_id),reasons=handoverBlockers(offer,s);
+ if(h.fingerprint!==s.fingerprint&&!reasons.includes('Podaci ili dokazi para promijenili su se nakon ove verzije'))reasons.unshift('Podaci ili dokazi para promijenili su se nakon pripreme paketa');
+ if(s.effective.response&&h.buyer_response?.id!==s.effective.response.id&&!reasons.length)reasons.push('Paket se temelji na drugom odgovoru kupca');
+ return {valid:!reasons.length,reasons,checked_at:new Date().toISOString()};
+}
 async function buyerRequests(tx,a){
  const [base]=await tx`select * from investors where id=${id(a.investor_id)}`;if(!base)throw Error('Kupac nije pronađen.');
  const root=requestIdentity(base);
@@ -84,7 +111,7 @@ export async function workflow(tx,a,{refresh,businessPhase=false}){
  const p=id(a.property_id),i=id(a.investor_id);
  // One writer per pair: version numbers, approvals and responses are decided on a consistent history.
  if(a.action!=='workflow')await tx`select pg_advisory_xact_lock(2261027,${p}::int)`;
- const s=await state(tx,a);
+ const s=await state(tx,a,{write:a.action!=='workflow'});
  if(a.action==='workflow')return {...s,business_phase:businessPhase};
  if(a.action==='offer_create'){
   const code='EU-'+crypto.randomUUID().replaceAll('-','').slice(0,12).toUpperCase();
@@ -103,14 +130,13 @@ export async function workflow(tx,a,{refresh,businessPhase=false}){
  if(!businessPhase)throw Error('Poslovna faza nije aktivirana: odgovori kupaca i predaja agenciji se ne evidentiraju.');
  if(a.action==='offer_response'){
   if(!offer.approved)throw Error('Odgovor se evidentira samo uz pregledanu i odobrenu verziju.');
-  const response=responseInput(a,{after:offer.approved_on});
+  const response=responseInput(a,{after:offer.approved_on,previous:s.history.filter(e=>e.type==='response')});
   // A response to a version whose data has since changed is kept as history but cannot start a hand-over.
   return {id:await append(tx,p,i,{type:'response',offer_id:offer.id,version:offer.number,version_current:offer.current&&s.readiness.ready,...response})};
  }
  if(a.action==='agency_package'){
-  const response=offer.responses.at(-1),latest=latestResponse(s.history);
-  if(!offer.current||!offer.approved||!s.readiness.ready||response?.response!=='Zainteresiran'||response.version_current!==true||latest?.id!==response.id)
-   throw Error('Predaja zahtijeva aktualan pregledan par i posljednji pisani interes kupca za tu verziju.');
+  const blockers=handoverBlockers(offer,s),response=s.effective.response;
+  if(blockers.length)throw Error('Predaja zahtijeva aktualan pregledan par i posljednji pisani interes kupca za tu verziju: '+blockers.join('; '));
   const fields=handoffInput(a);
   const data={type:'handoff',offer_id:offer.id,version:offer.number,fingerprint:s.fingerprint,...fields,property:s.property,buyer:s.investor,criteria:criteria(s.investor),buyer_response:response,
    contacts:s.contacts,review:{fit:s.readiness.fit,reliability:s.readiness.reliability,sides:s.sides,tasks:s.tasks},

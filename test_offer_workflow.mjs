@@ -101,26 +101,77 @@ try{
  const [c1,c2]=await Promise.all([run({action:'offer_create',...ids}),run({action:'offer_create',...ids})]);
  w=await run({action:'workflow',...ids});assert.deepEqual(w.offers.map(x=>x.number),[1,2,3]);
  await assert.rejects(run({...response,offer_id:c1.id}),/odobrenu verziju/,'a response to an unapproved version is refused');
- await run(response);
+ const day=n=>new Date(Date.now()-n*86400000).toISOString().slice(0,10);
+ await run({action:'offer_approve',...ids,offer_id:c1.id,reviewed:true});
+ // Fixture only: both approvals are moved 10 days back so responses can carry an earlier documented chronology.
+ await sql`update activity set date=${new Date(Date.now()-10*86400000).toISOString()} where property_id=${ids.property_id} and investor_id=${ids.investor_id} and stage='Tijek ponude v1' and notes like '%"type":"approval"%'`;
  const handoff={action:'agency_package',...ids,offer_id:v1.id,agency_name:'TEST ONLY agencija',agency_channel:'Ugovoreni portal',mandate_evidence:'Ugovor o partnerstvu TEST',sharing_permission:'Suglasnost prodavatelja TEST',
   fee_terms:'2 % od kupoprodajne cijene',fee_evidence:'Potpisani dodatak TEST',open_questions:'Pristup s javne ceste',reviewed:true,fee_accepted:true};
+ const effective=async()=>(await run({action:'workflow',...ids})).effective;
+ // Review 6446780533 point 1: chronology of responded_on decides, never the order of entry.
+ const r1=await run({...response,responded_on:day(3)});
  await assert.rejects(run({...handoff,fee_accepted:false}),/naknad|dogovor/);
  await assert.rejects(run({...handoff,sharing_permission:''}),/dijeljenja/);
- // A newer withdrawal overrides the older interest.
- await run({...response,response:'Interes povučen',body:'Povlačimo interes.'});
+ const r2=await run({...response,response:'Interes povučen',body:'Povlačimo interes.',responded_on:day(1)});
+ await run({...response,body:'Stariji interes upisan naknadno',responded_on:day(2)});
+ assert.equal((await effective()).response.id,r2.id,'an older interest entered later does not override a newer withdrawal (same version)');
  await assert.rejects(run(handoff),/posljednji pisani interes/);
- // A rejection recorded on another version of the same pair also cancels the earlier interest.
- await run({...response,body:'Ponovno zainteresirani nakon razgovora.'});
- await run({action:'offer_approve',...ids,offer_id:c1.id,reviewed:true});
- await run({...response,offer_id:c1.id,response:'Ne odgovara',body:'Druga verzija ne odgovara.'});
- await assert.rejects(run(handoff),/posljednji pisani interes/,'newer response on another version wins');
- await run({...response,body:'Ipak zainteresirani za prvu verziju.'});
+ await run({...response,offer_id:c1.id,body:'Stariji interes, druga verzija',responded_on:day(2)});
+ assert.equal((await effective()).response.id,r2.id,'nor on another version');
+ const r5=await run({...response,offer_id:c1.id,response:'Ne odgovara',body:'Druga verzija ne odgovara.',responded_on:day(1)});
+ let e=await effective();assert.equal(e.ambiguous,false);assert.equal(e.response.id,r5.id,'two non-interest responses on one day are not ambiguous');
+ await assert.rejects(run(handoff),/Ne odgovara/);
+ // A genuinely later interest is valid.
+ const r6=await run({...response,body:'Novi interes nakon razgovora.'});
+ assert.equal((await effective()).response.id,r6.id);
+ // Same-day withdrawal and interest without an explicit replacement are ambiguous: no hand-over.
+ const r7=await run({...response,response:'Interes povučen',body:'Ipak povlačimo.'});
+ await run({...response,body:'Ipak zainteresirani.'});
+ e=await effective();assert.equal(e.ambiguous,true);assert.equal(e.response,null);
+ await assert.rejects(run(handoff),/istog dana/);
+ await assert.rejects(run({...response,body:'Zamjena interesa',supersedes:[r1.id]}),/Zamijenjeni odgovor/,'interest cannot replace an interest');
+ await assert.rejects(run({...response,response:'Ne odgovara',body:'x',supersedes:[r7.id]}),/samo uz novi izričit interes/);
+ const r9=await run({...response,body:'Potvrđujemo novi interes; zamjenjuje današnje povlačenje.',supersedes:[r7.id]});
+ assert.equal((await effective()).response.id,r9.id,'explicit renewed interest replaces the same-day withdrawal');
  const pkg=await run(handoff);
  assert.equal(pkg.package.status,'Interni paket — nije poslan');assert.equal(pkg.package.fee_payer,'Agencija');assert.equal(pkg.package.fee_due,'Tek nakon uspješno dovršene prodaje');
- // With WORKFLOW_RESPONSE_OUT set, the real responses are saved for sites-review/scripts/check-offer-workflow-dom.jsx.
- if(process.env.WORKFLOW_RESPONSE_OUT)writeFileSync(process.env.WORKFLOW_RESPONSE_OUT,JSON.stringify({workflow:await run({action:'workflow',...ids}),requests:await run({action:'buyer_requests',investor_id:b.id}),
-  secrets:['Lukavec','Velika Gorica','Zagrebačka','example.org',demand,listing]}));
+ assert.equal(pkg.package.buyer_response.id,r9.id);
+ const handoffOf=(w,id)=>w.history.find(x=>x.type==='handoff'&&x.id===id);
+ w=await run({action:'workflow',...ids});assert.equal(handoffOf(w,pkg.id).validity.valid,true);
  const sections=packageSections(pkg.package);assert(sections.some(([t,rows])=>t==='Naknada'&&rows.some(([,v])=>v.includes('2 %'))),'readable package');
+ // Point 2: a later withdrawal leaves the package in history but no longer valid for hand-over.
+ const r10=await run({...response,response:'Interes povučen',body:'Povlačimo interes nakon pripreme paketa.'});
+ w=await run({action:'workflow',...ids});let h=handoffOf(w,pkg.id);
+ assert.equal(h.validity.valid,false);assert(h.validity.reasons.some(v=>/istog dana/.test(v)));assert.equal(h.agency_name,'TEST ONLY agencija','historical snapshot unchanged');
+ assert.match(packageSections(h).at(-1)[1].at(-1)[1],/NE ZA PREDAJU/);
+ // Renewed interest makes a new package possible; the old package stays bound to its old response.
+ const r11=await run({...response,body:'Ponovno potvrđujemo interes.',supersedes:[r10.id]});
+ const pkg2=await run(handoff);
+ w=await run({action:'workflow',...ids});assert.equal(handoffOf(w,pkg2.id).validity.valid,true);assert.equal(handoffOf(w,pkg.id).validity.valid,false);
+ // With WORKFLOW_RESPONSE_OUT set, the real responses (one valid and one revoked package) are saved for check-offer-workflow-dom.jsx.
+ if(process.env.WORKFLOW_RESPONSE_OUT)writeFileSync(process.env.WORKFLOW_RESPONSE_OUT,JSON.stringify({workflow:w,requests:await run({action:'buyer_requests',investor_id:b.id}),
+  secrets:['Lukavec','Velika Gorica','Zagrebačka','example.org',demand,listing]}));
+ // Point 3: different pair evidence that still yields a match voids the approval and the package (fixture insert,
+ // the same row the pair_answer action writes); the result itself stays a match.
+ await sql`insert into site_private.pair_answers(property_id,investor_id,requirement,kind,body,evidence,source,answered_on,status,digest,outcome,recorded_by)
+  values(${ids.property_id},${ids.investor_id},'Ispunjenje dodatnih uvjeta kupca za ovu nekretninu','Odgovor','Dokaz B','Novi dokument B','TEST ONLY',${today},'Provjereno','00000000','zadovoljava','test')`;
+ w=await run({action:'workflow',...ids});
+ assert.equal(w.result.status,MATCH,'evidence B still passes');assert.equal(w.offers.some(x=>x.current),false,'approval does not cover new evidence');
+ assert.equal(handoffOf(w,pkg2.id).validity.valid,false);assert(handoffOf(w,pkg2.id).validity.reasons.some(v=>/dokazi para/.test(v)));
+ await assert.rejects(run(handoff),/promijenili/);
+ // Race (review addendum): a record edit in flight while a package is prepared. The workflow write waits for the
+ // edit (FOR SHARE) and then sees the new data, so no package is created from the old snapshot.
+ const v6=await run({action:'offer_create',...ids});await run({action:'offer_approve',...ids,offer_id:v6.id,reviewed:true});
+ const open=(await sql`select id,notes from activity where property_id=${ids.property_id} and investor_id=${ids.investor_id} and stage='Tijek ponude v1' order by id`).flatMap(r=>{try{const n=JSON.parse(r.notes);return n.type==='response'&&n.response!=='Zainteresiran'&&n.responded_on===today?[String(r.id)]:[]}catch{return []}});
+ await run({...response,offer_id:v6.id,body:'Interes za verziju 6.',supersedes:open});
+ assert.equal((await effective()).response.offer_id,v6.id);
+ let release;const held=new Promise(r=>{release=r});
+ const edit=sql.begin(async t=>{await t`update properties set renovation=5000 where id=${p.id}`;await held;});
+ await new Promise(r=>setTimeout(r,100));
+ const attempt=run({...handoff,offer_id:v6.id});
+ await new Promise(r=>setTimeout(r,200));release();await edit;
+ await assert.rejects(attempt,/promijenili/,'the package waits for the concurrent edit and refuses the stale version');
+ await sql`update properties set renovation=0 where id=${p.id}`;
  w=await run({action:'workflow',...ids});o=w.offers[0];
  assert(!JSON.stringify(o.presentation).includes('TEST ONLY agencija'),'the package never enters the anonymous presentation');
  // A data change makes every version stale: no new hand-over, the old response stays recorded as history.
@@ -130,7 +181,7 @@ try{
  await assert.rejects(run({action:'offer_approve',...ids,offer_id:v1.id,reviewed:true}),/aktualnu verziju/);
  await assert.rejects(run(handoff),/aktualan/);
  await run({...response,body:'Odgovor na staru verziju'});
- const stale=(await events(ids)).filter(e=>e.type==='response').at(-1);assert.equal(stale.version_current,false);
+ const stale=(await events(ids)).filter(x=>x.type==='response').at(-1);assert.equal(stale.version_current,false);
  const v4=await run({action:'offer_create',...ids});await run({action:'offer_approve',...ids,offer_id:v4.id,reviewed:true});
  await assert.rejects(run({...handoff,offer_id:v4.id}),/posljednji pisani interes/,'interest in an old version does not carry over');
  // A stale source check blocks approval of a fresh version even though stored data looks complete.
@@ -140,22 +191,22 @@ try{
  await assert.rejects(run({action:'offer_approve',...ids,offer_id:v5.id,reviewed:true}),/Prije odobrenja/);
  // Invalid JSON in the activity log is ignored, never repaired or counted.
  await sql`insert into activity(property_id,investor_id,stage,notes,date) values(${ids.property_id},${ids.investor_id},'Tijek ponude v1','{nije json',${now})`;
- w=await run({action:'workflow',...ids});assert.equal(w.offers.length,5);
+ w=await run({action:'workflow',...ids});assert.equal(w.offers.length,6);
  // History is append-only: every earlier event is still there.
  assert.equal((await events({...ids})).length>=12,true);
  // A closed listing leaves the operational workflow.
  await sql`update properties set status='Prodano' where id=${p.id}`;
  await assert.rejects(run({action:'workflow',...ids}),/više nisu dostupni/);
  // 2. Pair history marks only real improvements.
- const h=(event,status,missing,rejected,days=0)=>({event,status,missing,rejected,recorded_at:new Date(Date.now()-days*86400000)});
- assert.equal(changeOf([h('Promjena rezultata',MATCH,[],[]),h('Prvi izračun',CANDIDATE,['x'],[])])?.kind,'Poboljšano');
- assert.equal(changeOf([h('Promjena rezultata',CANDIDATE,['x'],[]),h('Prvi izračun',CANDIDATE,['x','y'],[])])?.kind,'Poboljšano');
- assert.equal(changeOf([h('Promjena rezultata',CANDIDATE,['x','z'],[]),h('Prvi izračun',CANDIDATE,['x'],[])]),null,'more open items is not an improvement');
- assert.equal(changeOf([h('Promjena rezultata',CANDIDATE,[],['a']),h('Prvi izračun',MATCH,[],[])]),null,'a downgrade is not an improvement');
- assert.equal(changeOf([h('Promjena rezultata',CANDIDATE,[],['a','b']),h('Prvi izračun',CANDIDATE,['x'],['a'])]),null,'mixed change is not an improvement');
- assert.equal(changeOf([h('Prvi izračun',CANDIDATE,[],[],30)]),null,'old changes are not highlighted');
- assert.equal(changeOf([h('Promjena rezultata',MATCH,'nije json',[]),h('Prvi izračun',CANDIDATE,[],[])])?.kind,'Poboljšano','status rank decides before list sizes');
- assert.equal(changeOf([h('Promjena rezultata',CANDIDATE,'nije json',[]),h('Prvi izračun',CANDIDATE,[],[])]),null,'unreadable history is not an improvement');
+ const hist=(event,status,missing,rejected,days=0)=>({event,status,missing,rejected,recorded_at:new Date(Date.now()-days*86400000)});
+ assert.equal(changeOf([hist('Promjena rezultata',MATCH,[],[]),hist('Prvi izračun',CANDIDATE,['x'],[])])?.kind,'Poboljšano');
+ assert.equal(changeOf([hist('Promjena rezultata',CANDIDATE,['x'],[]),hist('Prvi izračun',CANDIDATE,['x','y'],[])])?.kind,'Poboljšano');
+ assert.equal(changeOf([hist('Promjena rezultata',CANDIDATE,['x','z'],[]),hist('Prvi izračun',CANDIDATE,['x'],[])]),null,'more open items is not an improvement');
+ assert.equal(changeOf([hist('Promjena rezultata',CANDIDATE,[],['a']),hist('Prvi izračun',MATCH,[],[])]),null,'a downgrade is not an improvement');
+ assert.equal(changeOf([hist('Promjena rezultata',CANDIDATE,[],['a','b']),hist('Prvi izračun',CANDIDATE,['x'],['a'])]),null,'mixed change is not an improvement');
+ assert.equal(changeOf([hist('Prvi izračun',CANDIDATE,[],[],30)]),null,'old changes are not highlighted');
+ assert.equal(changeOf([hist('Promjena rezultata',MATCH,'nije json',[]),hist('Prvi izračun',CANDIDATE,[],[])])?.kind,'Poboljšano','status rank decides before list sizes');
+ assert.equal(changeOf([hist('Promjena rezultata',CANDIDATE,'nije json',[]),hist('Prvi izračun',CANDIDATE,[],[])]),null,'unreadable history is not an improvement');
  assert.equal(changeOf([]),null);
  // The buyer teaser itself stays identifier-free for the fixture.
  assert.equal(buyerTeaser({property_type:'Zemljište',condition:'Neizgrađeno',country:'Hrvatska',area:2400,price:180000,price_basis:'asking'}).leaks.length,0);
