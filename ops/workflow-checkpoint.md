@@ -3,7 +3,7 @@
 Plan: GitHub issue #46; detalji u `ops/buyer-workflow-plan.md`. Nalog: PR #5, komentar 6446132670.
 Grana `feature/buyer-offer-workflow`. Aktualni `main` (`18a43f0`) spojen je običnim mergeom, bez rebasea. `data/*` i uvozni checkpointovi nisu mijenjani.
 
-**Stanje:** kod i testovi dovršeni u repozitoriju. NIJE objavljeno: nema deploya Edge funkcije, Sites izvora ni upisa u produkcijsku bazu. Objava ide tek nakon neovisnog pregleda.
+**Stanje:** kod predan na pregled, nalazi pregleda ispravljeni i čekaju ponovni pregled. NIJE objavljeno: nema deploya Edge funkcije, Sites izvora ni upisa u produkcijsku bazu. Objava ide tek nakon neovisnog pregleda.
 
 ## Što je napravljeno
 1. **Zasebni zahtjevi kupca** (`save_request`, `buyer_requests`). Svaki zahtjev je zaseban operativni profil povezan s `buyer_identity_id`, s vlastitim nazivom, kriterijima, izvorom i datumom.
@@ -97,3 +97,20 @@ Pisanja jednog para serijaliziraju se: `pg_advisory_xact_lock(2261027, property)
 **Stalno pravilo suradnje (PR #5, 6446389085)** još nije u `AGENTS.md`. Sigurnosna provjera ove sesije odbila je upis iz komentara, a vlasnikova izravna potvrda u Claude sesiji još nije stigla.
 ## Nastavak
 Dopuna plana (moduli 1–8, status po koraku) je u `ops/buyer-workflow-enhancements-plan.md`, na grani `feature/buyer-workflow-enhancements`.
+
+## PAUZA — 27.10.2026. (vlasnik, PR #47, komentar 6446917782)
+Implementacija je zaustavljena na sigurnoj točki. Nema mergea ni deploya.
+
+| Stavka | Poslano / primljeno | Implementirano | Testirano | Objavljeno |
+|---|---|---|---|---|
+| Osnova #46 (PR #47) | nalog 6446132670 primljen | da, head `730acb7a1e8173dfcfaa969cfbb9eca0608479bb` | lokalno puni skup OK; CI na `730acb7` u tijeku pri pauzi (na `c9e2ff5` zelen) | ne |
+| Nalazi pregleda 6446780533 | primljeni | ispravljeni u `730acb7` | regresije i mutacije OK | ne; čeka ponovni pregled |
+| Dopuna 6446741323 (moduli 1–8, PR #48) | primljena (6446776976), plan spremljen | ne (samo plan) | ne | ne |
+| Upute 6446803748 | primljene i zapisane u planu | — | — | — |
+| `AGENTS.md`, pravilo 6446389085 | primljeno | ne; čeka vlasnikovu izravnu potvrdu u Claude sesiji | — | — |
+
+**Kod nastavka:**
+1. Dohvatiti svježe headove i komentare PR-ova #47 i #48 te pročitati ovaj checkpoint i `AGENTS.md`.
+2. Pričekati ponovni pregled ispravaka u PR-u #47. Tek nakon toga ide modul 1 u PR-u #48.
+
+Uvoz (PR45/Interfarms) se ne ponavlja.

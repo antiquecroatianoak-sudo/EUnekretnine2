@@ -2,7 +2,7 @@
 
 **Izvor:** PR #47, komentar 6446741323. Mjerodavan je izvorni tekst u komentaru; ovo je radni sažetak sa statusom.
 
-**Odnos prema osnovi:** osnovni tijek plana #46 dovršen je u PR-u #47 (`c9e2ff5`) i čeka neovisni pregled. Moduli ispod su zaseban nastavak, ne već dovršene funkcije.
+**Odnos prema osnovi:** osnovni tijek plana #46 je kod predan na pregled u PR-u #47. Nalazi pregleda 6446780533 ispravljeni su u `730acb7` i čekaju ponovni pregled. Ništa nije objavljeno. Moduli ispod su zaseban nastavak, ne već dovršene funkcije.
 - Svaki modul ide kao mali draft PR nad stabilnom osnovom.
 - Nema dupliciranja ni paralelnog uređivanja istih dijelova.
 
@@ -110,3 +110,7 @@ Numeracija prati nalog: točke 2–7 su šest dodataka, a 1 i 8 su preduvjet i z
 - **Modul 3:** je li dopuštena upotreba LLM-a za ekstrakciju. Bez toga ide ograničeni parser.
 - **Modul 6:** postoji li dopušten servis za rute bez troškova.
 - **Modul 7:** odobrenje vanjskog obrasca za agencije (nova publika).
+
+## Upute nakon slanja plana
+- **6446803748.** Modul 3 smije se raditi ograničenim lokalnim parserom uz ručnu potvrdu, bez LLM servisa. Moduli 6 i 7 dobivaju ugovor, testni adapter i interni staging; vanjski pristup i routing ostaju isključeni. Potrebe za pristupom navode se tek nakon pripreme.
+- **6446917782 — PAUZA.** Vlasnik je zaustavio daljnju implementaciju. Nastavak samo po njegovoj novoj uputi.
