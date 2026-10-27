@@ -12,6 +12,9 @@ try{
  await sql.unsafe('create table source_candidates(id text primary key,source_id text,kind text,last_seen text,country text,body_json text)');
  const stamp=new Date().toISOString(),value={kind:'property',name:'New Agency',url:'https://new.example/properties',found_on:'https://portal.example/property/1',checked_at:stamp};
  const a=await registerSource(sql,value);assert.equal(a.existing,false);assert.equal(a.source.is_active,false);
+ await intakeStatus(sql,a.source,{status:'ready',note:'Reviewed new source',checked_at:stamp});
+ const [status]=await sql`select body_json::jsonb as state from discovery_runs where source_id=${'registry-intake-'+a.source.id}`;
+ assert.equal(status.state.kind,'property');assert.equal(status.state.status,'ready');assert.equal(status.state.note,'Reviewed new source');assert.equal(Array.isArray(status.state),false);
  const b=await registerSource(sql,{...value,name:'Do not overwrite',url:'https://www.new.example/other'});assert.equal(b.existing,true);assert.equal(b.source.name,'New Agency');
  await assert.rejects(()=>intakeStatus(sql,{id:999},{status:'ready',note:'No original source modification',checked_at:stamp}),/outside/);
  await assert.rejects(()=>activateSource(sql,a.source),/normal refresh/);

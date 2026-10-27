@@ -26,7 +26,7 @@ export async function registerSource(sql,value){
 export async function intakeStatus(sql,source,state){
  if(!state||!['registered','access_required','format_required','reference_only','fetch_failed','ready'].includes(state.status)||typeof state.note!=='string'||state.note.length>800||!Number.isFinite(Date.parse(state.checked_at))||Math.abs(Date.now()-Date.parse(state.checked_at))>3600000)throw Error('Invalid intake status');
  if(state.retry_after!=null&&(!Number.isFinite(Date.parse(state.retry_after))||Date.parse(state.retry_after)<=Date.now()||Date.parse(state.retry_after)>Date.now()+8*86400000))throw Error('Invalid intake retry');
- const rows=await sql`update discovery_runs set status=${state.status},checked_at=${state.checked_at},body_json=(body_json::jsonb||${JSON.stringify(state)}::jsonb)::text where source_id=${'registry-intake-'+source.id} returning source_id`;
+ const rows=await sql`update discovery_runs set status=${state.status},checked_at=${state.checked_at},body_json=(body_json::jsonb||${JSON.stringify(state)}::text::jsonb)::text where source_id=${'registry-intake-'+source.id} returning source_id`;
  if(rows.length!==1)throw Error('Existing sources are outside new-source intake');
  await sql`update sources set inactive_reason=${state.note} where id=${source.id} and not is_active`;
  return {saved:true};
