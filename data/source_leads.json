@@ -1,10 +1,10 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 25,
-  "nedostupno": 10,
-  "nije_relevantno": 19,
-  "robots_zabrana": 7
+  "kandidat_nekretnine": 29,
+  "nedostupno": 12,
+  "nije_relevantno": 22,
+  "robots_zabrana": 8
  },
  "leads": [
   {
@@ -236,7 +236,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -320,7 +320,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "nedostupno"
   },
   {
@@ -340,7 +340,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "nedostupno"
   },
   {
@@ -360,7 +360,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -488,7 +488,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -498,6 +498,62 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Villa Aurelia - Golden Sunset Villa, Prvi red do mora, Privlaka - Emporia RealEstate Zadar Villa Aurelia – Golden Sunset Villa, Prvi red do mora, Privlaka VILLA"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "INREV is a proud member of the European Real Estate Forum",
+     "found_on": "https://www.inrev.org/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://www.europeanrealestateforum.eu/"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "europeanrealestateforum.eu",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 7
+   },
+   "status": "nije_relevantno",
+   "title": "The European Real Estate Forum – EREF – {\"type\":\"elementor\",\"siteurl\":\"https://www.europeanrealestateforum.eu/wp-json/\",\"elements\":[{\"id\":\"d7fa8a0\",\"elType\":\"wi"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Over half a million Russian properties in Bulgaria on the counter, is there anyone to buy them",
+     "found_on": "https://tranio.com/uae/dubai/apartments/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://www.europeantimes.news/2022/04/over-half-a-million-russian-properties-in-bulgaria-on-the-counter-is-there-anyone-to-buy-them/"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "europeantimes.news",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 42
+   },
+   "status": "nije_relevantno",
+   "title": "Over half a million Russian properties in Bulgaria on the – The European Times Over half a million Russian properties in Bulgaria on the"
   },
   {
    "check_note": "robots.txt disallows this URL",
@@ -516,7 +572,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -536,7 +592,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "nedostupno"
   },
   {
@@ -992,7 +1048,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "blokirano"
   },
   {
@@ -1068,6 +1124,34 @@
    "status": "robots_zabrana"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Russians find refuge",
+     "found_on": "https://tranio.com/uae/dubai/apartments/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://issuu.com/propertygurupropertyreport/docs/pr_no.172/s/15943802"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "issuu.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 1,
+    "property_words": 11
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Issuu PropertyGuru Property Report No.172 (June - July 2022) Issuu PropertyGuru Property Report No.172 (June - July 2022) by PropertyGuru Property Report - Issu"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-26T07:43:14.145110+00:00",
    "country_hint": "AT",
@@ -1118,7 +1202,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1146,7 +1230,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "nedostupno"
   },
   {
@@ -1248,6 +1332,46 @@
    ],
    "last_seen": "2026-10-26T15:11:41.588144+00:00",
    "status": "blokirano"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://www.messenger.com/login/",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Messenger",
+     "found_on": "https://www.bulgarianproperties.com/Houses_in_Bulgaria/AD91898BG_House_for_sale_in_Pomorie.html",
+     "seen": "2026-10-27T15:02:42.928734+00:00",
+     "url": "https://m.me/BulgarianPropertiesAgency"
+    }
+   ],
+   "first_seen": "2026-10-27T15:02:42.928734+00:00",
+   "host": "m.me",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Turkey’s Property Market Maintains a Stable Forecast in Spite of Skyrocketing Costs",
+     "found_on": "https://tranio.com/uae/dubai/apartments/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://www.mansionglobal.com/articles/turkeys-property-market-maintains-a-stable-forecast-in-spite-of-skyrocketing-costs-01656673569"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "mansionglobal.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "status": "robots_zabrana"
   },
   {
    "check_note": "robots.txt disallows this URL",
@@ -1462,6 +1586,34 @@
    },
    "status": "nije_relevantno",
    "title": "Alexander Ringsmuth GmbH | Immobilienvermittlung Wien, NÖ, OÖ & Stmk Alexander Ringsmuth GmbH Wertschätzung & Expertise für Ihre Immobilie in Österreich"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Real Estate Supply Chain Forum",
+     "found_on": "https://fiabci.org/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://www.rscforum.com/"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "rscforum.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 9
+   },
+   "status": "nije_relevantno",
+   "title": "RSCF 2026"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -1709,6 +1861,62 @@
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1210-floridsdorf/ihr-eigenes-sommerrefugium-an-der-alten-donau-charmantes-badehaus-in-erster-wasserreihe-mit-garten-und-dachterrasse-1803380231/",
+     "seen": "2026-10-27T15:02:42.928734+00:00",
+     "url": "https://www.tegea.at/immobiliendetails.xhtml"
+    }
+   ],
+   "first_seen": "2026-10-27T15:02:42.928734+00:00",
+   "host": "tegea.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "signals": {
+    "areas": 9,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 6,
+    "property_words": 10
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Immobiliendetails | TEGEA Real Estate"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "5 of the best Lake Como properties for sale right now",
+     "found_on": "https://tranio.com/uae/dubai/apartments/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "thespaces.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 4,
+    "property_words": 29
+   },
+   "status": "kandidat_nekretnine",
+   "title": "5 of the best Lake Como properties for sale right now - The Spaces 5 of the best Lake Como properties for sale right now"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
    "checked_at": "2026-10-27T10:30:42.116034+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -1736,6 +1944,34 @@
    "title": "Top Living Unsere aktuellen Immobilien"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Tranio Capital — a real estate private equity group focused on investment and advisory services across residential, offi",
+     "found_on": "https://tranio.com/",
+     "seen": "2026-10-27T14:50:31.572241+00:00",
+     "url": "https://tranio-capital.com/"
+    }
+   ],
+   "first_seen": "2026-10-27T14:50:31.572241+00:00",
+   "host": "tranio-capital.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 4,
+    "property_words": 29
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Tranio - Capital"
+  },
+  {
    "check_note": "HTTP 406",
    "checked_at": "2026-10-23T19:00:28.936701+00:00",
    "country_hint": null,
@@ -1752,7 +1988,27 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T13:06:27.649650+00:00",
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "status": "nedostupno"
+  },
+  {
+   "check_note": "Cross-source URL rejected: https://api.whatsapp.com/send/",
+   "checked_at": "2026-10-27T15:02:43.039875+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Nekustamie īpašumi",
+     "found_on": "https://latio.lv/en/properties-title/exclusive-offers",
+     "seen": "2026-10-27T15:02:42.928734+00:00",
+     "url": "https://wa.me/37128800824"
+    }
+   ],
+   "first_seen": "2026-10-27T15:02:42.928734+00:00",
+   "host": "wa.me",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:02:42.928734+00:00",
    "status": "nedostupno"
   },
   {
@@ -1889,6 +2145,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T13:06:27.649650+00:00",
- "verified_at": "2026-10-27T13:06:27.750579+00:00"
+ "updated_at": "2026-10-27T15:02:42.928734+00:00",
+ "verified_at": "2026-10-27T15:02:43.039875+00:00"
 }

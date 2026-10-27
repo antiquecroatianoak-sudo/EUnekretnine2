@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-27T12:53:02.875944+00:00",
- "source_count": 144,
- "inactive_count": 91,
+ "checked_at": "2026-10-27T14:50:50.126069+00:00",
+ "source_count": 154,
+ "inactive_count": 101,
  "groups": {
   "structured_property_adapter": 22,
   "operating_monitor": 53,
-  "approved_access_required": 31,
-  "fetch_or_persistence_failure": 33,
+  "approved_access_required": 38,
+  "fetch_or_persistence_failure": 36,
   "listing_layout": 2,
   "buyer_acquisition_pages": 1,
   "pdf_acquisition_profiles": 2
@@ -681,7 +681,7 @@
    "url": "https://mp-development.hr/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "TimeoutError: The read operation timed out",
    "retry_after": null
   },
   {
@@ -1511,7 +1511,7 @@
    "name": "Be.agency",
    "url": "https://be.hr/en",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1526,7 +1526,7 @@
    "name": "Century 21",
    "url": "https://www.century21global.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1541,7 +1541,7 @@
    "name": "IQI Global",
    "url": "https://www.iqiglobal.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1638,7 +1638,7 @@
    "name": "Keller Williams",
    "url": "https://www.kw.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1687,7 +1687,7 @@
    "name": "Urban Land Institute",
    "url": "https://uli.org/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1812,7 +1812,7 @@
    "name": "Cushman & Wakefield",
    "url": "https://www.cushmanwakefield.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1849,7 +1849,7 @@
    "name": "Savills",
    "url": "https://www.savills.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T12:53:02.878214+00:00",
@@ -1866,7 +1866,15 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 71,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "137",
@@ -1875,7 +1883,25 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Answer",
+     "BreadcrumbList",
+     "FAQPage",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "Question",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 147,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "138",
@@ -1884,7 +1910,13 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T14:50:50.128682+00:00"
   },
   {
    "id": "139",
@@ -1893,7 +1925,19 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ItemList",
+     "ListItem",
+     "Organization"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 176,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "140",
@@ -1902,7 +1946,18 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Organization",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 137,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "141",
@@ -1911,7 +1966,23 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "QuantitativeValue",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 214,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "142",
@@ -1920,7 +1991,13 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T14:50:50.128682+00:00"
   },
   {
    "id": "143",
@@ -1929,7 +2006,18 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ContactPoint",
+     "Organization"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 1198,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   },
   {
    "id": "144",
@@ -1938,10 +2026,266 @@
    "is_active": false,
    "group": "fetch_or_persistence_failure",
    "last_error": null,
-   "retry_after": null
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 147,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "145",
+   "name": "Apartament 48 m² w Salonikach, Grecja | kupić, kupić apartments cena: 200000€ | Grekodom Development Sprzedaż - Apartament 48 m² w Salonikach",
+   "url": "https://www.grekodom.com.pl/realtyobject/67066-sprzedaz-apartament-80-m2-w-salonikach",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ContactPoint",
+     "Country",
+     "GeoCoordinates",
+     "ImageObject",
+     "Offer",
+     "OpeningHoursSpecification",
+     "Organization",
+     "Place",
+     "PostalAddress",
+     "Product",
+     "PropertyValue",
+     "RealEstateAgent",
+     "RealEstateListing",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 156,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "146",
+   "name": "Gewerbeimmobilie 238 m² in Thessaloniki, Griechenland | kaufen Geschäftsräume preis: 350000€ | Grekodom Development Verkauf - Gewerbeimmobilie 238 m² in Thessal",
+   "url": "https://www.grekodom.de/realtyobject/67064-verkauf-gewerbeimmobilie-238-m2-in-thes",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ContactPoint",
+     "Country",
+     "GeoCoordinates",
+     "ImageObject",
+     "Offer",
+     "OpeningHoursSpecification",
+     "Organization",
+     "Place",
+     "PostalAddress",
+     "Product",
+     "PropertyValue",
+     "RealEstateAgent",
+     "RealEstateListing",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 148,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "147",
+   "name": "Stan 48 m² u Solunu, Grčka | kupiti, kupovinu apartmana cena: 200000€ | Grekodom Development Prodaja - Stan 48 m² u Solunu",
+   "url": "https://www.grekodom.rs/realtyobject/67066-prodaja-stan-80-m2-u-solunu",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ContactPoint",
+     "Country",
+     "GeoCoordinates",
+     "ImageObject",
+     "Offer",
+     "OpeningHoursSpecification",
+     "Organization",
+     "Place",
+     "PostalAddress",
+     "Product",
+     "PropertyValue",
+     "RealEstateAgent",
+     "RealEstateListing",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 158,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "148",
+   "name": "NEU: Jetzt alles dabei! Familienhaus mit 921 m² Grund | Immobilienmakler in Mödling | Ing. Mag. Alexander Taubenkorb Zu kaufen NEU: Jetzt inklusive hinterem Gru",
+   "url": "https://www.alexander-taubenkorb.at/immobilien/1210-salomongasse",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 28,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "149",
+   "name": "STADTHAUS am MÖDLINGBACH – PULZ IMMOBILIEN STADTHAUS am MÖDLINGBACH",
+   "url": "https://immopulz.at/property/stadthaus-am-moedlingbach/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 143,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "150",
+   "name": "Zentrale Geschäftsfläche mit starker Sichtbarkeit - Werthaltige Geschäftsfläche in Linzer Frequenzlage - mit starker Sichtbarkeit und flexibler Flächenstruktur",
+   "url": "https://www.immoquelle.at/immobilien/raum-fur-erfolg-platz-fur-visionen---vielseitiges-geschaftslokal-mit-gastronomie-buro-beheizter-werkstatt-und-vier-waschboxen-in-ebensee",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 172,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "151",
+   "name": "Makler Wienerwald & Wien Umgebung | KIEGLER Immobilien Unsere aktuellen Angebote",
+   "url": "https://www.immo-immo.at/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "EntryPoint",
+     "ListItem",
+     "PropertyValueSpecification",
+     "ReadAction",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 65,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "152",
+   "name": "Immobilien Archive - Perfekt Immo Immobilien­angebot",
+   "url": "https://perfektimmo.at/immobilien/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "AggregateOffer",
+     "CollectionPage",
+     "ImageObject",
+     "ItemList",
+     "ListItem",
+     "Organization",
+     "Product",
+     "RealEstateListing",
+     "Residence",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 90,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "153",
+   "name": "Zinshaus - voll vermietet!!!!",
+   "url": "https://www.sreal.at/de/immobilie/960-75099/zinshaus-voll-vermietet",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 169,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "154",
+   "name": "Villa Aurelia – Golden Sunset Villas, Direkt am Strand in Privlaka - Emporia RealEstate Zadar Villa Aurelia – Golden Sunset Villas, Direkt am Strand in Privlaka",
+   "url": "https://www.emporia-immobilien.com/property/haus-h730-sukosan/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T14:50:50.128682+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "AggregateRating",
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "Product",
+     "PropertyValueSpecification",
+     "ReadAction",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 144,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 20,
- "remaining_due": 9
+ "probed_count": 19,
+ "remaining_due": 0
 }
