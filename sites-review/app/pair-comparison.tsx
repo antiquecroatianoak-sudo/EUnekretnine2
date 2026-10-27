@@ -12,7 +12,8 @@ export function PairComparison({result,property,investor,expanded=false}){
   {!result.archived&&result.status==='Podudaranje kriterija'&&!review.missing&&!review.unmet&&<p className='pair-next'>Kriteriji su zadovoljeni prema spremljenom izračunu. Prije prezentacije ručno pregledaj podatke; interes kupca još nije potvrđen.</p>}
  </section>;
 }
-export const pairStyles=`
+export const pairStyles=`.pill.change{background:#e3efe8;color:#1f4d3c;margin-left:6px}
+
 .pair-detail-score{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}.pair-detail-score strong{font-size:30px}.pair-detail-score span{font-size:13px;color:#56665e}.match-card{padding:22px;min-width:0;border:1px solid #d9e2df;border-radius:16px;background:#fff;margin-bottom:18px;overflow-wrap:anywhere}
 .match-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.match-top>div{min-width:0}.match-score{flex-shrink:0;text-align:right}.match-score strong{display:block;font-size:30px}.pair-score-label{display:block;font-size:12px;color:#56665e;margin:4px 0 8px}.pair-record-facts{color:#56665e;font-size:13px;line-height:1.7}
 .pair-review{margin-top:18px}.pair-review-totals{display:flex;flex-wrap:wrap;gap:8px}.pair-review-totals>span{padding:7px 10px;border-radius:8px;background:#f0f4f2;font-size:13px}.pair-review-totals .unmet{color:#922f32;background:#fff0f0}.pair-review-totals .unknown{color:#78531b;background:#fff6e5}.pair-review-totals .met{color:#24634a;background:#edf7f0}

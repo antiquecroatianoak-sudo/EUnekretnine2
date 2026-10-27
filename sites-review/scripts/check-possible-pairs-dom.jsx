@@ -183,7 +183,7 @@ const pairCard=$$('.opportunities-table tbody tr').find(c=>c.textContent.include
 assert(![...pairCard.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije'),'no presentation from a possible pair');
 await act(async()=>{[...pairCard.querySelectorAll('button')].find(b=>b.textContent.trim()==='Detalj para').click()});
 await act(async()=>{await new Promise(r=>setTimeout(r,20))});
-assert.deepEqual(posts.at(-1),{action:'pair',property_id:1,investor_id:10});
+assert.deepEqual(posts.find(b=>b.action==='pair'),{action:'pair',property_id:1,investor_id:10});assert.deepEqual(posts.filter(b=>b.action==='workflow'),[{action:'workflow',property_id:1,investor_id:10}],'the final review loads with the pair detail');
 const dialog=$('[role="dialog"]');
 for(const t of ['Podaci o nekretnini (pitanja prodavatelju)','Provjera za ovaj par','Podudaranje kriterija nije potvrđen interes','Ukupni trošak iznad navedenog budžeta kupca (informativno)'])assert(dialog.textContent.includes(t),t);
 assert.equal($$('button').find(b=>b.textContent==='Zabilježi fazu uz dokaz').disabled,true,'no interest stage for a possible pair');
@@ -212,7 +212,7 @@ assert(document.body.textContent.includes('dokaz provjere izvora'),'the refusal 
 await setValue($('input[name="source_evidence"]'),'Oglas otvoren 23.10., aktivan');await setValue($('select[name="source_status"]'),'Aktivno');
 await act(async()=>{$$('button').find(b=>b.textContent==='Spremi provjeru izvora').click()});await act(async()=>{await new Promise(r=>setTimeout(r,10))});
 assert.deepEqual(posts.filter(b=>b.action==='source_check').at(-1),{action:'source_check',property_id:1,investor_id:10,checked_on:'2026-10-23',evidence:'Oglas otvoren 23.10., aktivan',status:'Aktivno'});
-assert(posts.every(b=>['pair','pair_question','pair_answer','source_check'].includes(b.action)),'only storing actions, no sending');
+assert(posts.every(b=>['pair','workflow','pair_question','pair_answer','source_check'].includes(b.action)),'only storing actions, no sending');
 await act(async()=>root.unmount());
 // 7. Visibility (6361512242, 6364207005, 6369410657): a failed or oversized full read must not hide stored pairs,
 // a failed pairs read is not a zero, a real zero is explained, hidden links are counted, diagnostics are counts only.

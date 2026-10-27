@@ -20,7 +20,7 @@ export function storedMatches(data){
  return (data.match_results||[]).flatMap(row=>{
   const property=properties.get(String(row.property_id)),investor=investors.get(String(row.investor_id)),result=jsonObject(row.result_json);
   if(!property||!investor||!contactRoute(property)||!contactRoute(investor)||![MATCH,CANDIDATE,REJECT].includes(result.status)||!Number.isFinite(result.score)||!['reasons','missing','rejected'].every(k=>Array.isArray(result[k])))return [];
-  return [{...result,property,investor,updated:row.updated}];
+  return [{...result,property,investor,updated:row.updated,change:row.change||null}];
  }).sort((a,b)=>[MATCH,CANDIDATE,REJECT].indexOf(a.status)-[MATCH,CANDIDATE,REJECT].indexOf(b.status)||b.score-a.score||String(a.property.id).localeCompare(String(b.property.id))||String(a.investor.id).localeCompare(String(b.investor.id)));
 }
 export function sourceDescription(row){

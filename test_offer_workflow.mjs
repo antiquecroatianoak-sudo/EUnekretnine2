@@ -18,6 +18,8 @@ const run=a=>sql.begin(tx=>dispatch(tx,a));
 const phase=on=>{if(on)process.env.TEST_BUSINESS_PHASE='on';else delete process.env.TEST_BUSINESS_PHASE};
 const today=new Date().toISOString().slice(0,10),now=new Date().toISOString();
 const events=async ids=>(await sql`select notes from activity where property_id=${ids.property_id} and investor_id=${ids.investor_id} and stage='Tijek ponude v1' order by id`).flatMap(r=>{try{return [JSON.parse(r.notes)]}catch{return []}});
+// The Sites copy renders the print view; it must be the same code the backend versions with.
+assert.equal(readFileSync(new URL('./sites-review/lib/offer.mjs',import.meta.url),'utf8'),readFileSync(new URL('offer.mjs',dir),'utf8'),'sites-review/lib/offer.mjs differs from the backend copy');
 try{
  phase(false);
  const listing='https://example.org/test-only/listing/77';
@@ -115,6 +117,9 @@ try{
  await run({...response,body:'Ipak zainteresirani za prvu verziju.'});
  const pkg=await run(handoff);
  assert.equal(pkg.package.status,'Interni paket — nije poslan');assert.equal(pkg.package.fee_payer,'Agencija');assert.equal(pkg.package.fee_due,'Tek nakon uspješno dovršene prodaje');
+ // With WORKFLOW_RESPONSE_OUT set, the real responses are saved for sites-review/scripts/check-offer-workflow-dom.jsx.
+ if(process.env.WORKFLOW_RESPONSE_OUT)writeFileSync(process.env.WORKFLOW_RESPONSE_OUT,JSON.stringify({workflow:await run({action:'workflow',...ids}),requests:await run({action:'buyer_requests',investor_id:b.id}),
+  secrets:['Lukavec','Velika Gorica','Zagrebačka','example.org',demand,listing]}));
  const sections=packageSections(pkg.package);assert(sections.some(([t,rows])=>t==='Naknada'&&rows.some(([,v])=>v.includes('2 %'))),'readable package');
  w=await run({action:'workflow',...ids});o=w.offers[0];
  assert(!JSON.stringify(o.presentation).includes('TEST ONLY agencija'),'the package never enters the anonymous presentation');
