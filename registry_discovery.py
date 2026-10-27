@@ -713,6 +713,7 @@ def source_page_budget(source,state):
     return 150 if proven or hostkey(urlsplit(source['url']).hostname) in LARGE_BATCH_HOSTS else 25
 
 def main(max_workers=3):
+    from property_connector import retry_pending
     # Read the entire current registry at each run, including newly discovered sources.
     config=api({'action':'registry'}); deadline=time.monotonic()+900
     def priority(source):
@@ -735,8 +736,7 @@ def main(max_workers=3):
             if stop.is_set() or time.monotonic()>=deadline:break
             sid='registry-'+str(source['id'])
             prior=config['states'].get(sid,{})
-            retry=prior.get('retry_after')
-            if retry and datetime.fromisoformat(retry)>datetime.now(timezone.utc):continue
+            if retry_pending(prior,datetime.now(timezone.utc)):continue
             budget=source_page_budget(source,prior)
             # Shorter resumable turns prevent two large portals from consuming the
             # entire run while other working sources wait six hours for a turn.

@@ -10,13 +10,35 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit, urlunsplit, urlencode,parse_qs
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 EU=set('AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE'.split())
 COUNTRIES={'Austria':'AT','Belgium':'BE','Bulgaria':'BG','Croatia':'HR','Cyprus':'CY','Czech Republic':'CZ','Denmark':'DK','Estonia':'EE','Finland':'FI','France':'FR','Germany':'DE','Greece':'GR','Hungary':'HU','Ireland':'IE','Italy':'IT','Latvia':'LV','Lithuania':'LT','Luxembourg':'LU','Malta':'MT','Netherlands':'NL','Poland':'PL','Portugal':'PT','Romania':'RO','Slovakia':'SK','Slovenia':'SI','Spain':'ES','Sweden':'SE'}
 TYPES={'Apartment':'Stan','House':'Kuća','SingleFamilyResidence':'Kuća','Residence':None,'RealEstateListing':None}
 SALE=re.compile(r'\b(?:for sale|zu verkaufen|te koop|à vendre|en venta|in vendita|na prodaju|na prodaj|na predaj)\b',re.I)
 RENT=re.compile(r'\b(?:for rent|to rent|zu vermieten|te huur|à louer|en alquiler|in affitto|najam|oddaja)\b',re.I)
+
+def timed_out(error):
+    if isinstance(error,HTTPError):return False
+    return isinstance(error,TimeoutError) or isinstance(error,URLError) and (isinstance(error.reason,TimeoutError) or 'timed out' in str(error.reason).lower())
+
+def retry_pending(state,now):
+    value=state.get('retry_after')
+    if not value:return False
+    try:
+        after=datetime.fromisoformat(value)
+        if after.tzinfo is None:return True
+        if after<=now:return False
+    except (TypeError,ValueError):return True
+    # Recover only the known old shared-connector timeout policy, after one
+    # existing six-hour interval; preserve access, robots and unknown holds.
+    legacy=state.get('scope')=='Shared primary JSON-LD connector; discovered pages only' and not state.get('error_kind') and str(state.get('error','')).startswith('TimeoutError:')
+    if legacy:
+        try:
+            checked=datetime.fromisoformat(state.get('checked_at',''))
+            if checked.tzinfo is not None and now-checked>=timedelta(hours=6):return False
+        except (TypeError,ValueError):pass
+    return True
 
 def canonical(u):
     p=urlsplit(u)
@@ -318,7 +340,8 @@ def run_source(source,api,Fetcher,Page,objects,safe_url,stamp,deadline=float('in
         if result['status']=='batch_confirmed':
             result.update(confirm_normal_refresh(source,f,api,safe_url,deadline))
     except Exception as e:
-        result.update(status='failed',error=type(e).__name__+': '+str(e)[:240],retry_after=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat())
+        result.update(status='failed',error=type(e).__name__+': '+str(e)[:240])
+        if not timed_out(e):result['retry_after']=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat()
     return result
 
 def confirm_normal_refresh(source,fetcher,api,url_validator,deadline):
@@ -351,7 +374,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
         seen.discard(key)
         pending=[entry for entry in pending if canonical(entry['url'])!=key]
         pending.insert(0,{'url':revisit,'mode':'detail'})
-    rows=[];failed=[];unavailable=[];pages=0;details=0;error=None
+    rows=[];failed=[];unavailable=[];pages=0;details=0;error=None;timeout=False
     while pending and pages<max_pages and time.monotonic()<deadline:
         entry=pending.pop(0);url=entry['url']
         if canonical(url) in seen:continue
@@ -382,9 +405,10 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
                 seen.add(canonical(url));continue
             pending.insert(0,entry);error=type(exc).__name__+': '+str(exc)[:240];break
         except Exception as exc:
-            pending.insert(0,entry);error=type(exc).__name__+': '+str(exc)[:240];break
+            pending.insert(0,entry);error=type(exc).__name__+': '+str(exc)[:240];timeout=timed_out(exc);break
     state={'source_id':'registry-'+str(source['id']),'status':'Pogreška' if error else 'Djelomično' if pending or failed else 'Uspješno','checked_at':stamp,'pending':pending,'cycle_seen':sorted(seen),'pages_processed':pages,'detail_pages':details,'imported_count':len(rows),'failed_urls':failed,'unavailable_urls':unavailable,'error':error,'coverage_complete':False,'partial':bool(error or pending or failed),'next_url':pending[0]['url'] if pending else None,'stop_reason':'error' if error else 'runtime_or_page_budget' if pending else 'discovered_queue_empty','scope':'Shared primary JSON-LD connector; discovered pages only'}
-    if error:state['retry_after']=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat()
+    if timeout:state['error_kind']='timeout'
+    elif error:state['retry_after']=(datetime.fromisoformat(stamp)+timedelta(days=1)).isoformat()
     return rows,state
 
 def main():

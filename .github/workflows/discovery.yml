@@ -78,7 +78,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Provjeri nastavak uvoza, duplikate i valute
-        run: python -m unittest -v test_inquiry_contacts test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches test_buyer_profiles
+        run: python -m unittest -v test_shared_refresh test_inquiry_contacts test_registry_discovery test_population_refresh test_public_land_sources test_source_leads test_source_batches test_buyer_profiles
       - name: Provjeri pravila dokaza i nepotvrđenog interesa
         run: |
           node test_verification.mjs
