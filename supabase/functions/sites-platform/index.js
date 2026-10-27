@@ -1,3 +1,4 @@
+import {workflow} from './workflow.mjs';
 import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
@@ -191,6 +192,7 @@ async function pairStage(tx,a){
  return {id:r[0].id};
 }
 async function dispatch(tx,a){
+ if(['workflow','buyer_requests','save_request','offer_create','offer_approve','offer_response','agency_package'].includes(a.action))return workflow(tx,a,{refresh,businessPhase:Deno.env.get('BUSINESS_PHASE')==='on'});
  if(a.action==='pair')return await pair(tx,a);
  if(a.action==='pair_question')return await pairQuestion(tx,a);
  if(a.action==='pair_answer')return await pairAnswer(tx,a);
@@ -241,7 +243,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(['read','pair','pairs','sources','catalog','pair_diagnostics'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','catalog','pair_diagnostics','workflow','buyer_requests'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}
@@ -249,5 +251,6 @@ Deno.serve(async req=>{
   });return reply(result);
  }catch(e){console.error('platform request failed',e?.code||e?.name);return reply({error:e?.name==='PostgresError'?'Baza nije spremila promjene. Pokušaj ponovno nakon provjere veze.':String(e?.message||'Zahtjev nije izvršen.')},400)}
 });
+
 
 
