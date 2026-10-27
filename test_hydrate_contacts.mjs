@@ -13,6 +13,11 @@ assert.equal(sourceContact(candidate({...contact,email:'bad'})),null);
 assert.equal(sourceContact(candidate({...contact,represents_record:false})),null);
 assert.equal(sourceContact(candidate({...contact,permitted:true,email:'bad'})),null);
 assert.ok(contactRoute({source:url,contact_json:sourceContact(candidate({...contact,permitted:true}))}));
+const scoped={...contact,permitted:true,permission_scope:'property_enquiry_only',permission_quote:'Present your real estate offer',permission_basis:'reviewed_acquisition_invitation',checked_at:new Date().toISOString()};
+const normalized=JSON.parse(sourceContact(candidate(scoped)));
+for(const key of ['permission_scope','permission_quote','permission_basis','checked_at'])assert.equal(normalized[key],scoped[key],'preserve inquiry evidence through normalization');
+assert.equal(sourceContact(candidate({...scoped,permission_scope:'marketing'})),null);
+assert.equal(sourceContact(candidate({...scoped,permission_quote:''})),null);
 assert.equal(notesContact({name:'Buyer',criteria_json:JSON.stringify({source_url:url}),notes:JSON.stringify({official_url:'https://example.org/other',public_business_contact:{email:'a@example.org'}})}),null);
 const db=new PGlite();
 async function tx(parts,...values){const params=[],query=parts.reduce((s,p,i)=>s+(i?(params.push(values[i-1]),'$'+params.length):'')+p,'');return (await db.query(query,params)).rows}
@@ -44,4 +49,5 @@ try{
  assert.equal(await hydrateContacts(tx),0,'repeated refresh does not overwrite contacts');
  console.log('Contact hydration PostgreSQL tests passed: direct/agency linkage, permission preservation, malformed evidence, both entities, manual preservation, reference conflicts and idempotence.');
 }finally{await db.close()}
+
 

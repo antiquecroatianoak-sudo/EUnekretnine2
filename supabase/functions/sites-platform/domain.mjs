@@ -275,12 +275,14 @@ export function contactInput(input){
  let raw=input.contact_json;try{raw=typeof raw==='string'?JSON.parse(raw):raw}catch{throw Error('Kontakt mora biti valjan JSON objekt.')}
  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('Kontakt mora biti valjan JSON objekt.');
  const c=raw,out={};
- for(const k of ['mode','name','agency_name','record_reference','email','phone','contact_url','evidence_url']){
+ for(const k of ['mode','name','agency_name','record_reference','email','phone','contact_url','evidence_url','permission_scope','permission_quote','permission_basis','checked_at']){
   if(c[k]!=null&&typeof c[k]!=='string')throw Error('Nevaljano polje kontakta: '+k);
   if(c[k]?.length>2000||/[\u0000-\u001f]/.test(c[k]||''))throw Error('Nevaljano polje kontakta: '+k);
   if(c[k]?.trim())out[k]=c[k].trim();
  }
  for(const k of ['permitted','represents_record']){if(c[k]!=null&&typeof c[k]!=='boolean')throw Error('Nevaljana potvrda kontakta.');if(c[k]!=null)out[k]=c[k]}
+ if(out.permission_scope&&out.permission_scope!=='property_enquiry_only')throw Error('Nepoznat opseg upita.');
+ if(out.permission_scope&&(!out.permission_quote||!out.permission_basis||!/(Z|[+-]\d\d:\d\d)$/.test(out.checked_at||'')||!Number.isFinite(Date.parse(out.checked_at))))throw Error('Za ograničeni upit potreban je izvorni dokaz i vrijeme provjere.');
  if(out.mode&&!['direct','agency'].includes(out.mode))throw Error('Odaberi izravan ili agencijski kontakt.');
  if(out.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.email))throw Error('Nevaljana e-pošta kontakta.');
  if(out.phone&&(!/^\+?[0-9 ()/.-]{7,30}$/.test(out.phone)||out.phone.replace(/\D/g,'').length<7))throw Error('Nevaljan telefon kontakta.');
@@ -288,4 +290,6 @@ export function contactInput(input){
  if(out.permitted===true&&!contactRoute({...input,contact_json:out}))throw Error('Za potvrđen kontakt potrebni su kontaktni kanal, dokaz i povezanost s konkretnim zapisom.');
  return {contact_json:Object.keys(out).length?JSON.stringify(out):null};
 }
+
+
 
