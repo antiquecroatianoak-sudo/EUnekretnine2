@@ -7,6 +7,7 @@ from urllib.parse import urlsplit,urljoin
 from registry_discovery import Fetcher,Page,objects,safe_url
 from property_connector import links,primary_record
 
+ADAPTER_REVISION='2026-10-27-intake-v2'
 MANIFEST=Path(__file__).with_name('data')/'source_intake.json'
 
 def host(url):
@@ -114,7 +115,7 @@ def review_new_source(source,intake,api_call,deadline,fetcher_factory=Fetcher,ur
     if source.get('is_active'):return dict(result,status='already_active')
     if intake.get('status') in ('access_required','reference_only') and intake.get('kind')!='reference':
         return dict(result,status=intake['status'])
-    if intake.get('retry_after'):
+    if intake.get('retry_after') and intake.get('adapter_revision')==ADAPTER_REVISION:
         try:
             if datetime.fromisoformat(intake['retry_after'])>now:return dict(result,status='cooldown')
         except (TypeError,ValueError):return dict(result,status='invalid_retry_requires_review')
@@ -138,7 +139,7 @@ def review_new_source(source,intake,api_call,deadline,fetcher_factory=Fetcher,ur
                 result.update(status='format_required',note='No primary EU sale with a record-bound contact; '+str(state.get('failed_urls',[])[:2])[:500])
             else:
                 n,u=save_rows(sid,rows,state,api_call)
-                if n+u<=0:raise RuntimeError('Trial persisted no admissible records')
+                if n+u<=0:raise RuntimeError('Trial persisted no admissible records: '+str(state.get('failed_urls',[])[:1])[:450])
                 # Repeat through the real refresh path before enabling this source.
                 refresh,normal=collect(source,None,fetcher,deadline,max_pages=probe_pages,url_validator=url_validator)
                 if normal.get('error') or not refresh:raise RuntimeError('Normal refresh did not confirm primary records: '+str(normal.get('error')))
@@ -154,7 +155,7 @@ def review_new_source(source,intake,api_call,deadline,fetcher_factory=Fetcher,ur
         result.update(status='access_required' if blocked else 'fetch_failed',note=message)
     # Healthy format reviews wait a week; transient failures retry next schedule.
     hours=168 if result['status'] in ('format_required','reference_only') else 24 if result['status']=='access_required' else 6
-    state={'status':result['status'],'note':result['note'][:800],'checked_at':datetime.now(timezone.utc).isoformat(),'retry_after':(datetime.now(timezone.utc)+timedelta(hours=hours)).isoformat()}
+    state={'status':result['status'],'note':result['note'][:800],'checked_at':datetime.now(timezone.utc).isoformat(),'retry_after':(datetime.now(timezone.utc)+timedelta(hours=hours)).isoformat(),'adapter_revision':ADAPTER_REVISION}
     if not api_call({'action':'intake-status','source_id':sid,'state':state}).get('saved'):raise RuntimeError('Intake status not acknowledged')
     return result
 
@@ -170,7 +171,7 @@ def sync():
         intake=config['states'].get('registry-intake-'+str(source['id']))
         # Original sources lack an intake marker and are completely untouched.
         if intake and not source['is_active']:selected.append((source,intake))
-    selected.sort(key=lambda x:(x[1].get('checked_at',''),x[0]['id']))
+    selected.sort(key=lambda x:(x[1].get('kind')!='property' or x[1].get('status') not in ('registered','fetch_failed'),x[1].get('checked_at',''),x[0]['id']))
     deadline=time.monotonic()+240;results=[]
     # Serial turns keep bounded requests fair; unfinished sources keep their states.
     for source,intake in selected:
