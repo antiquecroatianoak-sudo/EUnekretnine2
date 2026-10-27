@@ -282,7 +282,7 @@ export function contactInput(input){
  }
  for(const k of ['permitted','represents_record']){if(c[k]!=null&&typeof c[k]!=='boolean')throw Error('Nevaljana potvrda kontakta.');if(c[k]!=null)out[k]=c[k]}
  if(out.permission_scope&&out.permission_scope!=='property_enquiry_only')throw Error('Nepoznat opseg upita.');
- if(out.permission_scope&&(!out.permission_quote||!out.permission_basis||!/(Z|[+-]\d\d:\d\d)$/.test(out.checked_at||'')||!Number.isFinite(Date.parse(out.checked_at))))throw Error('Za ograničeni upit potreban je izvorni dokaz i vrijeme provjere.');
+ if(out.permission_scope&&(!out.permission_quote||!out.permission_basis||!/(Z|[+-]\d\d(?::?\d\d)?)$/.test(out.checked_at||'')||!Number.isFinite(Date.parse(out.checked_at))))throw Error('Za ograničeni upit potreban je izvorni dokaz i vrijeme provjere.');
  if(out.mode&&!['direct','agency'].includes(out.mode))throw Error('Odaberi izravan ili agencijski kontakt.');
  if(out.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.email))throw Error('Nevaljana e-pošta kontakta.');
  if(out.phone&&(!/^\+?[0-9 ()/.-]{7,30}$/.test(out.phone)||out.phone.replace(/\D/g,'').length<7))throw Error('Nevaljan telefon kontakta.');

@@ -23,6 +23,7 @@ class InquiryTests(unittest.TestCase):
         self.assertEqual(c['permission_scope'],'property_enquiry_only')
         self.assertEqual(c['checked_at'],STAMP)
         self.assertFalse(row['verified'])
+        self.assertEqual(row['facts']['advertised_area'],{'value':500.,'unitCode':'MTK'})
         self.assertNotIn('partnership',c)
     def test_generic_or_related_form_and_cross_source_action_do_not_count(self):
         for kwargs in [dict(form_url=URL+'other'),dict(form_title='Another land'),

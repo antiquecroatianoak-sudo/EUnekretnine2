@@ -373,7 +373,8 @@ def emporia_record(source,url,page,nodes,now):
     described_building=re.findall(r'total area of\s+(\d[\d.,]*)\s*m²',body,re.I)
     if described_building and facts.get('building_area_m2') is not None and any(number(v)!=facts['building_area_m2'] for v in described_building):
         facts.setdefault('area_conflict',{}).update(table_building_m2=facts.pop('building_area_m2'),description_building_m2=[number(v) for v in described_building])
-    facts['advertised_area']={'value':facts['building_area_m2'],'unitCode':'MTK'} if facts.get('building_area_m2') else None
+    measured=facts.get('land_area_m2') if facts.get('property_type')=='Zemljište' else facts.get('building_area_m2')
+    facts['advertised_area']={'value':measured,'unitCode':'MTK'} if measured else None
     return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def listing_record(source,url,page,kind,now):

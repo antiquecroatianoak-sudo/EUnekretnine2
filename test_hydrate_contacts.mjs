@@ -18,6 +18,7 @@ const normalized=JSON.parse(sourceContact(candidate(scoped)));
 for(const key of ['permission_scope','permission_quote','permission_basis','checked_at'])assert.equal(normalized[key],scoped[key],'preserve inquiry evidence through normalization');
 assert.equal(sourceContact(candidate({...scoped,permission_scope:'marketing'})),null);
 assert.equal(sourceContact(candidate({...scoped,permission_quote:''})),null);
+assert.ok(sourceContact(candidate({...scoped,checked_at:'2026-10-26 18:00:00+00'})),'existing SQL inquiry timestamps remain editable');
 assert.equal(notesContact({name:'Buyer',criteria_json:JSON.stringify({source_url:url}),notes:JSON.stringify({official_url:'https://example.org/other',public_business_contact:{email:'a@example.org'}})}),null);
 const db=new PGlite();
 async function tx(parts,...values){const params=[],query=parts.reduce((s,p,i)=>s+(i?(params.push(values[i-1]),'$'+params.length):'')+p,'');return (await db.query(query,params)).rows}

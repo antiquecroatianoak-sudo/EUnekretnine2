@@ -8,6 +8,7 @@ import json
 import sys
 import time
 import re
+import threading
 from urllib.parse import urlsplit
 from urllib.request import Request,build_opener,HTTPRedirectHandler
 from pathlib import Path
@@ -21,21 +22,24 @@ class EmporiaFetcher(Fetcher):
     No arbitrary URL/DNS input and no cross-origin redirects. The inherited get
     method still checks robots.txt and rate limits; forms are never submitted.
     """
+    def __init__(self,root):
+        super().__init__(root);self.rate_lock=threading.Lock()
     def raw(self,url):
         def check(value):
             p=urlsplit(value)
             if p.scheme!='https' or p.netloc!='www.emporia-realestate.com' or p.query or p.fragment:
                 raise ValueError('Outside reviewed Emporia origin')
-            if p.path!='/robots.txt' and not re.fullmatch(r'/property/[a-z0-9-]+/',p.path):
+            if p.path!='/robots.txt' and not re.fullmatch(r'/(?:property/[a-z0-9-]+/|lands/(?:page/[1-9][0-9]*/)?|)',p.path):
                 raise ValueError('Outside reviewed listing paths')
         check(url)
         class Redirect(HTTPRedirectHandler):
             def redirect_request(self,req,fp,code,msg,headers,newurl):
                 check(newurl)
                 return super().redirect_request(req,fp,code,msg,headers,newurl)
-        delay=self.minimum_interval-(time.monotonic()-self.last)
-        if delay>0:time.sleep(delay)
-        self.last=time.monotonic()
+        with self.rate_lock:
+            delay=self.minimum_interval-(time.monotonic()-self.last)
+            if delay>0:time.sleep(delay)
+            self.last=time.monotonic()
         with build_opener(Redirect()).open(Request(url,headers={'User-Agent':'EUPropertyResearch/0.2'}),timeout=25) as response:
             check(response.url);data=response.read(4_000_001)
             if len(data)>4_000_000:raise ValueError('Page exceeds transfer budget')
