@@ -1,3 +1,4 @@
+import {COUNTRIES} from './domain.mjs';
 // OIDC-authenticated intake only. Registration is never activation or partnership.
 export function sourceHost(value){
  const u=new URL(value);
@@ -39,7 +40,7 @@ export async function activateSource(sql,source){
   const [checkpoint]=await tx`select body_json::jsonb as state from discovery_runs where source_id=${'registry-'+source.id}`;
   const c=checkpoint?.state;
   if(!c||c.error||!['Uspješno','Djelomično'].includes(c.status)||!(c.inserted_count+c.updated_count>0)||Date.now()-Date.parse(c.checked_at)>3600000||Date.parse(c.checked_at)>Date.now()+60000)throw Error('Fresh successful normal refresh required');
-  const [proof]=await tx`select count(*)::int as n from source_candidates where source_id=${'registry-'+source.id} and kind='property' and last_seen=${c.checked_at} and country=any(array['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE']) and body_json::jsonb#>>'{facts,source_contact,represents_record}'='true'`;
+  const [proof]=await tx`select count(*)::int as n from source_candidates where source_id=${'registry-'+source.id} and kind='property' and last_seen=${c.checked_at} and country=any(${[...Object.keys(COUNTRIES),...Object.values(COUNTRIES)]}::text[]) and body_json::jsonb#>>'{facts,source_contact,represents_record}'='true'`;
   if(!proof?.n)throw Error('Persisted EU record with bound contact required');
   const stamp=new Date().toISOString(),config={shared_structured_property:true};
   if(intake.state.entry_urls){
