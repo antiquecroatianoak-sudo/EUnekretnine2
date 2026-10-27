@@ -351,7 +351,11 @@ def emporia_record(source,url,page,nodes,now):
     path=urlsplit(url).path
     for label,typ in [('house-','Kuća'),('flat-','Stan'),('apartment-','Stan'),('urbanized-land-','Zemljište')]:
         if path.startswith('/property/'+label):facts['property_type']=typ;break
-    number=lambda v:float(v.replace('.','').replace(',','.'))
+    def number(v):
+        # English detail descriptions use decimal dots; price/table formatting
+        # also uses grouped thousands. Do not turn 146.40 m² into 14640 m².
+        if ',' in v:return float(v.replace('.','').replace(',','.'))
+        return float(v.replace('.','') if re.fullmatch(r'\d{1,3}(?:\.\d{3})+',v) else v)
     for label,key in [('Living Area','building_area_m2'),('Plot Size','land_area_m2')]:
         values=re.findall(re.escape(label)+r'\s+([\d.,]+)\s*m²',body)
         if len(values)==1:facts[key]=number(values[0])
@@ -362,7 +366,23 @@ def emporia_record(source,url,page,nodes,now):
     described_building=re.findall(r'total area of\s+(\d[\d.,]*)\s*m²',body,re.I)
     if described_building and facts.get('building_area_m2') is not None and any(number(v)!=facts['building_area_m2'] for v in described_building):
         facts.setdefault('area_conflict',{}).update(table_building_m2=facts.pop('building_area_m2'),description_building_m2=[number(v) for v in described_building])
-    facts['advertised_area']={'value':facts['building_area_m2'],'unitCode':'MTK'} if facts.get('building_area_m2') else None
+    area_key='land_area_m2' if facts.get('property_type')=='Zemljište' else 'building_area_m2'
+    facts['advertised_area']={'value':facts[area_key],'unitCode':'MTK'} if facts.get(area_key) else None
+    if facts.get('property_type')=='Zemljište':
+        unit_prices=re.findall(r'(\d[\d.,]*)\s*€\s*/\s*m(?:2|²)',body)
+        if unit_prices:
+            unit_values={number(v) for v in unit_prices}
+            facts['price_unit']='EUR/m2'
+            facts['unit_price']=next(iter(unit_values)) if len(unit_values)==1 else None
+            facts['asking_price']=round(facts['unit_price']*facts[area_key],2) if facts.get('unit_price') is not None and facts.get(area_key) else None
+    # The primary canonical listing plus this exact call-to-action establishes
+    # a listing-bound enquiry route, not partnership or feed/reuse permission.
+    phone_links=[href[4:] for href,_ in page.links if href=='tel:+38523300000']
+    if 'CALL US TODAY' in text and phone_links:
+        facts['source_contact']={'mode':'agency','name':'Emporia d.o.o. Zadar','agency_name':'Emporia d.o.o. Zadar',
+            'phone':phone_links[0],'contact_url':url,'evidence_url':url,'record_reference':url,
+            'represents_record':True,'permitted':True,'permission_scope':'property_enquiry_only',
+            'permission_quote':'CALL US TODAY','checked_at':now}
     return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def listing_record(source,url,page,kind,now):
@@ -751,6 +771,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
