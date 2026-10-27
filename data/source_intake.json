@@ -270,7 +270,11 @@
       "status": "research",
       "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
       "evidence_url": "https://interfarms.com/nl/",
-      "existing_id": null
+      "existing_id": null,
+      "probe_urls": [
+        "https://interfarms.com/nl/object/21891",
+        "https://interfarms.com/nl/object/21869"
+      ]
     },
     {
       "key": "rural",
@@ -350,7 +354,10 @@
       "status": "research",
       "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
       "evidence_url": "https://residaro.com/",
-      "existing_id": null
+      "existing_id": null,
+      "probe_urls": [
+        "https://residaro.com/properties/sweden/country-houses/1960s-country-house-with-expansive-grounds-and-five-bedrooms-in-bruksvallarna"
+      ]
     },
     {
       "key": "esales",
@@ -360,7 +367,11 @@
       "status": "research",
       "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
       "evidence_url": "https://esalesinternational.com/",
-      "existing_id": null
+      "existing_id": null,
+      "probe_urls": [
+        "https://esalesinternational.com/property/excellent-5-bed-villa-for-sale-in-alomartes-granada-andalucia-spain/",
+        "https://esalesinternational.com/property/stunning-stone-house-fully-renovated-for-sale-in-chastreix-france/"
+      ]
     },
     {
       "key": "brevitas",
@@ -380,7 +391,10 @@
       "status": "research",
       "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
       "evidence_url": "https://homestra.com/",
-      "existing_id": null
+      "existing_id": null,
+      "probe_urls": [
+        "https://homestra.com/property/9-bedroom-stone-farmhouse-with-pool-in-aveyrons-scenic-countryside/"
+      ]
     },
     {
       "key": "rightmove",

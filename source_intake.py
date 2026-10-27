@@ -30,7 +30,7 @@ def probe(item,deadline):
         out.update(status='observed',title=' '.join(page.title)[:180],structured_types=sorted({str(n['@type']) for n in nodes if n.get('@type')}))
         # Small facts-only format evidence for connector work; not an advertisement copy.
         out['links']=[(urljoin(item['url'],h),label[:90]) for h,label in page.links if h and not h.startswith(('mailto:','tel:'))][:100]
-        targets=links(page,item['url'],objects,safe_url,item['url'])
+        targets=item.get('probe_urls') or links(page,item['url'],objects,safe_url,item['url'])
         out['details']=[]
         for target in targets[:2]:
             if time.monotonic()>=deadline:break
@@ -40,8 +40,11 @@ def probe(item,deadline):
                 row=primary_record({'id':0,'url':item['url']},target,ns,datetime.now(timezone.utc).isoformat(),p)
                 ev.update(parser='accepted_unverified',country=row['country'],contact_present=bool(row['facts'].get('source_contact')))
             except ValueError as e:ev['parser']=str(e)
-            ev['header']=' '.join(' '.join(p.main_text or p.text).split())[:1600]
-            ev['structured']=[{k:v for k,v in n.items() if k not in ('description','image','logo','review','aggregateRating')} for n in ns if n.get('@type')][:8]
+            ev['header']=' '.join(' '.join(p.main_text or p.text).split())[:4500]
+            ev['forms']=[{'action':f['action'],'fields':{k:v for k,v in f['fields'].items() if any(x in k.lower() for x in ('property','listing','refer','id','subject','title','url','message'))},'submit':f['submit']} for f in p.forms]
+            ev['end_text']=' '.join(' '.join(p.main_text or p.text).split())[-1600:]
+            ev['contact_links']=[(h,l[:80]) for h,l in p.links if h.startswith(('mailto:','tel:')) or any(x in l.lower() for x in ('original','agent','contact','terms'))][:20]
+            ev['structured']=[{k:v for k,v in n.items() if k not in ('description','image','photo','logo','review','aggregateRating')} for n in ns if n.get('@type')][:8]
             out['details'].append(ev)
     except Exception as e:out.update(status='blocked_or_unavailable',error=type(e).__name__+': '+str(e)[:260])
     print('INTAKE_PROBE '+json.dumps(out,ensure_ascii=False),flush=True)
@@ -50,7 +53,7 @@ def probe(item,deadline):
 def main():
     manifest=json.loads(MANIFEST.read_text())
     # Read-only PR evidence: known sources are explicit exclusions in the manifest.
-    items=select_new(manifest['sources'],[]);deadline=time.monotonic()+240
+    items=select_new(manifest['sources'],[]);items=[s for s in items if s.get('probe_urls')] if any(s.get('probe_urls') for s in items) else items;deadline=time.monotonic()+240
     with ThreadPoolExecutor(max_workers=4) as pool:results=list(pool.map(lambda x:probe(x,deadline),items))
     print('INTAKE_SUMMARY '+json.dumps({'sources':len(results),'writes':0,'activation_performed':False}),flush=True)
 
