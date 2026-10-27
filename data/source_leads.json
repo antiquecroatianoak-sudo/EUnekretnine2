@@ -64,6 +64,24 @@
    "title": "Home - ADAMANT IMMOBILIEN GmbH Willkommen bei ADAMANT IMMOBILIEN GMBH – Ihr zuverlässiger Partner in der Immobilienwelt,"
   },
   {
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "KIEGLER Immobilien GmbH 71 Google Bewertungen",
+     "found_on": "https://www.immo-immo.at/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://admin.trustindex.io/api/googleReview"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "admin.trustindex.io",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
+  },
+  {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
    "checked_at": "2026-10-24T16:05:56.046398+00:00",
    "country_hint": "AT",
@@ -218,6 +236,48 @@
    },
    "status": "nije_relevantno",
    "title": "960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten, Garage und zwei Carports - Immoviewer 960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten"
+  },
+  {
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Schlafzimmer",
+     "found_on": "https://www.sage-immobilien.at/immobilien/anlageobjekt-in-zell-am-see-kaufen-10696/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://b3016072.assetcdn.net/2.0/3016072/wp-content/uploads/immomakler/attachments/792f01d8c5c398d0138fc1f529c286d5/4d2e9949-cam01182g0-pr0237-still003.jpg"
+    },
+    {
+     "anchor": "Schlafzimmer",
+     "found_on": "https://www.sage-immobilien.at/immobilien/anlageobjekt-in-zell-am-see-kaufen-10696/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://b3016072.assetcdn.net/2.0/3016072/wp-content/uploads/immomakler/attachments/792f01d8c5c398d0138fc1f529c286d5/5785bdc6-cam01182g0-pr0237-still004.jpg"
+    },
+    {
+     "anchor": "Bild",
+     "found_on": "https://www.sage-immobilien.at/immobilien/anlageobjekt-in-zell-am-see-kaufen-10696/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://b3016072.assetcdn.net/2.0/3016072/wp-content/uploads/immomakler/attachments/792f01d8c5c398d0138fc1f529c286d5/a2cd65b5-mysage.jpg"
+    },
+    {
+     "anchor": "Badezimmer",
+     "found_on": "https://www.sage-immobilien.at/immobilien/anlageobjekt-in-zell-am-see-kaufen-10696/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://b3016072.assetcdn.net/2.0/3016072/wp-content/uploads/immomakler/attachments/792f01d8c5c398d0138fc1f529c286d5/45392341-cam01182g0-pr0237-still008.jpg"
+    },
+    {
+     "anchor": "Lounge",
+     "found_on": "https://www.sage-immobilien.at/immobilien/wohnung-eigentumswohnung-etagenwohnung-in-bad-gastein-kaufen-10107/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://b3016072.assetcdn.net/2.0/3016072/wp-content/uploads/immomakler/attachments/29ab3f2d5323f091945eb7cc352d9207/6949ab1a-cam01182g0-pr0239-still003.jpg"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "b3016072.assetcdn.net",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1394,6 +1454,24 @@
    "status": "robots_zabrana"
   },
   {
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Suchprofil anlegen Finden Sie Ihre Wunschimmobilie mit dem my-sreal Suchprofil.",
+     "found_on": "https://www.sreal.at/de/immobilien-suche",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://my-sreal.at/de/immobiliensuche"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "my-sreal.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
+  },
+  {
    "check_note": "HTTP 403",
    "checked_at": "2026-10-24T16:05:56.046398+00:00",
    "country_hint": null,
@@ -1412,6 +1490,30 @@
    ],
    "last_seen": "2026-10-24T16:05:55.948565+00:00",
    "status": "blokirano"
+  },
+  {
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Noch kein Zuhause gefunden? Kennen Sie schon das Wohnungsangebot von NEXT by GWS?",
+     "found_on": "https://gws-wohnen.at/immobilien-finden/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://www.nextbygws.at/immobilien"
+    },
+    {
+     "anchor": "Wohnungsangebot von NEXT by GWS",
+     "found_on": "https://gws-wohnen.at/immobilien-finden/kurzfristig-beziehbare-wohnungen/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://www.nextbygws.at/immobilien/"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "nextbygws.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1530,6 +1632,24 @@
    },
    "status": "nije_relevantno",
    "title": "WohnTraumCenter Bauen und Wohnen mit Raiffeisen"
+  },
+  {
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Property Details",
+     "found_on": "https://www.immoquelle.at/property-status/kaufen",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://realvy.webflow.io/properties/maplewood-estates"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "realvy.webflow.io",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -2068,6 +2188,24 @@
    "title": "Walkly video walkthrough | Voordestraat 2/A4 Sint-Stevens-Woluwe"
   },
   {
+   "country_hint": "DE",
+   "evidence": [
+    {
+     "anchor": "Immobiliendaten-Import und Darstellung für WordPress: WP-ImmoMakler",
+     "found_on": "https://perfektimmo.at/immobilien/",
+     "seen": "2026-10-27T15:17:00.722071+00:00",
+     "url": "https://www.wp-immomakler.de/"
+    }
+   ],
+   "first_seen": "2026-10-27T15:17:00.722071+00:00",
+   "host": "wp-immomakler.de",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T15:17:00.722071+00:00",
+   "status": "novo"
+  },
+  {
    "check_note": "Cross-source URL rejected: https://www.youtube.com/watch",
    "checked_at": "2026-10-25T21:32:25.666125+00:00",
    "country_hint": "BE",
@@ -2145,6 +2283,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T15:02:42.928734+00:00",
+ "updated_at": "2026-10-27T15:17:00.722071+00:00",
  "verified_at": "2026-10-27T15:02:43.039875+00:00"
 }
