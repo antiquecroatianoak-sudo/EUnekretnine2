@@ -142,7 +142,6 @@ def scan(previous=None,fetcher=fetch,now=None,sources=SOURCES):
             if source['adapter']=='fina':found=parse_fina(source,content,now)
             elif source['adapter']=='rss':found=parse_rss(source,content,now)
             else:found=parse_html(source,content,now)
-            if len(found)>10000:raise SourceError('Previše nalaza; potrebna je provjera izvora.')
             seen={r['id'] for r in found}
             for old in records.values():
                 if old['source_id']==source['id'] and old['id'] not in seen:old['observation']='Nije u posljednjem dohvatu; ishod nije potvrđen'

@@ -20,6 +20,28 @@ class DiscoveryTests(unittest.TestCase):
         found=parse_fina(SOURCES[0],out.getvalue(),NOW)
         self.assertEqual(len(found),1);self.assertEqual(found[0]['facts']['asking_price'],100.5)
         self.assertFalse(found[0]['verified'])
+    def test_scan_keeps_complete_large_csv_and_rejects_late_corruption(self):
+        out=io.StringIO()
+        writer=csv.writer(out,delimiter=';')
+        writer.writerow(['Vrsta predmeta prodaje','ID nadmetanja','Datum i vrijeme završetka nadmetanja','Opis','Početna cijena za nadmetanje'])
+        for key in range(1,10002):
+            writer.writerow(['nekretnina',str(key),'2026-10-20 12:00:00','Zemljište '+str(key),'100.50'])
+        content=out.getvalue()
+        snapshot=scan(fetcher=lambda *a,**k:content,now=NOW,sources=[SOURCES[0]])
+        self.assertEqual(snapshot['runs'][0]['status'],'Uspješno')
+        self.assertEqual(snapshot['runs'][0]['count'],10001)
+        rows={row['id']:row for row in snapshot['candidates']}
+        self.assertEqual(len(rows),10001)
+        for key in (1,10000,10001):
+            self.assertEqual(rows['fina-csv:'+str(key)]['facts']['asking_price'],100.5)
+            self.assertFalse(rows['fina-csv:'+str(key)]['verified'])
+        # A malformed row after the former cutoff must still invalidate the
+        # whole observation, without changing previous records or freshness.
+        malformed=content+'nekretnina;10002\n'
+        failed=scan(snapshot,fetcher=lambda *a,**k:malformed,now=NOW,sources=[SOURCES[0]])
+        self.assertEqual(failed['runs'][0]['status'],'Pogreška')
+        self.assertEqual(failed['candidates'],snapshot['candidates'])
+
     def test_wrong_spanish_feed_and_changed_csv_fail(self):
         with self.assertRaises(SourceError):parse_rss(SOURCES[2],'<rss><channel><title>Reparto del caudal hereditario</title></channel></rss>',NOW)
         with self.assertRaises(SourceError):parse_fina(SOURCES[0],'header;changed\n1;2',NOW)
