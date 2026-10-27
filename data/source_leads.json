@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 21,
+  "kandidat_nekretnine": 22,
   "nedostupno": 10,
   "nije_relevantno": 16,
   "robots_zabrana": 6
@@ -202,7 +202,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -258,7 +258,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "nedostupno"
   },
   {
@@ -278,7 +278,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "nedostupno"
   },
   {
@@ -298,7 +298,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -374,7 +374,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +426,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -454,7 +454,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -474,7 +474,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "nedostupno"
   },
   {
@@ -608,6 +608,34 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Stan 48 m² u Solunu, Grčka | kupiti, kupovinu apartmana cena: 200000€ | Grekodom Development Prodaja - Stan 48 m² u Solunu"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T10:16:09.777397+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/steiermark/graz/ab-sofort-verfuegbare-buero-bzw-gewerbeflaeche-in-graz-lend-provisionsfrei-1934632282/",
+     "seen": "2026-10-27T10:16:09.685577+00:00",
+     "url": "https://gws-wohnen.at/immobilien-finden/buero-geschaeftsflaechen/"
+    }
+   ],
+   "first_seen": "2026-10-27T10:16:09.685577+00:00",
+   "host": "gws-wohnen.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 5,
+    "property_words": 3
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Büro- & Geschäftsflächen Büro- & Geschäftsflächen der GWS"
   },
   {
    "check_note": "HTTP 301",
@@ -902,7 +930,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "blokirano"
   },
   {
@@ -915,6 +943,12 @@
      "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/dom/cala-polska?description=willa",
      "seen": "2026-10-27T08:04:28.293266+00:00",
      "url": "https://www.imovirtual.com/pt/resultados/comprar/moradia/todo-o-pais"
+    },
+    {
+     "anchor": "Mieszkania na sprzedaż w Portugalii",
+     "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?description=penthouse",
+     "seen": "2026-10-27T10:16:09.685577+00:00",
+     "url": "https://www.imovirtual.com/pt/resultados/comprar/apartamento/todo-o-pais"
     }
    ],
    "first_seen": "2026-10-27T08:04:28.293266+00:00",
@@ -922,7 +956,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 45,
     "buyer_words": 0,
@@ -1022,7 +1056,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1461,6 +1495,12 @@
      "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/dom/cala-polska?description=willa",
      "seen": "2026-10-27T08:04:28.293266+00:00",
      "url": "https://www.storia.ro/ro/rezultate/vanzare/casa/toata-romania"
+    },
+    {
+     "anchor": "Mieszkania na sprzedaż w Rumunii",
+     "found_on": "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/cala-polska?description=penthouse",
+     "seen": "2026-10-27T10:16:09.685577+00:00",
+     "url": "https://www.storia.ro/ro/rezultate/vanzare/apartament/toata-romania"
     }
    ],
    "first_seen": "2026-10-27T08:04:28.293266+00:00",
@@ -1468,7 +1508,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "signals": {
     "areas": 38,
     "buyer_words": 0,
@@ -1516,7 +1556,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T08:04:28.293266+00:00",
+   "last_seen": "2026-10-27T10:16:09.685577+00:00",
    "status": "nedostupno"
   },
   {
@@ -1625,6 +1665,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T08:04:28.293266+00:00",
- "verified_at": "2026-10-27T08:04:28.374794+00:00"
+ "updated_at": "2026-10-27T10:16:09.685577+00:00",
+ "verified_at": "2026-10-27T10:16:09.777397+00:00"
 }
