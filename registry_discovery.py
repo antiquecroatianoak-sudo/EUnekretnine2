@@ -375,14 +375,6 @@ def emporia_record(source,url,page,nodes,now):
             facts['price_unit']='EUR/m2'
             facts['unit_price']=next(iter(unit_values)) if len(unit_values)==1 else None
             facts['asking_price']=round(facts['unit_price']*facts[area_key],2) if facts.get('unit_price') is not None and facts.get(area_key) else None
-    # The primary canonical listing plus this exact call-to-action establishes
-    # a listing-bound enquiry route, not partnership or feed/reuse permission.
-    phone_links=[href[4:] for href,_ in page.links if href=='tel:+38523300000']
-    if 'CALL US TODAY' in text and phone_links:
-        facts['source_contact']={'mode':'agency','name':'Emporia d.o.o. Zadar','agency_name':'Emporia d.o.o. Zadar',
-            'phone':phone_links[0],'contact_url':url,'evidence_url':url,'record_reference':url,
-            'represents_record':True,'permitted':True,'permission_scope':'property_enquiry_only',
-            'permission_quote':'CALL US TODAY','checked_at':now}
     return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def listing_record(source,url,page,kind,now):
