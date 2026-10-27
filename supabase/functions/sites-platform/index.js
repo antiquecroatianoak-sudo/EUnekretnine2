@@ -1,4 +1,5 @@
-import {workflow} from './workflow.mjs';
+import {workflow,ACTIONS as WORKFLOW_ACTIONS,READ_ACTIONS as WORKFLOW_READS} from './workflow.mjs';
+import {changeOf} from './offer.mjs';
 import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
@@ -39,6 +40,7 @@ async function list(tx){
  const agencies=await agencyDirectory(tx);
  const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
   (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_all,(select count(*) from investors)::int as investors_all,
+  (select count(distinct coalesce(nullif(i.criteria_json::jsonb->>'buyer_identity_id',''),i.id::text)) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as buyers,
   (select count(*) from properties p where site_private.property_eligible(p) and site_private.contact_usable(p.contact_json,p.source) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
   (select count(*) from investors i where site_private.investor_eligible(i) and site_private.contact_usable(i.contact_json,i.criteria_json::jsonb->>'source_url') and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
   (select count(*) from sources where is_active)::int as sources,(select count(*) from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)})::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
@@ -55,6 +57,11 @@ async function pairsRead(tx){
   tx`select p.*,true as visible from properties p where p.id=any(${pids}::bigint[]) and ${tx.unsafe(PROPERTY_VISIBLE)}`,
   tx`select i.*,(${tx.unsafe(INVESTOR_VISIBLE)}) as visible from investors i where i.id=any(${iids}::bigint[])`,
   tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors)::int as investors,(select max(last_evaluated_at) from site_private.pair_records) as last_evaluated_at`]);
+ // New and improved pairs come from the permanent history (last two entries per stored pair), never from timestamps alone.
+ const recent=await tx`select h.property_id,h.investor_id,h.event,h.status,h.missing,h.rejected,h.recorded_at from (select h.*,row_number() over (partition by h.property_id,h.investor_id order by h.recorded_at desc,h.id desc) n
+  from site_private.pair_history h join match_results m on m.property_id=h.property_id and m.investor_id=h.investor_id) h where h.n<=2 order by h.property_id,h.investor_id,h.n`;
+ const byPair=new Map();for(const h of recent){const k=h.property_id+'-'+h.investor_id;if(!byPair.has(k))byPair.set(k,[]);byPair.get(k).push(h)}
+ for(const r of rows)r.change=changeOf(byPair.get(r.property_id+'-'+r.investor_id));
  return {match_results:rows,properties:await withAgencies(tx,properties,'properties'),investors:await withAgencies(tx,investors,'investors'),totals,settings:await settings(tx),loaded_at:new Date().toISOString()};
 }
 // Paged source candidates for the Izvori tab (newest first).
@@ -192,7 +199,7 @@ async function pairStage(tx,a){
  return {id:r[0].id};
 }
 async function dispatch(tx,a){
- if(['workflow','buyer_requests','save_request','offer_create','offer_approve','offer_response','agency_package'].includes(a.action))return workflow(tx,a,{refresh,businessPhase:Deno.env.get('BUSINESS_PHASE')==='on'});
+ if(WORKFLOW_ACTIONS.includes(a.action))return workflow(tx,a,{refresh,businessPhase:Deno.env.get('BUSINESS_PHASE')==='on'});
  if(a.action==='pair')return await pair(tx,a);
  if(a.action==='pair_question')return await pairQuestion(tx,a);
  if(a.action==='pair_answer')return await pairAnswer(tx,a);
@@ -243,7 +250,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(['read','pair','pairs','sources','catalog','pair_diagnostics','workflow','buyer_requests'].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','catalog','pair_diagnostics',...WORKFLOW_READS].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}
