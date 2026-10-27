@@ -11,7 +11,7 @@ ALLOWED = {"property_types", "cities", "preferred_countries", "requires_buildabl
 def normalized(value):
     return " ".join(str(value).split()).casefold()
 
-def profile_facts(url, page, config):
+def profile_facts(url, page, config, checked_at=None):
     if not isinstance(config, dict) or config.get("url", "").rstrip("/") != url.rstrip("/"):
         raise ValueError("Acquisition configuration does not match this page")
     if urlsplit(url).scheme != "https":
@@ -54,6 +54,19 @@ def profile_facts(url, page, config):
         facts['agency_name'] = name
         facts['buyer_role'] = 'Zastupnik investitora'
         facts['role_evidence'] = role_evidence
+    # A reviewed, explicit invitation is separate from a merely public email.
+    # Never promote old contacts or infer partnership/feed/marketing consent.
+    invitation=config.get('inquiry_evidence')
+    if invitation is not None:
+        if not isinstance(invitation,str) or not 20<=len(invitation)<=1000 or normalized(invitation) not in haystack:
+            raise ValueError('Reviewed inquiry invitation missing from acquisition page')
+        if checked_at is not None:
+            from datetime import datetime
+            stamp=datetime.fromisoformat(checked_at.replace('Z','+00:00'))
+            if stamp.tzinfo is None:raise ValueError('Inquiry check requires a timezone')
+            facts['source_contact'].update(permitted=True,contact_url=url,
+                permission_scope='property_enquiry_only',permission_quote=invitation,
+                permission_basis='reviewed_acquisition_invitation',checked_at=checked_at)
     rules = config.get("fields", [])
     if not isinstance(rules, list) or len(rules) > 30:
         raise ValueError("Invalid acquisition field mapping")
@@ -79,4 +92,5 @@ def profile_facts(url, page, config):
     if not facts.get("preferred_countries") or not facts.get("property_types"):
         raise ValueError("Documented demand countries and property types are required")
     return facts
+
 

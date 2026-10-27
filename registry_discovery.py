@@ -154,9 +154,16 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.links=[]; self.next=[]; self.meta={}; self.scripts=[]; self.text=[]
         self.anchor=None; self.ld=None; self.ignore=0; self.heading=None; self.title=[]; self.main_depth=0; self.main_text=[]
+        self.forms=[]; self.form=None
         self.feed(content)
     def handle_starttag(self,tag,attrs):
         a=dict(attrs)
+        if tag=='form':
+            self.form={'action':a.get('action',''),'fields':{},'submit':False}
+            self.forms.append(self.form)
+        if self.form is not None and tag in ('input','textarea','button'):
+            if a.get('name'):self.form['fields'][a['name']]=a.get('value','')
+            if a.get('type')=='submit':self.form['submit']=True
         if tag=='main':self.main_depth+=1
         if tag=='a': self.anchor=[a.get('href',''),[],a.get('rel','')]
         if tag in ('title','h1'):self.heading=tag
@@ -174,6 +181,7 @@ class Page(HTMLParser):
             if self.heading:self.title.append(data)
             if self.anchor is not None: self.anchor[1].append(data)
     def handle_endtag(self,tag):
+        if tag=='form':self.form=None
         if tag=='main':self.main_depth=max(0,self.main_depth-1)
         if tag==self.heading:self.heading=None
         if tag=='script' and self.ld is not None:
@@ -347,6 +355,9 @@ def emporia_record(source,url,page,nodes,now):
     if not re.search(r'\b(?:near Zadar|in Zadar|Zadar,|Zadar\b|Privlaka\b)',title+' '+body):raise RejectedListing('Property country needs explicit locality review')
     facts={'transaction_type':'sale','reference':header['ref'],'currency':'EUR','asking_price':None,'availability':'Oglas prodaje opažen; dostupnost i pravna urednost zahtijevaju provjeru','evidence_excerpt':body[:1600],'country_basis':'Property locality in original Emporia detail; reviewed Zadar/Privlaka, Croatia','agency_name':'Emporia d.o.o. Zadar','agency_evidence_url':url,'contact_url':url,'contact_evidence':'Contact us enquiry form on this individual listing','source_listing_state':'removed' if header['state']=='Sold' else 'observed'}
     if header['state']=='Sold':facts['source_status_evidence']='Primary listing label: Sold'
+    from inquiry_contacts import emporia_inquiry
+    contact=emporia_inquiry(url,title,page,now)
+    if contact:facts['source_contact']=contact
     if header['price']!='Price on request':facts['asking_price']=float(header['price'].replace('€','').strip().replace('.','').replace(',','.'))
     path=urlsplit(url).path
     for label,typ in [('house-','Kuća'),('flat-','Stan'),('apartment-','Stan'),('urbanized-land-','Zemljište')]:
@@ -362,7 +373,8 @@ def emporia_record(source,url,page,nodes,now):
     described_building=re.findall(r'total area of\s+(\d[\d.,]*)\s*m²',body,re.I)
     if described_building and facts.get('building_area_m2') is not None and any(number(v)!=facts['building_area_m2'] for v in described_building):
         facts.setdefault('area_conflict',{}).update(table_building_m2=facts.pop('building_area_m2'),description_building_m2=[number(v) for v in described_building])
-    facts['advertised_area']={'value':facts['building_area_m2'],'unitCode':'MTK'} if facts.get('building_area_m2') else None
+    measured=facts.get('land_area_m2') if facts.get('property_type')=='Zemljište' else facts.get('building_area_m2')
+    facts['advertised_area']={'value':measured,'unitCode':'MTK'} if measured else None
     return {'id':'registry:property:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'property','title':title[:240],'country':'HR','url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
 
 def listing_record(source,url,page,kind,now):
@@ -370,7 +382,7 @@ def listing_record(source,url,page,kind,now):
     nodes=[v for script in page.scripts for v in objects(script)]
     if kind=='buyer' and source.get('import_config',{}).get('buyer_profile'):
         from buyer_profiles import profile_facts
-        facts=profile_facts(url,page,source['import_config']['buyer_profile'])
+        facts=profile_facts(url,page,source['import_config']['buyer_profile'],checked_at=now)
         return {'id':'registry:buyer:'+hashlib.sha256(url.encode()).hexdigest()[:32],'source_id':'registry-'+str(source['id']),'kind':'buyer','title':(facts['entity_name']+' — public acquisition criteria')[:240],'country':source['country'],'url':url,'first_seen':now,'last_seen':now,'verified':False,'status':'Za provjeru','facts':facts}
     if kind=='property' and hostkey(urlsplit(url).hostname)=='emporia-realestate.com':
         return emporia_record(source,url,page,nodes,now)
@@ -751,6 +763,7 @@ def main(max_workers=3):
         raise RuntimeError('Persistence failed for sources: '+', '.join(persistence_failures))
 
 if __name__=='__main__':main()
+
 
 
 
