@@ -69,16 +69,21 @@ class PairRecordsMigrationTests(unittest.TestCase):
         self.assertEqual(self.c.execute('select count(*) from site_private.pair_history').fetchone()[0], 1)
         self.assertEqual(self.c.execute('select count(*) from site_private.pair_answers').fetchone()[0], 1)
         self.assertEqual(self.c.execute("select count(*) from pg_class where relname like 'pair_%' and relrowsecurity").fetchone()[0], 5)
-    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
-    def test_pair_api_against_migrated_schema(self):
+    def run_node(self, script):
         self.run_file('pair-records.sql')
-        from psycopg.conninfo import conninfo_to_dict, make_conninfo
+        from psycopg.conninfo import conninfo_to_dict
         params = conninfo_to_dict(os.environ['TEST_POSTGRES_URL']); params['dbname'] = self.name
         url = 'postgres://{user}:{password}@{host}:{port}/{dbname}'.format(user=params.get('user', 'postgres'), password=params.get('password', ''),
             host=params.get('host', 'localhost'), port=params.get('port', 5432), dbname=self.name)
         if params.get('sslmode'): url += '?sslmode=' + params['sslmode']
-        done = subprocess.run(['node', str(ROOT / 'test_pair_api.mjs')], env=dict(os.environ, PAIR_DB_URL=url), capture_output=True, text=True, timeout=120)
+        done = subprocess.run(['node', str(ROOT / script)], env=dict(os.environ, PAIR_DB_URL=url), capture_output=True, text=True, timeout=120)
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_pair_api_against_migrated_schema(self):
+        self.run_node('test_pair_api.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_read_path_against_migrated_schema(self):
+        self.run_node('test_read_staged.mjs')
 
 if __name__ == '__main__':
     unittest.main()
