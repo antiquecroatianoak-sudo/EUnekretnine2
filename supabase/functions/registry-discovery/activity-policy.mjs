@@ -50,6 +50,7 @@ const FACTS="(site_private.safe_json(c.body_json)->'facts')";
 const SOURCE_PROOF=evidenceSQL('c.url',FACTS,"coalesce(site_private.safe_json(c.body_json)->'facts'->>'checked_at',case when c.url ~ '^https://www[.](immobilier[.]notaires[.]fr|biddit[.]be)/' then c.last_seen end)");
 export const SOURCE_ACTIVE=`(${retainedSQL(FACTS)}) and not exists(select 1 from site_private.listing_lifecycle activity_l where activity_l.candidate_id=c.id and activity_l.state in ('expired','removed'))`;
 export const PROPERTY_ACTIVE=`coalesce(p.status,'') not in ('Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno')
+ and (p.auction_at is null or p.auction_at>now())
  and (p.bid_deadline_at is null or p.bid_deadline_at>now())
  and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())
  and p.id not in(select c.property_id from source_candidates c where c.kind='property' and c.property_id is not null and not (${SOURCE_ACTIVE}))
