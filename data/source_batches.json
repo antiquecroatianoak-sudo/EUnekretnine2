@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-27T10:33:48.511180+00:00",
- "source_count": 115,
- "inactive_count": 62,
+ "checked_at": "2026-10-27T12:53:02.875944+00:00",
+ "source_count": 144,
+ "inactive_count": 91,
  "groups": {
   "structured_property_adapter": 22,
   "operating_monitor": 53,
   "approved_access_required": 31,
-  "fetch_or_persistence_failure": 4,
+  "fetch_or_persistence_failure": 33,
   "listing_layout": 2,
   "buyer_acquisition_pages": 1,
   "pdf_acquisition_profiles": 2
@@ -276,7 +276,7 @@
    "url": "https://rosepatrimoine.fr/accueil/nos-criteres-d-investissement/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "TimeoutError: The read operation timed out",
+   "last_error": null,
    "retry_after": null
   },
   {
@@ -329,7 +329,7 @@
    "url": "https://www.otodom.pl/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "HTTPError: HTTP Error 502: Bad Gateway",
+   "last_error": null,
    "retry_after": null
   },
   {
@@ -1505,9 +1505,443 @@
    "group": "operating_monitor",
    "last_error": null,
    "retry_after": null
+  },
+  {
+   "id": "116",
+   "name": "Be.agency",
+   "url": "https://be.hr/en",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "117",
+   "name": "Century 21",
+   "url": "https://www.century21global.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "RejectedRedirect: Cross-source URL rejected: https://www.century21.com/office/global/robots.txt"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "118",
+   "name": "IQI Global",
+   "url": "https://www.iqiglobal.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "119",
+   "name": "Sothebys",
+   "url": "https://www.sothebysrealty.com/eng",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "fetch_failed",
+    "error": "HTTPError: HTTP Error 405: Not Allowed"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "120",
+   "name": "CBRE",
+   "url": "https://www.cbre.hr/en-gb/insights/intelligent-investment",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 181,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "121",
+   "name": "Colliers",
+   "url": "https://www.colliers.com/en-hr",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ListItem",
+     "Organization",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 96,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "122",
+   "name": "Eastdil Secured",
+   "url": "https://www.eastdilsecured.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "ReadAction",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 105,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "123",
+   "name": "Keller Williams",
+   "url": "https://www.kw.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "124",
+   "name": "RICS",
+   "url": "https://www.rics.org/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 149,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "125",
+   "name": "FIABCI",
+   "url": "https://fiabci.org/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 374,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "126",
+   "name": "Urban Land Institute",
+   "url": "https://uli.org/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "127",
+   "name": "INREV",
+   "url": "https://www.inrev.org/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 190,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "128",
+   "name": "Data Boutique",
+   "url": "https://www.databoutique.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 0,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "129",
+   "name": "MSCI RCA",
+   "url": "https://www.msci.com/data-and-analytics/real-estate/real-capital-analytics",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 0,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "130",
+   "name": "Tranio",
+   "url": "https://tranio.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Organization",
+     "PostalAddress"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 990,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "131",
+   "name": "Consorto",
+   "url": "https://www.consorto.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ContactPoint",
+     "ListItem",
+     "Organization"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 65,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "132",
+   "name": "Knight Frank",
+   "url": "https://www.knightfrank.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 151,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "133",
+   "name": "Cushman & Wakefield",
+   "url": "https://www.cushmanwakefield.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "134",
+   "name": "JLL",
+   "url": "https://www.jll.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ListItem",
+     "Organization",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 75,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "135",
+   "name": "Savills",
+   "url": "https://www.savills.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe": {
+    "status": "access_blocked",
+    "error": "HTTPError: HTTP Error 403: Forbidden"
+   },
+   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+  },
+  {
+   "id": "136",
+   "name": "Interfarms",
+   "url": "https://interfarms.com/nl/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "137",
+   "name": "Rural Property Network",
+   "url": "https://ruralpropertynetwork.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "138",
+   "name": "Properstar",
+   "url": "https://www.properstar.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "139",
+   "name": "Green-Acres",
+   "url": "https://www.green-acres.fr/en",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "140",
+   "name": "Residaro",
+   "url": "https://residaro.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "141",
+   "name": "Esales International",
+   "url": "https://esalesinternational.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "142",
+   "name": "Brevitas",
+   "url": "https://brevitas.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "143",
+   "name": "Homestra",
+   "url": "https://homestra.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
+  },
+  {
+   "id": "144",
+   "name": "Rightmove Overseas",
+   "url": "https://www.rightmove.co.uk/overseas-property.html",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 0,
- "remaining_due": 0
+ "probed_count": 20,
+ "remaining_due": 9
 }
