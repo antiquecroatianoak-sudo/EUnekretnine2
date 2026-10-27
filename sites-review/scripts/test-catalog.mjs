@@ -26,6 +26,7 @@ try{
  insert into properties select n,'TEST ONLY '||n,'Hrvatska','Zagreb','Grad Zagreb','Uredno',100000,null,null,'Aktivno','https://example.org/listing/'||n from generate_series(1,10125) n;
  insert into investors select n,'TEST ONLY '||n,'US','Hrvatska',1 from generate_series(1,10042) n;
  insert into source_candidates(id,property_id,investor_id) values('expired','2',null);insert into site_private.listing_lifecycle values('expired','expired');`);
+ await db.exec('alter table properties add column auction_at timestamptz');
  for(const table of ['properties','investors']){
   let after=0,through=null,ids=[];
   do{const page=await catalogPage(tx,{table,after,through,limit:137});
@@ -36,7 +37,7 @@ try{
   assert(ids.includes(table==='properties'?10125:10042),'records beyond 10,000 are reachable');
  }
  let page=await catalogPage(tx,{table:'properties',limit:3});
- await db.exec(`delete from properties where id=1;insert into properties values(10126,'NEW','Hrvatska','Zagreb','','Uredno',2,null,null,'Aktivno','https://example.org/listing/10126')`);
+ await db.exec(`delete from properties where id=1;insert into properties values(10126,'NEW','Hrvatska','Zagreb','','Uredno',2,null,null,'Aktivno','https://example.org/listing/10126',null)`);
  const next=await catalogPage(tx,{table:'properties',after:page.next,through:page.through,limit:3});
  assert.deepEqual(next.items.map(r=>Number(r.id)),[5,6,7],'deletion before cursor cannot skip a row');
  assert.equal(next.through,10125,'new insert waits until refresh');
@@ -53,5 +54,17 @@ try{
  const i={contact_json:testContact('https://example.org/buyer'),...(await catalogPage(tx,{table:'investors',query:'TEST ONLY 10042'})).items[0],criteria_json:{property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:'https://example.org/buyer',checked_at:new Date(now).toISOString()}};
  assert.equal(Number(p.id),10125);assert.equal(Number(i.id),10042);
  assert.equal(suggestion(p,i,now).status,'Podudaranje kriterija','real evaluator accepts reachable records beyond both old caps');
+ // Legacy/manual auction rows may have no source candidate and no other
+ // deadline. A stale Aktivno label cannot keep an elapsed auction visible.
+ await db.exec('begin');
+ for(const [interval,visible] of [['-1 second',0],['0 seconds',0],['1 day',1]]){
+  await db.query('update properties set auction_at=now()+$1::interval where id=10126',[interval]);
+  assert.equal((await catalogPage(tx,{table:'properties',record_id:10126})).total,visible,'auction '+interval);
+ }
+ await db.exec('update properties set auction_at=null where id=10126');
+ assert.equal((await catalogPage(tx,{table:'properties',record_id:10126})).total,1,'unknown auction date remains visible');
+ await db.exec("update properties set auction_at=now()+interval '1 day',bid_deadline_at=now()-interval '1 second' where id=10126");
+ assert.equal((await catalogPage(tx,{table:'properties',record_id:10126})).total,0,'future auction never overrides an elapsed bidding deadline');
+ await db.exec('rollback');
  console.log('Catalog PostgreSQL checks passed: 10,125 properties and 10,042 buyers, complete keyset traversal, lifecycle exclusion, no duplicates/skips, high-water insert boundary, full search and matching beyond 10,000.');
 }finally{await db.close()}
