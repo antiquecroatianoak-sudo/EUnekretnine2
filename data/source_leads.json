@@ -1,7 +1,7 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 22,
+  "kandidat_nekretnine": 25,
   "nedostupno": 10,
   "nije_relevantno": 16,
   "robots_zabrana": 6
@@ -202,7 +202,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -212,6 +212,34 @@
    },
    "status": "nije_relevantno",
    "title": "Immobilier d’Entreprise et Hôtellerie | Bouygues immobilier Immobilier d’Entreprise et Hôtellerie"
+  },
+  {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T10:30:42.116034+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/ferienimmobilien-kaufen/andere-laender/italien/exklusives-penthouse-mit-whirlpool-meerblick-1204627746/",
+     "seen": "2026-10-27T10:30:42.027054+00:00",
+     "url": "https://www.ca-italia-immo.com/immobilie/penthouse-lignano-sabbiadoro/"
+    }
+   ],
+   "first_seen": "2026-10-27T10:30:42.027054+00:00",
+   "host": "ca-italia-immo.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "signals": {
+    "areas": 13,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 5,
+    "property_words": 12
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Exklusives PENTHOUSE in Lignano Sabbiadoro mit privater Dachterrasse & Meerblick - CA' ITALIA Exklusives PENTHOUSE in Lignano Sabbiadoro mit privater Dachterras"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -258,7 +286,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "nedostupno"
   },
   {
@@ -298,7 +326,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -374,7 +402,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -426,7 +454,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -454,7 +482,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -474,7 +502,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "nedostupno"
   },
   {
@@ -930,7 +958,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "blokirano"
   },
   {
@@ -1056,7 +1084,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1084,7 +1112,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T12:59:27.949622+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "nedostupno"
   },
   {
@@ -1336,6 +1364,40 @@
    "title": "Alexander Ringsmuth GmbH | Immobilienvermittlung Wien, NÖ, OÖ & Stmk Alexander Ringsmuth GmbH Wertschätzung & Expertise für Ihre Immobilie in Österreich"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T10:30:42.116034+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Weitere Immobilienangebote",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/ferienimmobilien-kaufen/salzburg/zell-am-see/premium-resort-buy-to-let-wohnung-in-zentraler-lage-von-maria-alm-2018463907/",
+     "seen": "2026-10-27T10:30:42.027054+00:00",
+     "url": "https://www.sage-immobilien.at/"
+    },
+    {
+     "anchor": "Zur Website",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/ferienimmobilien-kaufen/salzburg/zell-am-see/premium-resort-buy-to-let-wohnung-in-zentraler-lage-von-maria-alm-2018463907/",
+     "seen": "2026-10-27T10:30:42.027054+00:00",
+     "url": "https://www.sage-immobilien.at/immobilien/"
+    }
+   ],
+   "first_seen": "2026-10-27T10:30:42.027054+00:00",
+   "host": "sage-immobilien.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 12,
+    "property_words": 81
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Startseite | SAGE Immobilien Zurück Weiter Nach oben scrollen"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T01:10:37.930983+00:00",
    "country_hint": "AT",
@@ -1540,6 +1602,34 @@
    "status": "blokirano"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-27T10:30:42.116034+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/ferienimmobilien-kaufen/steiermark/liezen/schladming-reiteralm-das-beste-aus-zwei-welten-ihr-exklusives-ferien-apartment-rendite-sichern-selbst-geniessen-1018332399/",
+     "seen": "2026-10-27T10:30:42.027054+00:00",
+     "url": "https://top-living.at/immobilien"
+    }
+   ],
+   "first_seen": "2026-10-27T10:30:42.027054+00:00",
+   "host": "top-living.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "signals": {
+    "areas": 63,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 8,
+    "property_words": 5
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Top Living Unsere aktuellen Immobilien"
+  },
+  {
    "check_note": "HTTP 406",
    "checked_at": "2026-10-23T19:00:28.936701+00:00",
    "country_hint": null,
@@ -1556,7 +1646,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:30:42.027054+00:00",
    "status": "nedostupno"
   },
   {
@@ -1665,6 +1755,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T10:16:09.685577+00:00",
- "verified_at": "2026-10-27T10:16:09.777397+00:00"
+ "updated_at": "2026-10-27T10:30:42.027054+00:00",
+ "verified_at": "2026-10-27T10:30:42.116034+00:00"
 }

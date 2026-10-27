@@ -1,15 +1,15 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-27T10:04:26.355258+00:00",
+ "checked_at": "2026-10-27T10:18:31.473164+00:00",
  "source_count": 115,
- "inactive_count": 63,
+ "inactive_count": 62,
  "groups": {
   "structured_property_adapter": 22,
-  "operating_monitor": 52,
+  "operating_monitor": 53,
   "approved_access_required": 31,
   "fetch_or_persistence_failure": 4,
   "listing_layout": 2,
-  "buyer_acquisition_pages": 2,
+  "buyer_acquisition_pages": 1,
   "pdf_acquisition_profiles": 2
  },
  "sources": [
@@ -267,7 +267,7 @@
    "url": "https://www.evarzytynes.lt/evs/pages/auctions.do",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "RemoteDisconnected: Remote end closed connection without response",
    "retry_after": null
   },
   {
@@ -1211,8 +1211,8 @@
    "id": "94",
    "name": "C&P Immobilien – kupnja zemljišta i objekata za razvoj",
    "url": "https://www.cp-ag.at/en/contact/project-purchase/",
-   "is_active": false,
-   "group": "buyer_acquisition_pages",
+   "is_active": true,
+   "group": "operating_monitor",
    "last_error": "ValueError: No explicit public acquisition demand; company profile is not a buyer request",
    "retry_after": null,
    "probe_at": "2026-10-27T10:04:26.356895+00:00",
@@ -1508,6 +1508,6 @@
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 10,
+ "probed_count": 0,
  "remaining_due": 0
 }
