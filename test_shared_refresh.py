@@ -2,8 +2,9 @@ import json
 import time
 import unittest
 from unittest.mock import patch
-from urllib.error import HTTPError
-from property_connector import collect
+from urllib.error import HTTPError, URLError
+from datetime import datetime,timezone,timedelta
+from property_connector import collect,retry_pending
 from test_property_connector import PrimaryListingTests
 
 
@@ -44,11 +45,12 @@ class SharedRefreshTests(unittest.TestCase):
         self.assertFalse(state['coverage_complete'])
 
     def test_denial_preserves_retry_url_and_reports_no_removal(self):
-        rows,state,_=self.run_collect(HTTPError(self.url,403,'Forbidden',{},None))
-        self.assertEqual(state['pending'][0]['url'],self.url)
-        self.assertEqual(state['unavailable_urls'],[])
-        self.assertIsNotNone(state['retry_after'])
-        self.assertEqual(rows,[])
+        for error in [HTTPError(self.url,403,'Forbidden',{},None),HTTPError(self.url,403,'timed out',{},None),HTTPError(self.url,429,'Too Many Requests',{},None),ValueError('robots.txt disallows this URL')]:
+            rows,state,_=self.run_collect(error)
+            self.assertEqual(state['pending'][0]['url'],self.url)
+            self.assertEqual(state['unavailable_urls'],[])
+            self.assertIsNotNone(state['retry_after'])
+            self.assertEqual(rows,[])
 
     def test_changed_format_is_not_a_removed_record(self):
         rows,state,_=self.run_collect('<h1>Changed layout</h1>')
@@ -61,6 +63,28 @@ class SharedRefreshTests(unittest.TestCase):
         self.assertEqual(calls,[])
         self.assertEqual(state['pending'][0]['url'],self.url)
         self.assertEqual(state['pages_processed'],0)
+
+    def test_timeout_keeps_queue_without_a_day_long_access_cooldown(self):
+        for error in [TimeoutError('read timed out'),URLError(TimeoutError('read timed out'))]:
+            rows,state,calls=self.run_collect(error)
+            self.assertEqual(rows,[]);self.assertEqual(calls,[self.url])
+            self.assertEqual(state['pending'][0]['url'],self.url)
+            self.assertEqual(state['unavailable_urls'],[])
+            self.assertEqual(state['error_kind'],'timeout')
+            self.assertNotIn('retry_after',state)
+
+    def test_legacy_timeout_waits_six_hours_and_preserves_access_cooldowns(self):
+        now=datetime(2026,10,27,12,tzinfo=timezone.utc)
+        old=dict(scope='Shared primary JSON-LD connector; discovered pages only',error='TimeoutError: The read operation timed out',retry_after=(now+timedelta(hours=12)).isoformat())
+        for hours,pending in [(5.999,True),(6,False),(12,False)]:
+            self.assertEqual(retry_pending(dict(old,checked_at=(now-timedelta(hours=hours)).isoformat()),now),pending)
+        for error in ['HTTPError: HTTP Error 403: Forbidden','HTTPError: HTTP Error 429: Too Many Requests','ValueError: robots.txt disallows this URL','Unknown manual hold']:
+            self.assertTrue(retry_pending(dict(old,error=error,checked_at=(now-timedelta(days=2)).isoformat()),now))
+        self.assertTrue(retry_pending(dict(old,checked_at=(now+timedelta(hours=1)).isoformat()),now))
+        for checked in ['',None,'invalid','2026-10-25T00:00:00']:
+            self.assertTrue(retry_pending(dict(old,checked_at=checked),now))
+        self.assertFalse(retry_pending(dict(old,retry_after=now.isoformat()),now))
+        self.assertFalse(retry_pending({},now))
 
 
 if __name__=='__main__':unittest.main()
