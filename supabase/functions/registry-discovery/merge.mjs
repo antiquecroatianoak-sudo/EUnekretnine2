@@ -4,7 +4,8 @@ const CLOSURE_KEYS=['source_listing_state','source_status_evidence','call_curren
 const PROPERTY_COUNTRY_HOSTS=new Set(['immonestor.at','adamant-immobilien.at','immolution.at','raiffeisen-immobilien.at','zweitwohnsitze.com']);
 export function candidateCountry(row,source){
  const host=new URL(source.url).hostname.replace(/^www\./,'');
- if(row.kind==='property'&&PROPERTY_COUNTRY_HOSTS.has(host)){
+ if(row.kind==='property'&&(PROPERTY_COUNTRY_HOSTS.has(host)||!source.country)){
+  if(!source.country&&(!row.facts?.country_basis||!row.facts?.advertised_location))throw Error('Primary property country evidence required');
   if(!Object.hasOwn(COUNTRIES,row.country))throw Error('Missing supported property country');
   return COUNTRIES[row.country];
  }

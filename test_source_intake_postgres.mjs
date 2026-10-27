@@ -20,7 +20,7 @@ try{
  await assert.rejects(()=>activateSource(sql,a.source),/normal refresh/);
  const state={status:'Uspješno',checked_at:stamp,inserted_count:1,updated_count:1,error:null};
  await sql`insert into discovery_runs values(${'registry-'+a.source.id},'Uspješno',${stamp},${JSON.stringify(state)})`;
- await sql`insert into source_candidates values('sample',${'registry-'+a.source.id},'property',${stamp},'NL','{}')`;
+ await sql`insert into source_candidates values('sample',${'registry-'+a.source.id},'property',${stamp},'Nizozemska','{}')`;
  await assert.rejects(()=>activateSource(sql,a.source),/bound contact/);
  await sql`update source_candidates set body_json='{"facts":{"source_contact":{"represents_record":true}}}' where id='sample'`;
  const result=await activateSource(sql,a.source);assert.equal(result.activated,true);
