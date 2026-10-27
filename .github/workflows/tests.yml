@@ -55,6 +55,7 @@ jobs:
           node test_recheck_failures.mjs
           node test_no_schema_activity.mjs
           node ops/test-unknown-availability.mjs
+          node test_source_intake.mjs
           node test_verification.mjs
           node test_public_land.mjs
           node test_domain_input.mjs

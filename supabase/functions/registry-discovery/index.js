@@ -1,3 +1,4 @@
+import {registerSource,intakeStatus,activateSource} from './source-intake.mjs';
 import {applyFailedRechecks,applyObservedClosures} from './recheck-failures.mjs';
 import {explicitProof,admissibleListing,availabilityLabel,closureState} from './activity-policy.mjs';
 import postgres from 'npm:postgres@3.4.7';
@@ -44,6 +45,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Invalid JSON'},400)}
  try{
   const sql=db??=postgres(Deno.env.get('SUPABASE_DB_URL'),{ssl:'require',max:1,prepare:false,idle_timeout:5,connect_timeout:10});
+  if(body.action==='intake-register')return reply(await registerSource(sql,body.source));
   if(body.action==='enrichment-country')return reply(await runCountry(sql,body.country));
   if(body.action==='registry'){
    await sql`select site_private.reconcile_listing_lifecycle()`;
@@ -68,6 +70,8 @@ Deno.serve(async req=>{
   if(!/^registry-\d+$/.test(body.source_id||''))return reply({error:'Invalid source ID'},400);
   const [source]=await sql`select id,country,name,url,category from sources where id=${body.source_id.slice(9)}`;
   if(!source)return reply({error:'Unknown registered source'},400);
+  if(body.action==='intake-status')return reply(await intakeStatus(sql,source,body.state));
+  if(body.action==='intake-activate')return reply(await activateSource(sql,source));
   if(body.action==='checkpoint-status'){
    if(!body.state||body.state.source_id!==body.source_id)throw Error('Invalid checkpoint receipt');
    const [receipt]=await sql`select body_json::jsonb=${JSON.stringify(body.state)}::jsonb as saved from discovery_runs where source_id=${body.source_id}`;

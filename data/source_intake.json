@@ -364,9 +364,9 @@
       "name": "Esales International",
       "url": "https://esalesinternational.com/",
       "kind": "property",
-      "status": "research",
-      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
-      "evidence_url": "https://esalesinternational.com/",
+      "status": "access_required",
+      "note": "Terms 2.1 prohibit storing/reusing site information without prior written consent.",
+      "evidence_url": "https://esalesinternational.com/terms-and-conditions/",
       "existing_id": null,
       "probe_urls": [
         "https://esalesinternational.com/property/excellent-5-bed-villa-for-sale-in-alomartes-granada-andalucia-spain/",
