@@ -6,7 +6,7 @@ from urllib.parse import urlsplit
 import re
 
 EU = set("AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE".split())
-ALLOWED = {"property_types", "cities", "preferred_countries", "requires_buildable", "conditions"}
+ALLOWED = {"property_types", "cities", "preferred_countries", "requires_buildable", "conditions", "required_criteria"}
 
 def normalized(value):
     return " ".join(str(value).split()).casefold()
@@ -43,7 +43,9 @@ def profile_facts(url, page, config, checked_at=None):
                  contact_email=email, contact_url=url,
                  contact_evidence="Contact observed on this acquisition page",
                  listing_kind="public_acquisition_profile", budget=None,
-                 transaction_type="unconfirmed_acquisition_profile",
+                 # This exact, reviewed page documents a general acquisition
+                 # request. It is not verification or interest in any property.
+                 transaction_type="buy_request",
                  availability="Public criteria observed; mandate and specific interest remain unconfirmed",
                  field_evidence={}, evidence_excerpt=intent)
     facts['source_contact'] = dict(mode=mode, name=name, email=email,
@@ -73,10 +75,11 @@ def profile_facts(url, page, config, checked_at=None):
     for rule in rules:
         key = rule.get("field")
         quote = rule.get("evidence")
+        quotes = [quote] if isinstance(quote, str) else quote
         value = rule.get("value")
-        if key not in ALLOWED or not isinstance(quote, str) or not 8 <= len(quote) <= 1500:
+        if key not in ALLOWED or not isinstance(quotes, list) or not 1 <= len(quotes) <= 10 or any(not isinstance(q,str) or not 8 <= len(q) <= 1500 for q in quotes):
             raise ValueError("Invalid acquisition field evidence")
-        if normalized(quote) not in haystack:
+        if any(normalized(q) not in haystack for q in quotes):
             raise ValueError("Acquisition field evidence changed: " + key)
         if key == "requires_buildable":
             if type(value) is not bool:
