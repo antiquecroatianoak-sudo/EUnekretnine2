@@ -145,6 +145,28 @@ try{
   assert(!full.properties.some(p=>String(p.id)===String(p2)));
  }
  await sql`update properties set bid_deadline_at=null where id=${p2}`;
+ // Existing listings can be closed through the real save action, without
+ // deleting their records, evidence, tasks or pair history. New closed
+ // listings remain rejected. Each case rolls back in this isolated database.
+ for(const status of ['Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno']){
+  await assert.rejects(run({action:'save_property',record:{...land,status}}),/novi upis/);
+  const rollback=Error('ROLLBACK closure fixture');
+  await assert.rejects(sql.begin(async tx=>{
+   const [before]=await tx`select * from properties where id=${p2}`;
+   const [history]=await tx`select count(*)::int as n from site_private.pair_history where property_id=${p2}`;
+   const saved=await dispatch(tx,{action:'save_property',id:p2,record:{...before,status}});
+   assert.equal(Number(saved.id),Number(p2));
+   assert.equal((await tx`select status from properties where id=${p2}`)[0].status,status);
+   assert.equal((await tx`select count(*)::int as n from match_results where property_id=${p2}`)[0].n,0);
+   assert.equal((await tx`select in_latest_calculation from site_private.pair_records where property_id=${p2} and investor_id=${i2.id}`)[0].in_latest_calculation,false);
+   assert((await tx`select count(*)::int as n from site_private.pair_history where property_id=${p2}`)[0].n>history.n);
+   const [after]=await tx`select * from properties where id=${p2}`;
+   assert.equal(after.contact_json,before.contact_json,'closure preserves the contact evidence');
+   assert(!(await dispatch(tx,{action:'read'})).properties.some(p=>Number(p.id)===Number(p2)));
+   throw rollback;
+  }),error=>error===rollback);
+ }
+ assert((await run({action:'pairs'})).match_results.some(m=>Number(m.property_id)===Number(p2)),'rollback restored the original pair');
  // Source candidates page with a true total; the full read does not ship every candidate body.
  for(let n=0;n<7;n++)await sql`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values(${'test:page:'+n},'test','property',${'Kandidat '+n},'HR',${'https://example.org/c/'+n},'{"facts":{}}',${new Date(Date.now()+n*1000).toISOString()})`;
  const page=await run({action:'sources',offset:2,limit:3});

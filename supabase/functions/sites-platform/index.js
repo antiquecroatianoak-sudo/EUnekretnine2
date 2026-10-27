@@ -76,8 +76,12 @@ async function save(tx,table,input,id){
  const data=table==='properties'?propertyInput(input):investorInput(input);
  let proof=null;
  if(table==='properties'){
-  if(['Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno'].includes(data.status))throw Error('Neaktivan oglas nije dopušten za upis.');
-  if(data.available_until&&Date.parse(data.available_until+'T23:59:59Z')<=Date.now())throw Error('Istekli oglas nije dopušten za upis.');
+  const closed=['Prodano','Povučeno','Rok istekao - ishod nepoznat','Zatvoreno'].includes(data.status);
+  const expired=data.available_until&&Date.parse(data.available_until+'T23:59:59Z')<=Date.now();
+  // Existing records must be closable from the editor. Keep their history;
+  // the normal refresh removes them from operational pairs in this transaction.
+  if(id==null&&(closed||expired))throw Error('Neaktivan oglas nije dopušten za novi upis.');
+  if(!closed&&!expired){
   proof=input.activity_evidence;
   try{if(typeof proof==='string')proof=JSON.parse(proof)}catch{throw Error('Nevaljan dokaz aktivnosti.');}
   if(!proof&&id!=null){
@@ -86,6 +90,7 @@ async function save(tx,table,input,id){
    if(!proof){const [a]=await tx`select notes from activity where property_id=${Number(id)} and stage='Provjera aktivnosti oglasa' order by id desc limit 1`;try{proof=JSON.parse(a?.notes||'null')}catch{}}
   }
   if(!admissibleListing({kind:'property',url:data.source,facts:proof}))throw Error('Potvrđeno neaktivan oglas nije dopušten za upis.');
+  }
  }
  let saved;
  if(id!=null){if(!Number.isSafeInteger(Number(id))||Number(id)<=0)throw Error('Nevaljana oznaka zapisa.');

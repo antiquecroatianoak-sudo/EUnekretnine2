@@ -1,4 +1,5 @@
 import {criteria,country,PAIR_CONDITION,SOURCE_CONDITIONS,SOURCE_FRESH,ACTIVE_CHECK,BUYER_RECORD} from './domain.mjs';
+import {agencyPolicyRow} from './agency-policy.mjs';
 const unknown='Nije navedeno';
 const list=v=>Array.isArray(v)&&v.length?v.join(', '):unknown;
 const number=(v,suffix='')=>Number.isFinite(v)?new Intl.NumberFormat('hr-HR',{maximumFractionDigits:1}).format(v)+suffix:unknown;
@@ -37,6 +38,7 @@ export function pairReview(result,property={},investor={}){
  const rows=groups.flatMap(([state,status,labels])=>[...new Set(labels)].map(label=>({label,state,status,buyer:facts[label]?.[0]||'Provjera uvjeta i dokaza',property:facts[label]?.[1]||'Provjeriti zapis i priložene dokaze',explanation:label==='Površina'?(c.area_hard?'Stroga granica kupca.':'Dopuštena tolerancija −15 %/+25 %.'):state==='unmet'?'Odstupanje ostaje blokada bez obzira na postotak.':state==='unknown'?'Dopuniti podatak ili potvrditi dokaz prije sljedeće faze.':'Potvrđeno u spremljenom izračunu.'})));
  // Budget is informational in the existing evaluator and is deliberately not counted as a pass/failure.
  rows.push({label:'Budžet / ukupni trošak',state:'info',status:'Informativno',buyer:range(investor.min_budget,investor.max_budget,' €'),property:number(result.total_cost,' €'),explanation:'Budžet ne ulazi u postotak i sam po sebi ne isključuje par.'});
+ rows.push(agencyPolicyRow(c));
  const score=Number.isFinite(result.score)&&result.score>=0&&result.score<=100?result.score:null;
  return {rows,score,scored,met:groups[0][2].length,unmet:groups[1][2].length,missing:groups[2][2].length,
   scoreExplanation:'Spremljena ocjena evaluatora: udio zadovoljenih bodovanih kriterija, zaokružen na cijeli postotak. Bodovani kriterij s nepoznatim podatkom ne donosi bod. Pravne, izvorne i ručne provjere dodatni su uvjeti; zato ni 100 % ne znači da je par potpuno provjeren. Budžet je informativan. Ocjena nije vjerojatnost prodaje.'};
