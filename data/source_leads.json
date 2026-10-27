@@ -3,10 +3,38 @@
   "blokirano": 4,
   "kandidat_nekretnine": 25,
   "nedostupno": 10,
-  "nije_relevantno": 16,
+  "nije_relevantno": 18,
   "robots_zabrana": 6
  },
  "leads": [
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-27T10:44:53.464125+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Zusatzleistungen - 1MMO MK GmbH & Co KG - FIRST IMMO",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/sankt-poelten-land/provisionsfrei-grosses-ef-haus-mit-pool-und-zwei-garagen-neuer-preis-1382475629/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://www.1mmo.at/zusatzleistungen"
+    }
+   ],
+   "first_seen": "2026-10-27T10:44:53.366542+00:00",
+   "host": "1mmo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 7
+   },
+   "status": "nije_relevantno",
+   "title": "Zusatzleistungen - 1MMO MK GmbH & Co KG - FIRST IMMO"
+  },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
    "checked_at": "2026-10-24T09:37:27.517651+00:00",
@@ -167,6 +195,12 @@
      "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/wien/wien-1220-donaustadt/urlaubsfeeling-mit-wunderschoenem-haus-pool-traumgarten-913002343/",
      "seen": "2026-10-26T08:34:45.614949+00:00",
      "url": "https://app.immoviewer.com/portal/tour/3127572"
+    },
+    {
+     "anchor": "https://app.immoviewer.com/portal/tour/3161310?accessKey=6af1",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/korneuburg/charmantes-3-zimmer-haus-mit-garten-in-karnabrunn-ideal-zur-sanierung-1995939393/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://app.immoviewer.com/portal/tour/3161310"
     }
    ],
    "first_seen": "2026-10-24T13:01:23.745437+00:00",
@@ -174,7 +208,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:34:45.614949+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -202,7 +236,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -286,7 +320,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "nedostupno"
   },
   {
@@ -306,7 +340,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "nedostupno"
   },
   {
@@ -326,7 +360,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -402,7 +436,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -454,7 +488,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 8,
     "buyer_words": 0,
@@ -482,7 +516,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -502,7 +536,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "nedostupno"
   },
   {
@@ -958,7 +992,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "blokirano"
   },
   {
@@ -984,7 +1018,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 45,
     "buyer_words": 0,
@@ -1084,7 +1118,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1112,7 +1146,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "nedostupno"
   },
   {
@@ -1132,7 +1166,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T20:40:28.702267+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1142,6 +1176,52 @@
    },
    "status": "nije_relevantno",
    "title": "Kostenlose Immobilienbewertung in 3 Minuten online : Kuttenberger Immobilien"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-27T10:44:53.464125+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Einfamilienhaus in Hundsheim",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/bruck-an-der-leitha/2405-hundsheim-anlageobjekt-3-wohnungen-nebengebaeude-garten-787686735/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://www.lichtlreal.at/immosuche/wohnen-leben-land-und-natur"
+    },
+    {
+     "anchor": "Hainburg-Stadtmauer, Sanierungsobjekt Kauf",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/bruck-an-der-leitha/2405-hundsheim-anlageobjekt-3-wohnungen-nebengebaeude-garten-787686735/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://www.lichtlreal.at/immosuche/direkt-an-der-stadtmauer-gelegenes-stadthaus-mit-geschaftslokal-sanierungsbedurftig"
+    },
+    {
+     "anchor": "Hainburg großer Grund mit Altem Haus",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/bruck-an-der-leitha/2405-hundsheim-anlageobjekt-3-wohnungen-nebengebaeude-garten-787686735/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://www.lichtlreal.at/immosuche/carnuntumstrasse-grosser-grund-mit-altbestand-donaublick-in-hainburger-bestlage"
+    },
+    {
+     "anchor": "Grundstücke in Bad Deutsch Altenburg",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/niederoesterreich/bruck-an-der-leitha/2405-hundsheim-anlageobjekt-3-wohnungen-nebengebaeude-garten-787686735/",
+     "seen": "2026-10-27T10:44:53.366542+00:00",
+     "url": "https://www.lichtlreal.at/immosuche/grundstucke-in-der-kurgemeinde-2405-bad-deutsch-altenburg"
+    }
+   ],
+   "first_seen": "2026-10-27T10:44:53.366542+00:00",
+   "host": "lichtlreal.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 3
+   },
+   "status": "nije_relevantno",
+   "title": "Immosuche | Lichtl Real"
   },
   {
    "check_note": "HTTP 403",
@@ -1482,7 +1562,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-25T21:32:25.567538+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1570,7 +1650,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:16:09.685577+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "signals": {
     "areas": 38,
     "buyer_words": 0,
@@ -1646,7 +1726,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:30:42.027054+00:00",
+   "last_seen": "2026-10-27T10:44:53.366542+00:00",
    "status": "nedostupno"
   },
   {
@@ -1755,6 +1835,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T10:30:42.027054+00:00",
- "verified_at": "2026-10-27T10:30:42.116034+00:00"
+ "updated_at": "2026-10-27T10:44:53.366542+00:00",
+ "verified_at": "2026-10-27T10:44:53.464125+00:00"
 }

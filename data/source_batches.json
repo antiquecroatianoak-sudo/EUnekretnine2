@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-27T10:18:31.473164+00:00",
+ "checked_at": "2026-10-27T10:33:48.511180+00:00",
  "source_count": 115,
  "inactive_count": 62,
  "groups": {
@@ -267,7 +267,7 @@
    "url": "https://www.evarzytynes.lt/evs/pages/auctions.do",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "RemoteDisconnected: Remote end closed connection without response",
+   "last_error": null,
    "retry_after": null
   },
   {
@@ -276,7 +276,7 @@
    "url": "https://rosepatrimoine.fr/accueil/nos-criteres-d-investissement/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "TimeoutError: The read operation timed out",
    "retry_after": null
   },
   {
@@ -329,7 +329,7 @@
    "url": "https://www.otodom.pl/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "HTTPError: HTTP Error 502: Bad Gateway",
    "retry_after": null
   },
   {
@@ -958,8 +958,8 @@
    "url": "https://www.ober-haus.lt/en/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "TimeoutError: The read operation timed out",
-   "retry_after": "2026-10-27T18:41:46.142096+00:00",
+   "last_error": null,
+   "retry_after": null,
    "probe_at": "2026-10-25T20:09:40.821233+00:00",
    "probe": {
     "status": "observed",
@@ -1213,7 +1213,7 @@
    "url": "https://www.cp-ag.at/en/contact/project-purchase/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "ValueError: No explicit public acquisition demand; company profile is not a buyer request",
+   "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T10:04:26.356895+00:00",
    "probe": {
