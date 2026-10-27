@@ -13,8 +13,10 @@ Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLEle
 const {createRoot}=await import('react-dom/client');const {act}=await import('react');
 const {default:Dashboard}=await import('./app.mjs');
 const r=(status,score)=>JSON.stringify({status,score,reasons:[],missing:[],rejected:[]});
-function dataset(withCandidates){return {properties:[{id:1,title:'Zemljište Galway',country:'Irska',region:'Galway'},{id:2,title:'Stan Split',country:'Hrvatska',city:'Split'},{id:3,title:'Kuća Ljubljana',country:'Slovenija'}],
- investors:[{id:10,name:'Galway County Council'},{id:11,name:'Investitor d.o.o.'}],sources:[],source_candidates:[],discovery_runs:[],
+// Contacts are synthetic permissions used only by the isolated DOM dataset.
+const testContact=(id,buyer=false,url=null)=>{const u=url||'https://example.org/'+(buyer?'buyer/':'listing/')+id;return {...(buyer?{criteria_json:JSON.stringify({source_url:u})}:{source:u}),contact_json:{mode:'direct',name:'TEST ONLY',contact_url:u,evidence_url:u,record_reference:u,permitted:true}}};
+function dataset(withCandidates){return {properties:[{id:1,...testContact(1),title:'Zemljište Galway',country:'Irska',region:'Galway'},{id:2,...testContact(2),title:'Stan Split',country:'Hrvatska',city:'Split'},{id:3,...testContact(3),title:'Kuća Ljubljana',country:'Slovenija'}],
+ investors:[{id:10,...testContact(10,true),name:'Galway County Council'},{id:11,...testContact(11,true),name:'Investitor d.o.o.'}],sources:[],source_candidates:[],discovery_runs:[],
  match_results:[...(withCandidates?[{property_id:1,investor_id:10,result_json:r('Kandidat - potrebna provjera',60)},{property_id:3,investor_id:11,result_json:r('Kandidat - potrebna provjera',40)}]:[]),
   {property_id:2,investor_id:11,result_json:r('Podudaranje kriterija',100)},{property_id:2,investor_id:10,result_json:r('Ne odgovara kriterijima',20)}]};}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -53,18 +55,18 @@ await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Podudaran
 await setValue($('input[aria-label="Pretraživanje"]'),'split');
 await setValue($('select[aria-label="Država"]'),'Hrvatska');
 await setValue($('select[aria-label="Status podudaranja"]'),'Podudaranje kriterija');
-assert.equal($$('.match-card').length,1,'stale filters show only the confirmed match');
+assert.equal($$('.opportunities-table tbody tr').length,1,'stale filters show only the confirmed match');
 await act(async()=>{button('Mogući parovi').click()});
 assert.equal($('h1').textContent,'Podudaranja');
 assert.equal($('select[aria-label="Status podudaranja"]').value,'Kandidat - potrebna provjera');
 assert.equal($('input[aria-label="Pretraživanje"]').value,'');
 assert.equal($('select[aria-label="Država"]').value,'Sve države');
-assert.deepEqual($$('.match-card h3').map(h=>h.textContent),['Zemljište Galway','Kuća Ljubljana']);
-assert(!$$('.match-card .pill').some(p=>p.textContent==='Podudaranje kriterija'),'no confirmed match in the candidate view');
+assert.deepEqual($$('.opportunities-table tbody tr th .match-record').map(h=>h.textContent),['Zemljište Galway','Kuća Ljubljana']);
+assert(!$$('.opportunities-table tbody tr .pill').some(p=>p.textContent==='Podudaranje kriterija'),'no confirmed match in the candidate view');
 // From the overview too.
 await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Pregled')).click()});
 await act(async()=>{button('Mogući parovi').click()});
-assert.equal($$('.match-card').length,2);
+assert.equal($$('.opportunities-table tbody tr').length,2);
 await act(async()=>root.unmount());
 // 2. Zero candidates: count 0, the list is empty and never falls back to other statuses.
 root=await mount(false);
@@ -72,7 +74,7 @@ entry=button('Mogući parovi');
 assert.equal(entry.querySelector('.nav-count').textContent,'0');
 assert.match(entry.title,/nema mogućih parova/);
 await act(async()=>{entry.click()});
-assert.equal($$('.match-card').length,0);
+assert.equal($$('.opportunities-table tbody tr').length,0);
 assert.equal($('select[aria-label="Status podudaranja"]').value,'Kandidat - potrebna provjera');
 await act(async()=>root.unmount());
 // 3. Audit 6342938279 point 1: a public buyer with a US seat and unknown budget can be saved unchanged.
@@ -129,12 +131,12 @@ posts.length=0;let copied=null;
 Object.defineProperty(globalThis.navigator,'clipboard',{value:{writeText:async t=>{copied=t}},configurable:true});
 document.body.innerHTML='<div id="root"></div>';
 globalThis.fetch=async(url,options={})=>{if(options.method==='POST'){posts.push(JSON.parse(options.body));return {ok:true,json:async()=>({})}}
- const d=dataset(true);d.properties[1]={...d.properties[1],title:'Zemljište Galway Oranmore Road 12',country:'Irska',source:'https://www.daft.ie/x/5412345',city:'Oranmore',region:'Galway',property_type:'Zemljište',area:6120,price:243500,price_basis:'Asking price'};d.settings=businessSettings;return {ok:true,json:async()=>d}};
+ const d=dataset(true);d.properties[1]={...d.properties[1],title:'Zemljište Galway Oranmore Road 12',country:'Irska',...testContact(2,false,'https://www.daft.ie/x/5412345'),source:'https://www.daft.ie/x/5412345',city:'Oranmore',region:'Galway',property_type:'Zemljište',area:6120,price:243500,price_basis:'Asking price'};d.settings=businessSettings;return {ok:true,json:async()=>d}};
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 await act(async()=>{button('Podudaranja').click()});
 // A presentation is prepared only from a real opportunity (owner 6344490047), not from a possible pair.
-assert($$('.match-card').filter(c=>[...c.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije')).every(c=>c.textContent.includes('Podudaranje kriterija')));
-const galway=$$('.match-card').find(c=>c.textContent.includes('Oranmore Road'));
+assert($$('.opportunities-table tbody tr').filter(c=>[...c.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije')).every(c=>c.textContent.includes('Podudaranje kriterija')));
+const galway=$$('.opportunities-table tbody tr').find(c=>c.textContent.includes('Oranmore Road'));
 await act(async()=>{[...galway.querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
 // Review 6344298344 point 5: the free-text region field is not used; a region needs explicit confirmation.
 assert($('textarea[aria-label="Opis za kupca"]').value.includes('Okvirna lokacija: Irska\n'));
@@ -153,7 +155,7 @@ await act(async()=>{$('input[name="teaser_reviewed"]').click()});
 await act(async()=>root.unmount());businessSettings={business_phase:true};
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 await act(async()=>{button('Podudaranja').click()});
-await act(async()=>{[...$$('.match-card').find(c=>c.textContent.includes('Oranmore Road')).querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
+await act(async()=>{[...$$('.opportunities-table tbody tr').find(c=>c.textContent.includes('Oranmore Road')).querySelectorAll('button')].find(b=>b.textContent==='Nacrt prezentacije').click()});
 await setValue($('input[name="teaser_region"]'),'County Galway');await act(async()=>{$('input[name="teaser_region_confirmed"]').click()});
 assert(!document.body.textContent.includes('Poslovna faza je odgođena'));
 const copyButton=$$('button').find(b=>b.textContent==='Kopiraj opis');
@@ -177,9 +179,9 @@ globalThis.fetch=async(url,options={})=>{
  const d=dataset(true);d.match_results[0].result_json=gapsResult;return {ok:true,json:async()=>d}};
 root=createRoot($('#root'));await act(async()=>{root.render(<Dashboard userName='Luka'/>)});await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 await act(async()=>{button('Mogući parovi').click()});
-const pairCard=$$('.match-card').find(c=>c.textContent.includes('Zemljište Galway'));
+const pairCard=$$('.opportunities-table tbody tr').find(c=>c.textContent.includes('Zemljište Galway'));
 assert(![...pairCard.querySelectorAll('button')].some(b=>b.textContent==='Nacrt prezentacije'),'no presentation from a possible pair');
-await act(async()=>{[...pairCard.querySelectorAll('button')].find(b=>b.textContent==='Detalj para').click()});
+await act(async()=>{[...pairCard.querySelectorAll('button')].find(b=>b.textContent.trim()==='Detalj para').click()});
 await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 assert.deepEqual(posts.at(-1),{action:'pair',property_id:1,investor_id:10});
 const dialog=$('[role="dialog"]');
@@ -227,14 +229,14 @@ root=await split(false,true);
 assert(document.body.textContent.includes('HTTP 504'),'the full-read failure is shown with its status');
 assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'2','pairs come from their own read');
 await act(async()=>{button('Mogući parovi').click()});
-assert.equal($$('.match-card').length,2,'possible pairs are listed although the full read failed');
+assert.equal($$('.opportunities-table tbody tr').length,2,'possible pairs are listed although the full read failed');
 assert(document.body.textContent.includes('Puni pregled nije učitan'));
 await act(async()=>root.unmount());
 // (b) pairs read fails, full read works: the full read still provides the list, with an explicit note.
 root=await split(true,false);
 assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,'2');
 await act(async()=>{button('Mogući parovi').click()});
-assert(document.body.textContent.includes('Mogući parovi nisu učitani zasebno'));assert.equal($$('.match-card').length,2);
+assert(document.body.textContent.includes('Mogući parovi nisu učitani zasebno'));assert.equal($$('.opportunities-table tbody tr').length,2);
 await act(async()=>root.unmount());
 // (c) both fail: never a zero.
 root=await split(false,false);
@@ -254,7 +256,7 @@ await act(async()=>root.unmount());
 const withHidden=dataset(true);withHidden.properties[0]={...withHidden.properties[0],visible:false};
 root=await split(true,true,withHidden);
 await act(async()=>{button('Mogući parovi').click()});
-assert.equal($$('.match-card').length,1);assert(document.body.textContent.includes('1 skriveno jer nekretnina je istekla ili uklonjena iz izvora'));
+assert.equal($$('.opportunities-table tbody tr').length,1);assert(document.body.textContent.includes('1 skriveno jer nekretnina je istekla ili uklonjena iz izvora'));
 await act(async()=>root.unmount());
 // 8. Real API responses from test_pair_api.mjs (CI passes PAIRS_RESPONSE): the dashboard shows every stored candidate.
 const {existsSync,readFileSync}=await import('node:fs');
@@ -264,7 +266,7 @@ if(process.env.PAIRS_RESPONSE&&existsSync(process.env.PAIRS_RESPONSE)){
  root=await mountWith(async(url,options={})=>options.method==='POST'?{ok:true,json:async()=>({})}:{ok:true,json:async()=>realResponse.read},'real');
  assert.equal(button('Mogući parovi').querySelector('.nav-count').textContent,String(realResponse.expected_candidates));
  await act(async()=>{button('Mogući parovi').click()});
- assert.equal($$('.match-card').length,realResponse.expected_candidates,'rendered from the real API response');
+ assert.equal($$('.opportunities-table tbody tr').length,realResponse.expected_candidates,'rendered from the real API response');
  await act(async()=>root.unmount());realChecked=true;
 }
 // 9. The comparison is rendered from the same stored result as the card score, including 100% with open checks.
@@ -276,17 +278,17 @@ reviewData.match_results=[
 ];
 root=await split(true,true,reviewData);
 await act(async()=>{[...document.querySelectorAll('nav button')].find(b=>b.textContent==='Podudaranja').click()});
-assert.equal($$('.match-card').length,3);
-for(const card of $$('.match-card')){
- assert(card.querySelector('.pair-review details'));
- assert(card.textContent.includes('Zahtjev kupca')&&card.textContent.includes('Nekretnina'));
- assert(card.textContent.includes('Bodovani kriteriji:'));
+assert.equal($$('.opportunities-table tbody tr').length,3);
+for(const card of $$('.opportunities-table tbody tr')){
+ assert(card.querySelector('.table-checks'));
+ assert(card.querySelector('button.table-detail'));
+ assert(card.textContent.includes('Bodovani kriteriji'));
 }
-const missingAt100=$$('.match-card').find(c=>c.textContent.includes('Zemljište Galway'));
-assert(missingAt100.querySelector('.match-score').textContent.includes('100'));
-assert(missingAt100.querySelector('.pair-next').textContent.includes('Dokaz pravne provjere'));
-const rejectedCard=$$('.match-card').find(c=>c.textContent.includes('Stan Split'));
-assert(rejectedCard.querySelector('.pair-blocker').textContent.includes('Površina'),'critical mismatch stays visible even with 75%');
+const missingAt100=$$('.opportunities-table tbody tr').find(c=>c.textContent.includes('Zemljište Galway'));
+assert(missingAt100.querySelector('.table-score').textContent.includes('100'));
+assert(missingAt100.querySelector('.table-missing').textContent.includes('Dokaz pravne provjere'));
+const rejectedCard=$$('.opportunities-table tbody tr').find(c=>c.textContent.includes('Stan Split'));
+assert(rejectedCard.querySelector('.table-blocker').textContent.includes('Površina'),'critical mismatch stays visible even with 75%');
 await act(async()=>root.unmount());
 // 10. A large catalogue searches the server, follows keyset continuation and keeps errors explicit.
 const large=dataset(true);large.counts={properties:10125,investors:10042};large.truncated={properties:true,investors:true};large.loaded_at='test-large';
@@ -296,7 +298,7 @@ root=await mountWith(async(url,options={})=>{
   const body=JSON.parse(options.body);if(body.action==='catalog'){
    catalogRequests.push(body);
    if(body.query==='fail')return {ok:false,json:async()=>({error:'test catalogue unavailable'})};
-   const tail=body.query==='last';return {ok:true,json:async()=>({table:body.table,items:tail?[{id:10125,title:'Last record',name:'Last buyer',country:'Hrvatska'}]:body.after?[{id:10125,title:'Tail record',name:'Tail buyer',country:'Hrvatska'}]:[{id:1,title:'First record',name:'First buyer',country:'Hrvatska'}],total:tail?1:10125,next:tail||body.after?null:1,through:10125,has_more:!tail&&!body.after})};
+   const tail=body.query==='last';return {ok:true,json:async()=>({table:body.table,items:tail?[{id:10125,title:'Last record',name:'Last buyer',country:'Hrvatska'}]:body.after?[{id:10125,title:'Tail record',name:'Tail buyer',country:'Hrvatska'}]:[{id:1,...testContact(1),title:'First record',name:'First buyer',country:'Hrvatska'}],total:tail?1:10125,next:tail||body.after?null:1,through:10125,has_more:!tail&&!body.after})};
   }return {ok:true,json:async()=>({})};
  }return {ok:true,json:async()=>large};
 });
@@ -338,3 +340,30 @@ assert($('[role="dialog"]').textContent.includes('Povijesna spremljena ocjena'))
 await act(async()=>root.unmount());
 console.log('React click checks passed: count 2 and 0, stale filters cleared, only candidates shown, criteria matches not labelled as confirmed interest; US-seat buyer with unknown budget saved unchanged; note check needs evidence and binds to the note text; presentation only for real opportunities, region only after confirmation, identifier-free, copied after review, not sent; pair detail stores drafts, answers and source checks with evidence only; pairs load separately, failures are not zeros, a real zero is explained, hidden links are counted'+(realChecked?'; real API response rendered with every stored candidate.':' (real API response not supplied).'));
 
+
+// Failed saves retain the operator's form and scoped-contact evidence for retry.
+const saveData=dataset(true),scoped={...saveData.properties[0].contact_json,permission_scope:'property_enquiry_only',permission_basis:'explicit_listing_invitation',permission_quote:'TEST ONLY Send an enquiry about this listing',checked_at:new Date().toISOString()};
+saveData.properties[0]={...saveData.properties[0],contact_json:JSON.stringify(scoped)};
+let refuseSave=true;posts.length=0;
+root=await mountWith(async(url,options={})=>{
+ if(options.method==='POST'){
+  const a=JSON.parse(options.body);posts.push(a);
+  if(a.action==='save_property')return refuseSave?{ok:false,json:async()=>({error:'TEST ONLY spremanje odbijeno'})}:{ok:true,json:async()=>({id:1})};
+  return {ok:true,json:async()=>({})};
+ }
+ return {ok:true,json:async()=>saveData};
+});
+await act(async()=>{button('Nekretnine').click()});
+await act(async()=>{button('Zemljište Galway').click()});
+await setValue($('input[name="title"]'),'TEST ONLY ručna dopuna');
+await act(async()=>{button('Spremi promjene').click()});
+assert($('[role="dialog"]'),'refused write keeps the editor open');
+assert.equal($('input[name="title"]').value,'TEST ONLY ručna dopuna');
+assert(document.body.textContent.includes('TEST ONLY spremanje odbijeno'));
+const rejectedSave=posts.find(a=>a.action==='save_property');
+assert.deepEqual(JSON.parse(rejectedSave.record.contact_json),scoped,'editing a listing preserves all original scoped-contact evidence');
+refuseSave=false;
+await act(async()=>{button('Spremi promjene').click()});
+assert.equal($('[role="dialog"]'),null,'only a successful retry closes the form');
+assert(document.body.textContent.includes('Nekretnina je spremljena.'));
+await act(async()=>root.unmount());

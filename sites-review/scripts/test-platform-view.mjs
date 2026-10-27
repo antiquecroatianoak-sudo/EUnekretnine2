@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {storedMatches,sourceDescription,sourceProgress,pageWindow,possiblePairs,possiblePairsFilters,filterMatches,pairsView,pairsExplanation,funnelRows} from '../lib/platform-view.mjs';
 import {MATCH,CANDIDATE,REJECT} from '../lib/domain.mjs';
+// Permissions below are synthetic and belong only to these isolated fixtures.
+const contact=(id,buyer=false)=>{const url='https://example.org/'+(buyer?'buyer/':'listing/')+id;return {...(buyer?{criteria_json:JSON.stringify({source_url:url})}:{source:url}),contact_json:{mode:'direct',name:'TEST ONLY',contact_url:url,evidence_url:url,record_reference:url,permitted:true}}};
 const result=(status,score)=>JSON.stringify({status,score,reasons:[],missing:[],rejected:[]});
 assert.deepEqual(pageWindow([1,2],8).rows,[1,2],'A refresh that shrinks results must not leave a blank page');
 assert.equal(pageWindow([],8).page,1);
 assert.equal(pageWindow(Array.from({length:31},(_,i)=>i),2).rows[0],30);
-const data={properties:[{id:1},{id:2}],investors:[{id:10}],match_results:[
+const data={properties:[{id:1,...contact(1)},{id:2,...contact(2)}],investors:[{id:10,...contact(10,true)}],match_results:[
  {property_id:'1',investor_id:'10',result_json:result(CANDIDATE,90),updated:'2026-10-18'},
  {property_id:2,investor_id:10,result_json:result(MATCH,80)},
  {property_id:999,investor_id:10,result_json:result(MATCH,100)},
@@ -21,8 +23,8 @@ assert.equal(progress.continuing,true);assert.match(progress.summary,/3 novih/);
 assert.equal(sourceProgress({status:'Pogreška',body_json:'broken'}).continuing,false);
 
 // "Mogući parovi": the count and the opened list use the same stored candidates.
-const pairsData={properties:[{id:1,title:'Zemljište Galway',country:'IE',region:'Galway'},{id:2,title:'Stan Split',country:'HR',city:'Split'},{id:3,title:'Kuća Ljubljana',country:'SI'}],
- investors:[{id:10,name:'Galway County Council'},{id:11,name:'Investitor d.o.o.'}],match_results:[
+const pairsData={properties:[{id:1,...contact(1),title:'Zemljište Galway',country:'IE',region:'Galway'},{id:2,...contact(2),title:'Stan Split',country:'HR',city:'Split'},{id:3,...contact(3),title:'Kuća Ljubljana',country:'SI'}],
+ investors:[{id:10,...contact(10,true),name:'Galway County Council'},{id:11,...contact(11,true),name:'Investitor d.o.o.'}],match_results:[
  {property_id:1,investor_id:10,result_json:result(CANDIDATE,60)},
  {property_id:3,investor_id:11,result_json:result(CANDIDATE,40)},
  {property_id:2,investor_id:11,result_json:result(MATCH,100)},
@@ -53,7 +55,7 @@ assert.match(source,/onClick=\{openPossiblePairs\}[^>]*>.*Mogući parovi<span cl
 assert.match(source,/function openPossiblePairs\(\)\{const f=possiblePairsFilters\(\);changeTab\(f\.tab\);setMatchStatus\(f\.matchStatus\);setQuery\(f\.query\);setFilterCountry\(f\.filterCountry\);setPage\(f\.page\)\}/);
 // Separate pairs read: hidden links are counted with a reason; errors and real zeros are explained, never confused.
 {const resp={match_results:[{property_id:1,investor_id:10,result_json:result(CANDIDATE,60)},{property_id:2,investor_id:10,result_json:result(CANDIDATE,50)},{property_id:3,investor_id:11,result_json:result(CANDIDATE,40)}],
- properties:[{id:1,visible:true},{id:2,visible:false}],investors:[{id:10,visible:true}],totals:{properties:9657,investors:74}};
+ properties:[{id:1,...contact(1),visible:true},{id:2,...contact(2),visible:false}],investors:[{id:10,...contact(10,true),visible:true}],totals:{properties:9657,investors:74}};
  const v=pairsView(resp);
  assert.deepEqual(v.matches.map(m=>m.property.id),[1]);
  assert.deepEqual(v.hidden.map(h=>h.reason),['nekretnina je istekla ili uklonjena iz izvora','nekretnina više ne postoji']);
@@ -64,9 +66,17 @@ assert.match(source,/function openPossiblePairs\(\)\{const f=possiblePairsFilter
  assert.match(pairsExplanation({matches:v.matches,hidden:v.hidden,filtered:1}).text,/1 skriveno jer nekretnina je istekla/);
  assert.equal(pairsExplanation({matches:v.matches,filtered:1}),null,'nothing to explain when pairs are shown');
  // A malformed stored result and a link missing from the full read are counted, never shown as an empty success.
- const legacy=pairsView({match_results:[...resp.match_results,{property_id:1,investor_id:10,result_json:'{"status":"Kandidat - potrebna provjera"}'}],properties:[{id:1}],investors:[{id:10}]},{complete:false});
+ const legacy=pairsView({match_results:[...resp.match_results,{property_id:1,investor_id:10,result_json:'{"status":"Kandidat - potrebna provjera"}'}],properties:[{id:1,...contact(1)}],investors:[{id:10,...contact(10,true)}]},{complete:false});
  assert.deepEqual(legacy.hidden.map(h=>h.reason),['nekretnina nije u učitanim podacima','nekretnina nije u učitanim podacima','spremljeni rezultat nema valjanu strukturu']);
- assert.deepEqual(pairsView({match_results:[{property_id:1,investor_id:12,result_json:result(CANDIDATE,1)}],properties:[{id:1}],investors:[]},{complete:false}).hidden[0].reason,'kupac nije u učitanim podacima');
+ assert.deepEqual(pairsView({match_results:[{property_id:1,investor_id:12,result_json:result(CANDIDATE,1)}],properties:[{id:1,...contact(1)}],investors:[]},{complete:false}).hidden[0].reason,'kupac nije u učitanim podacima');
  const rows=funnelRows({properties:3,investors:2,pairs:6,country_mismatch:2,excluded:{a:1,b:3},suggested:{x:0},properties_without_type:1,properties_without_source:0,investors_without_types:0,investors_without_source:0});
  assert.deepEqual(rows.slice(4,6),[['Isključeno: b',3],['Isključeno: a',1]],'largest exclusion first');}
 console.log('Stored matching, source classification, import progress and possible-pair entry checks passed.');
+
+// A record without its own usable channel is explained and kept out of operational pairs.
+{const d={properties:[{id:1}],investors:[{id:10,...contact(10,true)}],match_results:[{property_id:1,investor_id:10,result_json:result(CANDIDATE,80)}]};
+ assert.equal(storedMatches(d).length,0);
+ assert.match(pairsView(d).hidden[0].reason,/nekretnina nema upotrebljiv/);
+ d.properties[0]={id:1,...contact(1)};d.investors[0]={id:10};
+ assert.match(pairsView(d).hidden[0].reason,/kupac nema upotrebljiv/);
+}
