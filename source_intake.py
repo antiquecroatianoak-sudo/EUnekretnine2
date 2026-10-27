@@ -131,7 +131,8 @@ def review_new_source(source,intake,api_call,deadline,fetcher_factory=Fetcher,ur
             source_leads.observe(source['url'],page.links)
             # The same strict primary-record parser is used by trial and normal
             # scheduled refresh. A root success or generic product is insufficient.
-            rows,state=collect(source,None,fetcher,deadline,max_pages=4,url_validator=url_validator)
+            probe_pages=2 if intake.get('entry_urls') else 4
+            rows,state=collect(source,None,fetcher,deadline,max_pages=probe_pages,url_validator=url_validator)
             if state.get('error'):raise RuntimeError(state['error'])
             if not rows:
                 result.update(status='format_required',note='No primary EU sale with a record-bound contact; '+str(state.get('failed_urls',[])[:2])[:500])
@@ -139,7 +140,7 @@ def review_new_source(source,intake,api_call,deadline,fetcher_factory=Fetcher,ur
                 n,u=save_rows(sid,rows,state,api_call)
                 if n+u<=0:raise RuntimeError('Trial persisted no admissible records')
                 # Repeat through the real refresh path before enabling this source.
-                refresh,normal=collect(source,None,fetcher,deadline,max_pages=4,url_validator=url_validator)
+                refresh,normal=collect(source,None,fetcher,deadline,max_pages=probe_pages,url_validator=url_validator)
                 if normal.get('error') or not refresh:raise RuntimeError('Normal refresh did not confirm primary records: '+str(normal.get('error')))
                 n2,u2=save_rows(sid,refresh,normal,api_call)
                 if n2+u2<=0:raise RuntimeError('Normal refresh write not confirmed')

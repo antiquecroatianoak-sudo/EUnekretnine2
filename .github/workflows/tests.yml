@@ -49,6 +49,11 @@ jobs:
           PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
           PAIRS_RESPONSE_OUT: ${{ runner.temp }}/pairs-response.json
         run: python -m unittest discover -p 'test_*.py'
+      - name: PostgreSQL transakcije registracije i aktivacije novih izvora
+        env:
+          TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test?sslmode=require
+          PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
+        run: node test_source_intake_postgres.mjs
       - name: Pravila dokaza, uparivanje javnih kupaca i očuvanje ručnih izmjena
         run: |
           node --test test_national_enrichment.mjs
