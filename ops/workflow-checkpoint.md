@@ -63,3 +63,6 @@ Pisanja jednog para serijaliziraju se: `pg_advisory_xact_lock(2261027, property)
 - Provjera u prijavljenom vlasnikovu računu.
 - Fotografije u prezentaciji: potreban je zaseban postupak provjere prava i anonimizacije.
 - Uključivanje poslovne faze je vlasnikova odluka.
+
+## Nastavak
+Dopuna plana (moduli 1–8, status po koraku) je u `ops/buyer-workflow-enhancements-plan.md`, na grani `feature/buyer-workflow-enhancements`.
