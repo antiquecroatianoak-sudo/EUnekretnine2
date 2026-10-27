@@ -16,7 +16,8 @@ class BuyerProfileTests(unittest.TestCase):
  def test_complete_profile(self):
   f=self.parse();self.assertEqual(f["preferred_countries"],["HR"])
   self.assertIsNone(f["budget"]);self.assertEqual(f["contact_email"],"land@example.org")
-  self.assertEqual(f["transaction_type"],"unconfirmed_acquisition_profile")
+  self.assertEqual(f["transaction_type"],"buy_request")
+  self.assertEqual(f['listing_kind'],'public_acquisition_profile')
   self.assertFalse(f['source_contact']['permitted'])
  def test_agency_role_requires_observed_evidence(self):
   c=copy.deepcopy(CONFIG);c['contact_mode']='agency'
@@ -48,6 +49,24 @@ class BuyerProfileTests(unittest.TestCase):
  def test_unsupported_country_rejected(self):
   c=copy.deepcopy(CONFIG);c["fields"][0]["value"]=["ZZ"]
   with self.assertRaises(ValueError):self.parse(config=c)
+ def test_required_criteria_are_retained_as_requirements_not_area(self):
+  c=copy.deepcopy(CONFIG)
+  c['fields'].append(dict(field='required_criteria',value=['Project usable area and planning need review'],evidence=QUOTE))
+  f=self.parse(config=c)
+  self.assertEqual(f['required_criteria'],['Project usable area and planning need review'])
+  self.assertNotIn('min_area',f)
+ def test_disjoint_evidence_requires_every_observed_quote(self):
+  c=copy.deepcopy(CONFIG);c['fields'][0]['evidence']=[QUOTE,'Contact: land@example.org']
+  f=self.parse(config=c)
+  self.assertEqual(f['field_evidence']['preferred_countries']['quote'],c['fields'][0]['evidence'])
+  with self.assertRaisesRegex(ValueError,'evidence changed'):self.parse(TEXT.replace('Contact:','Message:'),c)
+ def test_evidence_list_bounds_and_invalid_elements(self):
+  for evidence in [[],[QUOTE]*11,[None],[QUOTE,4]]:
+   c=copy.deepcopy(CONFIG);c['fields'][0]['evidence']=evidence
+   with self.subTest(evidence=evidence),self.assertRaises(ValueError):self.parse(config=c)
+  for n in [1,10]:
+   c=copy.deepcopy(CONFIG);c['fields'][0]['evidence']=[QUOTE]*n
+   self.assertEqual(self.parse(config=c)['preferred_countries'],['HR'])
  def test_duplicate_field_rejected(self):
   c=copy.deepcopy(CONFIG);c["fields"].append(c["fields"][0])
   with self.assertRaises(ValueError):self.parse(config=c)

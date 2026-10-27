@@ -74,5 +74,51 @@
         "evidence": "Please do not offer individual condominiums or properties with partial ownership. We operate exclusively in the off-market sector."
       }
     ]
+  },
+  {
+    "source_id": 94,
+    "url": "https://www.cp-ag.at/en/contact/project-purchase/",
+    "entity_name": "C&P Immobilien AG",
+    "contact_email": "ankauf@cp-ag.at",
+    "intent_evidence": "Which properties We buy",
+    "inquiry_evidence": "Make your property a part of your city’s future now.",
+    "fields": [
+      {
+        "field": "preferred_countries",
+        "value": [
+          "AT",
+          "DE",
+          "HR"
+        ],
+        "evidence": [
+          "Project purchase Germany",
+          "Project purchase Austria",
+          "Purchasing profile Croatia C&P Vacation Properties"
+        ]
+      },
+      {
+        "field": "property_types",
+        "value": [
+          "Zemljište",
+          "Zgrada",
+          "Poslovni prostor"
+        ],
+        "evidence": [
+          "Gaps between buildings Demolition work Apartment buildings",
+          "Office and commercial properties"
+        ]
+      },
+      {
+        "field": "required_criteria",
+        "value": [
+          "Good public transport connections.",
+          "Check the purchasing profile for each country; Croatia covers vacation properties and requires the specific linked Croatia profile, including project usable area, planning and coastal-location review."
+        ],
+        "evidence": [
+          "Do you have properties with good public transport connections and would like a transparent and professional purchase?",
+          "Purchasing profile Croatia C&P Vacation Properties"
+        ]
+      }
+    ]
   }
 ]

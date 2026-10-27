@@ -1,5 +1,6 @@
 // Real exported schema and PL/pgSQL in isolated PostgreSQL (PGlite), never production data.
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {readFileSync,readdirSync} from 'node:fs';
 import {createRequire} from 'node:module';
 const require=createRequire(process.argv[2]+'/package.json'),{PGlite}=require('@electric-sql/pglite');
@@ -26,9 +27,21 @@ try{
 
  const stamp=new Date().toISOString();
  const base={transaction_type:'buy_request',evidence_excerpt:'TEST ONLY explicitly published property acquisition request',property_types:['Zemljište'],conditions:['Neizgrađeno'],preferred_locations:['Galway coast'],locations:['Galway'],required_criteria:['Road access'],required:{power:true},original_property_types:['residential_development_land'],min_area_m2:900,max_area_m2:1100,area_hard:true,seat_country:'US',preferred_countries:['IE','HR'],buyer_type:'public_authority',listing_kind:'public_buy_request',deadline:'2099-04-30',budget:null};
- const upsert=async(id,f)=>query(`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values($1,'test','buyer','TEST ONLY public acquisition','IE',$2,$3,$4) on conflict(id) do update set body_json=excluded.body_json,last_seen=excluded.last_seen`,[id,'https://example.org/call/'+id,JSON.stringify({facts:f}),new Date().toISOString()]);
+ const upsert=async(id,f,url='https://example.org/call/'+id)=>query(`insert into source_candidates(id,source_id,kind,title,country,url,body_json,last_seen) values($1,'test','buyer','TEST ONLY public acquisition','IE',$2,$3,$4) on conflict(id) do update set body_json=excluded.body_json,last_seen=excluded.last_seen`,[id,url,JSON.stringify({facts:f}),new Date().toISOString()]);
  const sync=async id=>one('select site_private.sync_source_listing($1) as result',[id]);
  const buyer=async id=>{const r=await one('select i.* from investors i join source_candidates s on s.investor_id=i.id where s.id=$1',[id]);return {...r,criteria:JSON.parse(r.criteria_json)}};
+ // Exercise the actual Python profile output against the real SQL acceptance
+ // policy: the source candidate must become an unverified buyer, not stop at
+ // not_public_demand. Generic/unreviewed profile observations stay excluded.
+ const profile=JSON.parse(execFileSync('python',['-c',"import json; from buyer_profiles import profile_facts; from registry_discovery import Page; from test_buyer_profiles import CONFIG,TEXT; print(json.dumps(profile_facts(CONFIG['url'],Page(TEXT),CONFIG)))"],{cwd:root,encoding:'utf8'}));
+ await upsert('reviewed-profile',profile,profile.identity_source_url);
+ assert.equal((await sync('reviewed-profile')).result,'synced');
+ const reviewed=await buyer('reviewed-profile');
+ assert.equal(reviewed.verified,0);assert.equal(reviewed.preferred_countries,'Hrvatska');
+ assert.equal(reviewed.criteria.listing_kind,'public_acquisition_profile');
+ assert.equal(profile.source_contact.permitted,false,'public email alone stays unapproved');
+ await upsert('generic-profile',{...profile,transaction_type:'unconfirmed_acquisition_profile'});
+ assert.equal((await sync('generic-profile')).result,'not_public_demand');
  await upsert('test-full',base);assert.equal((await sync('test-full')).result,'synced');
  let b=await buyer('test-full');assert.equal(b.country,'US');assert.equal(b.preferred_countries,'Irska,Hrvatska');assert.equal(b.max_budget,null);assert.equal(b.verified,0);
  for(const key of ['preferred_locations','locations','required_criteria','required','original_property_types','min_area_m2','max_area_m2','area_hard'])assert.deepEqual(b.criteria[key],base[key],key);
