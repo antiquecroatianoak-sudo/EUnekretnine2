@@ -766,7 +766,7 @@ def main(max_workers=3):
             persistence_failures.extend(future.result())
     print('Registry pass finished; unvisited sources retain their checkpoints.')
     try:
-        leads=source_leads.record_observed([urlsplit(s['url']).hostname or '' for s in config['sources']])
+        leads=source_leads.record_observed([urlsplit(s['url']).hostname or '' for s in config.get('diagnostic_sources',config['sources'])])
         print('Source leads recorded:',len(leads['leads']))
     except OSError as error:
         print('Source leads not recorded:',type(error).__name__)

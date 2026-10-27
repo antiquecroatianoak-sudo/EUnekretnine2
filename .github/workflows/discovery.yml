@@ -6,6 +6,10 @@ on:
   push:
     paths:
       - discovery.py
+      - source_intake.py
+      - new_property_sources.py
+      - data/source_intake.json
+      - test_source_intake.py
       - source_batches.py
       - property_connector.py
       - test_property_connector.py
@@ -83,6 +87,13 @@ jobs:
         run: |
           node test_verification.mjs
           node test_public_identity.mjs
+      - name: Dodaj nove izvore i provjeri zajednicki uvoz prije aktivacije
+        id: intake
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python source_intake.py --sync
       - name: Skupno dijagnosticiraj neaktivne izvore bez aktivacije ili promjene uvoznih cursora
         id: source_batches
         continue-on-error: true
@@ -117,7 +128,7 @@ jobs:
       - name: Spremi kandidate i uparivanje u zajedničku bazu
         run: python sync_discovery.py
       - name: Označi nepotpun dohvat
-        if: steps.discovery.outcome == 'failure' || steps.registry.outcome == 'failure'
+        if: steps.discovery.outcome == 'failure' || steps.registry.outcome == 'failure' || steps.intake.outcome == 'failure'
         run: exit 1
 
 

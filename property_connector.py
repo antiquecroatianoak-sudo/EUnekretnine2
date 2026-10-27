@@ -206,6 +206,9 @@ def catalogue_page(source,url,fetcher,Page):
     return Page(fetcher.get(url))
 
 def primary_record(source,url,nodes,stamp,page=None):
+    if urlsplit(url).hostname=='interfarms.com':
+        from new_property_sources import interfarms_record
+        return interfarms_record(source,url,page,stamp)
     if urlsplit(url).hostname=='latio.lv':return latio_record(source,url,page,stamp)
     if urlsplit(url).hostname=='www.ober-haus.lt':return ober_record(source,url,page,stamp)
     if urlsplit(url).hostname=='www.bulgarianproperties.com':return bulgarian_record(source,url,page,stamp)
@@ -257,6 +260,8 @@ def primary_record(source,url,nodes,stamp,page=None):
 
 def links(page,url,objects,safe_url,root):
     candidates=list(page.links)
+    if urlsplit(root).hostname=='interfarms.com':
+        candidates=[(h,'structured listing') for h,l in candidates if re.search(r'^/nl/(?:object/\d+|aanbod(?:[/?]|$))',urlsplit(urljoin(url,h)).path)]
     for script in page.scripts:
         for n in objects(script):
             # Breadcrumb ListItems identify navigation, not catalogue records.
@@ -284,7 +289,7 @@ def links(page,url,objects,safe_url,root):
     # Individual numeric references outrank category/search/navigation pages.
     def priority(u):
         p=urlsplit(u).path
-        category=category_url(u) or bool(re.search(r'/(?:search|property-types|properties-title)(?:/|$)',p,re.I))
+        category=category_url(u) or '/nl/aanbod' in p or bool(re.search(r'/(?:search|property-types|properties-title)(?:/|$)',p,re.I))
         detail=bool(re.search(r'(?:/\d{3,}(?:[/-]|$)|[A-Z]{1,3}\d{4,}|[-_]\d{4,}(?:[./-]|$)|,\d{4,}$)',p))
         return (category,not detail)
     return sorted(found,key=priority)[:200]
@@ -363,7 +368,8 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
     from registry_discovery import Page,objects,safe_url
     safe_url=url_validator or safe_url
     stamp=datetime.now(timezone.utc).isoformat();previous=previous or {}
-    pending=list(previous.get('pending') or [{'url':source['url'],'mode':'index'}])
+    entries=source.get('import_config',{}).get('entry_urls') or [source['url']]
+    pending=list(previous.get('pending') or [{'url':u,'mode':'index'} for u in entries])
     seen=set(previous.get('cycle_seen',[])) if previous.get('pending') else set()
     # Recheck known records even while a catalogue still has a pagination backlog.
     # Only explicitly unavailable URLs are reported as removed; absence from an
@@ -382,6 +388,8 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
             url=safe_url(url,source['url']);pages+=1
             page=catalogue_page(source,url,fetcher,Page)
             nodes=[n for script in page.scripts for n in objects(script)]
+            from source_leads import observe
+            observe(url,page.links)
             if entry['mode']=='detail':
                 details+=1
                 try:rows.append(primary_record(source,url,nodes,stamp,page))
@@ -394,7 +402,7 @@ def collect(source,previous,fetcher,deadline,max_pages=25,url_validator=None):
                 queued={canonical(x['url']) for x in pending}
                 for target in links(page,url,objects,safe_url,source['url']):
                     if canonical(target) not in seen|queued:
-                        pending.append({'url':target,'mode':'index' if category_url(target) else 'detail'});queued.add(canonical(target))
+                        pending.append({'url':target,'mode':'index' if category_url(target) or urlsplit(target).path=='/nl/aanbod' else 'detail'});queued.add(canonical(target))
                 for href in page.next:
                     target=safe_url(urljoin(url,href),source['url'])
                     if canonical(target) not in seen|queued:pending.append({'url':target,'mode':'index'});queued.add(canonical(target))

@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "submitted_at": "2026-10-27",
+  "sources": [
+    {
+      "key": "inep",
+      "name": "iNep",
+      "url": "https://inep.eu/",
+      "kind": "software",
+      "status": "reference_only",
+      "note": "Property management software, not a public sale catalogue.",
+      "evidence_url": "https://inep.eu/",
+      "existing_id": null
+    },
+    {
+      "key": "godaddy",
+      "name": "GoDaddy article",
+      "url": "https://www.godaddy.com/resources/skills/real-estate-business-ideas",
+      "kind": "editorial",
+      "status": "reference_only",
+      "note": "Business ideas article, not a property or buyer feed.",
+      "evidence_url": "https://www.godaddy.com/resources/skills/real-estate-business-ideas",
+      "existing_id": null
+    },
+    {
+      "key": "be",
+      "name": "Be.agency",
+      "url": "https://be.hr/en",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://be.hr/en",
+      "existing_id": null
+    },
+    {
+      "key": "remax",
+      "name": "RE/MAX",
+      "url": "https://www.remax.eu/",
+      "kind": "agency",
+      "status": "existing_skip",
+      "note": "Already registered; no recheck or modification requested.",
+      "evidence_url": "https://www.remax.eu/",
+      "existing_id": 66
+    },
+    {
+      "key": "century21",
+      "name": "Century 21",
+      "url": "https://www.century21global.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.century21global.com/",
+      "existing_id": null
+    },
+    {
+      "key": "iqi",
+      "name": "IQI Global",
+      "url": "https://www.iqiglobal.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.iqiglobal.com/",
+      "existing_id": null
+    },
+    {
+      "key": "era",
+      "name": "ERA",
+      "url": "https://www.era.be/nl/te-koop",
+      "kind": "agency",
+      "status": "existing_skip",
+      "note": "Already registered; no recheck or modification requested.",
+      "evidence_url": "https://www.era.be/nl/te-koop",
+      "existing_id": 67
+    },
+    {
+      "key": "sothebys",
+      "name": "Sothebys",
+      "url": "https://www.sothebysrealty.com/eng",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.sothebysrealty.com/eng",
+      "existing_id": null
+    },
+    {
+      "key": "cbre",
+      "name": "CBRE",
+      "url": "https://www.cbre.hr/en-gb/insights/intelligent-investment",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.cbre.hr/en-gb/insights/intelligent-investment",
+      "existing_id": null
+    },
+    {
+      "key": "colliers",
+      "name": "Colliers",
+      "url": "https://www.colliers.com/en-hr",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.colliers.com/en-hr",
+      "existing_id": null
+    },
+    {
+      "key": "eastdil",
+      "name": "Eastdil Secured",
+      "url": "https://www.eastdilsecured.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.eastdilsecured.com/",
+      "existing_id": null
+    },
+    {
+      "key": "zillow",
+      "name": "Zillow",
+      "url": "https://www.zillow.com/",
+      "kind": "non_eu",
+      "status": "outside_scope",
+      "note": "US property catalogue; no demonstrated EU property feed.",
+      "evidence_url": "https://www.zillow.com/",
+      "existing_id": null
+    },
+    {
+      "key": "kw",
+      "name": "Keller Williams",
+      "url": "https://www.kw.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.kw.com/",
+      "existing_id": null
+    },
+    {
+      "key": "rics",
+      "name": "RICS",
+      "url": "https://www.rics.org/",
+      "kind": "association",
+      "status": "reference_only",
+      "note": "Professional association/research network; discover public source links, never treat members as buyers.",
+      "evidence_url": "https://www.rics.org/",
+      "existing_id": null
+    },
+    {
+      "key": "fiabci",
+      "name": "FIABCI",
+      "url": "https://fiabci.org/",
+      "kind": "association",
+      "status": "reference_only",
+      "note": "Professional association/research network; discover public source links, never treat members as buyers.",
+      "evidence_url": "https://fiabci.org/",
+      "existing_id": null
+    },
+    {
+      "key": "uli",
+      "name": "Urban Land Institute",
+      "url": "https://uli.org/",
+      "kind": "association",
+      "status": "reference_only",
+      "note": "Professional association/research network; discover public source links, never treat members as buyers.",
+      "evidence_url": "https://uli.org/",
+      "existing_id": null
+    },
+    {
+      "key": "inrev",
+      "name": "INREV",
+      "url": "https://www.inrev.org/",
+      "kind": "association",
+      "status": "reference_only",
+      "note": "Professional association/research network; discover public source links, never treat members as buyers.",
+      "evidence_url": "https://www.inrev.org/",
+      "existing_id": null
+    },
+    {
+      "key": "propertium",
+      "name": "Propertium.io",
+      "url": "https://propertium.io/",
+      "kind": "unresolved",
+      "status": "unresolved",
+      "note": "Supplied hostname not resolved to an accessible official source.",
+      "evidence_url": "https://propertium.io/",
+      "existing_id": null
+    },
+    {
+      "key": "databoutique",
+      "name": "Data Boutique",
+      "url": "https://www.databoutique.com/",
+      "kind": "licensed_data",
+      "status": "access_required",
+      "note": "Dataset marketplace: API catalog requires supplied authentication token; no licensed dataset granted.",
+      "evidence_url": "https://support.databoutique.com/article/dadd77p45d-5-2-how-to-access-the-data-boutique-dataset-catalog-via-api",
+      "existing_id": null
+    },
+    {
+      "key": "msci",
+      "name": "MSCI RCA",
+      "url": "https://www.msci.com/data-and-analytics/real-estate/real-capital-analytics",
+      "kind": "licensed_data",
+      "status": "access_required",
+      "note": "Licensed transaction/investor intelligence is not current acquisition demand.",
+      "evidence_url": "https://www.msci.com/data-and-analytics/real-estate/real-capital-analytics",
+      "existing_id": null
+    },
+    {
+      "key": "tranio",
+      "name": "Tranio",
+      "url": "https://tranio.com/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://tranio.com/",
+      "existing_id": null
+    },
+    {
+      "key": "consorto",
+      "name": "Consorto",
+      "url": "https://www.consorto.com/",
+      "kind": "property_buyer",
+      "status": "access_required",
+      "note": "Terms prohibit automated extraction; record-bound Offer a property requires registration and admission. No extraction without permission.",
+      "evidence_url": "https://www.consorto.com/lp/terms-and-conditions",
+      "existing_id": null
+    },
+    {
+      "key": "knightfrank",
+      "name": "Knight Frank",
+      "url": "https://www.knightfrank.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.knightfrank.com/",
+      "existing_id": null
+    },
+    {
+      "key": "cushman",
+      "name": "Cushman & Wakefield",
+      "url": "https://www.cushmanwakefield.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.cushmanwakefield.com/",
+      "existing_id": null
+    },
+    {
+      "key": "jll",
+      "name": "JLL",
+      "url": "https://www.jll.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.jll.com/",
+      "existing_id": null
+    },
+    {
+      "key": "savills",
+      "name": "Savills",
+      "url": "https://www.savills.com/",
+      "kind": "agency",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.savills.com/",
+      "existing_id": null
+    },
+    {
+      "key": "interfarms",
+      "name": "Interfarms",
+      "url": "https://interfarms.com/nl/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://interfarms.com/nl/",
+      "existing_id": null,
+      "probe_urls": [
+        "https://interfarms.com/nl/object/21891",
+        "https://interfarms.com/nl/object/21869"
+      ]
+    },
+    {
+      "key": "rural",
+      "name": "Rural Property Network",
+      "url": "https://ruralpropertynetwork.com/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://ruralpropertynetwork.com/",
+      "existing_id": null
+    },
+    {
+      "key": "seeki",
+      "name": "Seeki.eu",
+      "url": "https://seeki.eu/",
+      "kind": "unresolved",
+      "status": "unresolved",
+      "note": "Supplied hostname not yet verified; no automatic imports.",
+      "evidence_url": "https://seeki.eu/",
+      "existing_id": null
+    },
+    {
+      "key": "immoscout",
+      "name": "ImmoScout24",
+      "url": "https://www.immobilienscout24.de/",
+      "kind": "property",
+      "status": "existing_skip",
+      "note": "Already registered; no recheck or modification requested.",
+      "evidence_url": "https://www.immobilienscout24.de/",
+      "existing_id": 33
+    },
+    {
+      "key": "estateguru",
+      "name": "EstateGuru",
+      "url": "https://estateguru.co/",
+      "kind": "finance",
+      "status": "reference_only",
+      "note": "Real-estate financing/investment projects; do not treat platform users as property buyers.",
+      "evidence_url": "https://estateguru.co/",
+      "existing_id": null
+    },
+    {
+      "key": "urbanitae",
+      "name": "Urbanitae",
+      "url": "https://urbanitae.com/",
+      "kind": "finance",
+      "status": "reference_only",
+      "note": "Real-estate financing/investment projects; do not treat platform users as property buyers.",
+      "evidence_url": "https://urbanitae.com/",
+      "existing_id": null
+    },
+    {
+      "key": "properstar",
+      "name": "Properstar",
+      "url": "https://www.properstar.com/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.properstar.com/",
+      "existing_id": null
+    },
+    {
+      "key": "greenacres",
+      "name": "Green-Acres",
+      "url": "https://www.green-acres.fr/en",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.green-acres.fr/en",
+      "existing_id": null
+    },
+    {
+      "key": "residaro",
+      "name": "Residaro",
+      "url": "https://residaro.com/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://residaro.com/",
+      "existing_id": null,
+      "probe_urls": [
+        "https://residaro.com/properties/sweden/country-houses/1960s-country-house-with-expansive-grounds-and-five-bedrooms-in-bruksvallarna"
+      ]
+    },
+    {
+      "key": "esales",
+      "name": "Esales International",
+      "url": "https://esalesinternational.com/",
+      "kind": "property",
+      "status": "access_required",
+      "note": "Terms 2.1 prohibit storing/reusing site information without prior written consent.",
+      "evidence_url": "https://esalesinternational.com/terms-and-conditions/",
+      "existing_id": null,
+      "probe_urls": [
+        "https://esalesinternational.com/property/excellent-5-bed-villa-for-sale-in-alomartes-granada-andalucia-spain/",
+        "https://esalesinternational.com/property/stunning-stone-house-fully-renovated-for-sale-in-chastreix-france/"
+      ]
+    },
+    {
+      "key": "brevitas",
+      "name": "Brevitas",
+      "url": "https://brevitas.com/",
+      "kind": "property_buyer",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://brevitas.com/",
+      "existing_id": null
+    },
+    {
+      "key": "homestra",
+      "name": "Homestra",
+      "url": "https://homestra.com/",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://homestra.com/",
+      "existing_id": null,
+      "probe_urls": [
+        "https://homestra.com/property/9-bedroom-stone-farmhouse-with-pool-in-aveyrons-scenic-countryside/"
+      ]
+    },
+    {
+      "key": "rightmove",
+      "name": "Rightmove Overseas",
+      "url": "https://www.rightmove.co.uk/overseas-property.html",
+      "kind": "property",
+      "status": "research",
+      "note": "Official source supplied for review; no mandate, data access or current availability inferred.",
+      "evidence_url": "https://www.rightmove.co.uk/overseas-property.html",
+      "existing_id": null
+    }
+  ]
+}
