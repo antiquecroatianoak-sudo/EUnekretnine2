@@ -6,6 +6,8 @@ import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
+from facts import compare_requirement, read_facts, requirement_label, validate_requirements
+
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
 INACTIVE = {'Prodano', 'Povučeno', 'Rok istekao - ishod nepoznat', 'Zatvoreno'}
@@ -86,6 +88,7 @@ def validate_criteria(criteria):
     if criteria.get('requires_buildable', False) not in (True, False): raise ValueError('Nevaljan uvjet gradnje.')
     if criteria.get('area_hard', False) not in (True, False): raise ValueError('Nevaljana oznaka tvrde granice površine.')
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
+    if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'])
 
 # Property facts a pair-specific check is bound to; equal to PAIR_FACTS in domain.mjs.
 PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'condition', 'area', 'price', 'price_basis', 'renovation', 'other_costs',
@@ -142,6 +145,10 @@ def pair_text(requirement, prop):
     """The buyer's condition wording plus the property facts it was checked against (as pairText in domain.mjs)."""
     # The id is compared as text, as the database driver returns bigint ids as strings in domain.mjs.
     values = [str(prop['id']) if k == 'id' and prop.get('id') is not None else _fact(prop.get(k)) for k in PAIR_FACTS]
+    # Specialised facts (facts.py) join the text only when present, so earlier checks keep their digest.
+    facts = read_facts(prop)
+    if facts is None: values.append({'facts_invalid': str(prop.get('facts_json'))})
+    elif facts: values.append({'facts': facts})
     return json.dumps([str(requirement if requirement is not None else '')] + values, ensure_ascii=False, separators=(',', ':'))
 
 # Area tolerance, equal to areaFit() in domain.mjs: up to 15 % below the lower and 25 % above the upper bound;
@@ -240,6 +247,15 @@ def evaluate(prop, investor, pair_checks=None):
             evidence = pair_checks.get(fulfilment) or {}
             if not check_valid(evidence, pair_text(source_text, prop)) or evidence.get('outcome') not in ('zadovoljava', 'ne zadovoljava'): gap(fulfilment, 'pair')
             elif evidence['outcome'] == 'ne zadovoljava': rejected.append(fulfilment)
+    # Documented requirements (facts-v1), as in domain.mjs: a mandatory one is a criterion, a wish only informs.
+    if criteria.get('requirements'):
+        facts = read_facts(prop)
+        if facts is None: gap('Ispravni strukturirani podaci nekretnine', 'property')
+        today = datetime.now(timezone.utc).date().isoformat()
+        for q in criteria['requirements']:
+            state, label = compare_requirement(q, facts or {}, today), requirement_label(q['key'])
+            if q['mandatory']: check(label, True, state in ('met', 'unmet'), state == 'met')
+            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja, podatak nije potvrđen'))
     if not valid_url(prop.get('source')): gap('Izvor oglasa', 'property')
     if not (prop.get('city') or '').strip(): gap('Grad nekretnine', 'property')
     if not source_fresh(prop): gap(SOURCE_FRESH, 'property')

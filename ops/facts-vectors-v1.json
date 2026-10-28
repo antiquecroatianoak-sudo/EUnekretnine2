@@ -1,0 +1,48 @@
+{
+ "version": "facts-v1",
+ "note": "Shared vectors for facts.mjs and facts.py: identical results are required in both. TEST ONLY values.",
+ "compare": [
+  {"name": "unknown fact", "requirement": {"key": "land_owned", "op": "min", "value": 150, "unit": "ha", "mandatory": true, "quote": "kupnja 150 ha"}, "facts": {}, "today": "2026-10-28", "state": "unknown"},
+  {"name": "owned 110 ha of 150 total does not meet 150 ha owned", "requirement": {"key": "land_owned", "op": "min", "value": 150, "unit": "ha", "mandatory": true, "quote": "kupnja 150 ha"},
+   "facts": {"land_total": {"value": 150, "unit": "ha", "origin": "izvor", "status": "potvrđeno", "evidence": "oglas", "observed_on": "2026-10-01"},
+             "land_owned": {"value": 110, "unit": "ha", "origin": "izvor", "status": "potvrđeno", "evidence": "oglas", "observed_on": "2026-10-01"},
+             "land_leased": {"value": 40, "unit": "ha", "origin": "izvor", "status": "potvrđeno", "evidence": "oglas", "observed_on": "2026-10-01"}},
+   "today": "2026-10-28", "state": "unmet"},
+  {"name": "ha against m2 converts", "requirement": {"key": "land_owned", "op": "min", "value": 15000, "unit": "m2", "mandatory": true, "quote": "najmanje 15.000 m2"},
+   "facts": {"land_owned": {"value": 1.5, "unit": "ha", "origin": "ručno", "status": "potvrđeno", "evidence": "ZK izvadak", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "met"},
+  {"name": "max bound equal is met", "requirement": {"key": "power", "op": "max", "value": 1, "unit": "MW", "mandatory": false, "quote": "do 1 MW"},
+   "facts": {"power": {"value": 1000, "unit": "kW", "origin": "izvor", "status": "potvrđeno", "evidence": "elaborat", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "met"},
+  {"name": "unconfirmed fact stays unknown", "requirement": {"key": "rooms", "op": "min", "value": 40, "unit": "kom", "mandatory": true, "quote": "najmanje 40 soba"},
+   "facts": {"rooms": {"value": 60, "unit": "kom", "origin": "predloženo", "status": "nepotvrđeno", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "unknown"},
+  {"name": "conflicting fact", "requirement": {"key": "rooms", "op": "min", "value": 40, "unit": "kom", "mandatory": true, "quote": "najmanje 40 soba"},
+   "facts": {"rooms": {"value": 60, "unit": "kom", "origin": "izvor", "status": "proturječno", "evidence": "dva izvora različito", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "conflict"},
+  {"name": "expired fact", "requirement": {"key": "hotel_category", "op": "min", "value": 4, "unit": "kom", "mandatory": true, "quote": "4 zvjezdice"},
+   "facts": {"hotel_category": {"value": 4, "unit": "kom", "origin": "izvor", "status": "potvrđeno", "evidence": "rješenje", "observed_on": "2025-01-01", "valid_until": "2026-01-01"}}, "today": "2026-10-28", "state": "expired"},
+  {"name": "valid until today is still valid", "requirement": {"key": "hotel_category", "op": "min", "value": 4, "unit": "kom", "mandatory": true, "quote": "4 zvjezdice"},
+   "facts": {"hotel_category": {"value": 5, "unit": "kom", "origin": "izvor", "status": "potvrđeno", "evidence": "rješenje", "observed_on": "2025-01-01", "valid_until": "2026-10-28"}}, "today": "2026-10-28", "state": "met"},
+  {"name": "boolean false is a known value", "requirement": {"key": "truck_access", "op": "equals", "value": true, "mandatory": true, "quote": "pristup kamionima"},
+   "facts": {"truck_access": {"value": false, "origin": "ručno", "status": "potvrđeno", "evidence": "obilazak", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "unmet"},
+  {"name": "enum alternatives", "requirement": {"key": "subtype", "op": "includes", "value": ["hotel", "skladište / logistika"], "mandatory": true, "quote": "hotel ili skladište"},
+   "facts": {"subtype": {"value": "skladište / logistika", "origin": "ručno", "status": "potvrđeno", "evidence": "oglas", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "met"},
+  {"name": "zero is a value, not unknown", "requirement": {"key": "land_leased", "op": "max", "value": 0, "unit": "ha", "mandatory": true, "quote": "bez zakupa"},
+   "facts": {"land_leased": {"value": 0, "unit": "ha", "origin": "izvor", "status": "potvrđeno", "evidence": "oglas", "observed_on": "2026-10-01"}}, "today": "2026-10-28", "state": "met"}
+ ],
+ "invalid_requirements": [
+  {"name": "unknown key", "input": [{"key": "min_rooms", "op": "min", "value": 3, "unit": "kom", "mandatory": true, "quote": "x"}]},
+  {"name": "wrong dimension", "input": [{"key": "land_owned", "op": "min", "value": 3, "unit": "kW", "mandatory": true, "quote": "x"}]},
+  {"name": "negative", "input": [{"key": "rooms", "op": "min", "value": -1, "unit": "kom", "mandatory": true, "quote": "x"}]},
+  {"name": "missing quote", "input": [{"key": "rooms", "op": "min", "value": 3, "unit": "kom", "mandatory": true}]},
+  {"name": "missing mandatory flag", "input": [{"key": "rooms", "op": "min", "value": 3, "unit": "kom", "quote": "x"}]},
+  {"name": "wrong op", "input": [{"key": "truck_access", "op": "min", "value": true, "mandatory": true, "quote": "x"}]},
+  {"name": "duplicate", "input": [{"key": "rooms", "op": "min", "value": 3, "unit": "kom", "mandatory": true, "quote": "x"}, {"key": "rooms", "op": "min", "value": 4, "unit": "kom", "mandatory": false, "quote": "y"}]},
+  {"name": "string number", "input": [{"key": "rooms", "op": "min", "value": "3", "unit": "kom", "mandatory": true, "quote": "x"}]}
+ ],
+ "invalid_facts": [
+  {"name": "unknown key", "input": {"stars": {"value": 4, "unit": "kom", "origin": "izvor", "status": "potvrđeno", "evidence": "x", "observed_on": "2026-10-01"}}},
+  {"name": "confirmed without evidence", "input": {"rooms": {"value": 4, "unit": "kom", "origin": "izvor", "status": "potvrđeno", "observed_on": "2026-10-01"}}},
+  {"name": "no observation date", "input": {"rooms": {"value": 4, "unit": "kom", "origin": "izvor", "status": "nepotvrđeno"}}},
+  {"name": "valid before observed", "input": {"rooms": {"value": 4, "unit": "kom", "origin": "izvor", "status": "nepotvrđeno", "observed_on": "2026-10-01", "valid_until": "2026-09-01"}}},
+  {"name": "two subtypes", "input": {"subtype": {"value": ["hotel", "farma"], "origin": "ručno", "status": "nepotvrđeno", "observed_on": "2026-10-01"}}},
+  {"name": "unknown origin", "input": {"rooms": {"value": 4, "unit": "kom", "origin": "web", "status": "nepotvrđeno", "observed_on": "2026-10-01"}}}
+ ]
+}

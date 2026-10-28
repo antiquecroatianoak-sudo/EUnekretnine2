@@ -7,7 +7,7 @@ import {readFileSync,existsSync} from 'node:fs';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:true});
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,Event:dom.window.Event,IS_REACT_ACT_ENVIRONMENT:true});
 const {createRoot}=await import('react-dom/client');const {act}=await import('react');
-const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
+const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {FactsEditor,RequirementsTable}=await import('../app/facts-editor.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],button=t=>$$('button').find(b=>b.textContent.trim()===t);
 const wait=()=>act(async()=>{await new Promise(r=>setTimeout(r,20))});
 async function setValue(el,v){const proto=el.tagName==='SELECT'?window.HTMLSelectElement.prototype:el.tagName==='TEXTAREA'?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;
@@ -115,10 +115,16 @@ assert.equal(field('Izvor ovog zahtjeva (URL dokaza)').value,'','a new request s
 await setValue(field('Naziv zahtjeva'),'Stan u Splitu');await setValue(field('Države interesa (zarezom)'),'Hrvatska');
 await act(async()=>{$$('fieldset')[0].querySelectorAll('input')[2].click()});await act(async()=>{$$('fieldset')[1].querySelectorAll('input')[0].click()});
 await setValue(field('Površina od (m²)'),'60');await setValue(field('Površina do (m²)'),'60');
+// A documented requirement (facts-v1) with its source quote; unit and value are explicit, never defaulted to 0.
+await act(async()=>{button('Dodaj uvjet').click()});
+await setValue($('select[aria-label="Podatak"]'),'land_owned');
+await setValue($('input[aria-label="Tražena vrijednost"]'),'150');await setValue($('select[aria-label="Tražena vrijednost – jedinica"]'),'ha');
+await setValue($('input[aria-label="Izvorni navod"]'),'kupnja 150 ha u vlasništvu');
 await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});await wait();
 const saved=posts.find(b=>b.action==='save_request');
 assert.deepEqual({...saved,criteria:{...saved.criteria}},{action:'save_request',investor_id:Number(profile.id),request_id:null,label:'Stan u Splitu',preferred_countries:'Hrvatska',notes:'',verified:false,min_budget:null,max_budget:null,
- criteria:{property_types:['Stan'],conditions:['Useljivo'],min_area:60,max_area:60,cities:[],regions:[],source_url:null}},'unknown budget stays empty, equal bounds kept, no inherited source');
+ criteria:{property_types:['Stan'],conditions:['Useljivo'],min_area:60,max_area:60,cities:[],regions:[],source_url:null,
+  requirements:[{key:'land_owned',op:'min',unit:'ha',mandatory:true,quote:'kupnja 150 ha u vlasništvu',value:150}]}},'unknown budget stays empty, equal bounds kept, no inherited source, documented requirement');
 const other=fixture.requests.items.find(r=>!r.root);
 await act(async()=>{$$('.request-card').find(c=>c.textContent.includes(other.request_label)).querySelector('button').click()});
 assert.equal(field('Naziv zahtjeva').value,other.request_label);
@@ -126,5 +132,19 @@ await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});awai
 assert.equal(posts.filter(b=>b.action==='save_request').at(-1).request_id,other.id,'editing targets the request, never the profile');
 // Mobile: the panels declare single-column layouts below 600px (visual review on a real phone is still required).
 assert(document.body.innerHTML.includes('@media(max-width:600px){.two-cols{grid-template-columns:1fr}'));
+// facts-v1: a new property fact starts unconfirmed with today's date and no value (unknown is never 0);
+// the pair table shows requested, actual, evidence and state, with wishes marked.
+await act(async()=>{root.unmount()});root=createRoot($('#root'));
+let factsValue='';const renderFacts=()=>root.render(<FactsEditor value={factsValue} onChange={v=>{factsValue=v;renderFacts()}}/>);
+await act(async()=>{renderFacts()});
+await setValue($('select[aria-label="Dodaj podatak"]'),'land_owned');
+let stored=JSON.parse(factsValue);assert.deepEqual(Object.keys(stored),['land_owned']);assert.equal(stored.land_owned.status,'nepotvrđeno');assert.equal('value' in stored.land_owned,false);
+assert.equal(stored.land_owned.observed_on,new Date().toISOString().slice(0,10));
+await setValue($('input[aria-label="Zemljište u vlasništvu uključeno u prodaju"]'),'110');await setValue($('select[aria-label="Zemljište u vlasništvu uključeno u prodaju – jedinica"]'),'ha');
+stored=JSON.parse(factsValue);assert.equal(stored.land_owned.value,110);assert.equal(stored.land_owned.unit,'ha');
+await act(async()=>{button('Ukloni').click()});assert.equal(factsValue,'','removing the last fact stores no facts');
+await act(async()=>{root.render(<RequirementsTable rows={[{key:'land_owned',op:'min',label:'Zemljište u vlasništvu uključeno u prodaju',mandatory:true,quote:'kupnja 150 ha',requested:150,unit:'ha',actual:110,actual_unit:'ha',evidence:'TEST ONLY oglas',state:'unmet'},
+ {key:'rooms',op:'min',label:'Broj soba / smještajnih jedinica',mandatory:false,quote:'po mogućnosti 40 soba',requested:40,unit:'kom',actual:null,actual_unit:null,evidence:null,state:'unknown'}]}/>)});
+const table=document.body.textContent;for(const t of ['≥ 150 ha','110 ha','TEST ONLY oglas','Ne odgovara','(želja)','Podatak nije potvrđen','„kupnja 150 ha”'])assert(table.includes(t),t);
 await act(async()=>{root.unmount()});
 console.log('Offer workflow DOM checks passed'+(real?' on the real API response':' (synthetic response; real response not supplied)')+': fresh review with separate fit and reliability, identifier-free previews, explicit approval and written responses, same-day renewal by explicit replacement, business phase gate, readable agency packages with revoked ones marked not for hand-over, escaped text, errors with retry, separate buyer requests.');

@@ -1,0 +1,92 @@
+// Versioned data contract for specialised property facts and documented buyer requirements (plan #46 addendum,
+// module 1, ops/buyer-workflow-enhancements-plan.md). Unknown is never false or zero, a requirement is never ignored:
+// what cannot be compared stays a visible open item. Mirrored by facts.py; ops/facts-vectors-v1.json holds the shared
+// test vectors. Copies: every directory that holds domain.mjs.
+export const FACTS_VERSION='facts-v1';
+export const FACT_STATUS=['potvrđeno','nepotvrđeno','proturječno'];
+export const FACT_ORIGIN=['izvor','ručno','partner','predloženo'];
+// Units convert only within one dimension; m² and ha are both areas, kW and MW both power.
+export const UNITS={m2:['area',1],ha:['area',10000],m:['length',1],kW:['power',1],MW:['power',1000],kom:['count',1]};
+const day=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v;
+// Definitions only: which facts exist, their type and unit dimension. How a sector uses them (modules 4 and 5) is
+// decided by the documented requirement of a concrete request, never by a default.
+export const FACTS={
+ land_total:{label:'Ukupno oglašeno zemljište',type:'number',dim:'area',meaning:'Sva oglašena površina zemljišta, bez obzira na vlasništvo ili zakup'},
+ land_owned:{label:'Zemljište u vlasništvu uključeno u prodaju',type:'number',dim:'area',meaning:'Samo zemljište koje prodavatelj posjeduje i koje ulazi u prodaju'},
+ land_leased:{label:'Zakupljeno zemljište',type:'number',dim:'area',meaning:'Zemljište u zakupu; nije vlasništvo kupca nakon kupnje'},
+ building_area:{label:'Površina zgrada',type:'number',dim:'area',meaning:'Bruto površina zgrada'},
+ usable_area:{label:'Korisna površina',type:'number',dim:'area',meaning:'Korisna (neto) površina'},
+ rooms:{label:'Broj soba / smještajnih jedinica',type:'number',dim:'count',meaning:'Dokumentirani broj soba ili smještajnih jedinica'},
+ hotel_category:{label:'Dokumentirana kategorija smještaja',type:'number',dim:'count',meaning:'Službena kategorija (broj zvjezdica) prema rješenju'},
+ clear_height:{label:'Dokumentirana svijetla visina',type:'number',dim:'length',meaning:'Svijetla visina skladišta s navedenom osnovom mjerenja'},
+ power:{label:'Priključna električna snaga',type:'number',dim:'power',meaning:'Odobrena priključna snaga'},
+ truck_access:{label:'Pristup kamionima / utovar',type:'boolean',meaning:'Dokumentiran pristup teretnim vozilima ili utovarna rampa'},
+ water_rights:{label:'Dokumentirana prava na vodu',type:'boolean',meaning:'Pravo korištenja vode prema dokumentu'},
+ operating:{label:'Objekt posluje',type:'boolean',meaning:'Objekt je u radu (posluje) prema dokazu'},
+ subtype:{label:'Podvrsta / namjena',type:'enum',values:['hotel','turistički smještaj','skladište / logistika','industrijski objekt','farma','mješovita imovina'],
+  meaning:'Opcionalna podvrsta uz pet osnovnih vrsta; ne mijenja osnovnu vrstu nekretnine'}};
+export const OPS={number:['min','max'],boolean:['equals'],enum:['includes']};
+const text=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max&&!/[\u0000-\u001f]/.test(v);
+function checkValue(def,value,unit,where){
+ if(def.type==='number'){if(typeof value!=='number'||!Number.isFinite(value)||value<0)throw Error(where+': vrijednost mora biti nenegativan broj.');
+  if(!UNITS[unit]||UNITS[unit][0]!==def.dim)throw Error(where+': jedinica mora biti dimenzije '+def.dim+'.')}
+ else if(def.type==='boolean'){if(typeof value!=='boolean')throw Error(where+': vrijednost mora biti da/ne.')}
+ else for(const v of Array.isArray(value)?value:[value])if(!def.values.includes(v))throw Error(where+': nepoznata vrijednost.');
+}
+// Property facts: {key: {value, unit?, origin, status, evidence, observed_on, valid_until?}}. A confirmed fact needs evidence.
+export function validateFacts(raw){
+ const f=typeof raw==='string'?JSON.parse(raw):raw;
+ if(!f||typeof f!=='object'||Array.isArray(f))throw Error('Podaci nekretnine moraju biti objekt.');
+ const out={};
+ for(const [k,v] of Object.entries(f)){
+  const def=FACTS[k];if(!def)throw Error('Nepoznat podatak nekretnine: '+k);
+  if(!v||typeof v!=='object'||Array.isArray(v))throw Error(def.label+': neispravan zapis.');
+  checkValue(def,v.value,v.unit,def.label);
+  if(def.type==='enum'&&Array.isArray(v.value))throw Error(def.label+': nekretnina ima jednu podvrstu.');
+  if(!FACT_STATUS.includes(v.status)||!FACT_ORIGIN.includes(v.origin))throw Error(def.label+': status i podrijetlo su obavezni.');
+  if(v.status==='potvrđeno'&&!text(v.evidence,2000))throw Error(def.label+': potvrđen podatak traži dokaz.');
+  if(v.evidence!=null&&!text(v.evidence,2000))throw Error(def.label+': neispravan dokaz.');
+  if(!day(v.observed_on))throw Error(def.label+': datum opažanja YYYY-MM-DD je obavezan.');
+  if(v.valid_until!=null&&(!day(v.valid_until)||v.valid_until<v.observed_on))throw Error(def.label+': neispravan rok važenja.');
+  out[k]={value:v.value,...(v.unit?{unit:v.unit}:{}),origin:v.origin,status:v.status,...(v.evidence?{evidence:v.evidence.trim()}:{}),observed_on:v.observed_on,...(v.valid_until?{valid_until:v.valid_until}:{})};
+ }
+ return out;
+}
+// Buyer requirements: [{key, op, value, unit?, mandatory, quote}], each documented by the source wording it comes from.
+export function validateRequirements(list){
+ if(!Array.isArray(list)||list.length>50)throw Error('Zahtjevi moraju biti popis (najviše 50).');
+ const seen=new Set();
+ return list.map((q,n)=>{
+  const where='Zahtjev '+(n+1),def=FACTS[q?.key];if(!def)throw Error(where+': nepoznat podatak.');
+  if(!OPS[def.type].includes(q.op))throw Error(where+': nevaljana usporedba.');
+  checkValue(def,q.value,q.unit,where);
+  if(typeof q.mandatory!=='boolean')throw Error(where+': odredi je li uvjet obavezan ili želja.');
+  if(!text(q.quote,500))throw Error(where+': potreban je izvorni navod zahtjeva.');
+  const id=q.key+'\n'+q.op;if(seen.has(id))throw Error(where+': isti uvjet je naveden dvaput.');seen.add(id);
+  return {key:q.key,op:q.op,value:q.value,...(q.unit?{unit:q.unit}:{}),mandatory:q.mandatory,quote:q.quote.trim()};
+ });
+}
+export function readFacts(row){const v=row?.facts_json;if(v==null||v==='')return {};try{return validateFacts(v)}catch{return null}}
+const base=(value,unit)=>value*UNITS[unit][1];
+// One requirement against the property's facts: met / unmet (comparable and confirmed), otherwise unknown, conflict or
+// expired. Nothing is inferred from a missing or unconfirmed fact.
+export function compareRequirement(q,facts,today){
+ const def=FACTS[q.key],f=facts?.[q.key],label=def.label;
+ const out={key:q.key,label,mandatory:q.mandatory,op:q.op,requested:q.value,unit:q.unit??null,quote:q.quote,actual:f?.value??null,actual_unit:f?.unit??null,evidence:f?.evidence??null};
+ if(!f)return {...out,state:'unknown'};
+ if(f.status==='proturječno')return {...out,state:'conflict'};
+ if(f.status!=='potvrđeno')return {...out,state:'unknown'};
+ if(f.valid_until&&f.valid_until<today)return {...out,state:'expired'};
+ let fits;
+ if(def.type==='number'){const a=base(f.value,f.unit),b=base(q.value,q.unit);fits=q.op==='min'?a>=b:a<=b}
+ else if(def.type==='boolean')fits=f.value===q.value;
+ else fits=(Array.isArray(q.value)?q.value:[q.value]).includes(f.value);
+ return {...out,state:fits?'met':'unmet'};
+}
+export function compareRequirements(requirements,facts,now=Date.now()){
+ const today=new Date(now).toISOString().slice(0,10);
+ return (requirements||[]).map(q=>compareRequirement(q,facts,today));
+}
+// Labels evaluate() records for each state; a wish only ever adds information.
+export const requirementLabel=r=>'Uvjet zahtjeva: '+r.label;
+export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine'};

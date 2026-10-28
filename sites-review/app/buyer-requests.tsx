@@ -3,20 +3,21 @@
 import {useState,useEffect} from 'react';
 import {criteria,TYPES,CONDITIONS,COUNTRIES,country} from '@/lib/domain.mjs';
 import {workflowCall} from './offer-workflow';
+import {RequirementsEditor} from './facts-editor';
 // One buyer, several independent documented requests. Each request keeps its own criteria, source and date;
 // the original profile is shown read-only and is never rewritten from here.
-const empty={label:'',preferred_countries:'',property_types:[],conditions:[],min_area:'',max_area:'',cities:'',regions:'',source_url:'',checked_at:'',notes:'',min_budget:'',max_budget:'',verified:false};
+const empty={label:'',preferred_countries:'',property_types:[],conditions:[],min_area:'',max_area:'',cities:'',regions:'',source_url:'',checked_at:'',notes:'',min_budget:'',max_budget:'',verified:false,requirements:[]};
 const list=v=>String(v||'').split(',').map(x=>x.trim()).filter(Boolean);
 const area=v=>v===''||v==null?null:Number(v);
 export function requestBody(form){
- const c={property_types:form.property_types,conditions:form.conditions,min_area:area(form.min_area),max_area:area(form.max_area),cities:list(form.cities),regions:list(form.regions),source_url:form.source_url.trim()||null};
+ const c={property_types:form.property_types,conditions:form.conditions,min_area:area(form.min_area),max_area:area(form.max_area),cities:list(form.cities),regions:list(form.regions),source_url:form.source_url.trim()||null,requirements:form.requirements};
  if(form.checked_at)c.checked_at=new Date(form.checked_at+'T00:00:00Z').toISOString();
  return {label:form.label,preferred_countries:form.preferred_countries,notes:form.notes,verified:form.verified,
   min_budget:form.min_budget===''?null:Number(form.min_budget),max_budget:form.max_budget===''?null:Number(form.max_budget),criteria:c};
 }
 function fromRow(r){const c=criteria(r);return {...empty,id:r.id,label:c.request_label||'',preferred_countries:r.preferred_countries||'',property_types:c.property_types||[],conditions:c.conditions||[],
  min_area:c.min_area??'',max_area:c.max_area??'',cities:(c.cities||[]).join(', '),regions:(c.regions||[]).join(', '),source_url:c.source_url||'',checked_at:c.checked_at?String(c.checked_at).slice(0,10):'',notes:r.notes||'',
- min_budget:r.min_budget??'',max_budget:r.max_budget??'',verified:!!r.verified}}
+ min_budget:r.min_budget??'',max_budget:r.max_budget??'',verified:!!r.verified,requirements:Array.isArray(c.requirements)?c.requirements:[]}}
 function Multi({label,values,value,onChange}){return <fieldset className='field'><legend>{label}</legend><div className='chips'>{values.map(v=><label key={v} className='checkbox'><input type='checkbox' checked={value.includes(v)} onChange={e=>onChange(e.target.checked?[...value,v]:value.filter(x=>x!==v))}/>{v}</label>)}</div></fieldset>}
 function Text({label,value,onChange,type='text',hint}){return <label className='field'><span>{label}</span><input type={type} value={value??''} onChange={e=>onChange(e.target.value)}/>{hint&&<small className='muted'>{hint}</small>}</label>}
 export function BuyerRequests({investorId,onChanged}){
@@ -46,6 +47,7 @@ export function BuyerRequests({investorId,onChanged}){
    <Multi label='Prihvatljiva stanja' values={CONDITIONS} value={form.conditions} onChange={v=>set('conditions',v)}/>
    <div className='two-cols'><Text label='Površina od (m²)' type='number' value={form.min_area} onChange={v=>set('min_area',v)}/><Text label='Površina do (m²)' type='number' value={form.max_area} onChange={v=>set('max_area',v)}/></div>
    <Text label='Gradovi (zarezom, neobavezno)' value={form.cities} onChange={v=>set('cities',v)}/><Text label='Regije (zarezom, neobavezno)' value={form.regions} onChange={v=>set('regions',v)}/>
+   <RequirementsEditor value={form.requirements} onChange={v=>set('requirements',v)}/>
    <label className='field'><span>Dodatni uvjeti (provjeravaju se zasebno za svaki par)</span><textarea rows={3} value={form.notes} onChange={e=>set('notes',e.target.value)}/></label>
    <Text label='Izvor ovog zahtjeva (URL dokaza)' value={form.source_url} onChange={v=>set('source_url',v)}/><Text label='Datum provjere izvora' type='date' value={form.checked_at} onChange={v=>set('checked_at',v)} hint='Promjena izvora briše raniji datum i kontakt; upiši novu provjeru.'/>
    <div className='two-cols'><Text label='Budžet od € (neobavezno)' type='number' value={form.min_budget} onChange={v=>set('min_budget',v)}/><Text label='Budžet do € (neobavezno)' type='number' value={form.max_budget} onChange={v=>set('max_budget',v)}/></div>
