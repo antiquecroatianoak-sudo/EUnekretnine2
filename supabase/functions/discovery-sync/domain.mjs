@@ -1,4 +1,5 @@
 import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel,AREA_BASIS,basisArea} from './facts.mjs';
+import {validateTravel,travelOutcome} from './travel.mjs';
 export const TYPES=['Zemljište','Kuća','Stan','Zgrada','Poslovni prostor'];
 export const CONDITIONS=['Useljivo','Za obnovu','Za rušenje','Neizgrađeno'];
 export const COUNTRIES=Object.fromEntries(['AT|Austrija','BE|Belgija','BG|Bugarska','HR|Hrvatska','CY|Cipar','CZ|Češka','DK|Danska','EE|Estonija','FI|Finska','FR|Francuska','DE|Njemačka','GR|Grčka','HU|Mađarska','IE|Irska','IT|Italija','LV|Latvija','LT|Litva','LU|Luksemburg','MT|Malta','NL|Nizozemska','PL|Poljska','PT|Portugal','RO|Rumunjska','SK|Slovačka','SI|Slovenija','ES|Španjolska','SE|Švedska'].map(s=>s.split('|')));
@@ -25,6 +26,7 @@ export function validateCriteria(c){
  if(c.requires_buildable!=null&&typeof c.requires_buildable!=='boolean')throw Error('Nevaljan uvjet gradnje.');
  if(c.requirements!=null)validateRequirements(c.requirements);
  if(c.area_basis!=null&&!Object.hasOwn(AREA_BASIS,c.area_basis))throw Error('Nepoznata osnova površine.');
+ if(c.travel!=null)validateTravel(c.travel);
  if(c.area_hard!=null&&typeof c.area_hard!=='boolean')throw Error('Nevaljana oznaka tvrde granice površine.');
  if(c.source_url&&!validUrl(c.source_url))throw Error('Potreban je valjan URL dokaza zahtjeva kupca.');
 }
@@ -183,6 +185,10 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
    if(q.mandatory)check(label,true,q.state==='met'||q.state==='unmet',q.state==='met');
    else info.push(label+(q.state==='met'?' — želja ispunjena':q.state==='unmet'?' — želja nije ispunjena (informativno)':' — želja, podatak nije potvrđen'));}
  }
+ // Travel time (module 6, off): matching never calls a service. A mandatory travel requirement stays an open pair
+ // item until a stored result exists; a wish only informs. A straight-line distance is never used instead.
+ for(const t of c.travel||[]){const o=travelOutcome(t,null,now),label='Vrijeme putovanja do „'+t.destination.name+'” ('+t.mode+')';
+  if(t.mandatory)gap(r,label+' nije izračunato','pair');else info.push(label+' — želja; '+o.reason);}
  if(!validUrl(p.source))gap(r,'Izvor oglasa','property');
  if(!String(p.city||'').trim())gap(r,'Grad nekretnine','property');
  if(!sourceFresh(p,now))gap(r,SOURCE_FRESH,'property');

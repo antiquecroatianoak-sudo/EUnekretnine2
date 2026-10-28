@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from facts import AREA_BASIS, basis_area, compare_requirement, read_facts, requirement_label, validate_requirements
+from travel import TRAVEL_REASON, validate_travel
 
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
@@ -90,6 +91,7 @@ def validate_criteria(criteria):
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
     if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'])
     if criteria.get('area_basis') is not None and criteria['area_basis'] not in AREA_BASIS: raise ValueError('Nepoznata osnova površine.')
+    if criteria.get('travel') is not None: validate_travel(criteria['travel'])
 
 # Property facts a pair-specific check is bound to; equal to PAIR_FACTS in domain.mjs.
 PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'condition', 'area', 'price', 'price_basis', 'renovation', 'other_costs',
@@ -265,6 +267,11 @@ def evaluate(prop, investor, pair_checks=None):
             state, label = compare_requirement(q, facts or {}, today), requirement_label(q['key'])
             if q['mandatory']: check(label, True, state in ('met', 'unmet'), state == 'met')
             else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja, podatak nije potvrđen'))
+    # Travel time (module 6, off), as in domain.mjs: never computed here, never replaced by a straight-line distance.
+    for t in criteria.get('travel') or []:
+        label = 'Vrijeme putovanja do „' + t['destination']['name'] + '” (' + t['mode'] + ')'
+        if t['mandatory']: gap(label + ' nije izračunato', 'pair')
+        else: info.append(label + ' — želja; ' + TRAVEL_REASON)
     if not valid_url(prop.get('source')): gap('Izvor oglasa', 'property')
     if not (prop.get('city') or '').strip(): gap('Grad nekretnine', 'property')
     if not source_fresh(prop): gap(SOURCE_FRESH, 'property')
