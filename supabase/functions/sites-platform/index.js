@@ -1,6 +1,7 @@
 import {workflow,ACTIONS as WORKFLOW_ACTIONS,READ_ACTIONS as WORKFLOW_READS} from './workflow.mjs';
 import {changeOf} from './offer.mjs';
 import {completionQueue,completionPage} from './completion.mjs';
+import {partner,ACTIONS as PARTNER_ACTIONS,READ_ACTIONS as PARTNER_READS} from './partner.mjs';
 import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,stagedVisibility,INVESTOR_VISIBLE} from './catalog.mjs';
@@ -221,6 +222,7 @@ async function pairStage(tx,a){
 }
 async function dispatch(tx,a){
  if(WORKFLOW_ACTIONS.includes(a.action))return workflow(tx,a,{refresh,businessPhase:Deno.env.get('BUSINESS_PHASE')==='on'});
+ if(PARTNER_ACTIONS.includes(a.action))return partner(tx,a,{refresh});
  if(a.action==='pair')return await pair(tx,a);
  if(a.action==='pair_question')return await pairQuestion(tx,a);
  if(a.action==='pair_answer')return await pairAnswer(tx,a);
@@ -272,7 +274,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(['read','pair','pairs','sources','catalog','pair_diagnostics','completion_queue',...WORKFLOW_READS].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','catalog','pair_diagnostics','completion_queue',...WORKFLOW_READS,...PARTNER_READS].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}

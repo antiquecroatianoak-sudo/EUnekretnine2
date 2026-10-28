@@ -8,6 +8,7 @@ const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:tr
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,Event:dom.window.Event,IS_REACT_ACT_ENVIRONMENT:true});
 const {createRoot}=await import('react-dom/client');const {act}=await import('react');
 const {CompletionQueue}=await import('../app/completion-queue.tsx');
+const {PartnerReview}=await import('../app/partner-review.tsx');
 const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {FactsEditor,RequirementsTable,RequirementsEditor}=await import('../app/facts-editor.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],button=t=>$$('button').find(b=>b.textContent.trim()===t);
 const wait=()=>act(async()=>{await new Promise(r=>setTimeout(r,20))});
@@ -196,4 +197,27 @@ assert(document.body.textContent.includes('Baza nije dostupna')&&$$('button').so
 await act(async()=>{button('Zatvori').click()});assert(closed);
 await act(async()=>{root.unmount()});
 console.log((realQueue?'Completion queue DOM checks passed on the real API response. ':'Completion queue DOM checks passed (synthetic response). '));
+// Module 7: partner proposal review. Real API response when PARTNER_RESPONSE is set (test_partner_api.mjs).
+const realPartner=process.env.PARTNER_RESPONSE&&existsSync(process.env.PARTNER_RESPONSE);
+const pr=realPartner?JSON.parse(readFileSync(process.env.PARTNER_RESPONSE,'utf8')):{stale_id:'4',xss_id:'2',list:{config:{external:false,reason:'Vanjski pristup partnera nije uključen; TEST ONLY.'},fields:['price','facts.land_total'],agencies:[{id:5,name:'TEST ONLY agencija'}],
+ grants:[{id:'1',agency_source_id:5,agency_name:'TEST ONLY agencija',record_ids:[1],fields:['price'],expires_at:'2026-11-04T00:00:00Z',revoked_at:null}],
+ proposals:[{id:'4',status:'novo',stale:true,field:'price',property_id:'1',property_title:'TEST ONLY X',agency_name:'TEST ONLY agencija',author:'TEST ONLY agent',created_at:'2026-10-28T10:00:00Z',current:91000,value_json:90000,evidence:'TEST ONLY cjenik'},
+  {id:'2',status:'novo',stale:false,field:'legal_evidence_url',property_id:'1',property_title:'TEST ONLY X',agency_name:'TEST ONLY agencija',author:'TEST ONLY agent',created_at:'2026-10-28T10:00:00Z',current:null,value_json:'https://example.org/test-only/legal-proof',evidence:'<script>alert(1)</script> https://evil.example/steal'}]}};
+posts.length=0;respond=b=>b.action==='partner_proposals'?pr.list:b.action==='partner_grant_create'?{id:'9',expires_at:'2026-11-04T00:00:00Z'}:b.action==='partner_decide'?{id:b.id,status:b.decision}:{id:1};
+root=createRoot($('#root'));closed=false;await act(async()=>{root.render(<PartnerReview onClose={()=>{closed=true}}/>)});await wait();
+assert.deepEqual(posts[0],{action:'partner_proposals',status:'novo'});assert(document.body.textContent.includes('nije uključen'),'external access is stated as off');
+const items=$$('.partner-item');assert.equal(items.length,pr.list.proposals.length);
+const itemOf=id=>items[pr.list.proposals.findIndex(p=>String(p.id)===id)];
+const xssItem=itemOf(pr.xss_id);assert(xssItem.textContent.includes('<script>alert(1)</script>'),'evidence is shown as text');assert(!$('.partner-item script')&&!$$('.partner-item a').length,'no markup or links rendered from partner text');
+const staleItem=itemOf(pr.stale_id);assert(staleItem.textContent.includes('Zapis promijenjen nakon prijedloga'));assert([...staleItem.querySelectorAll('button')].find(b=>b.textContent==='Prihvati').disabled,'a stale proposal cannot be accepted');
+await act(async()=>{[...xssItem.querySelectorAll('button')].find(b=>b.textContent==='Odbij').click()});await wait();
+assert.deepEqual(posts.find(b=>b.action==='partner_decide'),{action:'partner_decide',id:pr.list.proposals.find(p=>String(p.id)===pr.xss_id).id,decision:'odbijeno',note:''});assert(document.body.textContent.includes('zapis nije mijenjan'));
+await setValue($('select[aria-label="Agencija pristupa"]'),String(pr.list.agencies[0].id));await setValue($('input[aria-label="Oznake zapisa"]'),'1, 2');
+const fieldSelect=$('select[aria-label="Dopuštena polja"]');await act(async()=>{fieldSelect.options[0].selected=true;fieldSelect.dispatchEvent(new window.Event('change',{bubbles:true}))});
+await act(async()=>{button('Izradi pristup').click()});await wait();
+const created=posts.find(b=>b.action==='partner_grant_create');assert.match(created.token_hash,/^[0-9a-f]{64}$/);assert.deepEqual(Object.keys(created).sort(),['action','agency_source_id','days','fields','record_ids','token_hash']);
+assert.deepEqual(created.record_ids,[1,2]);const key=$('.partner-review code').textContent;assert(key.length>=40&&!JSON.stringify(posts).includes(key),'the key is shown once and never sent');
+assert(!$$('button').some(b=>/Pošalji|Send/i.test(b.textContent)),'there is no send action');
+await act(async()=>{button('Zatvori').click()});assert(closed);await act(async()=>{root.unmount()});
+console.log(realPartner?'Partner review DOM checks passed on the real API response.':'Partner review DOM checks passed (synthetic response).');
 console.log('Offer workflow DOM checks passed'+(real?' on the real API response':' (synthetic response; real response not supplied)')+': fresh review with separate fit and reliability, identifier-free previews, explicit approval and written responses, same-day renewal by explicit replacement, business phase gate, readable agency packages with revoked ones marked not for hand-over, escaped text, errors with retry, separate buyer requests.');
