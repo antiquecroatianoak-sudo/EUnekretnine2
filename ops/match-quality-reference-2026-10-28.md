@@ -5,7 +5,7 @@ Nalog vlasnika: komentar 6470902546 u antiquecroatianoak-sudo/EUnekretnine2#47. 
 Ovim radom **evaluator i runtime nisu mijenjani**.
 
 ## Što je dodano
-- **`ops/match-quality-reference-v1.json`** — 33 sintetička TEST ONLY para. Svaki ima skupinu, opis, očekivani ishod, očekivani razlog (oznaka kriterija) i obrazloženje.
+- **`ops/match-quality-reference-v1.json`** — 37 sintetičkih TEST ONLY parova (q34–q37 iz revizije, `ops/audit-map-2026-10-28.md`). Svaki ima skupinu, opis, očekivani ishod, očekivani razlog (oznaka kriterija) i obrazloženje.
   - Ishodi: **odgovara** (jasno odgovara kriterijima), **odstupa** (jasno odstupa), **nedovoljno** (nedovoljno podataka).
   - Oznaka interesa ne postoji jer nema dokaza interesa.
 - **`test_match_quality.mjs`** — svaki slučaj prolazi kroz stvarni `evaluate()` iz `domain.mjs`, s osnovnim zapisima koji sami za sebe odgovaraju. Provjerava se ishod i razlog: odbijanje mora biti zbog očekivanog kriterija, otvorena stavka mora biti očekivana. Pokreće se u CI-ju.
@@ -33,14 +33,14 @@ Ovim radom **evaluator i runtime nisu mijenjani**.
 | Kontakt za konkretan zapis | q25: kontakt dokazan za drugi oglas | nedovoljno (samo JS) |
 
 ## Rezultat (stvarni prolaz, 28.10.2026.)
-| Kategorija (33 podržana slučaja, nakon ugovora `sale_scope`) | Broj |
+| Kategorija (37 podržanih slučajeva) | Broj |
 |---|---|
-| ispravno | 33 |
+| ispravno | 37 |
 | pogrešno pozitivno (par prikazan kao „odgovara” bez osnove) | 0 |
 | pogrešno negativno (opravdan ili otvoren par odbijen) | 0 |
 | nedovoljno umjesto odluke | 0 |
 
-- **JS i Python:** jednaki ishodi na sva 32 slučaja usporedbe.
+- **JS i Python:** jednaki ishodi na sva 36 slučajeva usporedbe. Uz to `test_evaluator_parity.py` uspoređuje 1.500 perturbiranih parova.
 - **Opseg tvrdnje.** Ovo je referentni skup sintetičkih slučajeva, ne označeni uzorak stvarnog tržišta. **Ne tvrdi se izmjerena preciznost ni odziv na stvarnim oglasima.** Tvrdi se samo da evaluator na ovim definiranim slučajevima daje očekivani ishod i razlog.
 
 ## Nalaz q09 — riješen ugovorom `sale_scope` (nalog 6471298345)
