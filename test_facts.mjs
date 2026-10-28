@@ -61,5 +61,15 @@ const areaResults=vectors.area_cases.map(v=>{const i={...buyer(),criteria_json:J
  assert.equal(areaState(r,label),v.state,v.name);if(v.note)assert(r.info.includes(v.note),v.name+': note');return areaState(r,label)});
 assert.throws(()=>D.investorInput({name:'TEST ONLY',country:'US',preferred_countries:'Hrvatska',notes:'',verified:0,criteria_json:JSON.stringify({min_area:10,area_basis:'zemljište'})}),/osnova površine/);
 console.error(JSON.stringify(areaResults));
+// Module 5: confirmed facts reach the presentation only as generalised lines; unconfirmed facts never do.
+const O=await import('./supabase/functions/sites-platform/offer.mjs');
+const hotel={...p0,facts_json:JSON.stringify({rooms:fact(43,'kom'),hotel_category:fact(4,'kom'),power:fact(0.45,'MW'),land_owned:fact(110,'ha'),subtype:fact('hotel'),operating_months:fact(6,'kom'),
+ truck_access:{value:true,origin:'ručno',status:'nepotvrđeno',observed_on:today},water_rights:{...fact(true),valid_until:'2000-01-01',observed_on:'1999-01-01'}})};
+assert.deepEqual(O.factsSummary(hotel),['Smještajni kapacitet: 40 – 50 soba','Kategorija prema dokumentu: 4★ (potrebna provjera)','Priključna snaga: 400 – 500 kW','Zemljište u vlasništvu: 110 – 111 ha','Podvrsta: hotel','Sezona rada: 6 mjeseci']);
+const pres=O.presentation(hotel,buyer(),{reasons:[]},'EU-TEST');assert(!JSON.stringify(pres).includes('43'),'exact room count stays internal');
+assert(O.presentationHtml(pres).includes('Dodatna obilježja (potvrđeni podaci)'));assert.deepEqual(O.factsSummary(p0),[]);
+assert.equal(readFileSync(new URL('./sites-review/lib/offer.mjs',import.meta.url),'utf8'),readFileSync(new URL('./supabase/functions/sites-platform/offer.mjs',import.meta.url),'utf8'));
+// Sector templates list relevant fields only.
+assert.deepEqual(Object.keys(F.SECTOR_TEMPLATES),['hotel','skladište / logistika','farma']);for(const keys of Object.values(F.SECTOR_TEMPLATES))for(const k of keys)assert(F.FACTS[k],k);
 console.log(JSON.stringify(vectors.compare.map(v=>F.compareRequirement(F.validateRequirements([v.requirement])[0],F.validateFacts(v.facts),v.today).state)));
 console.error('facts-v1: vectors, evaluation, digest stability and input validation passed');

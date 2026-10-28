@@ -1,6 +1,6 @@
 // @ts-nocheck
 'use client';
-import {FACTS,OPS,UNITS,FACT_STATUS,FACT_ORIGIN} from '@/lib/facts.mjs';
+import {FACTS,OPS,UNITS,FACT_STATUS,FACT_ORIGIN,SECTOR_TEMPLATES} from '@/lib/facts.mjs';
 // facts-v1 editors: documented buyer requirements and specialised property facts. The server validates both
 // (facts.mjs); unknown stays empty here, never 0 or "ne".
 const unitsFor=def=>Object.keys(UNITS).filter(u=>UNITS[u][0]===def.dim);
@@ -24,7 +24,11 @@ export function RequirementsEditor({value=[],onChange}){
    <label className='checkbox'><input type='checkbox' checked={q.mandatory} onChange={e=>set(n,{mandatory:e.target.checked})}/>Obavezno</label>
    <input aria-label='Izvorni navod' placeholder='Izvorni navod zahtjeva' value={q.quote||''} onChange={e=>set(n,{quote:e.target.value})}/>
    <button className='text-button' type='button' onClick={()=>onChange(value.filter((_,k)=>k!==n))}>Ukloni</button></div>})}
-  <button className='secondary' type='button' onClick={add}>Dodaj uvjet</button></fieldset>;
+  <button className='secondary' type='button' onClick={add}>Dodaj uvjet</button>
+  {/* A sector template only lists fields: each row stays a wish without a value until the operator fills it from the source. */}
+  <select aria-label='Predložak sektora' value='' onChange={e=>{const keys=SECTOR_TEMPLATES[e.target.value]||[];const have=new Set(value.map(q=>q.key));
+   onChange([...value,...keys.filter(k=>!have.has(k)).map(k=>{const d=FACTS[k];return {key:k,op:OPS[d.type][0],unit:d.dim?unitsFor(d)[0]:undefined,mandatory:false,quote:''}})])}}>
+   <option value=''>Predložak sektora…</option>{Object.keys(SECTOR_TEMPLATES).map(k=><option key={k}>{k}</option>)}</select></fieldset>;
 }
 // Property facts as stored text (facts_json); an empty object is saved as no facts.
 export function FactsEditor({value,onChange}){

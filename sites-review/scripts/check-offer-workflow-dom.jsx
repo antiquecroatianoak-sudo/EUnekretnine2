@@ -8,7 +8,7 @@ const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:tr
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,Event:dom.window.Event,IS_REACT_ACT_ENVIRONMENT:true});
 const {createRoot}=await import('react-dom/client');const {act}=await import('react');
 const {CompletionQueue}=await import('../app/completion-queue.tsx');
-const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {FactsEditor,RequirementsTable}=await import('../app/facts-editor.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
+const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {FactsEditor,RequirementsTable,RequirementsEditor}=await import('../app/facts-editor.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],button=t=>$$('button').find(b=>b.textContent.trim()===t);
 const wait=()=>act(async()=>{await new Promise(r=>setTimeout(r,20))});
 async function setValue(el,v){const proto=el.tagName==='SELECT'?window.HTMLSelectElement.prototype:el.tagName==='TEXTAREA'?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype;
@@ -157,6 +157,12 @@ assert.equal(stored.land_owned.observed_on,new Date().toISOString().slice(0,10))
 await setValue($('input[aria-label="Zemljište u vlasništvu uključeno u prodaju"]'),'110');await setValue($('select[aria-label="Zemljište u vlasništvu uključeno u prodaju – jedinica"]'),'ha');
 stored=JSON.parse(factsValue);assert.equal(stored.land_owned.value,110);assert.equal(stored.land_owned.unit,'ha');
 await act(async()=>{button('Ukloni').click()});assert.equal(factsValue,'','removing the last fact stores no facts');
+// Module 5: a sector template lists fields as wishes without values; nothing becomes mandatory by template.
+let reqs=[];const renderReqs=()=>root.render(<RequirementsEditor value={reqs} onChange={v=>{reqs=v;renderReqs()}}/>);
+await act(async()=>{renderReqs()});await setValue($('select[aria-label="Predložak sektora"]'),'hotel');
+assert.deepEqual(reqs.map(q=>q.key),['subtype','rooms','hotel_category','operating','operating_months','renovation_needed']);
+assert(reqs.every(q=>q.mandatory===false&&q.value===undefined&&q.quote===''),'template rows are empty wishes');
+await setValue($('select[aria-label="Predložak sektora"]'),'hotel');assert.equal(reqs.length,6,'a template never duplicates rows');
 await act(async()=>{root.render(<RequirementsTable rows={[{key:'land_owned',op:'min',label:'Zemljište u vlasništvu uključeno u prodaju',mandatory:true,quote:'kupnja 150 ha',requested:150,unit:'ha',actual:110,actual_unit:'ha',evidence:'TEST ONLY oglas',state:'unmet'},
  {key:'rooms',op:'min',label:'Broj soba / smještajnih jedinica',mandatory:false,quote:'po mogućnosti 40 soba',requested:40,unit:'kom',actual:null,actual_unit:null,evidence:null,state:'unknown'}]}/>)});
 const table=document.body.textContent;for(const t of ['≥ 150 ha','110 ha','TEST ONLY oglas','Ne odgovara','(želja)','Podatak nije potvrđen','„kupnja 150 ha”'])assert(table.includes(t),t);

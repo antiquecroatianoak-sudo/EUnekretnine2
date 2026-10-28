@@ -16,12 +16,15 @@ export const FACTS={
  land_leased:{label:'Zakupljeno zemljište',type:'number',dim:'area',meaning:'Zemljište u zakupu; nije vlasništvo kupca nakon kupnje'},
  building_area:{label:'Površina zgrada',type:'number',dim:'area',meaning:'Bruto površina zgrada'},
  usable_area:{label:'Korisna površina',type:'number',dim:'area',meaning:'Korisna (neto) površina'},
- rooms:{label:'Broj soba / smještajnih jedinica',type:'number',dim:'count',meaning:'Dokumentirani broj soba ili smještajnih jedinica'},
- hotel_category:{label:'Dokumentirana kategorija smještaja',type:'number',dim:'count',meaning:'Službena kategorija (broj zvjezdica) prema rješenju'},
- clear_height:{label:'Dokumentirana svijetla visina',type:'number',dim:'length',meaning:'Svijetla visina skladišta s navedenom osnovom mjerenja'},
- power:{label:'Priključna električna snaga',type:'number',dim:'power',meaning:'Odobrena priključna snaga'},
+ rooms:{label:'Broj soba / smještajnih jedinica',type:'number',dim:'count',integer:true,max:5000,meaning:'Dokumentirani broj soba ili smještajnih jedinica'},
+ hotel_category:{label:'Dokumentirana kategorija smještaja',type:'number',dim:'count',integer:true,min:1,max:5,meaning:'Službena kategorija (broj zvjezdica) prema rješenju'},
+ operating_months:{label:'Mjeseci rada godišnje',type:'number',dim:'count',integer:true,max:12,meaning:'Sezonalnost: broj mjeseci u kojima objekt radi'},
+ renovation_needed:{label:'Potrebna obnova',type:'boolean',meaning:'Dokumentirana potreba obnove prije rada'},
+ clear_height:{label:'Dokumentirana svijetla visina',type:'number',dim:'length',max:60,meaning:'Svijetla visina skladišta; osnova mjerenja navodi se u dokazu'},
+ power:{label:'Priključna električna snaga',type:'number',dim:'power',max:1000000,meaning:'Odobrena priključna snaga (granica u kW)'},
  truck_access:{label:'Pristup kamionima / utovar',type:'boolean',meaning:'Dokumentiran pristup teretnim vozilima ili utovarna rampa'},
  water_rights:{label:'Dokumentirana prava na vodu',type:'boolean',meaning:'Pravo korištenja vode prema dokumentu'},
+ farm_production:{label:'Namjena / proizvodnja farme',type:'enum',values:['ratarstvo','voćarstvo','vinogradarstvo','maslinarstvo','stočarstvo','mješovita proizvodnja'],meaning:'Dokumentirana poljoprivredna proizvodnja'},
  operating:{label:'Objekt posluje',type:'boolean',meaning:'Objekt je u radu (posluje) prema dokazu'},
  includes_buildings:{label:'Prodaja uključuje zgrade',type:'boolean',meaning:'Zgrade su dokumentirano dio prodaje i cijene'},
  includes_equipment:{label:'Prodaja uključuje opremu',type:'boolean',meaning:'Oprema je dokumentirano dio prodaje i cijene'},
@@ -32,7 +35,10 @@ export const OPS={number:['min','max'],boolean:['equals'],enum:['includes']};
 const text=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max&&!/[\u0000-\u001f]/.test(v);
 function checkValue(def,value,unit,where){
  if(def.type==='number'){if(typeof value!=='number'||!Number.isFinite(value)||value<0)throw Error(where+': vrijednost mora biti nenegativan broj.');
-  if(!UNITS[unit]||UNITS[unit][0]!==def.dim)throw Error(where+': jedinica mora biti dimenzije '+def.dim+'.')}
+  if(!UNITS[unit]||UNITS[unit][0]!==def.dim)throw Error(where+': jedinica mora biti dimenzije '+def.dim+'.');
+  // Range checks in the base unit of the dimension; a wrong unit or an impossible value never passes.
+  const b=value*UNITS[unit][1];if(def.integer&&!Number.isInteger(b))throw Error(where+': vrijednost mora biti cijeli broj.');
+  if(def.min!=null&&b<def.min||def.max!=null&&b>def.max)throw Error(where+': vrijednost izvan dopuštenog raspona.')}
  else if(def.type==='boolean'){if(typeof value!=='boolean')throw Error(where+': vrijednost mora biti da/ne.')}
  else for(const v of Array.isArray(value)?value:[value])if(!def.values.includes(v))throw Error(where+': nepoznata vrijednost.');
 }
@@ -48,6 +54,8 @@ export function validateFacts(raw){
   if(def.type==='enum'&&Array.isArray(v.value))throw Error(def.label+': nekretnina ima jednu podvrstu.');
   if(!FACT_STATUS.includes(v.status)||!FACT_ORIGIN.includes(v.origin))throw Error(def.label+': status i podrijetlo su obavezni.');
   if(v.status==='potvrđeno'&&!text(v.evidence,2000))throw Error(def.label+': potvrđen podatak traži dokaz.');
+  // A proposal (parser, partner draft) is never confirmed as such: a reviewed fact names its real origin.
+  if(v.status==='potvrđeno'&&v.origin==='predloženo')throw Error(def.label+': prijedlog ne može biti potvrđen podatak.');
   if(v.evidence!=null&&!text(v.evidence,2000))throw Error(def.label+': neispravan dokaz.');
   if(!day(v.observed_on))throw Error(def.label+': datum opažanja YYYY-MM-DD je obavezan.');
   if(v.valid_until!=null&&(!day(v.valid_until)||v.valid_until<v.observed_on))throw Error(def.label+': neispravan rok važenja.');
@@ -111,3 +119,8 @@ export function basisArea(basis,facts,today){
  if(key==='land_owned'||key==='land_total'){const c=landComposition(facts,today);if(c.consistent===false)return {area:null,reason:'composition',note:c.note}}
  return {area:f.value*UNITS[f.unit][1],reason:null};
 }
+
+// Module 5: fields a sector usually documents; listing them never makes them mandatory or required.
+export const SECTOR_TEMPLATES={hotel:['subtype','rooms','hotel_category','operating','operating_months','renovation_needed'],
+ 'skladište / logistika':['subtype','usable_area','clear_height','truck_access','power'],
+ farma:['subtype','farm_production','land_owned','land_leased','water_rights','includes_buildings','includes_equipment']};

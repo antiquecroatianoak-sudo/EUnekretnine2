@@ -15,12 +15,15 @@ FACTS = {
     'land_leased': dict(label='Zakupljeno zemljište', type='number', dim='area'),
     'building_area': dict(label='Površina zgrada', type='number', dim='area'),
     'usable_area': dict(label='Korisna površina', type='number', dim='area'),
-    'rooms': dict(label='Broj soba / smještajnih jedinica', type='number', dim='count'),
-    'hotel_category': dict(label='Dokumentirana kategorija smještaja', type='number', dim='count'),
-    'clear_height': dict(label='Dokumentirana svijetla visina', type='number', dim='length'),
-    'power': dict(label='Priključna električna snaga', type='number', dim='power'),
+    'rooms': dict(label='Broj soba / smještajnih jedinica', type='number', dim='count', integer=True, max=5000),
+    'hotel_category': dict(label='Dokumentirana kategorija smještaja', type='number', dim='count', integer=True, min=1, max=5),
+    'operating_months': dict(label='Mjeseci rada godišnje', type='number', dim='count', integer=True, max=12),
+    'renovation_needed': dict(label='Potrebna obnova', type='boolean'),
+    'clear_height': dict(label='Dokumentirana svijetla visina', type='number', dim='length', max=60),
+    'power': dict(label='Priključna električna snaga', type='number', dim='power', max=1000000),
     'truck_access': dict(label='Pristup kamionima / utovar', type='boolean'),
     'water_rights': dict(label='Dokumentirana prava na vodu', type='boolean'),
+    'farm_production': dict(label='Namjena / proizvodnja farme', type='enum', values=('ratarstvo', 'voćarstvo', 'vinogradarstvo', 'maslinarstvo', 'stočarstvo', 'mješovita proizvodnja')),
     'operating': dict(label='Objekt posluje', type='boolean'),
     'includes_buildings': dict(label='Prodaja uključuje zgrade', type='boolean'),
     'includes_equipment': dict(label='Prodaja uključuje opremu', type='boolean'),
@@ -52,6 +55,9 @@ def _check_value(spec, value, unit, where):
     if spec['type'] == 'number':
         if not _is_number(value): raise ValueError(where + ': vrijednost mora biti nenegativan broj.')
         if unit not in UNITS or UNITS[unit][0] != spec['dim']: raise ValueError(where + ': jedinica mora biti dimenzije ' + spec['dim'] + '.')
+        b = value * UNITS[unit][1]
+        if spec.get('integer') and b != int(b): raise ValueError(where + ': vrijednost mora biti cijeli broj.')
+        if spec.get('min') is not None and b < spec['min'] or spec.get('max') is not None and b > spec['max']: raise ValueError(where + ': vrijednost izvan dopuštenog raspona.')
     elif spec['type'] == 'boolean':
         if not isinstance(value, bool): raise ValueError(where + ': vrijednost mora biti da/ne.')
     else:
@@ -71,6 +77,7 @@ def validate_facts(raw):
         if spec['type'] == 'enum' and isinstance(v.get('value'), list): raise ValueError(spec['label'] + ': nekretnina ima jednu podvrstu.')
         if v.get('status') not in FACT_STATUS or v.get('origin') not in FACT_ORIGIN: raise ValueError(spec['label'] + ': status i podrijetlo su obavezni.')
         if v['status'] == 'potvrđeno' and not _text(v.get('evidence'), 2000): raise ValueError(spec['label'] + ': potvrđen podatak traži dokaz.')
+        if v['status'] == 'potvrđeno' and v.get('origin') == 'predloženo': raise ValueError(spec['label'] + ': prijedlog ne može biti potvrđen podatak.')
         if v.get('evidence') is not None and not _text(v.get('evidence'), 2000): raise ValueError(spec['label'] + ': neispravan dokaz.')
         if not _day(v.get('observed_on')): raise ValueError(spec['label'] + ': datum opažanja YYYY-MM-DD je obavezan.')
         if v.get('valid_until') is not None and (not _day(v['valid_until']) or v['valid_until'] < v['observed_on']): raise ValueError(spec['label'] + ': neispravan rok važenja.')

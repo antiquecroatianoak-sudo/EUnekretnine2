@@ -34,9 +34,9 @@ class FactsTests(unittest.TestCase):
     def test_registry_and_results_equal_js(self):
         if not shutil.which('node'): self.skipTest('node nije dostupan')
         js = subprocess.run(['node', '--input-type=module', '-e', "const F=await import('./supabase/functions/sites-platform/facts.mjs');"
-                             "console.log(JSON.stringify(Object.fromEntries(Object.entries(F.FACTS).map(([k,v])=>[k,[v.label,v.type,v.dim??null,v.values??null]]))))"],
+                             "console.log(JSON.stringify(Object.fromEntries(Object.entries(F.FACTS).map(([k,v])=>[k,[v.label,v.type,v.dim??null,v.values??null,v.integer??false,v.min??null,v.max??null]]))))"],
                             cwd=ROOT, capture_output=True, text=True, check=True)
-        self.assertEqual(json.loads(js.stdout), {k: [v['label'], v['type'], v.get('dim'), list(v['values']) if 'values' in v else None] for k, v in facts.FACTS.items()})
+        self.assertEqual(json.loads(js.stdout), {k: [v['label'], v['type'], v.get('dim'), list(v['values']) if 'values' in v else None, v.get('integer', False), v.get('min'), v.get('max')] for k, v in facts.FACTS.items()})
         states = subprocess.run(['node', 'test_facts.mjs'], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1]
         self.assertEqual(json.loads(states), [facts.compare_requirement(facts.validate_requirements([v['requirement']])[0], facts.validate_facts(v['facts']), v['today']) for v in VECTORS['compare']])
 

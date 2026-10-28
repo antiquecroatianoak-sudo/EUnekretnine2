@@ -25,7 +25,7 @@ Opseg vrijede za sve module:
 | 2 | Prioriteti dopune podataka (radni red nedostataka) | 1 | da | da (`ops/completion-queue.md`) | da (lokalno; CI na PR-u #48) | ne | ne | ne |
 | 3 | Zahtjev običnim tekstom — nacrt uz ljudsku potvrdu | 1 | da | da (`ops/request-parser.md`) | da (lokalno; CI na PR-u #48) | ne | ne | ne |
 | 4 | Površine i sastav prodaje | 1 | da | da (`ops/areas-composition.md`) | da (lokalno; CI na PR-u #48) | ne | ne | ne |
-| 5 | Sektorski kriteriji (hotel, skladište, farma) | 1, 4 | da | ne | ne | ne | ne | ne |
+| 5 | Sektorski kriteriji (hotel, skladište, farma) | 1, 4 | da | da (`ops/sector-criteria.md`) | da (lokalno; CI na PR-u #48) | ne | ne | ne |
 | 6 | Vrijeme putovanja — izoliran, zadano isključen | 1 | da | ne | ne | ne | ne | ne |
 | 7 | Dopune partnerskih agencija — staging prijedloga | 1 | da | ne | ne | ne | ne | ne |
 | 8 | Završna regresija i predaja | sve | da | ne | ne | ne | ne | ne |

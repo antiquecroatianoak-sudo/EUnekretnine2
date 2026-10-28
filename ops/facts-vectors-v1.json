@@ -261,6 +261,76 @@
    },
    "today": "2026-10-28",
    "state": "met"
+  },
+  {
+   "name": "mixed asset: subtype independent of base type",
+   "requirement": {
+    "key": "subtype",
+    "op": "includes",
+    "value": [
+     "hotel"
+    ],
+    "mandatory": true,
+    "quote": "hotel"
+   },
+   "facts": {
+    "subtype": {
+     "value": "hotel",
+     "origin": "ručno",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY",
+     "observed_on": "2026-10-01"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "met"
+  },
+  {
+   "name": "seasonal hotel: months below wish",
+   "requirement": {
+    "key": "operating_months",
+    "op": "min",
+    "value": 12,
+    "unit": "kom",
+    "mandatory": false,
+    "quote": "cijelu godinu"
+   },
+   "facts": {
+    "operating_months": {
+     "value": 6,
+     "unit": "kom",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY",
+     "observed_on": "2026-10-01"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "unmet"
+  },
+  {
+   "name": "farm production alternatives",
+   "requirement": {
+    "key": "farm_production",
+    "op": "includes",
+    "value": [
+     "vinogradarstvo",
+     "maslinarstvo"
+    ],
+    "mandatory": true,
+    "quote": "vinograd ili maslinik"
+   },
+   "facts": {
+    "farm_production": {
+     "value": "maslinarstvo",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY",
+     "observed_on": "2026-10-01"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "met"
   }
  ],
  "invalid_requirements": [
@@ -372,6 +442,19 @@
      "quote": "x"
     }
    ]
+  },
+  {
+   "name": "category 7",
+   "input": [
+    {
+     "key": "hotel_category",
+     "op": "min",
+     "value": 7,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "x"
+    }
+   ]
   }
  ],
  "invalid_facts": [
@@ -445,6 +528,102 @@
      "value": 4,
      "unit": "kom",
      "origin": "web",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "category above 5",
+   "input": {
+    "hotel_category": {
+     "value": 6,
+     "unit": "kom",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "category 0",
+   "input": {
+    "hotel_category": {
+     "value": 0,
+     "unit": "kom",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "fractional rooms",
+   "input": {
+    "rooms": {
+     "value": 12.5,
+     "unit": "kom",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "13 operating months",
+   "input": {
+    "operating_months": {
+     "value": 13,
+     "unit": "kom",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "confirmed proposal",
+   "input": {
+    "rooms": {
+     "value": 40,
+     "unit": "kom",
+     "origin": "predloženo",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "unknown farm production",
+   "input": {
+    "farm_production": {
+     "value": "ribarstvo",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "implausible height",
+   "input": {
+    "clear_height": {
+     "value": 80,
+     "unit": "m",
+     "origin": "izvor",
+     "status": "nepotvrđeno",
+     "observed_on": "2026-10-01"
+    }
+   }
+  },
+  {
+   "name": "power above 1000 MW",
+   "input": {
+    "power": {
+     "value": 1001,
+     "unit": "MW",
+     "origin": "izvor",
      "status": "nepotvrđeno",
      "observed_on": "2026-10-01"
     }
