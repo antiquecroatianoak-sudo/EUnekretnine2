@@ -7,6 +7,7 @@ import {readFileSync,existsSync} from 'node:fs';
 const dom=new JSDOM('<!doctype html><div id="root"></div>',{pretendToBeVisual:true});
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,HTMLElement:dom.window.HTMLElement,Node:dom.window.Node,Event:dom.window.Event,IS_REACT_ACT_ENVIRONMENT:true});
 const {createRoot}=await import('react-dom/client');const {act}=await import('react');
+const {CompletionQueue}=await import('../app/completion-queue.tsx');
 const {OfferWorkflow}=await import('../app/offer-workflow.tsx');const {FactsEditor,RequirementsTable}=await import('../app/facts-editor.tsx');const {BuyerRequests}=await import('../app/buyer-requests.tsx');
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],button=t=>$$('button').find(b=>b.textContent.trim()===t);
 const wait=()=>act(async()=>{await new Promise(r=>setTimeout(r,20))});
@@ -146,5 +147,34 @@ await act(async()=>{button('Ukloni').click()});assert.equal(factsValue,'','remov
 await act(async()=>{root.render(<RequirementsTable rows={[{key:'land_owned',op:'min',label:'Zemljište u vlasništvu uključeno u prodaju',mandatory:true,quote:'kupnja 150 ha',requested:150,unit:'ha',actual:110,actual_unit:'ha',evidence:'TEST ONLY oglas',state:'unmet'},
  {key:'rooms',op:'min',label:'Broj soba / smještajnih jedinica',mandatory:false,quote:'po mogućnosti 40 soba',requested:40,unit:'kom',actual:null,actual_unit:null,evidence:null,state:'unknown'}]}/>)});
 const table=document.body.textContent;for(const t of ['≥ 150 ha','110 ha','TEST ONLY oglas','Ne odgovara','(želja)','Podatak nije potvrđen','„kupnja 150 ha”'])assert(table.includes(t),t);
+// Module 2: the completion queue. Real API response when COMPLETION_RESPONSE is set (test_completion_api.mjs).
+const realQueue=process.env.COMPLETION_RESPONSE&&existsSync(process.env.COMPLETION_RESPONSE);
+const cq=realQueue?JSON.parse(readFileSync(process.env.COMPLETION_RESPONSE,'utf8')):{agency_id:5,
+ queue:{items:[{key:'property\n1\nDokaz pravne provjere',side:'property',label:'Dokaz pravne provjere',record_id:'1',property:{id:1,title:'TEST ONLY A',city:'Grad'},request:null,agency:{id:5,name:'TEST ONLY agencija'},
+  counts:{pairs:3,requests:3,buyers:2,sole_blocker_pairs:3},stale:false,why:['Jedina otvorena stavka za 3 parova','Zahvaća 3 parova, 3 zahtjeva i 2 različitih kupaca'],prior_checks:['Izvorni oglas','Službena evidencija','Tek nakon toga upit'],draft:{addressed_to:'Prodavatelj',body:'Molimo dokaz pravne provjere.',status:'Nacrt — ne šalje se'}},
+  {key:'property\n2\nAktualnost',side:'property',label:'Aktualnost izvora',record_id:'2',property:{id:2,title:'TEST ONLY B'},request:null,agency:null,counts:{pairs:3,requests:3,buyers:2,sole_blocker_pairs:0},stale:true,why:['Zahvaća 3 parova'],prior_checks:[],draft:{addressed_to:'Prodavatelj',body:'x',status:'Nacrt — ne šalje se'}}],
+  total:2,offset:0,limit:200,next:null,totals:{pairs:9,requests:3,buyers:2,items:2},agencies:[{id:5,name:'TEST ONLY agencija',items:1,records:1}]},
+ agency_page:null};
+cq.agency_page??={...cq.queue,items:cq.queue.items.filter(i=>i.agency?.id==cq.agency_id),total:cq.queue.items.filter(i=>i.agency?.id==cq.agency_id).length};
+posts.length=0;
+respond=b=>{if(b.action!=='completion_queue')return {id:1};if(b.agency_id)return cq.agency_page;const limit=b.limit||50,off=b.offset||0,items=cq.queue.items.slice(off,off+(off?limit:1));
+ return {...cq.queue,items,offset:off,limit,next:off+items.length<cq.queue.items.length?off+items.length:null}};
+await act(async()=>{root.unmount()});root=createRoot($('#root'));
+let closed=false;await act(async()=>{root.render(<CompletionQueue onClose={()=>{closed=true}}/>)});await wait();
+assert.deepEqual(posts[0],{action:'completion_queue',offset:0,limit:50},'first page without filters');
+assert(document.body.textContent.includes(cq.queue.totals.buyers+' različitih kupaca'),'buyers counted separately');
+assert.equal($$('.completion-item').length,1,'first page');
+if(cq.queue.items.length>1){await act(async()=>{$$('button').find(b=>b.textContent.startsWith('Učitaj još')).click()});await wait();
+ assert.equal($$('.completion-item').length,cq.queue.items.length,'continuation loads every remaining item, none lost');}
+const first=cq.queue.items[0];assert($$('.completion-item')[0].textContent.includes(first.label));for(const w of first.why)assert($$('.completion-item')[0].textContent.includes(w),w);
+await act(async()=>{$$('.completion-item')[0].querySelector('button').click()});
+assert.equal($('textarea[aria-label="Nacrt pitanja"]').value,first.draft.body);assert(document.body.textContent.includes('Nacrt — ne šalje se'));
+assert(!$$('button').some(b=>/Pošalji|Send/i.test(b.textContent)),'there is no send action');
+await setValue($('select[aria-label="Agencija"]'),String(cq.agency_id));await wait();
+assert.equal(posts.at(-1).agency_id,cq.agency_id);assert($$('.completion-item').every(li=>li.textContent.includes('Izvorna agencija')),'agency filter shows only that agency');
+respond=()=>({error:'Baza nije dostupna'});await setValue($('select[aria-label="Strana"]'),'buyer');await wait();
+assert(document.body.textContent.includes('Baza nije dostupna')&&$$('button').some(b=>b.textContent==='Pokušaj ponovno'),'a failed load is an error with retry, not an empty queue');
+await act(async()=>{button('Zatvori').click()});assert(closed);
 await act(async()=>{root.unmount()});
+console.log((realQueue?'Completion queue DOM checks passed on the real API response. ':'Completion queue DOM checks passed (synthetic response). '));
 console.log('Offer workflow DOM checks passed'+(real?' on the real API response':' (synthetic response; real response not supplied)')+': fresh review with separate fit and reliability, identifier-free previews, explicit approval and written responses, same-day renewal by explicit replacement, business phase gate, readable agency packages with revoked ones marked not for hand-over, escaped text, errors with retry, separate buyer requests.');

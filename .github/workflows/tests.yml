@@ -49,6 +49,7 @@ jobs:
           PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
           PAIRS_RESPONSE_OUT: ${{ runner.temp }}/pairs-response.json
           WORKFLOW_RESPONSE_OUT: ${{ runner.temp }}/workflow-response.json
+          COMPLETION_RESPONSE_OUT: ${{ runner.temp }}/completion-response.json
         run: python -m unittest discover -p 'test_*.py'
       - name: PostgreSQL transakcije registracije i aktivacije novih izvora
         env:
@@ -74,6 +75,7 @@ jobs:
         env:
           PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json
           WORKFLOW_RESPONSE: ${{ runner.temp }}/workflow-response.json
+          COMPLETION_RESPONSE: ${{ runner.temp }}/completion-response.json
         run: |
           npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund @electric-sql/pglite@0.3.14 esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
           node test_hydrate_contacts.mjs "$RUNNER_TEMP/dom"

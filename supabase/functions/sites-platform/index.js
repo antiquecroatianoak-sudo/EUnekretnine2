@@ -1,5 +1,6 @@
 import {workflow,ACTIONS as WORKFLOW_ACTIONS,READ_ACTIONS as WORKFLOW_READS} from './workflow.mjs';
 import {changeOf} from './offer.mjs';
+import {completionQueue,completionPage} from './completion.mjs';
 import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
 import {catalogPage,stagedVisibility,INVESTOR_VISIBLE} from './catalog.mjs';
@@ -70,6 +71,16 @@ async function pairsRead(tx){
  const byPair=new Map();for(const h of recent){const k=h.property_id+'-'+h.investor_id;if(!byPair.has(k))byPair.set(k,[]);byPair.get(k).push(h)}
  for(const r of rows)r.change=changeOf(byPair.get(r.property_id+'-'+r.investor_id));
  return {match_results:rows,properties:await withAgencies(tx,properties,'properties'),investors:await withAgencies(tx,investors,'investors'),totals,settings:await settings(tx),loaded_at:new Date().toISOString()};
+}
+// Data-completion queue (module 2): only stored pairs and their recorded open items, a fixed number of queries
+// whatever the catalogue size; ordering and paging are in completion.mjs.
+async function completionRead(tx,a){
+ const PROPERTY_VISIBLE=await stagedVisibility(tx);
+ const rows=await tx`select m.property_id,m.investor_id,m.result_json from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id`;
+ const pids=[...new Set(rows.map(r=>Number(r.property_id)))],iids=[...new Set(rows.map(r=>Number(r.investor_id)))];
+ const [properties,investors]=await Promise.all([tx`select p.* from properties p where p.id=any(${pids}::bigint[])`,
+  tx`select i.* from investors i where i.id=any(${iids}::bigint[]) and ${tx.unsafe(INVESTOR_VISIBLE)}`]);
+ return completionPage(completionQueue(rows,await withAgencies(tx,properties,'properties'),await withAgencies(tx,investors,'investors')),a);
 }
 // Paged source candidates for the Izvori tab (newest first).
 async function sourcesPage(tx,a){
@@ -217,6 +228,7 @@ async function dispatch(tx,a){
  if(a.action==='source_check')return await sourceCheck(tx,a);
  if(a.action==='read')return await list(tx);
  if(a.action==='pairs')return await pairsRead(tx);
+ if(a.action==='completion_queue')return await completionRead(tx,a);
  if(a.action==='catalog'){const value=String(a.country||'');const page=await catalogPage(tx,{...a,country_values:[value,...Object.keys(COUNTRIES).filter(k=>COUNTRIES[k]===value)]});return {...page,items:await withAgencies(tx,page.items,a.table)}}
  if(a.action==='sources')return await sourcesPage(tx,a);
  if(a.action==='pair_diagnostics')return await pairDiagnostics(tx);
@@ -260,7 +272,7 @@ Deno.serve(async req=>{
  }catch{return reply({error:'Unauthorized'},401)}
  try{
   const a=JSON.parse(raw);if(!a||typeof a!=='object')throw Error('Nevaljan zahtjev.');
-  if(['read','pair','pairs','sources','catalog','pair_diagnostics',...WORKFLOW_READS].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
+  if(['read','pair','pairs','sources','catalog','pair_diagnostics','completion_queue',...WORKFLOW_READS].includes(a.action))return reply(await database().begin(tx=>dispatch(tx,a)));
   const result=await database().begin(async tx=>{
    const known=await tx`insert into site_private.requests(id) values(${id}) on conflict do nothing returning id`;
    if(!known.length){const r=await tx`select response from site_private.requests where id=${id}`;return r[0].response}

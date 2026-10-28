@@ -12,7 +12,7 @@ export async function POST(req:Request){
  try{
   if(Number(req.headers.get('content-length')||0)>5_000_000)throw Error('Prevelik zahtjev.');
   const text=await req.text();if(text.length>5_000_000)throw Error('Prevelik zahtjev.');const body=JSON.parse(text);
-  if(!['save_property','save_investor','prepare','refresh','activity','import','pair','pair_question','pair_answer','pair_stage','source_check','pairs','sources','catalog','pair_diagnostics','workflow','buyer_requests','save_request','offer_create','offer_approve','offer_response','agency_package'].includes(body.action))throw Error('Nepoznata radnja.');
+  if(!['save_property','save_investor','prepare','refresh','activity','import','pair','pair_question','pair_answer','pair_stage','source_check','pairs','sources','catalog','pair_diagnostics','completion_queue','workflow','buyer_requests','save_request','offer_create','offer_approve','offer_response','agency_package'].includes(body.action))throw Error('Nepoznata radnja.');
   return Response.json(await gateway(body),{headers});
  }catch(e){return Response.json({error:(e as Error).message},{status:400,headers})}
 }
