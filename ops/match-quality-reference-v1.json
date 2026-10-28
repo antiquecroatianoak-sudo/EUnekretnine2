@@ -871,6 +871,62 @@
      "evidence": "TEST ONLY dokaz"
     }
    }
+  },
+  {
+   "id": "q34",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Javni poziv kupca izričito zatvoren, a ostali strukturirani kriteriji nevaljani",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Dokumentirano zatvoren poziv nije potražnja, bez obzira na druge nevaljane podatke (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_closed": "expired",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q35",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Rok javnog poziva prošao jučer, ostali kriteriji nevaljani",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Prošao objavljeni rok isključuje zahtjev (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_deadline": "@day:-1",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q36",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Nevaljan rok javnog poziva uz nevaljane ostale kriterije",
+   "expected": "nedovoljno",
+   "label": "Valjan rok javnog poziva kupca",
+   "why": "Neispravan rok je otvorena provjera, ne tiho ignoriran podatak (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_deadline": "nije-datum",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q37",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Javni poziv zatvoren i rok prošao (dva signala istog kraja)",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Jedan razlog, naveden jednom: pregled para broji odstupanja (audit, nalaz A2).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_closed": "expired",
+    "call_deadline": "@day:-1"
+   }
   }
  ]
 }

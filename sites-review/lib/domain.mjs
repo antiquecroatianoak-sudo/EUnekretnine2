@@ -132,6 +132,9 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  let c=criteria(i),reasons=[],rejected=[],info=[],passed=0,checks=0;
  const r={reasons,missing:[],rejected,gaps:{property:[],buyer:[],pair:[]},info};
  const check=(label,buyerKnown,propertyKnown,fits)=>{checks++;if(!buyerKnown)gap(r,label,'buyer');else if(!propertyKnown)gap(r,label,'property');else if(fits){reasons.push(label);passed++}else rejected.push(label)};
+ // A documented closure or deadline of a public call stays in force when other structured criteria are invalid
+ // (as matching.py): it is the source's own statement that the demand ended.
+ const call=c._invalid?{}:{call_closed:c.call_closed,call_deadline:c.call_deadline};
  try{validateCriteria(c);if(c._invalid)throw Error()}catch{gap(r,'Ispravni strukturirani kriteriji kupca','buyer');c={}}
  if(!contactRoute(p))gap(r,SELLER_CONTACT,'property');
  if(!contactRoute(i))gap(r,BUYER_CONTACT,'buyer');
@@ -175,11 +178,13 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
   if(!checkValid(original.source_conditions_check,sourceConditions(original),now))gap(r,wording,'buyer');
   else checkCondition(r,fulfilment,sourceConditions(original),p,pairChecks,now);
  }
- if(c.call_closed||i._call_facts?.source_listing_state==='expired'||i._call_facts?.source_listing_state==='removed')rejected.push('Javni poziv kupca je zatvoren ili istekao');
- for(const d of [c.call_deadline,i._call_facts?.deadline])if(d){
+ // One rejection however many signals say the call ended (closure, linked source state, passed deadline).
+ let callClosed=!!call.call_closed||i._call_facts?.source_listing_state==='expired'||i._call_facts?.source_listing_state==='removed';
+ for(const d of [call.call_deadline,i._call_facts?.deadline])if(d){
   if(!Number.isFinite(Date.parse(d)))gap(r,'Valjan rok javnog poziva kupca','buyer');
-  else if(String(d).slice(0,10)<new Date(now).toISOString().slice(0,10))rejected.push('Javni poziv kupca je zatvoren ili istekao');
+  else if(String(d).slice(0,10)<new Date(now).toISOString().slice(0,10))callClosed=true;
  }
+ if(callClosed)rejected.push('Javni poziv kupca je zatvoren ili istekao');
  // Documented requirements (facts-v1): a mandatory one is a criterion like any other, an unconfirmed, conflicting or
  // expired fact keeps it open; a wish only adds information. None is skipped.
  if(c.requirements?.length){

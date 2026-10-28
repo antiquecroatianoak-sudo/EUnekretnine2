@@ -298,7 +298,8 @@ def evaluate(prop, investor, pair_checks=None):
     call_closed = bool(call.get('call_closed')) or linked.get('source_listing_state') in ('expired', 'removed')
     for deadline in (call.get('call_deadline'), linked.get('deadline')):
         if not deadline: continue
-        try: call_closed = call_closed or datetime.fromisoformat(str(deadline)[:10]).date() < datetime.now(timezone.utc).date()
+        # Parsed even when the call is already closed, so an invalid deadline is still reported (as domain.mjs).
+        try: passed = datetime.fromisoformat(str(deadline)[:10]).date() < datetime.now(timezone.utc).date(); call_closed = call_closed or passed
         except ValueError: gap('Valjan rok javnog poziva kupca', 'buyer')
     if call_closed: rejected.append('Javni poziv kupca je zatvoren ili istekao')
     missing = list(dict.fromkeys(missing))
