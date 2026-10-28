@@ -49,6 +49,8 @@ jobs:
           PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
           PAIRS_RESPONSE_OUT: ${{ runner.temp }}/pairs-response.json
           WORKFLOW_RESPONSE_OUT: ${{ runner.temp }}/workflow-response.json
+          COMPLETION_RESPONSE_OUT: ${{ runner.temp }}/completion-response.json
+          PARTNER_RESPONSE_OUT: ${{ runner.temp }}/partner-response.json
         run: python -m unittest discover -p 'test_*.py'
       - name: PostgreSQL transakcije registracije i aktivacije novih izvora
         env:
@@ -65,16 +67,21 @@ jobs:
           node test_verification.mjs
           node test_public_land.mjs
           node test_domain_input.mjs
+          node test_facts.mjs
+          node test_travel.mjs
           node test_public_identity.mjs
           node sites-review/scripts/test-listing-context.mjs
           node sites-review/scripts/test-platform-view.mjs
           node sites-review/scripts/test-platform-http.mjs
           node sites-review/scripts/test-pair-review.mjs
           node sites-review/scripts/test-teaser.mjs
+          node sites-review/scripts/test-request-parser.mjs
       - name: Pregled sučelja i odvojeni negativan ishod odgovora
         env:
           PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json
           WORKFLOW_RESPONSE: ${{ runner.temp }}/workflow-response.json
+          COMPLETION_RESPONSE: ${{ runner.temp }}/completion-response.json
+          PARTNER_RESPONSE: ${{ runner.temp }}/partner-response.json
         run: |
           npm install --prefix "$RUNNER_TEMP/dom" --no-save --no-audit --no-fund @electric-sql/pglite@0.3.14 esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
           node test_hydrate_contacts.mjs "$RUNNER_TEMP/dom"

@@ -1,4 +1,4 @@
-import {criteria,investorInput,contactRoute,pairCheckMap,REJECT} from './domain.mjs';
+import {criteria,investorInput,contactRoute,pairCheckMap,REJECT,digest} from './domain.mjs';
 import {stagedVisibility,INVESTOR_VISIBLE} from './catalog.mjs';
 import {suggestion} from './suggestions.mjs';
 import {presentation,fingerprint,evidenceSnapshot,reviewReadiness,reviewSides,requestIdentity,responseInput,handoffInput,changeOf,effectiveResponse,INTEREST} from './offer.mjs';
@@ -90,11 +90,20 @@ async function saveRequest(tx,a,refresh){
  }
  if(!a.criteria||typeof a.criteria!=='object'||Array.isArray(a.criteria))throw Error('Kriteriji zahtjeva moraju biti objekt.');
  const label=String(a.label||'').trim();if(!label||label.length>160)throw Error('Unesi naziv zasebnog zahtjeva.');
- for(const k of ['buyer_identity_id','request_label'])if(Object.hasOwn(a.criteria,k))throw Error('Nevaljan kriterij zahtjeva: '+k);
+ for(const k of ['buyer_identity_id','request_label','source_text','source_text_digest','parsed_by'])if(Object.hasOwn(a.criteria,k))throw Error('Nevaljan kriterij zahtjeva: '+k);
  const before=existing?criteria(existing):{};
  const c={...before,...a.criteria,buyer_identity_id:root,request_label:label};
  // Each request carries its own evidence. A new request never inherits checks; a changed source keeps no
  // earlier check or date unless one is entered for the new source.
+ // A request proposed from plain text (module 3) keeps that text internally, never in a presentation, and the same
+ // text cannot become a second request of the same buyer.
+ if(a.source_text!=null){
+  if(typeof a.source_text!=='string'||!a.source_text.trim()||a.source_text.length>8000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(a.source_text))throw Error('Neispravan izvorni tekst zahtjeva.');
+  if(![undefined,null,'local-parser-v1','ručni unos'].includes(a.parsed_by))throw Error('Nepoznat način obrade teksta.');
+  Object.assign(c,{source_text:a.source_text.trim(),source_text_digest:digest(a.source_text.trim()),parsed_by:a.parsed_by??'ručni unos'});
+  const twins=(await tx`select id,criteria_json from investors where strpos(criteria_json,${c.source_text_digest})>0`).filter(r=>requestIdentity(r)===root&&criteria(r).source_text_digest===c.source_text_digest&&String(r.id)!==String(existing?.id??''));
+  if(twins.length)throw Error('Isti izvorni tekst već je spremljen kao zahtjev '+twins[0].id+'.');
+ }
  const sourceChanged=!existing||c.source_url!==before.source_url;
  if(sourceChanged){for(const k of ['notes_check','source_conditions_check'])delete c[k];if(existing&&!Object.hasOwn(a.criteria,'checked_at'))delete c.checked_at}
  // A contact is bound to one requirement's source; it is kept only for the same request and the same source.

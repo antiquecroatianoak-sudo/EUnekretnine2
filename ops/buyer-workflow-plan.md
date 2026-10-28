@@ -15,3 +15,6 @@ Samostalni zahtjevi su odvojeni operativni profili u postojećem matching sustav
 Verzije i događaji su append-only zapisi u postojećoj privatno dostupnoj evidenciji activity; pristup samo kroz postojeći autentificirani i potpisani gateway. Sadržaj ponude generira poslužitelj iz allowliste, ne prima HTML klijenta. Promjena nekretnine ili potražnje poništava valjanost prethodnog odobrenja za novu predaju. Ne uvodi se javno dijeljenje privatnog kataloga.
 
 Nema promjene budžetskog pravila, geografije potražnje, tolerancije površine, kontakata, dostupnosti ili import checkpointova.
+
+## Dopuna 27.10.2026.
+Vlasnikova dopuna (PR #47, komentar 6446741323): šest nastavnih modula u `ops/buyer-workflow-enhancements-plan.md`. To je zaseban nastavak; ovaj osnovni plan je dovršen u PR-u #47.

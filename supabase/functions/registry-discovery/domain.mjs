@@ -1,3 +1,5 @@
+import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel,AREA_BASIS,basisArea} from './facts.mjs';
+import {validateTravel,travelOutcome} from './travel.mjs';
 export const TYPES=['Zemljište','Kuća','Stan','Zgrada','Poslovni prostor'];
 export const CONDITIONS=['Useljivo','Za obnovu','Za rušenje','Neizgrađeno'];
 export const COUNTRIES=Object.fromEntries(['AT|Austrija','BE|Belgija','BG|Bugarska','HR|Hrvatska','CY|Cipar','CZ|Češka','DK|Danska','EE|Estonija','FI|Finska','FR|Francuska','DE|Njemačka','GR|Grčka','HU|Mađarska','IE|Irska','IT|Italija','LV|Latvija','LT|Litva','LU|Luksemburg','MT|Malta','NL|Nizozemska','PL|Poljska','PT|Portugal','RO|Rumunjska','SK|Slovačka','SI|Slovenija','ES|Španjolska','SE|Švedska'].map(s=>s.split('|')));
@@ -16,12 +18,16 @@ export function checkValid(check,text,now=Date.now()){
 }
 // Original source wording that the structured criteria cannot express.
 export const sourceConditions=c=>JSON.stringify([c.property_types??null,c.preferred_locations??null,c.locations??null,c.required_criteria??null,c.required??null]);
-export function validateCriteria(c){
+// `strict` for new input (investorInput); stored criteria are read leniently and their open items stay visible.
+export function validateCriteria(c,{strict=false}={}){
  for(const [k,allowed] of [['property_types',TYPES],['conditions',CONDITIONS]])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>!allowed.includes(v)))throw Error('Nepoznati kriteriji: '+k);
  for(const k of ['cities','regions'])if(!Array.isArray(c[k]??[])||(c[k]??[]).some(v=>typeof v!=='string'||!v.trim()))throw Error('Lokacije moraju biti popis naziva.');
  for(const k of ['min_area','max_area','min_roi'])if(c[k]!=null&&!num(c[k]))throw Error('Nevaljana granica: '+k);
  if(c.min_area!=null&&c.max_area!=null&&c.min_area>c.max_area)throw Error('Nevaljan raspon površine.');
  if(c.requires_buildable!=null&&typeof c.requires_buildable!=='boolean')throw Error('Nevaljan uvjet gradnje.');
+ if(c.requirements!=null)validateRequirements(c.requirements,{strict});
+ if(c.area_basis!=null&&!Object.hasOwn(AREA_BASIS,c.area_basis))throw Error('Nepoznata osnova površine.');
+ if(c.travel!=null)validateTravel(c.travel);
  if(c.area_hard!=null&&typeof c.area_hard!=='boolean')throw Error('Nevaljana oznaka tvrde granice površine.');
  if(c.source_url&&!validUrl(c.source_url))throw Error('Potreban je valjan URL dokaza zahtjeva kupca.');
 }
@@ -30,7 +36,9 @@ export const PAIR_FACTS=['id','country','region','city','title','property_type',
 const fact=v=>v==null?null:typeof v==='number'?v:v instanceof Date?v.toISOString():String(v);
 // Text a pair check covers: the buyer's condition wording plus the property facts it was checked against.
 // The id is compared as text because the database driver returns bigint ids as strings.
-export const pairText=(requirement,p)=>JSON.stringify([String(requirement??''),...PAIR_FACTS.map(k=>k==='id'&&p.id!=null?String(p.id):fact(p[k]))]);
+// Specialised facts (facts.mjs) join the text only when present, so checks recorded before them keep their digest.
+export const pairText=(requirement,p)=>{const v=[String(requirement??''),...PAIR_FACTS.map(k=>k==='id'&&p.id!=null?String(p.id):fact(p[k]))],f=readFacts(p);
+ if(f===null)v.push({facts_invalid:String(p.facts_json)});else if(Object.keys(f).length)v.push({facts:f});return JSON.stringify(v)};
 // Separate stages of a pair; computed matching never reaches confirmed interest or a closed deal.
 export const PHASE={REJECT:'Ne odgovara potrebama kupca',PROPERTY:'Mogući par – dopuna podataka o nekretnini',BUYER:'Nekretnina provjerena – usklađivanje s potrebama kupca',REAL:'Stvarna prilika – interes kupca još nije potvrđen'};
 // The same property and buyer rules as site_private.property_eligible / investor_eligible
@@ -139,7 +147,13 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  for(const [k,f,label,allowed] of [['property_types','property_type','Vrsta nekretnine',TYPES],['conditions','condition','Stanje / obnova / rušenje',CONDITIONS]])check(label,!!c[k]?.length,allowed.includes(p[f]),c[k]?.includes(p[f]));
  for(const [k,f,label] of [['cities','city','Grad'],['regions','region','Regija']])if(c[k]?.length)check(label,true,!!p[f],c[k].map(norm).includes(norm(p[f])));
  if(c.min_area!=null||c.max_area!=null){
-  const fit=areaFit(p.area,c);check('Površina',true,fit!==null,fit?.fits);
+  // Module 4: a documented basis compares the request with that confirmed measure (comparable, so the tolerance
+  // applies); a known zero is a value. Without a basis the advertised area is used, as before.
+  let fit,label='Površina';
+  if(c.area_basis){const b=basisArea(c.area_basis,readFacts(p)||{},new Date(now).toISOString().slice(0,10));label='Površina ('+c.area_basis+')';if(b.note)info.push(b.note);
+   fit=b.area==null?null:b.area>0?areaFit(b.area,c):{fits:c.min_area==null||c.min_area<=0,deviation:-100,hard:c.area_hard===true}}
+  else fit=areaFit(p.area,c);
+  check(label,true,fit!==null,fit?.fits);
   if(fit){r.area_deviation=fit.deviation;
    if(fit.deviation&&fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, unutar tolerancije −15 %/+25 %');
    else if(!fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, izvan '+(fit.hard?'tvrde granice kupca':'tolerancije −15 %/+25 %'));}
@@ -163,6 +177,20 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
   if(!Number.isFinite(Date.parse(d)))gap(r,'Valjan rok javnog poziva kupca','buyer');
   else if(String(d).slice(0,10)<new Date(now).toISOString().slice(0,10))rejected.push('Javni poziv kupca je zatvoren ili istekao');
  }
+ // Documented requirements (facts-v1): a mandatory one is a criterion like any other, an unconfirmed, conflicting or
+ // expired fact keeps it open; a wish only adds information. None is skipped.
+ if(c.requirements?.length){
+  const facts=readFacts(p);if(facts===null)gap(r,'Ispravni strukturirani podaci nekretnine','property');
+  r.requirements=compareRequirements(c.requirements,facts||{},now);
+  for(const q of r.requirements){const label=requirementLabel(q);
+   // An inverted range is the request's own contradiction: an open buyer item, never a rejection of the property.
+   if(q.mandatory)check(label,q.state!=='inverted',q.state==='met'||q.state==='unmet',q.state==='met');
+   else info.push(label+(q.state==='met'?' — želja ispunjena':q.state==='unmet'?' — želja nije ispunjena (informativno)':q.state==='inverted'?' — želja proturječi drugom uvjetu zahtjeva (informativno)':' — želja, podatak nije potvrđen'));}
+ }
+ // Travel time (module 6, off): matching never calls a service. A mandatory travel requirement stays an open pair
+ // item until a stored result exists; a wish only informs. A straight-line distance is never used instead.
+ for(const t of c.travel||[]){const o=travelOutcome(t,null,now),label='Vrijeme putovanja do „'+t.destination.name+'” ('+t.mode+')';
+  if(t.mandatory)gap(r,label+' nije izračunato','pair');else info.push(label+' — želja; '+o.reason);}
  if(!validUrl(p.source))gap(r,'Izvor oglasa','property');
  if(!String(p.city||'').trim())gap(r,'Grad nekretnine','property');
  if(!sourceFresh(p,now))gap(r,SOURCE_FRESH,'property');
@@ -199,6 +227,8 @@ export function propertyInput(input){
  const out={};const texts=['price_basis','country','city','region','title','property_type','condition','source','legal','status','buildable','planning_evidence_url','legal_evidence_url','valuation_evidence_url','available_until','risk_notes'];
  for(const k of texts)if(k in input){if(input[k]!=null&&typeof input[k]!=='string')throw Error('Nevaljano polje: '+k);out[k]=input[k]?.trim()||null;if(out[k]?.length>4000)throw Error('Predug podatak: '+k)}
  for(const k of ['price','area','renovation','other_costs','estimated_value'])if(k in input){if(input[k]!=null&&!num(input[k]))throw Error('Nevaljan broj: '+k);out[k]=input[k]??null}
+ // Only when sent: records saved without specialised facts never touch the facts_json column.
+ if(Object.hasOwn(input,'facts_json'))out.facts_json=input.facts_json==null||input.facts_json===''?null:JSON.stringify(validateFacts(input.facts_json,{now:Date.now()}));
  if(!out.title||!validUrl(out.source)||!Object.values(COUNTRIES).includes(country(out.country)))throw Error('Unesi naziv, državu EU i valjan URL izvornog oglasa.');
  if(out.property_type&&!TYPES.includes(out.property_type))throw Error('Nepoznata vrsta nekretnine.');
  if(out.condition&&!CONDITIONS.includes(out.condition))throw Error('Nepoznato stanje nekretnine.');
@@ -218,7 +248,7 @@ export function investorInput(input){
  // Unknown budget stays NULL; only known bounds are validated.
  const low=input.min_budget??null,high=input.max_budget??null;
  if((low!=null&&!num(low))||(high!=null&&(!num(high)||high<=0))||(low!=null&&high!=null&&high<low))throw Error('Unesi valjan raspon budžeta ili ostavi nepoznat iznos prazan.');
- const c=criteria(input);validateCriteria(c);if(c._invalid)throw Error('Nevaljani kriteriji.');
+ const c=criteria(input);validateCriteria(c,{strict:true});if(c._invalid)throw Error('Nevaljani kriteriji.');
  for(const k of ['notes_check','source_conditions_check']){const v=c[k];if(v==null)continue;const t=Date.parse(v?.checked_at);
   if(typeof v!=='object'||!/^[0-9a-f]{8}$/.test(v.digest||'')||!/(Z|[+-]\d\d:\d\d)$/.test(v.checked_at||'')||!Number.isFinite(t)||t>Date.now()+60000||typeof v.evidence!=='string'||!v.evidence.trim()||v.evidence.length>2000)throw Error('Nevaljana provjera dodatnih uvjeta.')}
  if(c.checked_at&&(!/(Z|[+-]\d\d:\d\d)$/.test(c.checked_at)||!Number.isFinite(Date.parse(c.checked_at))||Date.parse(c.checked_at)>Date.now()))throw Error('Datum provjere nije valjan.');

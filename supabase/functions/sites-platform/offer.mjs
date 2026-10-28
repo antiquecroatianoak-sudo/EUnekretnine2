@@ -1,4 +1,5 @@
-import {buyerTeaser,areaText} from './teaser.mjs';
+import {buyerTeaser,areaText,teaserLeaks} from './teaser.mjs';
+import {readFacts,UNITS} from './facts.mjs';
 import {criteria,MATCH,CANDIDATE,REJECT,contactRoute,TYPES,CONDITIONS,num} from './domain.mjs';
 // Only fixed sentences reach the buyer: evaluate() labels are mapped, never copied.
 const FIT={'Država':'Odgovara traženoj državi','Vrsta nekretnine':'Odgovara traženoj vrsti nekretnine','Stanje / obnova / rušenje':'Odgovara traženom stanju',
@@ -13,10 +14,27 @@ export function requestSummary(i){
  if(low||high)out.push('Površina: '+(low&&high?'okvirno '+low+' do '+high:low?'od okvirno '+low:'do okvirno '+high));
  return out;
 }
+// Module 5: confirmed specialised facts as generalised lines (bands, never exact identifying values); unconfirmed,
+// conflicting or expired facts are left out, and every line passes the same identifier checks as the teaser.
+const band=(v,step,unit)=>{const lo=Math.floor(v/step)*step;return (lo?lo+' – ':'do ')+(lo+step)+' '+unit};
+const yes=v=>v?'da':'ne';
+const FACT_LINES={subtype:f=>'Podvrsta: '+f.value,farm_production:f=>'Proizvodnja: '+f.value,rooms:f=>'Smještajni kapacitet: '+band(f.value,10,'soba'),
+ hotel_category:f=>'Kategorija prema dokumentu: '+f.value+'★ (potrebna provjera)',operating:f=>'Objekt posluje: '+yes(f.value),
+ operating_months:f=>'Sezona rada: '+(f.value>=12?'cijela godina':f.value+' mjeseci'),renovation_needed:f=>'Potrebna obnova: '+yes(f.value),
+ clear_height:f=>'Svijetla visina: od približno '+Math.floor(f.value*UNITS[f.unit][1])+' m',power:f=>'Priključna snaga: '+band(f.value*UNITS[f.unit][1],100,'kW'),
+ truck_access:f=>'Pristup kamionima / utovar: '+yes(f.value),water_rights:f=>'Prava na vodu prema dokumentu: '+yes(f.value),
+ includes_buildings:f=>'Prodaja uključuje zgrade: '+yes(f.value),includes_equipment:f=>'Prodaja uključuje opremu: '+yes(f.value),includes_business:f=>'Prodaja uključuje poslovanje: '+yes(f.value),
+ land_total:f=>'Zemljište ukupno: '+areaText(f.value*UNITS[f.unit][1]),land_owned:f=>'Zemljište u vlasništvu: '+areaText(f.value*UNITS[f.unit][1]),
+ land_leased:f=>'Zemljište u zakupu: '+areaText(f.value*UNITS[f.unit][1]),building_area:f=>'Površina zgrada: '+areaText(f.value*UNITS[f.unit][1]),usable_area:f=>'Korisna površina: '+areaText(f.value*UNITS[f.unit][1])};
+export function factsSummary(p,now=Date.now()){
+ const facts=readFacts(p)||{},today=new Date(now).toISOString().slice(0,10);
+ return Object.entries(facts).filter(([k,f])=>FACT_LINES[k]&&f.status==='potvrđeno'&&!(f.valid_until&&f.valid_until<today)).map(([k,f])=>FACT_LINES[k](f)).filter(l=>l&&!/null|undefined/.test(l)&&!teaserLeaks(l,p).length);
+}
 export function presentation(p,i,r,code){
  const t=buyerTeaser(p);if(!t.text||t.leaks.length)throw Error('Nacrt sadrži moguće identifikatore: '+t.leaks.join(', '));
  return {code,title:'Odabrana nekretnina za vaše potrebe',subtitle:'Povjerljivi pregled investicijske prilike',description:t.text,
   request:requestSummary(i),
+  facts:factsSummary(p),
   reasons:[...new Set((r.reasons||[]).map(v=>FIT[v]).filter(Boolean))],
   availability:'Dostupnost i uvjete potrebno je potvrditi prije odluke.',
   next:'Ako želite više podataka, navedite oznaku i verziju ove prezentacije. Pisani interes prethodi daljnjem postupku preko agencije.',
@@ -117,7 +135,7 @@ export function packageSections(h){
 export const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function presentationHtml(o,{version=1,approved=false}={}){
  const e=escapeHtml,list=items=>'<ul>'+items.map(x=>'<li>'+e(x)+'</li>').join('')+'</ul>';
- return `<!doctype html><html lang="hr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Povjerljiva prezentacija</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{margin:0;background:#eeeae3;color:#15322d;font:16px/1.65 system-ui,sans-serif}.sheet{max-width:900px;margin:32px auto;background:#fff;padding:64px;border-top:12px solid #173e35}small,.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#65776b}h1{font:44px/1.15 Georgia,serif;max-width:650px;margin:24px 0}h2{font:26px Georgia,serif;border-top:1px solid #d9ddd8;padding-top:24px}.copy{white-space:pre-line}.badge{display:inline-block;background:#edf4ed;padding:8px 16px;border-radius:24px}.draft{background:#f8e6d8}.note{background:#f5f2e9;padding:20px;margin-top:30px}.toolbar{max-width:900px;margin:20px auto}button{padding:12px 20px;background:#173e35;color:white;border:0;cursor:pointer}@media (max-width:600px){.sheet{margin:0;padding:24px}h1{font-size:32px}}@media print{body{background:white}.sheet{margin:0;padding:15px;border-top-width:6px}.toolbar{display:none}h1{font-size:36px}section{break-inside:avoid}} </style></head><body><div class="toolbar"><button onclick="window.print()">Ispis / Spremi kao PDF</button></div><main class="sheet"><p class="eyebrow">${e(o.subtitle)}</p><span class="badge${approved?'':' draft'}">${approved?'Pregledano za procjenu interesa':'INTERNI NACRT — nije za slanje'}</span><h1>${e(o.title)}</h1><p><b>${e(o.code)}</b> · Verzija ${e(version)}</p><section><h2>Osnovna obilježja</h2><div class="copy">${e(o.description)}</div></section>${o.request?.length?`<section><h2>Vaš zahtjev</h2>${list(o.request)}</section>`:''}<section><h2>Zašto odgovara vašem zahtjevu</h2>${o.reasons.length?list(o.reasons):'<p>Podudaranje još zahtijeva provjeru.</p>'}</section>${o.photos?`<p><small>${e(o.photos)}</small></p>`:''}<div class="note"><b>Sljedeći korak</b><p>${e(o.next)}</p><small>${e(o.availability)}</small></div><p><small>Prezentacija ne potvrđuje pravnu urednost, raspoloživost niti zaključenje posla. Uklanjanje oznaka ne isključuje prepoznavanje javnog oglasa iz obilježja.</small></p></main></body></html>`;
+ return `<!doctype html><html lang="hr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Povjerljiva prezentacija</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{margin:0;background:#eeeae3;color:#15322d;font:16px/1.65 system-ui,sans-serif}.sheet{max-width:900px;margin:32px auto;background:#fff;padding:64px;border-top:12px solid #173e35}small,.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#65776b}h1{font:44px/1.15 Georgia,serif;max-width:650px;margin:24px 0}h2{font:26px Georgia,serif;border-top:1px solid #d9ddd8;padding-top:24px}.copy{white-space:pre-line}.badge{display:inline-block;background:#edf4ed;padding:8px 16px;border-radius:24px}.draft{background:#f8e6d8}.note{background:#f5f2e9;padding:20px;margin-top:30px}.toolbar{max-width:900px;margin:20px auto}button{padding:12px 20px;background:#173e35;color:white;border:0;cursor:pointer}@media (max-width:600px){.sheet{margin:0;padding:24px}h1{font-size:32px}}@media print{body{background:white}.sheet{margin:0;padding:15px;border-top-width:6px}.toolbar{display:none}h1{font-size:36px}section{break-inside:avoid}} </style></head><body><div class="toolbar"><button onclick="window.print()">Ispis / Spremi kao PDF</button></div><main class="sheet"><p class="eyebrow">${e(o.subtitle)}</p><span class="badge${approved?'':' draft'}">${approved?'Pregledano za procjenu interesa':'INTERNI NACRT — nije za slanje'}</span><h1>${e(o.title)}</h1><p><b>${e(o.code)}</b> · Verzija ${e(version)}</p><section><h2>Osnovna obilježja</h2><div class="copy">${e(o.description)}</div></section>${o.facts?.length?`<section><h2>Dodatna obilježja (potvrđeni podaci)</h2>${list(o.facts)}</section>`:''}${o.request?.length?`<section><h2>Vaš zahtjev</h2>${list(o.request)}</section>`:''}<section><h2>Zašto odgovara vašem zahtjevu</h2>${o.reasons.length?list(o.reasons):'<p>Podudaranje još zahtijeva provjeru.</p>'}</section>${o.photos?`<p><small>${e(o.photos)}</small></p>`:''}<div class="note"><b>Sljedeći korak</b><p>${e(o.next)}</p><small>${e(o.availability)}</small></div><p><small>Prezentacija ne potvrđuje pravnu urednost, raspoloživost niti zaključenje posla. Uklanjanje oznaka ne isključuje prepoznavanje javnog oglasa iz obilježja.</small></p></main></body></html>`;
 }
 // New and improved pairs from the permanent pair_history (newest first). Only real recorded transitions
 // count: a recalculation without a change records no history and therefore never shows as improved.

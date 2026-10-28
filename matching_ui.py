@@ -123,7 +123,7 @@ def investor_form(c, investors, countries):
                 if area_hard: criteria['area_hard'] = True
                 else: criteria.pop('area_hard', None)
                 if notes_confirm: criteria['notes_check'] = dict(digest=digest(notes), checked_at=datetime.now(timezone.utc).isoformat(), evidence=notes_evidence.strip())
-                validate_criteria(criteria)
+                validate_criteria(criteria, strict=True)
                 fields = dict(name=name.strip(),country=country,min_budget=low,max_budget=high,preferred_countries=','.join(prefs),notes=notes,verified=int(verified),criteria_json=json.dumps(criteria,ensure_ascii=False))
                 if selected is None:
                     c.execute('INSERT INTO investors('+','.join(fields)+') VALUES('+','.join('?' for _ in fields)+')', tuple(fields.values()))
