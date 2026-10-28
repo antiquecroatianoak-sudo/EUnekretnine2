@@ -71,6 +71,7 @@ jobs:
           node sites-review/scripts/test-platform-view.mjs
           node sites-review/scripts/test-pair-review.mjs
           node sites-review/scripts/test-teaser.mjs
+          node sites-review/scripts/test-request-parser.mjs
       - name: Pregled sučelja i odvojeni negativan ishod odgovora
         env:
           PAIRS_RESPONSE: ${{ runner.temp }}/pairs-response.json

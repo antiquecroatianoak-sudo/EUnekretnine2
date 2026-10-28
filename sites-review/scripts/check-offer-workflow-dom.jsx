@@ -131,6 +131,19 @@ await act(async()=>{$$('.request-card').find(c=>c.textContent.includes(other.req
 assert.equal(field('Naziv zahtjeva').value,other.request_label);
 await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});await wait();
 assert.equal(posts.filter(b=>b.action==='save_request').at(-1).request_id,other.id,'editing targets the request, never the profile');
+// Module 3: a plain-text proposal fills the form only after "apply", never saves on its own, never verifies.
+await act(async()=>{button('Dodaj zaseban zahtjev').click()});
+const proposalText='Tražimo zemljište u Hrvatskoj, od 1,5 do 3 ha zemljišta, bez zakupa. Sjedište je u Austriji.';
+await setValue($('label.field textarea'),proposalText);
+const before=posts.length;await act(async()=>{button('Predloži iz teksta').click()});
+assert(document.body.textContent.includes('„'+proposalText.split('. ')[0]+'.”'),'each value shows its verbatim quote');
+assert(document.body.textContent.includes('Sjedište (nije potražnja)'));
+await act(async()=>{button('Primijeni u obrazac (ne sprema)').click()});assert.equal(posts.length,before,'applying does not save');
+assert.equal(field('Naziv zahtjeva').value,'Zahtjev iz teksta 1');assert.equal(field('Površina od (m²)').value,'15000');assert.equal(field('Države interesa (zarezom)').value,'Hrvatska');
+await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});await wait();
+const fromText=posts.filter(b=>b.action==='save_request').at(-1);
+assert.equal(fromText.source_text,proposalText);assert.equal(fromText.parsed_by,'local-parser-v1');assert.equal(fromText.verified,false);
+assert.deepEqual(fromText.criteria.requirements.map(q=>[q.key,q.value,q.mandatory]),[['land_leased',0,true]]);assert.equal('contact_json' in fromText,false);
 // Mobile: the panels declare single-column layouts below 600px (visual review on a real phone is still required).
 assert(document.body.innerHTML.includes('@media(max-width:600px){.two-cols{grid-template-columns:1fr}'));
 // facts-v1: a new property fact starts unconfirmed with today's date and no value (unknown is never 0);

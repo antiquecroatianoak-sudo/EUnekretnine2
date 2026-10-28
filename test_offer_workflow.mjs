@@ -67,6 +67,16 @@ try{
  await run({action:'save_request',investor_id:b.id,request_id:house.id,label:'Kuća za obnovu',preferred_countries:'Hrvatska',criteria:{source_url:'https://example.org/test-only/demand/3'}});
  hr=(await sql`select * from investors where id=${house.id}`)[0];assert.equal(hr.contact_json,null,'changed source does not inherit the contact');assert.equal(JSON.parse(hr.criteria_json).checked_at,undefined,'changed source does not inherit the check date');
  await assert.rejects(run({action:'save_request',investor_id:b.id,request_id:p.id+100000,label:'X',criteria:{}}),/ne pripada/);
+ // Module 3: a request confirmed from plain text keeps its source text internally and cannot be saved twice.
+ const textRequest={action:'save_request',investor_id:b.id,label:'Iz teksta',preferred_countries:'Hrvatska',criteria:{property_types:['Kuća'],conditions:['Za obnovu']},
+  source_text:'TEST ONLY Kuća za obnovu u Hrvatskoj, TAJNI-NAVOD-7.',parsed_by:'local-parser-v1'};
+ const fromText=await run(textRequest);
+ const tc=JSON.parse((await sql`select criteria_json from investors where id=${fromText.id}`)[0].criteria_json);
+ assert.equal(tc.source_text,textRequest.source_text);assert.equal(tc.parsed_by,'local-parser-v1');assert.match(tc.source_text_digest,/^[0-9a-f]{8}$/);
+ await assert.rejects(run(textRequest),/Isti izvorni tekst već je spremljen/,'repeated save does not duplicate');
+ await run({...textRequest,request_id:fromText.id,label:'Iz teksta (uređeno)'});
+ await assert.rejects(run({...textRequest,source_text:'TEST ONLY drugi',parsed_by:'gpt'}),/Nepoznat način/);
+ await assert.rejects(run({...textRequest,source_text:undefined,criteria:{source_text:'x'}}),/Nevaljan kriterij zahtjeva: source_text/);
 
  // 3. Final review: fresh evaluation, separate fit and reliability, both contact channels.
  const ids={property_id:Number(p.id),investor_id:Number(b.id)};
