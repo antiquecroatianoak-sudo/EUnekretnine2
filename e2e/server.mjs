@@ -15,7 +15,7 @@ let dispatch;try{({dispatch}=await import(copy.href))}finally{rmSync(copy)}
 const sql=postgres(url,{max:4,prepare:false,onnotice:()=>{}});
 let fault={mode:null,count:0};
 const READS=new Set(['read','pairs','pair','catalog','sources','pair_diagnostics','workflow','buyer_requests']);
-const page=`<!doctype html><html lang="hr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TEST ONLY</title><style>/* TEST ONLY: the canonical global stylesheet is not in this repository; only the backdrop is placed behind the content. */.graphite-backdrop{position:fixed;inset:0;z-index:-1;overflow:hidden}.graphite-backdrop svg{width:100%;height:100%}</style></head><body><div id="root"></div><script type="module" src="/app.js"></script></body></html>`;
+const page=`<!doctype html><html lang="hr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TEST ONLY</title><style>/* TEST ONLY: the canonical global stylesheet is not in this repository. Only two of its jobs are stood in for: the backdrop sits behind the content, and a .table-scroll wrapper scrolls its wide table inside itself (the component wraps tables in it for that purpose). */.graphite-backdrop{position:fixed;inset:0;z-index:-1;overflow:hidden}.graphite-backdrop svg{width:100%;height:100%}.table-scroll{max-width:100%;overflow-x:auto}</style></head><body><div id="root"></div><script type="module" src="/app.js"></script></body></html>`;
 const send=(res,status,body,type='application/json')=>{res.writeHead(status,{'Content-Type':type,'Cache-Control':'no-store'});res.end(typeof body==='string'?body:JSON.stringify(body))};
 createServer(async(req,res)=>{
  try{
