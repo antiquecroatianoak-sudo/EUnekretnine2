@@ -78,6 +78,24 @@ assert.deepEqual(O.factsSummary(hotel),['Smještajni kapacitet: 40 – 50 soba',
 const pres=O.presentation(hotel,buyer(),{reasons:[]},'EU-TEST');assert(!JSON.stringify(pres).includes('43'),'exact room count stays internal');
 assert(O.presentationHtml(pres).includes('Dodatna obilježja (potvrđeni podaci)'));assert.deepEqual(O.factsSummary(p0),[]);
 assert.equal(readFileSync(new URL('./sites-review/lib/offer.mjs',import.meta.url),'utf8'),readFileSync(new URL('./supabase/functions/sites-platform/offer.mjs',import.meta.url),'utf8'));
+// 6471377815: the confirmed export uses the comparison's currency rule (factCurrent): an observation dated after
+// today is not yet a fact, an expired one no longer is; past and today count. Stored data is left as it is.
+{const at=Date.parse('2026-10-28T12:00:00Z'),day=n=>new Date(at+n*86400000).toISOString().slice(0,10);
+ const withRooms=f=>({...p0,facts_json:JSON.stringify({rooms:{...fact(43,'kom'),...f}})});
+ const lines=f=>O.factsSummary(withRooms(f),at);
+ assert.deepEqual(lines({observed_on:day(-30)}),['Smještajni kapacitet: 40 – 50 soba'],'past');
+ assert.deepEqual(lines({observed_on:day(0)}),['Smještajni kapacitet: 40 – 50 soba'],'today');
+ assert.deepEqual(lines({observed_on:day(1)}),[],'tomorrow is not yet observed');
+ assert.deepEqual(lines({observed_on:'2099-01-01'}),[],'far future');
+ assert.deepEqual(lines({observed_on:'2099-01-01',valid_until:'2099-12-31'}),[],'future with a later valid_until');
+ assert.deepEqual(lines({observed_on:day(-30),valid_until:day(0)}),['Smještajni kapacitet: 40 – 50 soba'],'valid until today');
+ assert.deepEqual(lines({observed_on:day(-30),valid_until:day(-1)}),[],'expired yesterday');
+ for(const [f,n] of [[{observed_on:day(-1)},1],[{observed_on:day(0)},1],[{observed_on:'2099-01-01'},0]])assert.equal(F.factCurrent(JSON.parse(withRooms(f).facts_json).rooms,day(0))?1:0,n);
+ // presentation() and its HTML: a future-dated fact never appears under "confirmed data" (presentation uses now).
+ const future=withRooms({observed_on:'2099-01-01'}),html=O.presentationHtml(O.presentation(future,buyer(),{reasons:[]},'EU-TEST'));
+ assert(!html.includes('Smještajni kapacitet')&&!html.includes('Dodatna obilježja (potvrđeni podaci)'),'future fact not exported');
+ assert(O.presentationHtml(O.presentation(withRooms({observed_on:today}),buyer(),{reasons:[]},'EU-TEST')).includes('Smještajni kapacitet: 40 – 50 soba'),'today is exported');
+ assert.equal(JSON.parse(future.facts_json).rooms.observed_on,'2099-01-01','stored data unchanged');}
 // Sector templates list relevant fields only.
 assert.deepEqual(Object.keys(F.SECTOR_TEMPLATES),['hotel','skladište / logistika','farma']);for(const keys of Object.values(F.SECTOR_TEMPLATES))for(const k of keys)assert(F.FACTS[k],k);
 console.log(JSON.stringify(vectors.compare.map(v=>F.compareRequirement(F.validateRequirements([v.requirement])[0],F.validateFacts(v.facts),v.today).state)));

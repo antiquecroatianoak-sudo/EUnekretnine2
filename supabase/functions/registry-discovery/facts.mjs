@@ -124,7 +124,10 @@ export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Pr
 
 // Module 4: which measured area a request means. Requests without a basis keep the advertised area (legacy).
 export const AREA_BASIS={'zemljište ukupno':'land_total','zemljište u vlasništvu':'land_owned','površina zgrada':'building_area','korisna površina':'usable_area'};
-const usable=(f,today)=>f&&f.status==='potvrđeno'&&!(f.observed_on>today)&&!(f.valid_until&&f.valid_until<today);
+// A fact that counts today: confirmed, observed on or before today, not past valid_until. Comparison, area bases
+// and the confirmed presentation export use this one rule.
+export const factCurrent=(f,today)=>!!f&&f.status==='potvrđeno'&&!(f.observed_on>today)&&!(f.valid_until&&f.valid_until<today);
+const usable=factCurrent;
 // Land composition: owned + leased must agree with the advertised total (0.5 %); measures are never summed into one.
 export function landComposition(facts,today){
  const [t,o,l]=['land_total','land_owned','land_leased'].map(k=>usable(facts?.[k],today)?facts[k].value*UNITS[facts[k].unit][1]:null);

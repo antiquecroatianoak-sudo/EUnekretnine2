@@ -1,5 +1,5 @@
 import {buyerTeaser,areaText,teaserLeaks} from './teaser.mjs';
-import {readFacts,UNITS} from './facts.mjs';
+import {readFacts,UNITS,factCurrent} from './facts.mjs';
 import {criteria,MATCH,CANDIDATE,REJECT,contactRoute,TYPES,CONDITIONS,num} from './domain.mjs';
 // Only fixed sentences reach the buyer: evaluate() labels are mapped, never copied.
 const FIT={'Država':'Odgovara traženoj državi','Vrsta nekretnine':'Odgovara traženoj vrsti nekretnine','Stanje / obnova / rušenje':'Odgovara traženom stanju',
@@ -14,7 +14,7 @@ export function requestSummary(i){
  if(low||high)out.push('Površina: '+(low&&high?'okvirno '+low+' do '+high:low?'od okvirno '+low:'do okvirno '+high));
  return out;
 }
-// Module 5: confirmed specialised facts as generalised lines (bands, never exact identifying values); unconfirmed,
+// Module 5: confirmed specialised facts as generalised lines (bands, never exact identifying values); unconfirmed, not yet observed,
 // conflicting or expired facts are left out, and every line passes the same identifier checks as the teaser.
 const band=(v,step,unit)=>{const lo=Math.floor(v/step)*step;return (lo?lo+' – ':'do ')+(lo+step)+' '+unit};
 const yes=v=>v?'da':'ne';
@@ -28,7 +28,7 @@ const FACT_LINES={subtype:f=>'Podvrsta: '+f.value,farm_production:f=>'Proizvodnj
  land_leased:f=>'Zemljište u zakupu: '+areaText(f.value*UNITS[f.unit][1]),building_area:f=>'Površina zgrada: '+areaText(f.value*UNITS[f.unit][1]),usable_area:f=>'Korisna površina: '+areaText(f.value*UNITS[f.unit][1])};
 export function factsSummary(p,now=Date.now()){
  const facts=readFacts(p)||{},today=new Date(now).toISOString().slice(0,10);
- return Object.entries(facts).filter(([k,f])=>FACT_LINES[k]&&f.status==='potvrđeno'&&!(f.valid_until&&f.valid_until<today)).map(([k,f])=>FACT_LINES[k](f)).filter(l=>l&&!/null|undefined/.test(l)&&!teaserLeaks(l,p).length);
+ return Object.entries(facts).filter(([k,f])=>FACT_LINES[k]&&factCurrent(f,today)).map(([k,f])=>FACT_LINES[k](f)).filter(l=>l&&!/null|undefined/.test(l)&&!teaserLeaks(l,p).length);
 }
 export function presentation(p,i,r,code){
  const t=buyerTeaser(p);if(!t.text||t.leaks.length)throw Error('Nacrt sadrži moguće identifikatore: '+t.leaks.join(', '));
