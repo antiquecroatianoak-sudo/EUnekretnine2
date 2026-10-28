@@ -32,7 +32,8 @@ Odobrenje vlasnika: komentar 6464301339. Zaseban mali PR. Postojeće provjere ba
 
 ## Ograničenja (iskreno)
 - **Globalni stylesheet** kanonskog Sitesa (layout, tema) nije u ovom repozitoriju.
-  - Testna stranica dodaje samo pozicioniranje pozadine; ostalo dolazi iz stilova same komponente.
+  - Testna stranica zamjenjuje samo dva njegova zadatka: pozadina je iza sadržaja, a omotač `.table-scroll` pomiče široku tablicu unutar sebe (`overflow-x: auto`). Komponenta tablice za to omata u `.table-scroll`. Da kanonski stylesheet doista sadrži to pravilo, treba potvrditi u kanonskom Sites izvoru; ovdje to nije provjerljivo.
+  - Ostalo dolazi iz stilova same komponente.
   - Zato nema pikselnih baseline usporedbi: pokazivale bi izgled koji nije produkcijski.
   - Vizualna provjera zasad je geometrijska (preljev i položaj ključnih kontrola) uz snimke za ručni pregled.
   - Kad globalni stylesheet uđe u repozitorij, mogu se dodati baseline snimke.
