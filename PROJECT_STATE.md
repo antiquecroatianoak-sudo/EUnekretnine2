@@ -62,3 +62,9 @@ Pregledati aktualni PR #50: usporediti referentni refresh i novi put, uključuju
 - Provjere: WAV 44.1 kHz / 16-bit, ograničen vrh amplitude i nulti početak/završetak; diff i Vinext build uspješni. Stvarna čujnost na korisnikovu mobitelu nije provjerena.
 - Logika hvatanja stvarnog klika na kontrole sa SVG ikonom, ignoriranje disabled kontrola, zajednički player i cleanup ostali su nepromijenjeni. Evaluator, baza i API nisu dirani.
 - Ako se zvuk dalje podešava, mijenjati samo audio/glasnoću u kanonskom Sites izvoru; ne mijenjati pravila parova. Ranije opisan sljedeći glavni razvojni korak (#50) ostaje otvoren.
+
+## Novi prioritet vlasnika — kvaliteta parova i funkcioniranje aplikacije
+- 28.10.2026.: važnija je kvaliteta podudaranja, ne njihov broj. Uključiti učinkovitost, pouzdano učitavanje/spremanje i jasniji grafički prikaz.
+- Ponovno proučene četiri dostupne javne stranice; ideje i redoslijed usklađeni s postojećim #47/#48/#50/#53 u [planu kvalitete](ops/matching-quality-roadmap-2026-10-28.md).
+- Točne poveznice prve ranije skupine ostaju nepotvrđene; ne tvrditi potpun pregled obje skupine. Ova cjelina sprema analizu/prijedlog; nije novi deploy niti promjena evaluatora.
+- Sljedeći korak: pregled #50 za pouzdano/brže spremanje; kriterije kvalitete i referentne primjere pripremiti prije promjene evaluatora iz #48. Tablica i izvori iz #54 već su objavljeni, ne ponavljati ih kao novi rezultat.
