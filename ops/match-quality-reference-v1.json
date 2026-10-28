@@ -218,12 +218,12 @@
   {
    "id": "q09",
    "group": "jedinica ili cijeli projekt",
-   "title": "Projekt 40 stanova, 6.000 m² cijelog projekta, cijena „od”; kupac traži jedan stan 80–120 m²",
+   "title": "Kupac obavezno traži jedan stan 80–120 m²; oglas projekta 6.000 m², opseg prodaje nepoznat",
    "expected": "nedovoljno",
    "label": "Površina",
-   "why": "Ugovor ne razlikuje jedinicu od cijelog projekta; očekivano je otvoreno pitanje, ne odbijanje.",
+   "why": "Dokumentiran zahtjev za jedinicom, a opseg oglasa nepoznat: oglašena površina može biti cijeli projekt, pa ostaje otvorena provjera, ne odbijanje.",
    "parity": true,
-   "contract": "nije podržano",
+   "contract": "podržano",
    "property": {
     "area": 6000,
     "property_type": "Stan",
@@ -239,8 +239,20 @@
      "Useljivo"
     ],
     "min_area": 80,
-    "max_area": 120
-   }
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {}
   },
   {
    "id": "q10",
@@ -508,6 +520,353 @@
    "contract": "podržano",
    "property": {
     "contact_ref": "https://example.org/test-only/q/other-listing"
+   }
+  },
+  {
+   "id": "q26",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; oglas potvrđeno prodaje cijeli projekt",
+   "expected": "odstupa",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Izričito nespojiv opseg po tvrdom uvjetu.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "cijeli projekt",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q27",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; potvrđena jedinica od 100 m²",
+   "expected": "odgovara",
+   "label": "Površina",
+   "why": "Potvrđena jedinica: površina oglasa je površina jedinice.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 100,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q28",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; potvrđena jedinica, ali 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Opseg potvrđen, površina jedinice izvan granica.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q29",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; opseg prodaje proturječan",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Proturječan podatak nije ni potvrda ni odbijanje.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "proturječno",
+     "observed_on": "@day:-10"
+    }
+   }
+  },
+  {
+   "id": "q30",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac samo preferira jedinicu (želja); opseg nepoznat; 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Želja je informativna; površina se uspoređuje kao prije.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": false,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {}
+  },
+  {
+   "id": "q31",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Bez dokumentiranog zahtjeva za opsegom (legacy); 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Bez dokumentiranog zahtjeva ponašanje ostaje nepromijenjeno.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120
+   }
+  },
+  {
+   "id": "q32",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac obavezno traži cijeli projekt, najmanje 2 ha zemljišta ukupno; potvrđen cijeli projekt i 25.000 m²",
+   "expected": "odgovara",
+   "label": "Površina (zemljište ukupno)",
+   "why": "Opseg potvrđen; jedinice ha i m² uspoređuju se na istoj mjeri.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 800,
+    "property_type": "Zemljište",
+    "condition": "Neizgrađeno"
+   },
+   "criteria": {
+    "min_area": 20000,
+    "area_basis": "zemljište ukupno",
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "cijeli projekt"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "cijeli projekt",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    },
+    "land_total": {
+     "value": 25000,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "m2",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q33",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac obavezno traži jedinicu; „potvrđena jedinica” s datumom opažanja u budućnosti",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Budući datum nije još opaženi podatak.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "2099-01-01",
+     "evidence": "TEST ONLY dokaz"
+    }
    }
   }
  ]
