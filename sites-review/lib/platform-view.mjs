@@ -29,7 +29,8 @@ export function sourceDescription(row){
  return facts.transaction_type==='buy_request'?'Objava potražnje – za provjeru':'Potencijalni kupac ili zastupnik – interes nepotvrđen';
 }
 export function sourceProgress(run){
- const state=jsonObject(run.body_json),pending=Array.isArray(state.pending)?state.pending.length:0;
+ // The initial read sends a summary with pending_count; a full checkpoint still has the pending array.
+ const state=jsonObject(run.body_json),pending=Number.isFinite(state.pending_count)?state.pending_count:Array.isArray(state.pending)?state.pending.length:0;
  const counts=[];
  for(const [key,label] of [['pages_processed','obrađenih stranica'],['inserted_count','novih'],['updated_count','ažuriranih']])if(Number.isFinite(state[key]))counts.push(`${state[key]} ${label}`);
  if(pending)counts.push(`${pending} poveznica čeka nastavak`);

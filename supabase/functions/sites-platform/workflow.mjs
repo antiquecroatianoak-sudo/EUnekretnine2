@@ -1,5 +1,5 @@
 import {criteria,investorInput,contactRoute,pairCheckMap,REJECT} from './domain.mjs';
-import {PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
+import {stagedVisibility,INVESTOR_VISIBLE} from './catalog.mjs';
 import {suggestion} from './suggestions.mjs';
 import {presentation,fingerprint,evidenceSnapshot,reviewReadiness,reviewSides,requestIdentity,responseInput,handoffInput,changeOf,effectiveResponse,INTEREST} from './offer.mjs';
 // Buyer requests, final review, versioned anonymous presentations, written responses and the internal agency
@@ -22,7 +22,7 @@ const dayOf=v=>{const t=Date.parse(v);return Number.isFinite(t)?new Date(t).toIS
 // this transaction ends; evidence written meanwhile changes the fingerprint and voids the result at the next read.
 async function state(tx,a,{write=false}={}){
  const p=id(a.property_id),i=id(a.investor_id);
- const lock=write?tx`for share`:tx``;
+ const lock=write?tx`for share`:tx``,PROPERTY_VISIBLE=await stagedVisibility(tx);
  const [[property],[investor],[match],history,answers,tasks,changes]=await Promise.all([
   tx`select p.* from properties p where p.id=${p} and ${tx.unsafe(PROPERTY_VISIBLE)} ${lock}`,
   tx`select i.* from investors i where i.id=${i} and ${tx.unsafe(INVESTOR_VISIBLE)} ${lock}`,

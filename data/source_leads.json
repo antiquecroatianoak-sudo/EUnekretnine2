@@ -2,9 +2,10 @@
  "counts": {
   "blokirano": 4,
   "kandidat_nekretnine": 29,
-  "nedostupno": 12,
-  "nije_relevantno": 22,
-  "robots_zabrana": 8
+  "nedostupno": 15,
+  "nije_relevantno": 27,
+  "novo": 1,
+  "robots_zabrana": 10
  },
  "leads": [
   {
@@ -64,6 +65,8 @@
    "title": "Home - ADAMANT IMMOBILIEN GmbH Willkommen bei ADAMANT IMMOBILIEN GMBH – Ihr zuverlässiger Partner in der Immobilienwelt,"
   },
   {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": null,
    "evidence": [
     {
@@ -79,7 +82,7 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "status": "robots_zabrana"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -238,6 +241,8 @@
    "title": "960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten, Garage und zwei Carports - Immoviewer 960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": null,
    "evidence": [
     {
@@ -277,7 +282,15 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": ""
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -296,7 +309,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -380,7 +393,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "nedostupno"
   },
   {
@@ -400,7 +413,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "nedostupno"
   },
   {
@@ -420,7 +433,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -576,7 +589,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -604,7 +617,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -632,7 +645,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -652,7 +665,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "nedostupno"
   },
   {
@@ -1108,7 +1121,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "blokirano"
   },
   {
@@ -1262,7 +1275,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1272,6 +1285,32 @@
    },
    "status": "nije_relevantno",
    "title": "Justimmo - Einfach Makeln! - Die meist empfohlene Maklersoftware in Österreich Einfach makeln."
+  },
+  {
+   "check_note": "HTTP 404",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "€2.875m via Knight Frank",
+     "found_on": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://www.knightfrank.co.uk/properties/residential/for-sale/lake-como-lombardy/rsi012265797"
+    },
+    {
+     "anchor": "€750,000 via Knight Frank",
+     "found_on": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://www.knightfrank.co.uk/properties/residential/for-sale/como-lombardy/rsi012032660"
+    }
+   ],
+   "first_seen": "2026-10-27T18:54:34.505266+00:00",
+   "host": "knightfrank.co.uk",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "HTTP 405",
@@ -1290,7 +1329,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "nedostupno"
   },
   {
@@ -1368,6 +1407,26 @@
    "title": "Immosuche | Lichtl Real"
   },
   {
+   "check_note": "HTTP 404",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Lionard Luxury Real Estate",
+     "found_on": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://www.lionard.com/fullscreen"
+    }
+   ],
+   "first_seen": "2026-10-27T18:54:34.505266+00:00",
+   "host": "lionard.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
+   "status": "nedostupno"
+  },
+  {
    "check_note": "HTTP 403",
    "checked_at": "2026-10-26T15:11:41.670227+00:00",
    "country_hint": null,
@@ -1430,7 +1489,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -1454,6 +1513,8 @@
    "status": "robots_zabrana"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": "AT",
    "evidence": [
     {
@@ -1469,7 +1530,15 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 0
+   },
+   "status": "nije_relevantno",
+   "title": ""
   },
   {
    "check_note": "HTTP 403",
@@ -1488,10 +1557,12 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-24T16:05:55.948565+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "blokirano"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": "AT",
    "evidence": [
     {
@@ -1513,7 +1584,15 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 1,
+    "property_words": 4
+   },
+   "status": "nije_relevantno",
+   "title": "GWS next: Immobilien Unsere Immobilien - Ihre Anforderungen Wonach suchen Sie?"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1570,6 +1649,26 @@
    },
    "status": "kandidat_nekretnine",
    "title": "Immobilien Archive - Perfekt Immo Immobilien­angebot"
+  },
+  {
+   "check_note": "HTTP 500",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "€2.2m via Prestige Property Group",
+     "found_on": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://www.prestigeproperty.co.uk/8-bed-villa-como-lombardy-lake-como-italy-229870"
+    }
+   ],
+   "first_seen": "2026-10-27T18:54:34.505266+00:00",
+   "host": "prestigeproperty.co.uk",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
@@ -1634,6 +1733,8 @@
    "title": "WohnTraumCenter Bauen und Wohnen mit Raiffeisen"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": null,
    "evidence": [
     {
@@ -1649,7 +1750,15 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 15
+   },
+   "status": "nije_relevantno",
+   "title": "Maplewood Estates Property Details"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -1724,7 +1833,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T14:50:31.572241+00:00",
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -2108,7 +2217,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "status": "nedostupno"
   },
   {
@@ -2188,6 +2297,70 @@
    "title": "Walkly video walkthrough | Voordestraat 2/A4 Sint-Stevens-Woluwe"
   },
   {
+   "check_note": "robots.txt disallows this URL",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Apartments and houses for sale in Provence-Alpes-Côte d'Azur",
+     "found_on": "https://www.green-acres.fr/en",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://web4.green-acres.com/property-for-sale/provence-alpes-cote-d-azur"
+    },
+    {
+     "anchor": "Apartments and houses for sale in Languedoc-Roussillon",
+     "found_on": "https://www.green-acres.fr/en",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://web4.green-acres.com/property-for-sale/languedoc-roussillon"
+    },
+    {
+     "anchor": "Apartments and houses for sale in Aquitaine",
+     "found_on": "https://www.green-acres.fr/en",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://web4.green-acres.com/property-for-sale/aquitaine"
+    },
+    {
+     "anchor": "Apartments and houses for sale in Rhône-Alpes",
+     "found_on": "https://www.green-acres.fr/en",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://web4.green-acres.com/property-for-sale/rhone-alpes"
+    },
+    {
+     "anchor": "Apartments and houses for sale in Midi-Pyrénées",
+     "found_on": "https://www.green-acres.fr/en",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://web4.green-acres.com/property-for-sale/midi-pyrenees"
+    }
+   ],
+   "first_seen": "2026-10-27T18:54:34.505266+00:00",
+   "host": "web4.green-acres.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
+   "status": "robots_zabrana"
+  },
+  {
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "with West Coast Modern",
+     "found_on": "https://thespaces.com/a-previously-unseen-1952-west-coast-modern-house-is-for-sale-in-vancouver/",
+     "seen": "2026-10-27T18:54:34.505266+00:00",
+     "url": "https://www.westcoastmodern.ca/properties/mahoganyhouse"
+    }
+   ],
+   "first_seen": "2026-10-27T18:54:34.505266+00:00",
+   "host": "westcoastmodern.ca",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-27T18:54:34.505266+00:00",
+   "status": "novo"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": "DE",
    "evidence": [
     {
@@ -2203,7 +2376,15 @@
     "property"
    ],
    "last_seen": "2026-10-27T15:17:00.722071+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 125
+   },
+   "status": "nije_relevantno",
+   "title": "WP-ImmoMakler: Das WordPress Immobilien Plugin #1 seit 2012 Ihre Immobilien. Ihre Website. WordPress und WP-ImmoMakler."
   },
   {
    "check_note": "Cross-source URL rejected: https://www.youtube.com/watch",
@@ -2242,7 +2423,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-26T08:17:17.482026+00:00",
+   "last_seen": "2026-10-28T07:14:06.754013+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -2283,6 +2464,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-27T15:17:00.722071+00:00",
- "verified_at": "2026-10-27T15:02:43.039875+00:00"
+ "updated_at": "2026-10-28T07:14:06.754013+00:00",
+ "verified_at": "2026-10-28T07:14:06.853886+00:00"
 }

@@ -84,6 +84,9 @@ class PairRecordsMigrationTests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
     def test_offer_workflow_against_migrated_schema(self):
         self.run_node('test_offer_workflow.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_read_path_against_migrated_schema(self):
+        self.run_node('test_read_staged.mjs')
 
 if __name__ == '__main__':
     unittest.main()

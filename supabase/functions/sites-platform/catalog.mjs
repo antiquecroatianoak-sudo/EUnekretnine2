@@ -1,6 +1,9 @@
-import {PROPERTY_ACTIVE} from './activity-policy.mjs';
+import {PROPERTY_ACTIVE,PROPERTY_ACTIVE_STAGED,stageSourceState} from './activity-policy.mjs';
 // Shared by the initial read and keyset pages; all SQL fragments are constants.
 export const PROPERTY_VISIBLE=`${PROPERTY_ACTIVE} and not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())`;
+// Read paths: the same visibility over the source state staged once per transaction (stageSourceState).
+export const PROPERTY_VISIBLE_STAGED=`${PROPERTY_ACTIVE_STAGED} and not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.property_id=p.id and l.state in ('expired','removed')) and (p.bid_deadline_at is null or p.bid_deadline_at>now()) and (site_private.safe_stamp(p.available_until) is null or site_private.safe_stamp(p.available_until)>now())`;
+export async function stagedVisibility(tx){await stageSourceState(tx);return PROPERTY_VISIBLE_STAGED}
 export const INVESTOR_VISIBLE=`not exists(select 1 from source_candidates c join site_private.listing_lifecycle l on l.candidate_id=c.id where c.investor_id=i.id and l.state in ('expired','removed'))`;
 export const CATALOG_PAGE_SIZE=100;
 // Numeric monotone IDs avoid skipped rows when earlier records disappear between requests.
@@ -18,7 +21,7 @@ export async function catalogPage(tx,a){
  const through=requested??Number(max);
  // Search is literal substring matching, including % and _, never user-supplied SQL.
  const search=property?`lower(concat_ws(' ',p.title,p.city,p.region))`:`lower(concat_ws(' ',i.name,i.preferred_countries))`;
- const visible=property?PROPERTY_VISIBLE:INVESTOR_VISIBLE;
+ const visible=property?await stagedVisibility(tx):INVESTOR_VISIBLE;
  const predicate=tx`${tx.unsafe(visible)} and (${record}::bigint is null or ${tx.unsafe(alias+'.id')}=${record}) and ${tx.unsafe(alias+'.id')}<=${through} and (${q}='' or strpos(${tx.unsafe(search)},${q})>0) and (${country}='' or ${tx.unsafe(alias+'.country')}=any(${a.country_values||[country]}::text[]))`;
  const agencyFilter=agency===null?tx``:tx`and exists(select 1 from source_candidates agency_c join sources agency_s on agency_c.source_id='registry-'||agency_s.id::text where agency_s.id=${agency} and agency_s.category ilike 'Agencija%' and ${tx.unsafe('agency_c.'+(property?'property_id':'investor_id'))}=${tx.unsafe(alias+'.id')})`;
  const extra=property?tx`and (${legal}='' or p.legal=${legal}) and (${price}::numeric is null or p.price<=${price})`:tx``;
