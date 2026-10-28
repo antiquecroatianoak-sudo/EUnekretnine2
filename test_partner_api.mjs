@@ -98,6 +98,35 @@ try{
  await sql`update source_candidates set source_id=${'registry-'+A2} where property_id=${Y}`;
  assert.deepEqual(await stage({property_id:Y,value:83000}),{ok:false,reason:denied});
  await sql`update source_candidates set source_id=${'registry-'+A1} where property_id=${Y}`;
+ // 6471206531: the agency link is re-checked at acceptance. Staged for agency A1, then the listing moves to A2 or loses
+ // its agency link: the proposal becomes stale with an audit entry; nothing is written and nothing is refreshed.
+ const link=(id,ag)=>sql`update source_candidates set source_id=${'registry-'+ag} where property_id=${id}`;
+ const priceOf=async id=>Number((await sql`select price from properties where id=${id}`)[0].price);
+ const accepted=async id=>(await sql`select count(*)::int n from activity where property_id=${id} and stage='Prihvaćen prijedlog partnera'`)[0].n;
+ const evaluated=async()=>String((await sql`select max(last_evaluated_at) t from site_private.pair_records`)[0].t);
+ for(const [label,move,restore,value] of [['moved',()=>link(X,A2),()=>link(X,A1),77001],
+  ['unlinked',()=>sql`update source_candidates set property_id=null where id='cand-X'`,()=>sql`update source_candidates set property_id=${X} where id='cand-X'`,77002]]){
+  const st=await stage({value});assert(st.ok,label);
+  const before=[await priceOf(X),await accepted(X),await evaluated()];
+  await move();
+  const listed=(await run({action:'partner_proposals'})).proposals.find(p=>p.id==st.id);
+  assert(listed.stale&&/agencijom/.test(listed.stale_reason),label+': listed as stale with its reason');
+  assert.equal((await run({action:'partner_decide',id:st.id,decision:'prihvaćeno'})).status,'zastarjelo',label);
+  assert.deepEqual([await priceOf(X),await accepted(X),await evaluated()],before,label+': nothing written, no refresh');
+  const [ev]=await sql`select event,detail from site_private.partner_audit where proposal_id=${st.id} order by id desc limit 1`;
+  assert.equal(ev.event,'stale');assert.equal(ev.detail.reason,'agency_link',label);
+  await restore();
+ }
+ // A link change that is in flight while the operator accepts: acceptance waits for it and then sees the new link.
+ {const st=await stage({value:76000}),before=await priceOf(X);let release;const gate=new Promise(r=>{release=r});
+  const mover=sql.begin(async tx=>{await tx`update source_candidates set source_id=${'registry-'+A2} where property_id=${X}`;await gate});
+  await new Promise(r=>setTimeout(r,150));
+  let done=false;const decision=run({action:'partner_decide',id:st.id,decision:'prihvaćeno'}).then(r=>{done=true;return r});
+  try{await new Promise(r=>setTimeout(r,400));assert.equal(done,false,'acceptance waits for the concurrent link change')}finally{release();await mover}
+  assert.equal((await decision).status,'zastarjelo');assert.equal(await priceOf(X),before);
+  await link(X,A1);}
+ // With the link intact the same path still accepts (control).
+ {const st=await stage({value:75000});assert.equal((await run({action:'partner_decide',id:st.id,decision:'prihvaćeno'})).status,'prihvaćeno');assert.equal(await priceOf(X),75000);}
  // Reject leaves the record alone.
  assert.equal((await run({action:'partner_decide',id:s2.id,decision:'odbijeno'})).status,'odbijeno');
  assert.equal((await sql`select legal_evidence_url from properties where id=${X}`)[0].legal_evidence_url,null);

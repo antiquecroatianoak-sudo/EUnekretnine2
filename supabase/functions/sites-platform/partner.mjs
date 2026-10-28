@@ -59,9 +59,18 @@ export function applyProposal(p,field,value){
  return {[field]:value};
 }
 // The agency a property comes from: its own imported source listing from a source catalogued as an agency.
-async function agencyOf(tx,property){
- const [r]=await tx`select s.id from source_candidates c join sources s on c.source_id='registry-'||s.id::text where c.property_id=${Number(property.id)} and c.url=${property.source} and s.category ilike 'Agencija%' order by c.last_seen desc,c.id limit 1`;
+// With `lock` the linking listing row is held (FOR SHARE) until the transaction ends, so the link cannot be moved
+// or removed between the check and an accepted write.
+async function agencyOf(tx,property,{lock=false}={}){
+ const [r]=await tx`select s.id from source_candidates c join sources s on c.source_id='registry-'||s.id::text where c.property_id=${Number(property.id)} and c.url=${property.source} and s.category ilike 'Agencija%' order by c.last_seen desc,c.id limit 1 ${lock?tx`for share of c`:tx``}`;
  return r?Number(r.id):null;
+}
+// Current agency per property for the review list, by the same rule as agencyOf().
+async function agenciesOf(tx,props){
+ if(!props.length)return new Map();
+ const rows=await tx`select distinct on (p.id) p.id as property_id,s.id from properties p join source_candidates c on c.property_id=p.id and c.url=p.source
+  join sources s on c.source_id='registry-'||s.id::text where p.id=any(${props.map(p=>Number(p.id))}::bigint[]) and s.category ilike 'Agencija%' order by p.id,c.last_seen desc,c.id`;
+ return new Map(rows.map(r=>[String(r.property_id),Number(r.id)]));
 }
 const audit=(tx,proposal,grant,event,detail={})=>tx`insert into site_private.partner_audit(proposal_id,grant_id,event,detail) values(${proposal},${grant},${event},${tx.json(detail)})`;
 const publicGrant=({token_hash:_,...g})=>g;
@@ -104,8 +113,10 @@ export async function partner(tx,a,{refresh,now=Date.now()}={}){
    left join sources s on s.id=g.agency_source_id left join properties p on p.id=pp.property_id where ${status==='sve'?tx`true`:tx`pp.status=${status}`} order by pp.created_at desc,pp.id desc limit 500`;
   const props=new Map((await tx`select * from properties where id=any(${[...new Set(rows.map(r=>Number(r.property_id)))]}::bigint[])`).map(p=>[String(p.id),p]));
   const grants=(await tx`select g.*,s.name as agency_name from site_private.partner_grants g left join sources s on s.id=g.agency_source_id order by g.id desc limit 200`).map(publicGrant);
+  const linked=await agenciesOf(tx,[...props.values()]);
   return {config:PARTNER_CONFIG,fields:PROPOSAL_FIELDS,agencies:await agencyDirectory(tx),grants,proposals:rows.map(r=>{const p=props.get(String(r.property_id));
-   return {...r,current:p?currentValue(r.field,p):null,stale:!p||baseValue(r.field,p)!==r.base_value}})};
+   const stale_reason=!p?'Zapis više ne postoji':baseValue(r.field,p)!==r.base_value?'Vrijednost se promijenila nakon prijedloga':linked.get(String(r.property_id))!==Number(r.agency_source_id)?'Oglas više nije povezan s agencijom prijedloga':null;
+   return {...r,current:p?currentValue(r.field,p):null,stale:!!stale_reason,stale_reason}})};
  }
  if(a.action==='partner_decide'){
   if(!['prihvaćeno','odbijeno'].includes(a.decision))throw Error('Odluka mora biti prihvaćeno ili odbijeno.');
@@ -119,6 +130,10 @@ export async function partner(tx,a,{refresh,now=Date.now()}={}){
   const [p]=await tx`select * from properties where id=${pp.property_id} for update`;
   // Acceptance only against the version the proposal was made for: any change in between makes it stale.
   if(!p||baseValue(pp.field,p)!==pp.base_value)return decide('zastarjelo','stale');
+  // The grant must still cover this record now (review 6471206531): a listing moved to another agency or unlinked
+  // after staging makes the proposal stale; nothing is written and nothing is refreshed.
+  const reason=authorize(grant,{property:p,field:pp.field,agencyId:await agencyOf(tx,p,{lock:true})},now);
+  if(reason)return decide('zastarjelo','stale',{reason:'agency_link',detail:reason});
   const change=applyProposal(p,pp.field,pp.value_json),checked=propertyInput({...p,...change});
   await tx`update properties set ${tx(Object.fromEntries(Object.keys(change).map(k=>[k,checked[k]])))} where id=${p.id}`;
   await tx`insert into activity(property_id,stage,notes,date) values(${p.id},'Prihvaćen prijedlog partnera',${JSON.stringify({proposal_id:pp.id,field:pp.field,evidence:pp.evidence})},${new Date(now).toISOString()})`;

@@ -28,7 +28,7 @@ export function PartnerReview({onClose}){
   {err&&<div className='error' role='alert'>{err} <button type='button' className='text-button' onClick={load}>Pokušaj ponovno</button></div>}
   {msg&&<p className='muted' role='status'>{msg}</p>}
   <ol className='partner-list'>{(data?.proposals||[]).map(p=><li key={p.id} className='partner-item'>
-   <div><span className='pill'>{p.status}</span>{p.stale&&p.status==='novo'&&<span className='pill'>Zapis promijenjen nakon prijedloga</span>} <b>{fieldLabel(p.field)}</b> · {p.property_title||'Zapis '+p.property_id}</div>
+   <div><span className='pill'>{p.status}</span>{p.stale&&p.status==='novo'&&<span className='pill'>{p.stale_reason||'Zapis promijenjen nakon prijedloga'}</span>} <b>{fieldLabel(p.field)}</b> · {p.property_title||'Zapis '+p.property_id}</div>
    <p>Agencija: {p.agency_name||p.agency_source_id} · autor: {p.author} · {new Date(p.created_at).toLocaleString('hr-HR')}</p>
    <table className='req-table'><tbody><tr><th>Sada</th><td>{show(p.current)}</td></tr><tr><th>Predloženo</th><td>{show(p.value_json)}</td></tr><tr><th>Dokaz partnera</th><td className='partner-evidence'>{p.evidence}</td></tr>
     {p.decision_note&&<tr><th>Napomena</th><td>{p.decision_note}</td></tr>}</tbody></table>

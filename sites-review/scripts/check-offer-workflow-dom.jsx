@@ -215,7 +215,7 @@ assert.deepEqual(posts[0],{action:'partner_proposals',status:'novo'});assert(doc
 const items=$$('.partner-item');assert.equal(items.length,pr.list.proposals.length);
 const itemOf=id=>items[pr.list.proposals.findIndex(p=>String(p.id)===id)];
 const xssItem=itemOf(pr.xss_id);assert(xssItem.textContent.includes('<script>alert(1)</script>'),'evidence is shown as text');assert(!$('.partner-item script')&&!$$('.partner-item a').length,'no markup or links rendered from partner text');
-const staleItem=itemOf(pr.stale_id);assert(staleItem.textContent.includes('Zapis promijenjen nakon prijedloga'));assert([...staleItem.querySelectorAll('button')].find(b=>b.textContent==='Prihvati').disabled,'a stale proposal cannot be accepted');
+const staleItem=itemOf(pr.stale_id);const staleProposal=pr.list.proposals.find(p=>String(p.id)===pr.stale_id);assert(staleItem.textContent.includes(staleProposal.stale_reason||'Zapis promijenjen nakon prijedloga'),'the stale reason is shown');assert([...staleItem.querySelectorAll('button')].find(b=>b.textContent==='Prihvati').disabled,'a stale proposal cannot be accepted');
 await act(async()=>{[...xssItem.querySelectorAll('button')].find(b=>b.textContent==='Odbij').click()});await wait();
 assert.deepEqual(posts.find(b=>b.action==='partner_decide'),{action:'partner_decide',id:pr.list.proposals.find(p=>String(p.id)===pr.xss_id).id,decision:'odbijeno',note:''});assert(document.body.textContent.includes('zapis nije mijenjan'));
 await setValue($('select[aria-label="Agencija pristupa"]'),String(pr.list.agencies[0].id));await setValue($('input[aria-label="Oznake zapisa"]'),'1, 2');

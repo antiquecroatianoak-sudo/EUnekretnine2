@@ -18,6 +18,9 @@
    - **Prihvat** vrijedi samo ako je vrijednost polja jednaka onoj na koju se prijedlog odnosi. Inače prijedlog postaje „zastarjelo” i ništa se ne upisuje.
    - Prihvat mijenja samo to jedno polje, kroz isti validator zapisa (`propertyInput`). Upisuje stavku povijesti, a parovi se ponovno izračunavaju.
    - Prihvat nije dopušten nakon isteka ili opoziva pristupa; odbijanje jest.
+   - **Veza s agencijom provjerava se i pri prihvatu** (nalaz 6471206531). Ako je oglas nakon staginga premješten drugoj agenciji, izgubio vezu s agencijom ili ispao iz pristupa, prijedlog postaje „zastarjelo” uz audit (`stale`, `agency_link`). Ništa se ne upisuje i nema refresha.
+   - Redak oglasa koji nosi vezu zaključava se (`FOR SHARE`) do kraja prihvata. Promjena veze koja je u tijeku čeka ili je prihvat vidi nakon nje; ne može proći između provjere i upisa.
+   - Lista prijedloga označava takav prijedlog kao zastario, s razlogom (`stale_reason`).
    - Prihvaćen URL dokaza ne mijenja pravni status zapisa; to i dalje radi operater.
 
 ## Baza (`20261028100000_partner_proposals.sql`)
@@ -36,6 +39,7 @@
   - deduplikacija, prisilno nepotvrđen partnerski podatak;
   - prihvat bez promjene ostalih polja i ručnih podataka;
   - zastarjeli upis; istodobni prihvat dvaju prijedloga i istog prijedloga dvaput;
+  - promjena ili uklanjanje veze s agencijom između staginga i prihvata te promjena veze u tijeku tijekom prihvata (mutacije: bez ponovne provjere, bez zaključavanja, bez oznake u listi);
   - promjena agencije nakon dodjele; opoziv i istek; ograničenje;
   - append-only audit, RLS i prava.
   - Mutacijske provjere (uklonjena provjera verzije, agencije, ograničenja, zaključavanja, deduplikacije, opoziva i prisilnog statusa) ruše test.
