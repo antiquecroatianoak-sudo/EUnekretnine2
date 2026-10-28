@@ -5,6 +5,7 @@ import {LayoutDashboard,Building2,Users,ScanLine,Layers,Globe2,ArrowUpRight,Plus
 import {country,COUNTRIES,TYPES,CONDITIONS,MATCH,CANDIDATE,REJECT,criteria,validUrl,digest,checkValid,sourceConditions,questionDraft,SOURCE_FRESH,ACTIVE_CHECK,ACTIVE_STATUSES,contactData,contactRoute} from '@/lib/domain.mjs';
 import {sourceDescription,sourceProgress,jsonObject,pageWindow,possiblePairs,possiblePairsFilters,filterMatches,pairsView,pairsExplanation,funnelRows} from '@/lib/platform-view.mjs';
 import {RecordSelect} from './record-select';
+import {fetchPlatform} from '@/lib/platform-http.mjs';
 import {PairComparison,pairStyles} from './pair-comparison';
 import {pairReview} from '@/lib/pair-review.mjs';
 import {AGENCY_POLICIES,validateAgencyPolicy} from '@/lib/agency-policy.mjs';
@@ -76,19 +77,15 @@ function PairDetail({match,onDone}){
   <div className='modal-foot'><button className='secondary' type='button' onClick={()=>onDone()}>Zatvori</button></div></div>;
 }
 // A non-JSON or failed response (gateway timeout, oversized body) is an error with its status and size, never empty data.
-async function fetchJson(init){
- const r=await fetch('/api/platform',init),text=await r.text();let d;
- try{d=JSON.parse(text)}catch{throw Error('Odgovor poslužitelja nije valjan (HTTP '+r.status+', '+(text.length>=1e6?(text.length/1e6).toFixed(1)+' MB':Math.ceil(text.length/1e3)+' kB')+')')}
- if(!r.ok)throw Error(d?.error||'HTTP '+r.status);return d;
-}
-const post=body=>fetchJson({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+const fetchJson=fetchPlatform;
+const post=(body,signal)=>fetchJson({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal});
 export default function Dashboard({userName}){
  const [tab,setTab]=useState('Pregled'),[filterAgency,setFilterAgency]=useState(''),[data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[query,setQuery]=useState(''),[filterCountry,setFilterCountry]=useState('Sve države'),[legal,setLegal]=useState('Svi statusi'),[price,setPrice]=useState(''),[modal,setModal]=useState(null),[draft,setDraft]=useState({}),[formError,setFormError]=useState(''),[matchStatus,setMatchStatus]=useState('Svi rezultati'),[menu,setMenu]=useState(false),[page,setPage]=useState(1),[pairs,setPairs]=useState(null),[pairsError,setPairsError]=useState(''),[moreSources,setMoreSources]=useState([]),[catalog,setCatalog]=useState(null),[catalogError,setCatalogError]=useState(''),[catalogBusy,setCatalogBusy]=useState(false),[catalogEpoch,setCatalogEpoch]=useState(0);
- const loadSequence=useRef(0),loadPending=useRef(false),dialogRef=useRef(null),pairsSequence=useRef(0),catalogSequence=useRef(0);
+ const loadSequence=useRef(0),loadPending=useRef(false),dialogRef=useRef(null),pairsSequence=useRef(0),catalogSequence=useRef(0),readController=useRef(null),pairsController=useRef(null);
  // Possible pairs load separately from the full read, so a slow or failed full read cannot hide them.
- async function loadPairs(){const sequence=++pairsSequence.current;try{const d=await post({action:'pairs'});if(sequence===pairsSequence.current){setPairs(d);setPairsError('')}}catch(e){if(sequence===pairsSequence.current)setPairsError(e.message||'Nepoznata greška')}}
- async function load(quiet=false){if(quiet&&loadPending.current)return;const sequence=++loadSequence.current;loadPending.current=true;if(!quiet){setLoading(true);setCatalogEpoch(n=>n+1)}setError('');loadPairs();try{const d=await fetchJson({cache:'no-store'});if(sequence===loadSequence.current){setData(d);setMoreSources([])}}catch(e){if(sequence===loadSequence.current)setError(e.message||'Podatke nije moguće učitati.')}finally{if(sequence===loadSequence.current){setLoading(false);loadPending.current=false}}}
- useEffect(()=>{load()},[]);
+ async function loadPairs(){const sequence=++pairsSequence.current;pairsController.current?.abort();const controller=new AbortController();pairsController.current=controller;try{const d=await post({action:'pairs'},controller.signal);if(sequence===pairsSequence.current){setPairs(d);setPairsError('')}}catch(e){if(sequence===pairsSequence.current&&e.name!=='AbortError')setPairsError(e.message||'Nepoznata greška')}}
+ async function load(quiet=false){if(quiet&&loadPending.current)return;const sequence=++loadSequence.current;loadPending.current=true;readController.current?.abort();const controller=new AbortController();readController.current=controller;if(!quiet){setLoading(true);setCatalogEpoch(n=>n+1)}setError('');loadPairs();try{const d=await fetchJson({cache:'no-store',signal:controller.signal});if(sequence===loadSequence.current){setData(d);setMoreSources([])}}catch(e){if(sequence===loadSequence.current&&e.name!=='AbortError')setError(e.message||'Podatke nije moguće učitati.')}finally{if(sequence===loadSequence.current){setLoading(false);loadPending.current=false}}}
+ useEffect(()=>{load();return ()=>{readController.current?.abort();pairsController.current?.abort()}},[]);
  useEffect(()=>{if(modal||busy)return;const refresh=()=>{if(document.visibilityState==='visible')load(true)};const timer=setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);return ()=>{clearInterval(timer);document.removeEventListener('visibilitychange',refresh)}},[modal,busy]);
  useEffect(()=>{
   if(!modal)return;const previous=document.activeElement,oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
@@ -112,9 +109,9 @@ export default function Dashboard({userName}){
  const catalogKey=JSON.stringify([catalogTable,query,filterCountry,legal,price,filterAgency,catalogEpoch]);
  const catalogCurrent=catalog?.key===catalogKey?catalog:null;
  const catalogRequest={action:'catalog',agency_id:filterAgency||null,table:catalogTable,query,country:filterCountry==='Sve države'?'':filterCountry,legal:legal==='Svi statusi'?'':legal,price};
- useEffect(()=>{const sequence=++catalogSequence.current;if(!catalogEnabled){setCatalogBusy(false);return}let cancelled=false;setCatalogBusy(true);setCatalogError('');
-  const timer=setTimeout(()=>{post(catalogRequest).then(d=>{if(!cancelled&&sequence===catalogSequence.current)setCatalog({...d,key:catalogKey})}).catch(e=>{if(!cancelled&&sequence===catalogSequence.current)setCatalogError(e.message||'Katalog nije učitan.')}).finally(()=>{if(!cancelled&&sequence===catalogSequence.current)setCatalogBusy(false)})},200);
-  return ()=>{cancelled=true;clearTimeout(timer)};
+ useEffect(()=>{const sequence=++catalogSequence.current;if(!catalogEnabled){setCatalogBusy(false);return}let cancelled=false;const controller=new AbortController();setCatalogBusy(true);setCatalogError('');
+  const timer=setTimeout(()=>{post(catalogRequest,controller.signal).then(d=>{if(!cancelled&&sequence===catalogSequence.current)setCatalog({...d,key:catalogKey})}).catch(e=>{if(!cancelled&&sequence===catalogSequence.current)setCatalogError(e.message||'Katalog nije učitan.')}).finally(()=>{if(!cancelled&&sequence===catalogSequence.current)setCatalogBusy(false)})},200);
+  return ()=>{cancelled=true;clearTimeout(timer);controller.abort()};
  },[catalogEnabled,catalogKey]);
  async function moreCatalog(){if(!catalogCurrent?.has_more||catalogBusy)return;const sequence=catalogSequence.current,key=catalogKey;setCatalogBusy(true);setCatalogError('');try{const d=await post({...catalogRequest,after:catalogCurrent.next,through:catalogCurrent.through});if(sequence===catalogSequence.current)setCatalog(previous=>previous?.key===key?{...d,key,items:[...new Map([...previous.items,...d.items].map(r=>[String(r.id),r])).values()]}:previous)}catch(e){if(sequence===catalogSequence.current)setCatalogError(e.message||'Sljedeća stranica nije učitana.')}finally{if(sequence===catalogSequence.current)setCatalogBusy(false)}}
  function CatalogContinuation(){return catalogEnabled?<div className='panel-foot' role='status'><div>{catalogBusy?'Učitavanje kataloga…':catalogCurrent?`Učitano ${integer(catalogCurrent.items.length)} od ${integer(catalogCurrent.total)} rezultata. Pretraga i filtri obuhvaćaju cijeli katalog.`:'Katalog još nije učitan.'}{catalogError&&<p className='error'>{catalogError} Promijeni filtar ili osvježi podatke za novi pokušaj.</p>}</div>{catalogCurrent?.has_more&&<button type='button' className='secondary' disabled={catalogBusy} onClick={moreCatalog}>Učitaj sljedećih 100</button>}</div>:null}
