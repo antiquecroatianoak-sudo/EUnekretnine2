@@ -31,7 +31,8 @@ jobs:
           printf 'def f():\n    return undefined_name\n' > "$RUNNER_TEMP/control.py"
           if ruff check --config ruff.toml "$RUNNER_TEMP/control.py"; then echo 'Ruff did not report an undefined name'; exit 1; fi
   browser:
-    runs-on: ubuntu-latest
+    # Playwright 1.56.1 supports Chromium on Ubuntu 24.04, not on ubuntu-latest (26.04); standard hosted runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
       postgres:
