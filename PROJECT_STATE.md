@@ -1,6 +1,6 @@
 # EU Investicijske prilike — glavni zapis stanja
 
-Provjereno: 28.10.2026. 14:36 CET (Europe/Zagreb). Ovaj je zapis ulazna točka za nastavak rada; prije izmjene provjeriti žive sustave. Povijesni brojevi zapisa nisu aktualna brojila.
+Provjereno: 28. 10. 2026. 14:49:18 (Europe/Zagreb).
 
 ## Identitet i granice
 - Projekt: EU27 nekretnine i dokumentirana potražnja kupaca.
@@ -54,3 +54,11 @@ Pregledati aktualni PR #50: usporediti referentni refresh i novi put, uključuju
 ## Zapis nastavka
 - 28.10.2026.: vlasnik zatražio trajne zasebne zapise, provjeru stvarnog stanja pri nastavku i procjenu posljedica promjene. Ovaj zapis uspostavljen; javne činjenice i tehničke reference, bez poslovnih podataka ili tajni.
 - Pri sljedećoj cjelini dodati: odluka → promjena → dokaz provjere → objavljena verzija ili izričito nije objavljeno → sljedeći korak.
+
+## Najnovija objava — tihi zvuk ikone, 28.10.2026.
+- Vlasnik odobrio jednostavan tiši klik umjesto osobne snimke koja nije dostavljena kao audio datoteka.
+- Objavljeno Sites v25, source `112809536f559ff844a8018262f1dc14cb8d6cc9`, deployment `appgdep_6ae1fd4d4f0481918aea3785e0e68c15`: succeeded.
+- `components/icon-sound.tsx` sada koristi `/audio/quiet-click.wav` i glasnoću playera 0.3; generirani mono PCM klik traje 45 ms. Prethodno je koristio glass-shatter i 0.5.
+- Provjere: WAV 44.1 kHz / 16-bit, ograničen vrh amplitude i nulti početak/završetak; diff i Vinext build uspješni. Stvarna čujnost na korisnikovu mobitelu nije provjerena.
+- Logika hvatanja stvarnog klika na kontrole sa SVG ikonom, ignoriranje disabled kontrola, zajednički player i cleanup ostali su nepromijenjeni. Evaluator, baza i API nisu dirani.
+- Ako se zvuk dalje podešava, mijenjati samo audio/glasnoću u kanonskom Sites izvoru; ne mijenjati pravila parova. Ranije opisan sljedeći glavni razvojni korak (#50) ostaje otvoren.
