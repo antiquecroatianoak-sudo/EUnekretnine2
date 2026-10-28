@@ -1,0 +1,66 @@
+name: Security and accessibility checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: security-accessibility-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install verified Gitleaks CLI (free MIT binary)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          cd "$RUNNER_TEMP/gitleaks-bin"
+          release=https://github.com/gitleaks/gitleaks/releases/download/v8.30.1
+          curl --fail --silent --show-error --location "$release/gitleaks_8.30.1_linux_x64.tar.gz" -o gitleaks_8.30.1_linux_x64.tar.gz
+          curl --fail --silent --show-error --location "$release/gitleaks_8.30.1_checksums.txt" -o checksums.txt
+          grep 'gitleaks_8.30.1_linux_x64.tar.gz$' checksums.txt | sha256sum --check --strict -
+          tar -xzf gitleaks_8.30.1_linux_x64.tar.gz gitleaks
+          ./gitleaks version
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+      - name: Scan Git history without printing secret values
+        shell: bash
+        run: |
+          set +e
+          gitleaks git --no-banner --redact --log-opts=--all --report-format=json --report-path="$RUNNER_TEMP/gitleaks.json" . > "$RUNNER_TEMP/gitleaks-run.log" 2>&1
+          result=$?
+          set -e
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report=Path(os.environ['RUNNER_TEMP'])/'gitleaks.json'
+          if not report.exists():
+              print('Gitleaks did not produce a report; the scan is not verified. No log or secret content is published.')
+              raise SystemExit(2)
+          else:
+              rows=json.loads(report.read_text()) or []
+              print(f'Gitleaks findings: {len(rows)}. Secret values are redacted; no scan report is uploaded.')
+              for row in rows[:30]:
+                  print(json.dumps({key:row.get(key) for key in ['RuleID','File','StartLine','Commit']},ensure_ascii=True))
+          PY
+          exit "$result"
+  accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned test-only tools
+        run: npm install --prefix "$RUNNER_TEMP/a11y" --no-audit --no-fund --save-exact axe-core@4.14.0 esbuild@0.25.11 jsdom@26.1.0 react@19.1.1 react-dom@19.1.1 lucide-react@0.468.0
+      - name: Check real dashboard and editor accessibility
+        run: bash ops/run-accessibility-check.sh "$RUNNER_TEMP/a11y"

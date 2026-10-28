@@ -67,6 +67,7 @@ jobs:
           node test_domain_input.mjs
           node test_public_identity.mjs
           node sites-review/scripts/test-platform-view.mjs
+          node sites-review/scripts/test-platform-http.mjs
           node sites-review/scripts/test-pair-review.mjs
           node sites-review/scripts/test-teaser.mjs
       - name: Pregled sučelja i odvojeni negativan ishod odgovora
