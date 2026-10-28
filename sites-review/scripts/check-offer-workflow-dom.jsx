@@ -145,6 +145,12 @@ await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});awai
 const fromText=posts.filter(b=>b.action==='save_request').at(-1);
 assert.equal(fromText.source_text,proposalText);assert.equal(fromText.parsed_by,'local-parser-v1');assert.equal(fromText.verified,false);
 assert.deepEqual(fromText.criteria.requirements.map(q=>[q.key,q.value,q.mandatory]),[['land_leased',0,true]]);assert.equal('contact_json' in fromText,false);
+// 6464815024: an excluded country is shown as an exclusion and "apply" never takes it as demand.
+await act(async()=>{button('Dodaj zaseban zahtjev').click()});
+await setValue($('label.field textarea'),'Tražimo zemljište u Sloveniji, ne u Hrvatskoj.');
+await act(async()=>{button('Predloži iz teksta').click()});
+assert(document.body.textContent.includes('država „Hrvatska” nije predložena kao tražena'),'the exclusion is visible with its wording');
+await act(async()=>{button('Primijeni u obrazac (ne sprema)').click()});assert.equal(field('Države interesa (zarezom)').value,'Slovenija');
 // Mobile: the panels declare single-column layouts below 600px (visual review on a real phone is still required).
 assert(document.body.innerHTML.includes('@media(max-width:600px){.two-cols{grid-template-columns:1fr}'));
 // facts-v1: a new property fact starts unconfirmed with today's date and no value (unknown is never 0);

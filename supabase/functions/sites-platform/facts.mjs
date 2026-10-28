@@ -8,6 +8,9 @@ export const FACT_ORIGIN=['izvor','ručno','partner','predloženo'];
 // Units convert only within one dimension; m² and ha are both areas, kW and MW both power.
 export const UNITS={m2:['area',1],ha:['area',10000],m:['length',1],kW:['power',1],MW:['power',1000],kom:['count',1]};
 const day=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v;
+// The latest calendar date anywhere (UTC+14) at `now`: an entered observation date after it has not happened yet. Input
+// allows the whole of "today" in every time zone; matching compares with the UTC date (compareRequirement).
+export const latestDay=now=>new Date(now+14*3600000).toISOString().slice(0,10);
 // Definitions only: which facts exist, their type and unit dimension. How a sector uses them (modules 4 and 5) is
 // decided by the documented requirement of a concrete request, never by a default.
 export const FACTS={
@@ -43,7 +46,9 @@ function checkValue(def,value,unit,where){
  else for(const v of Array.isArray(value)?value:[value])if(!def.values.includes(v))throw Error(where+': nepoznata vrijednost.');
 }
 // Property facts: {key: {value, unit?, origin, status, evidence, observed_on, valid_until?}}. A confirmed fact needs evidence.
-export function validateFacts(raw){
+// With `now` (new input) an observation date in the future is refused; stored records are read without it, so an older
+// record keeps its data and history and the comparison leaves such a fact open (state 'future').
+export function validateFacts(raw,{now}={}){
  const f=typeof raw==='string'?JSON.parse(raw):raw;
  if(!f||typeof f!=='object'||Array.isArray(f))throw Error('Podaci nekretnine moraju biti objekt.');
  const out={};
@@ -58,16 +63,25 @@ export function validateFacts(raw){
   if(v.status==='potvrđeno'&&v.origin==='predloženo')throw Error(def.label+': prijedlog ne može biti potvrđen podatak.');
   if(v.evidence!=null&&!text(v.evidence,2000))throw Error(def.label+': neispravan dokaz.');
   if(!day(v.observed_on))throw Error(def.label+': datum opažanja YYYY-MM-DD je obavezan.');
+  if(now!=null&&v.observed_on>latestDay(now))throw Error(def.label+': datum opažanja ne smije biti u budućnosti.');
   if(v.valid_until!=null&&(!day(v.valid_until)||v.valid_until<v.observed_on))throw Error(def.label+': neispravan rok važenja.');
   out[k]={value:v.value,...(v.unit?{unit:v.unit}:{}),origin:v.origin,status:v.status,...(v.evidence?{evidence:v.evidence.trim()}:{}),observed_on:v.observed_on,...(v.valid_until?{valid_until:v.valid_until}:{})};
  }
  return out;
 }
+// min above max for the same fact, compared in the base unit of its dimension (2 ha > 10 000 m²). Returns the keys.
+export function invertedRanges(list){
+ const out=[];for(const key of new Set((list||[]).map(q=>q.key))){const lo=list.find(q=>q.key===key&&q.op==='min'),hi=list.find(q=>q.key===key&&q.op==='max');
+  if(lo&&hi&&UNITS[lo.unit]&&UNITS[hi.unit]&&lo.value*UNITS[lo.unit][1]>hi.value*UNITS[hi.unit][1])out.push({key,min:lo,max:hi})}
+ return out;
+}
 // Buyer requirements: [{key, op, value, unit?, mandatory, quote}], each documented by the source wording it comes from.
-export function validateRequirements(list){
+// `strict` (new input): a mandatory min above a mandatory max is refused. Stored requests are read without it and the
+// comparison keeps such a range open (state 'inverted') instead of rejecting properties.
+export function validateRequirements(list,{strict=false}={}){
  if(!Array.isArray(list)||list.length>50)throw Error('Zahtjevi moraju biti popis (najviše 50).');
  const seen=new Set();
- return list.map((q,n)=>{
+ const out=list.map((q,n)=>{
   const where='Zahtjev '+(n+1),def=FACTS[q?.key];if(!def)throw Error(where+': nepoznat podatak.');
   if(!OPS[def.type].includes(q.op))throw Error(where+': nevaljana usporedba.');
   checkValue(def,q.value,q.unit,where);
@@ -76,6 +90,8 @@ export function validateRequirements(list){
   const id=q.key+'\n'+q.op;if(seen.has(id))throw Error(where+': isti uvjet je naveden dvaput.');seen.add(id);
   return {key:q.key,op:q.op,value:q.value,...(q.unit?{unit:q.unit}:{}),mandatory:q.mandatory,quote:q.quote.trim()};
  });
+ if(strict)for(const r of invertedRanges(out))if(r.min.mandatory&&r.max.mandatory)throw Error(FACTS[r.key].label+': najmanja vrijednost veća je od najveće (obrnut raspon).');
+ return out;
 }
 export function readFacts(row){const v=row?.facts_json;if(v==null||v==='')return {};try{return validateFacts(v)}catch{return null}}
 const base=(value,unit)=>value*UNITS[unit][1];
@@ -87,6 +103,7 @@ export function compareRequirement(q,facts,today){
  if(!f)return {...out,state:'unknown'};
  if(f.status==='proturječno')return {...out,state:'conflict'};
  if(f.status!=='potvrđeno')return {...out,state:'unknown'};
+ if(f.observed_on>today)return {...out,state:'future'};
  if(f.valid_until&&f.valid_until<today)return {...out,state:'expired'};
  let fits;
  if(def.type==='number'){const a=base(f.value,f.unit),b=base(q.value,q.unit);fits=q.op==='min'?a>=b:a<=b}
@@ -94,17 +111,20 @@ export function compareRequirement(q,facts,today){
  else fits=(Array.isArray(q.value)?q.value:[q.value]).includes(f.value);
  return {...out,state:fits?'met':'unmet'};
 }
+// A wish that contradicts another requirement of the same fact, or a mandatory bound whose counterpart is also
+// mandatory, is 'inverted': no property can meet it, so it stays open (buyer side) and is never a green or red result.
 export function compareRequirements(requirements,facts,now=Date.now()){
- const today=new Date(now).toISOString().slice(0,10);
- return (requirements||[]).map(q=>compareRequirement(q,facts,today));
+ const today=new Date(now).toISOString().slice(0,10),inv=invertedRanges(requirements||[]);
+ const inverted=q=>inv.some(r=>r.key===q.key&&(!q.mandatory||(q.op==='min'?r.max:r.min).mandatory));
+ return (requirements||[]).map(q=>inverted(q)?{...compareRequirement(q,facts,today),state:'inverted'}:compareRequirement(q,facts,today));
 }
 // Labels evaluate() records for each state; a wish only ever adds information.
 export const requirementLabel=r=>'Uvjet zahtjeva: '+r.label;
-export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine'};
+export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine',future:'Datum opažanja podatka je u budućnosti',inverted:'Proturječan raspon u zahtjevu kupca'};
 
 // Module 4: which measured area a request means. Requests without a basis keep the advertised area (legacy).
 export const AREA_BASIS={'zemljište ukupno':'land_total','zemljište u vlasništvu':'land_owned','površina zgrada':'building_area','korisna površina':'usable_area'};
-const usable=(f,today)=>f&&f.status==='potvrđeno'&&!(f.valid_until&&f.valid_until<today);
+const usable=(f,today)=>f&&f.status==='potvrđeno'&&!(f.observed_on>today)&&!(f.valid_until&&f.valid_until<today);
 // Land composition: owned + leased must agree with the advertised total (0.5 %); measures are never summed into one.
 export function landComposition(facts,today){
  const [t,o,l]=['land_total','land_owned','land_leased'].map(k=>usable(facts?.[k],today)?facts[k].value*UNITS[facts[k].unit][1]:null);
@@ -115,7 +135,7 @@ export function landComposition(facts,today){
 // The area a request is compared with: m² of the confirmed fact for its basis, or null (open item) with the reason.
 export function basisArea(basis,facts,today){
  const key=AREA_BASIS[basis],f=facts?.[key];
- if(!usable(f,today))return {area:null,reason:f?.status==='proturječno'?'conflict':f&&f.status==='potvrđeno'?'expired':'unknown'};
+ if(!usable(f,today))return {area:null,reason:f?.status==='proturječno'?'conflict':f&&f.status==='potvrđeno'?(f.observed_on>today?'future':'expired'):'unknown'};
  if(key==='land_owned'||key==='land_total'){const c=landComposition(facts,today);if(c.consistent===false)return {area:null,reason:'composition',note:c.note}}
  return {area:f.value*UNITS[f.unit][1],reason:null};
 }

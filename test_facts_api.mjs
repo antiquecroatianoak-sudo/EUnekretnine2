@@ -57,6 +57,29 @@ try{
  await run({action:'refresh'});
  r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
  assert(r.reasons.includes('Površina (zemljište ukupno)'),'the advertised total is 150 ha');
+ // 6464745746 P1: a future observation date is refused on input; a stored one keeps the data but never meets a
+ // mandatory requirement (open property item), even when the value would meet it.
+ const future={...fact(160,'ha'),observed_on:'2099-01-01'},req150=[{key:'land_owned',op:'min',value:150,unit:'ha',mandatory:true,quote:'kupnja 150 ha'}];
+ const cur=(await sql`select * from properties where id=${id}`)[0];
+ await assert.rejects(run({action:'save_property',id,record:{...cur,facts_json:JSON.stringify({land_owned:future}),contact_json:contact(listing)}}),/u budućnosti/);
+ await sql`update properties set facts_json=${JSON.stringify({land_owned:future})} where id=${id}`;
+ await sql`update investors set criteria_json=${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:demand,checked_at:now,requirements:req150})} where id=${b.id}`;
+ await run({action:'refresh'});
+ r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
+ assert.equal(r.status,CANDIDATE);assert(r.gaps.property.includes('Uvjet zahtjeva: Zemljište u vlasništvu uključeno u prodaju'));
+ assert.equal(r.requirements[0].state,'future');assert.equal(JSON.parse((await sql`select facts_json from properties where id=${id}`)[0].facts_json).land_owned.observed_on,'2099-01-01','stored data is kept');
+ await sql`update properties set facts_json=${JSON.stringify({land_owned:fact(160,'ha')})} where id=${id}`;await run({action:'refresh'});
+ assert.equal(JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json).status,MATCH,'the same fact observed today meets it');
+ // 6464745746 P2: an inverted mandatory range (2 ha min above 10 000 m² max) is refused on input; a stored one is an
+ // open buyer item, never a rejection of the property or a match.
+ const inverted=[{key:'land_owned',op:'min',value:2,unit:'ha',mandatory:true,quote:'najmanje 2 ha'},{key:'land_owned',op:'max',value:10000,unit:'m2',mandatory:true,quote:'najviše 10.000 m2'}];
+ const inv=(await sql`select * from investors where id=${b.id}`)[0];
+ await assert.rejects(run({action:'save_investor',id:b.id,record:{...inv,criteria_json:JSON.stringify({...JSON.parse(inv.criteria_json),requirements:inverted})}}),/obrnut raspon/);
+ await sql`update investors set criteria_json=${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:demand,checked_at:now,requirements:inverted})} where id=${b.id}`;
+ await run({action:'refresh'});
+ r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
+ assert.equal(r.status,CANDIDATE);assert(r.gaps.buyer.includes('Uvjet zahtjeva: Zemljište u vlasništvu uključeno u prodaju'));assert(!r.rejected.length);
+ assert.deepEqual(r.requirements.map(q=>q.state),['inverted','inverted']);
  // Digest stability: a verified pair answer recorded on a property without facts stays valid after the migration.
  const plain=(await sql`select * from properties where id<>${id} limit 1`)[0];
  if(plain)assert.equal(pairText('x',plain),pairText('x',{...plain,facts_json:null}));

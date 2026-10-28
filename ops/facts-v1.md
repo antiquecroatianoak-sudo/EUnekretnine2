@@ -19,6 +19,15 @@ Nalog: PR #47, komentar 6464121625; plan u `ops/buyer-workflow-enhancements-plan
   - potvrđen i usporediv podatak → odgovara ili ne odgovara (ne odgovara odbija par);
   - nepotvrđen, proturječan ili istekao podatak, ili podatak koji nedostaje → otvorena stavka na strani nekretnine, uz zadatak provjere.
 - **Želja** samo dodaje informaciju i nikad ne blokira par.
+- **Datum opažanja u budućnosti (nalaz 6464745746, P1).**
+  - Novi unos (`propertyInput`, prijedlog partnera) odbija `observed_on` iza najkasnijeg kalendarskog datuma na Zemlji (UTC+14), pa je cijeli „danas” u svakoj vremenskoj zoni dopušten.
+  - Postojeći zapis s takvim datumom čita se bez promjene; podatak i povijest ostaju.
+  - U usporedbi je stanje `future` sve dok je `observed_on` iza današnjeg UTC datuma: otvorena stavka nekretnine, nikad „odgovara”. Datum se nikad ne prepisuje na današnji.
+  - Isto vrijedi za osnovu površine (modul 4).
+- **Obrnut raspon (nalaz 6464745746, P2).** Najmanja i najveća vrijednost istog podatka uspoređuju se u osnovnoj jedinici dimenzije (2 ha > 10.000 m²).
+  - Novi unos (`investorInput`, `save_request`, Streamlit obrazac) odbija obrnut raspon kad su obje granice obavezne.
+  - Spremljeni zahtjev čita se blago, a usporedba ih označava stanjem `inverted`. Obavezna granica čiji je par također obavezan postaje otvorena stavka na strani kupca, nikad odbijanje nekretnine ni podudaranje.
+  - Želja koja proturječi drugom uvjetu je samo informacija.
 - **Jedinice** se pretvaraju samo unutar iste dimenzije (m² i ha, kW i MW). Tolerancija površine ovdje se ne primjenjuje.
 - **Nevaljani podaci.** Nevaljani `facts_json` daje otvorenu stavku. Nevaljani `requirements` čine kriterije kupca nevaljanima (otvorena stavka). Ništa se ne preskače tiho.
 - **Valjanost provjera.** `pairText` uključuje podatke samo kad postoje, pa digest postojećih provjera ostaje jednak. Promjena bitnog podatka poništava ranije provjere para; ponuda u PR-u #47 ionako veže odobrenje uz cijeli zapis.

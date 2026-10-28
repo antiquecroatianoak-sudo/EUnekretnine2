@@ -15,6 +15,15 @@ for(const v of vectors.compare){
 }
 for(const v of vectors.invalid_requirements)assert.throws(()=>F.validateRequirements(v.input),undefined,v.name);
 for(const v of vectors.invalid_facts)assert.throws(()=>F.validateFacts(v.input),undefined,v.name);
+// Future observation (6464745746 P1): new input refuses it, stored records stay readable and the fact stays open.
+for(const v of vectors.future_input){const now=Date.parse(v.now);
+ if(v.valid)F.validateFacts(v.facts,{now});else assert.throws(()=>F.validateFacts(v.facts,{now}),undefined,v.name);
+ if(/^\d{4}-\d{2}-\d{2}$/.test(v.facts.rooms.observed_on)&&Number.isFinite(Date.parse(v.facts.rooms.observed_on))&&v.facts.rooms.observed_on!=='2026-02-30')F.validateFacts(v.facts);}
+// Inverted ranges (6464745746 P2): strict input refuses a mandatory inverted range; reading keeps it open.
+const rangeFacts=F.validateFacts(vectors.range_facts);
+for(const v of vectors.range_cases){
+ if(v.strict_valid)F.validateRequirements(v.requirements,{strict:true});else assert.throws(()=>F.validateRequirements(v.requirements,{strict:true}),/obrnut raspon/,v.name);
+ assert.deepEqual(F.compareRequirements(F.validateRequirements(v.requirements),rangeFacts,Date.parse('2026-10-28T10:00:00Z')).map(r=>r.state),v.states,v.name);}
 
 // Evaluation through the real suggestion()/evaluate(): TEST ONLY records.
 const now=Date.now(),today=new Date(now).toISOString().slice(0,10),stamp=new Date(now).toISOString();

@@ -4,6 +4,8 @@
 // verification, contacts, legal status, mandate or interest. The text is data, never an instruction. Unrecognised
 // sentences stay listed as unsupported; general understanding of free text is not claimed.
 import {TYPES,CONDITIONS,COUNTRIES} from './domain.mjs';
+import {FACTS} from './facts.mjs';
+const FACT_LABEL=Object.fromEntries(Object.entries(FACTS).map(([k,v])=>[k,v.label]));
 export const PARSER_VERSION='local-parser-v1';
 const norm=v=>String(v||'').toLocaleLowerCase('hr').normalize('NFKD').replace(/[̀-ͯ]/g,'');
 const clean=v=>String(v||'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g,' ');
@@ -24,6 +26,18 @@ const SEAT=/\b(sjedist|sa sjedistem|registriran|headquarter|based in|seat\b|sitz
 const NEG_REQ=/\b(nije uvjet|nije nuzno|nije obavezn|not required|no requirement|kein muss|non necessari)/;
 const MANDATORY=/\b(obavezn|mora\b|moraju|nuzno|uvjet\b|must|required|mandatory|zwingend|obbligatori|obligatoire)/;
 const WISH=/\b(pozeljn|po mogucnosti|idealno|preferably|ideally|nice to have|wunschenswert|preferibil|de preference)/;
+// Exclusion scope (6464815024): within one clause, a term after an exclusion word is excluded, never demand. A clause
+// ends at a comma, semicolon or a contrast word ("ali", "samo", "but", "only", "sondern", "nur"). Bound negations
+// ("ne manje od", "not more than", "nicht mehr als") and "bez zakupa" are not exclusions.
+const EXCLUDE=/\b(ne u\b|ne na\b|ne zelim\w*|ne trazim\w*|ne dolaz\w* u obzir|nikako|iskljuc\w*|osim\b|bez\b(?! zakup)|not in\b|not interested|no interest\w*|don'?t want|do not want|we do not|excluding|except\b|exclude\w*|without\b(?! lease)|nicht in\b|keine?n?\b|ohne\b(?! pacht)|ausser\b|ausgeschlossen|non in\b|tranne|escluso|sauf\b|excepto|sin\b)/;
+const CLAUSE=/[,;]|\s(?:ali|nego|vec|samo|but|only|rather|sondern|nur|aber|ma|solo|mais|pero)\s/;
+// Where a term sits: excluded if an exclusion word precedes it in the same clause.
+function excludedAt(n,index){let start=0;const re=new RegExp(CLAUSE.source,'g');let m;while((m=re.exec(n))&&m.index<index)start=m.index+m[0].length;
+ const before=n.slice(start,index);return EXCLUDE.test(before)}
+// Bounds right before a number, with negations: "ne manje od 20" is a lower bound, "najviše 20" an upper one.
+const MIN_BEFORE=/(najmanje|barem|minimalno|min\.?|ne manje od|(?<!ne )vise od|preko|at least|minimum|over|(?<!no |not )more than|not less than|no less than|nicht weniger als|mindestens|ab|almeno|non meno di|al menos|au moins)\s*$/;
+const MAX_BEFORE=/(najvise|maksimalno|max\.?|ne vise od|(?<!ne )manje od|ispod|do|up to|at most|maximum|under|not more than|no more than|(?<!no |not )less than|nicht mehr als|hochstens|bis|fino a|non piu di|hasta|au plus)\s*$/;
+function boundOf(before){const b=before.slice(-30).trim();return MAX_BEFORE.test(b)?'max':MIN_BEFORE.test(b)?'min':null}
 // Numbers: "15.000", "15 000", "1,5", "1.234,5". A lone ",ddd" or ".ddd" is ambiguous between decimals and thousands.
 function number(raw){
  const s=raw.replace(/\s/g,'');
@@ -54,18 +68,22 @@ export function splitRequests(text){
 function parseOne(block){
  const fields={},evidence={},confidence={},ambiguities=[],unsupported=[],requirements=[];
  const put=(k,v,quote,conf='visoka')=>{fields[k]=v;evidence[k]=quote;confidence[k]=conf};
- const types=new Set(),subtypes=new Set(),conditions=new Set(),countries=new Set(),seat=new Set();
+ const types=new Set(),subtypes=new Set(),conditions=new Set(),countries=new Set(),seat=new Set(),excluded=[];
  const used=new Set();
  for(const s of sentences(block)){
   const n=norm(s);let hit=false;
   const isSeat=SEAT.test(n),notRequired=NEG_REQ.test(n);
   // Countries: the seat sentence names the seat, which is never demand.
+  const exclude=(what,value)=>{excluded.push({what,value,quote:s});hit=true};
   for(const [iso,name] of Object.entries(COUNTRIES)){const words=[norm(name).slice(0,6),EN[iso],NATIVE[iso]].filter(Boolean);
-   if(words.some(w=>n.includes(w))){(isSeat?seat:countries).add(iso);hit=true;(isSeat?evidence.seat_quote=s:evidence['country_'+iso]=s)}}
+   const at=Math.min(...words.map(w=>n.indexOf(w)).filter(i=>i>=0));if(!Number.isFinite(at))continue;
+   if(!isSeat&&excludedAt(n,at)){exclude('država',COUNTRIES[iso]);continue}
+   (isSeat?seat:countries).add(iso);hit=true;(isSeat?evidence.seat_quote=s:evidence['country_'+iso]=s)}
   if(isSeat)hit=true;
-  for(const [re,t] of TYPE_WORDS)if(re.test(n)){types.add(t);evidence['type_'+t]??=s;hit=true}
-  for(const [re,t] of SUBTYPE_WORDS)if(re.test(n)){subtypes.add(t);evidence['subtype_'+t]??=s;hit=true}
-  for(const [re,c] of CONDITION_WORDS)if(re.test(n)){conditions.add(c);evidence['condition_'+c]??=s;hit=true}
+  const scan=(list,add,what)=>{for(const [re,v] of list){const m=re.exec(n);if(!m)continue;if(excludedAt(n,m.index))exclude(what,v);else{add(v);hit=true}}};
+  scan(TYPE_WORDS,t=>{types.add(t);evidence['type_'+t]??=s},'vrsta');
+  scan(SUBTYPE_WORDS,t=>{subtypes.add(t);evidence['subtype_'+t]??=s},'podvrsta');
+  scan(CONDITION_WORDS,c=>{conditions.add(c);evidence['condition_'+c]??=s},'stanje');
   // Areas: ranges, lower and upper bounds, with negations ("ne manje od" is a lower bound).
   const rangeRe=new RegExp('(?:od|from|zwischen|tra|between|izmedu)?\\s*'+NUM+'\\s*'+AREA_UNIT+'?\\s*(?:-|–|do|to|bis|a|and|i)\\s*'+NUM+'\\s*'+AREA_UNIT,'i');
   const minRe=new RegExp('(?:najmanje|barem|minimalno|min\\.?|ne manje od|(?<!ne )vise od|preko|at least|minimum|over|(?<!not )more than|not less than|mindestens|ab|almeno|al menos)\\s*'+NUM+'\\s*'+AREA_UNIT,'i');
@@ -93,10 +111,23 @@ function parseOne(block){
    if(notRequired){ambiguities.push('„'+s+'” navodi da uvjet nije obavezan; nije predložen kao uvjet.');return}
    if(mandatory===null)ambiguities.push('Za „'+s+'” nije navedeno je li uvjet obavezan; predložen je kao želja.');
    requirements.push({key,op,value,...(unit?{unit}:{}),mandatory:mandatory===true,quote:s})};
-  if((m=n.match(/(\d+)\s*(?:soba|sobe|room|zimmer|camere|chambres|habitaciones|smjestajnih jedinica)/))){req('rooms','min',Number(m[1]),'kom');hit=true}
-  if((m=n.match(/(\d)\s*(?:\*|zvjezdic|stars?\b|sterne|stelle|etoiles|estrellas)/))){req('hotel_category','min',Number(m[1]),'kom');hit=true}
-  if((m=n.match(new RegExp(NUM+'\\s*(kw|mw)\\b')))){const x=number(m[1]);if(x){req('power','min',x.value,m[2]==='mw'?'MW':'kW');hit=true}}
-  if((m=n.match(new RegExp(NUM+'\\s*m\\b[^.]*\\b(visin|height|hohe|altezza|hauteur)')))||(m=n.match(new RegExp('(?:visin\\w*|height|hohe)[^\\d]{0,20}'+NUM+'\\s*m\\b')))){const x=number(m[1]);if(x){req('clear_height','min',x.value,'m');hit=true}}
+  // Counted and measured requirements: the bound comes from the words right before the number (or a range); without
+  // one nothing is proposed, because "20 soba" may be a minimum, a maximum or an exact size.
+  const bounded=(key,unitRe,unitOf,context)=>{if(context&&!context.test(n))return;
+   const range=new RegExp('(?:od|from|between|zwischen|izmedu|tra|da)?\\s*'+NUM+'\\s*(?:-|–|do|to|bis|and|i|und|e|a)\\s*'+NUM+'\\s*'+unitRe,'i').exec(n);
+   if(range){const a=number(range[1]),b=number(range[2]);if(!a||!b)return;hit=true;
+    if(excludedAt(n,range.index)){exclude('uvjet',FACT_LABEL[key]);return}
+    if(a.value>b.value){ambiguities.push('Obrnut raspon u navodu „'+s+'”; ne ispravlja se automatski.');return}
+    const u=unitOf(range[3]);req(key,'min',a.value,u);req(key,'max',b.value,u);return}
+   const one=new RegExp(NUM+'\\s*'+unitRe,'i').exec(n);if(!one)return;const x=number(one[1]);if(!x)return;hit=true;
+   if(excludedAt(n,one.index)){exclude('uvjet',FACT_LABEL[key]);return}
+   const op=boundOf(n.slice(0,one.index));
+   if(!op){ambiguities.push('U „'+s+'” nije navedeno je li '+one[0].trim()+' najmanje ili najviše; uvjet nije predložen.');return}
+   req(key,op,x.value,unitOf(one[2]))};
+  bounded('rooms','(soba|sobe|rooms?\\b|zimmer|camere|chambres|habitaciones|smjestajnih jedinica)',()=>'kom');
+  bounded('hotel_category','(\\*|zvjezdic\\w*|stars?\\b|sterne\\w*|stelle|etoiles|estrellas)',()=>'kom');
+  bounded('power','(kw|mw)\\b',u=>u.toLowerCase()==='mw'?'MW':'kW');
+  bounded('clear_height','(m)\\b',()=>'m',/\b(visin|height|hohe|altezza|hauteur)/);
   if(/\b(kamion|truck|lkw|utovarn\w* ramp|loading dock|camion)/.test(n)){req('truck_access','equals',true);hit=true}
   if(/\b(pravo na vodu|prava na vodu|water rights|wasserrecht|izvor vode)/.test(n)){req('water_rights','equals',true);hit=true}
   // Budget: total amounts are informative; a price per m² is never a total budget.
@@ -118,7 +149,9 @@ function parseOne(block){
  if(seat.size){put('seat_country',[...seat].map(c=>COUNTRIES[c]).join(', '),evidence.seat_quote,'srednja');if(!countries.size)ambiguities.push('Navedeno je samo sjedište; ono nije država potražnje.');}
  if(fields.property_types?.some(t=>!TYPES.includes(t))||fields.conditions?.some(c=>!CONDITIONS.includes(c)))throw Error('Interna greška rječnika.');
  if(requirements.length){const seen=new Set();fields.requirements=requirements.filter(q=>{const k=q.key+'\n'+q.op;if(seen.has(k)){ambiguities.push('Uvjet „'+q.quote+'” ponavlja se; zadržan je prvi navod.');return false}seen.add(k);return true});evidence.requirements=fields.requirements.map(q=>q.quote).join(' … ');confidence.requirements='srednja'}
- return {fields,evidence,confidence,ambiguities:[...new Set(ambiguities)],unsupported};
+ // Exclusions are reported with their wording and never become demand; the operator records them by hand if needed.
+ for(const x of excluded)ambiguities.push('Isključenje u „'+x.quote+'”: '+x.what+' „'+x.value+'” nije predložena kao tražena.');
+ return {fields,evidence,confidence,ambiguities:[...new Set(ambiguities)],unsupported,excluded};
 }
 export function parseRequestText(text){
  const source=clean(text);

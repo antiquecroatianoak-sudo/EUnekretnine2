@@ -331,6 +331,122 @@
    },
    "today": "2026-10-28",
    "state": "met"
+  },
+  {
+   "name": "confirmed fact observed in the future is not yet a fact",
+   "requirement": {
+    "key": "rooms",
+    "op": "min",
+    "value": 100,
+    "unit": "kom",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2099-01-01",
+     "unit": "kom"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "future"
+  },
+  {
+   "name": "observed tomorrow is still future today",
+   "requirement": {
+    "key": "rooms",
+    "op": "min",
+    "value": 100,
+    "unit": "kom",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-29",
+     "unit": "kom"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "future"
+  },
+  {
+   "name": "observed today counts",
+   "requirement": {
+    "key": "rooms",
+    "op": "min",
+    "value": 100,
+    "unit": "kom",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-28",
+     "unit": "kom"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "met"
+  },
+  {
+   "name": "observed yesterday counts",
+   "requirement": {
+    "key": "rooms",
+    "op": "min",
+    "value": 100,
+    "unit": "kom",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-27",
+     "unit": "kom"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "met"
+  },
+  {
+   "name": "future observation with a still valid_until stays future",
+   "requirement": {
+    "key": "rooms",
+    "op": "min",
+    "value": 100,
+    "unit": "kom",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2099-01-01",
+     "unit": "kom",
+     "valid_until": "2099-12-31"
+    }
+   },
+   "today": "2026-10-28",
+   "state": "future"
   }
  ],
  "invalid_requirements": [
@@ -928,5 +1044,325 @@
    "state": "met",
    "legacy": true
   }
- ]
+ ],
+ "future_input": [
+  {
+   "name": "far future refused",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2099-01-01",
+     "unit": "kom"
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "two days ahead refused",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-30",
+     "unit": "kom"
+    }
+   },
+   "valid": false
+  },
+  {
+   "name": "today is accepted",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-28",
+     "unit": "kom"
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "local today east of UTC is accepted (UTC+14 bound)",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-10-29",
+     "unit": "kom"
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "past accepted",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-01-01",
+     "unit": "kom"
+    }
+   },
+   "valid": true
+  },
+  {
+   "name": "invalid calendar date refused",
+   "now": "2026-10-28T10:00:00Z",
+   "facts": {
+    "rooms": {
+     "value": 120,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY proof",
+     "observed_on": "2026-02-30",
+     "unit": "kom"
+    }
+   },
+   "valid": false
+  }
+ ],
+ "range_cases": [
+  {
+   "name": "valid range",
+   "requirements": [
+    {
+     "key": "rooms",
+     "op": "min",
+     "value": 100,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "rooms",
+     "op": "max",
+     "value": 150,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": true,
+   "states": [
+    "met",
+    "met"
+   ]
+  },
+  {
+   "name": "equal bounds",
+   "requirements": [
+    {
+     "key": "rooms",
+     "op": "min",
+     "value": 120,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "rooms",
+     "op": "max",
+     "value": 120,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": true,
+   "states": [
+    "met",
+    "met"
+   ]
+  },
+  {
+   "name": "inverted mandatory range",
+   "requirements": [
+    {
+     "key": "rooms",
+     "op": "min",
+     "value": 150,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "rooms",
+     "op": "max",
+     "value": 100,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": false,
+   "states": [
+    "inverted",
+    "inverted"
+   ]
+  },
+  {
+   "name": "inverted across units (2 ha above 10 000 m2)",
+   "requirements": [
+    {
+     "key": "land_owned",
+     "op": "min",
+     "value": 2,
+     "unit": "ha",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "land_owned",
+     "op": "max",
+     "value": 10000,
+     "unit": "m2",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": false,
+   "states": [
+    "inverted",
+    "inverted"
+   ]
+  },
+  {
+   "name": "not inverted across units (0.5 ha below 20 000 m2)",
+   "requirements": [
+    {
+     "key": "land_owned",
+     "op": "min",
+     "value": 0.5,
+     "unit": "ha",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "land_owned",
+     "op": "max",
+     "value": 20000,
+     "unit": "m2",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": true,
+   "states": [
+    "met",
+    "met"
+   ]
+  },
+  {
+   "name": "mandatory min with a contradicting wish max",
+   "requirements": [
+    {
+     "key": "rooms",
+     "op": "min",
+     "value": 100,
+     "unit": "kom",
+     "mandatory": true,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "rooms",
+     "op": "max",
+     "value": 90,
+     "unit": "kom",
+     "mandatory": false,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": true,
+   "states": [
+    "met",
+    "inverted"
+   ]
+  },
+  {
+   "name": "two contradicting wishes",
+   "requirements": [
+    {
+     "key": "rooms",
+     "op": "min",
+     "value": 150,
+     "unit": "kom",
+     "mandatory": false,
+     "quote": "TEST ONLY navod"
+    },
+    {
+     "key": "rooms",
+     "op": "max",
+     "value": 100,
+     "unit": "kom",
+     "mandatory": false,
+     "quote": "TEST ONLY navod"
+    }
+   ],
+   "strict_valid": true,
+   "states": [
+    "inverted",
+    "inverted"
+   ]
+  },
+  {
+   "name": "inverted range with unknown fact stays inverted",
+   "requirements": [
+    {
+     "key": "clear_height",
+     "op": "min",
+     "value": 12,
+     "unit": "m",
+     "mandatory": true,
+     "quote": "x"
+    },
+    {
+     "key": "clear_height",
+     "op": "max",
+     "value": 10,
+     "unit": "m",
+     "mandatory": true,
+     "quote": "x"
+    }
+   ],
+   "strict_valid": false,
+   "states": [
+    "inverted",
+    "inverted"
+   ]
+  }
+ ],
+ "range_facts": {
+  "rooms": {
+   "value": 120,
+   "origin": "izvor",
+   "status": "potvrđeno",
+   "evidence": "TEST ONLY proof",
+   "observed_on": "2026-10-01",
+   "unit": "kom"
+  },
+  "land_owned": {
+   "value": 1.5,
+   "origin": "izvor",
+   "status": "potvrđeno",
+   "evidence": "TEST ONLY proof",
+   "observed_on": "2026-10-01",
+   "unit": "ha"
+  }
+ }
 }

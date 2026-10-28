@@ -30,10 +30,39 @@ r=one('Tražimo hotel ili skladište u Španjolskoj.');
 assert.deepEqual(r.fields.requirements,[{key:'subtype',op:'includes',value:['hotel','skladište / logistika'],mandatory:false,quote:'Tražimo hotel ili skladište u Španjolskoj.'}]);
 assert(r.ambiguities.some(a=>/mješovit/.test(a)));assert.equal(r.fields.property_types,undefined);
 // Mandatory and wish wording; unknown obligation is a wish with an open question.
-r=one('Hotel s najmanje 40 soba, obavezno 4 zvjezdice. Poželjno 500 kW priključne snage.');
+r=one('Hotel s najmanje 40 soba, obavezno najmanje 4 zvjezdice. Poželjno barem 500 kW priključne snage.');
 assert.deepEqual(r.fields.requirements.map(q=>[q.key,q.value,q.mandatory]),[['rooms',40,true],['hotel_category',4,true],['power',500,false],['subtype',['hotel'],false]]);
-r=one('Skladište sa 8 m visine u Njemačkoj.');assert.deepEqual(r.fields.requirements.find(q=>q.key==='clear_height'),{key:'clear_height',op:'min',value:8,unit:'m',mandatory:false,quote:'Skladište sa 8 m visine u Njemačkoj.'});
+r=one('Skladište s najmanje 8 m visine u Njemačkoj.');assert.deepEqual(r.fields.requirements.find(q=>q.key==='clear_height'),{key:'clear_height',op:'min',value:8,unit:'m',mandatory:false,quote:'Skladište s najmanje 8 m visine u Njemačkoj.'});
 assert(r.ambiguities.some(a=>/obavezan; predložen je kao želja/.test(a)));
+// 6464815024: bounds come from the wording, never a fixed minimum; without a bound nothing is proposed.
+const reqs=t=>(one(t).fields.requirements||[]).filter(q=>q.key!=='subtype').map(q=>[q.key,q.op,q.value,q.unit,q.mandatory]);
+assert.deepEqual(reqs('Hotel u Hrvatskoj, obavezno najviše 20 soba.'),[['rooms','max',20,'kom',true]]);
+assert.deepEqual(reqs('Hotel, ne više od 20 soba, obavezno.'),[['rooms','max',20,'kom',true]]);
+assert.deepEqual(reqs('Hotel, obavezno ne manje od 20 soba.'),[['rooms','min',20,'kom',true]]);
+assert.deepEqual(reqs('Hotel with no more than 30 rooms, mandatory.'),[['rooms','max',30,'kom',true]]);
+assert.deepEqual(reqs('Hotel mit höchstens 30 Zimmer, zwingend.'),[['rooms','max',30,'kom',true]]);
+assert.deepEqual(reqs('Hotel mit nicht weniger als 30 Zimmer, zwingend.'),[['rooms','min',30,'kom',true]]);
+assert.deepEqual(reqs('Hotel s 20 do 40 soba, obavezno.'),[['rooms','min',20,'kom',true],['rooms','max',40,'kom',true]]);
+assert.deepEqual(reqs('Skladište, obavezno najviše 2 MW snage.'),[['power','max',2,'MW',true]]);
+assert.deepEqual(reqs('Skladište, visina najviše 12 m, obavezno.'),[['clear_height','max',12,'m',true]]);
+assert.deepEqual(reqs('Warehouse with at least 10 m clear height, mandatory.'),[['clear_height','min',10,'m',true]]);
+r=one('Hotel s 20 soba u Hrvatskoj.');assert.deepEqual(reqs('Hotel s 20 soba u Hrvatskoj.'),[]);assert(r.ambiguities.some(a=>/najmanje ili najviše; uvjet nije predložen/.test(a)));
+r=one('Hotel s 40 do 20 soba.');assert.deepEqual(reqs('Hotel s 40 do 20 soba.'),[]);assert(r.ambiguities.some(a=>/Obrnut raspon/.test(a)));
+// Exclusions are never demand: a country, type or condition after an exclusion word in the same clause is reported.
+r=one('Tražimo zemljište u Sloveniji, ne u Hrvatskoj.');
+assert.deepEqual(r.fields.preferred_countries,['Slovenija']);assert(r.ambiguities.some(a=>/Isključenje.*država „Hrvatska”/.test(a)));
+r=one('Ne želimo kuću za obnovu, samo useljivu.');
+assert.deepEqual(r.fields.conditions,['Useljivo']);assert(r.ambiguities.some(a=>/stanje „Za obnovu”/.test(a)));assert.equal(r.fields.property_types,undefined,'the excluded clause proposes nothing');
+assert.deepEqual(r.excluded.map(x=>x.value).sort(),['Kuća','Za obnovu']);
+r=one('Land in Ireland, not in Croatia.');assert.deepEqual(r.fields.preferred_countries,['Irska']);
+r=one('Grundstück in Österreich, nicht in Deutschland.');assert.deepEqual(r.fields.preferred_countries,['Austrija']);
+r=one('Hotel in Spain, but no interest in Portugal, excluding Italy.');assert.deepEqual(r.fields.preferred_countries,['Španjolska']);assert.deepEqual(r.excluded.filter(x=>x.what==='država').map(x=>x.value).sort(),['Italija','Portugal']);
+assert(r.unsupported.length||r.ambiguities.length,'unclear wording is visible');
+// Bound negations and "bez zakupa" are not exclusions; alternatives stay alternatives.
+r=one('Zemljište u Hrvatskoj, ne manje od 2 ha, bez zakupa.');assert.equal(r.fields.min_area,20000);assert.deepEqual(r.fields.property_types,['Zemljište']);assert.deepEqual(r.fields.preferred_countries,['Hrvatska']);
+r=one('Kuća ili stan u Hrvatskoj ili Sloveniji.');assert.deepEqual(r.fields.property_types,['Kuća','Stan']);assert.deepEqual(r.fields.preferred_countries,['Hrvatska','Slovenija']);
+// Separate sentences carry their own obligation.
+assert.deepEqual(reqs('Hotel. Obavezno najviše 50 soba. Poželjno najmanje 4 zvjezdice.'),[['rooms','max',50,'kom',true],['hotel_category','min',4,'kom',false]]);
 // Price per m² is never a total budget.
 r=one('Cijena do 300 €/m2 za zemljište u Hrvatskoj.');assert.equal(r.fields.max_budget,undefined);assert(r.ambiguities.some(a=>/po m²/.test(a)));
 // English and German samples.

@@ -6,7 +6,7 @@ import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-from facts import AREA_BASIS, basis_area, compare_requirement, read_facts, requirement_label, validate_requirements
+from facts import AREA_BASIS, basis_area, compare_requirements, read_facts, requirement_label, validate_requirements
 from travel import TRAVEL_REASON, validate_travel
 
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
@@ -74,7 +74,7 @@ def check_valid(check, text, now=None):
         return False
     return checked.tzinfo is not None and 0 <= age <= 90 * 86400 and check.get('digest') == digest(text)
 
-def validate_criteria(criteria):
+def validate_criteria(criteria, strict=False):
     for key, allowed in [('property_types', PROPERTY_TYPES), ('conditions', CONDITIONS)]:
         values = criteria.get(key, [])
         if not isinstance(values, list) or any(v not in allowed for v in values):
@@ -89,7 +89,7 @@ def validate_criteria(criteria):
     if criteria.get('requires_buildable', False) not in (True, False): raise ValueError('Nevaljan uvjet gradnje.')
     if criteria.get('area_hard', False) not in (True, False): raise ValueError('Nevaljana oznaka tvrde granice površine.')
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
-    if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'])
+    if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'], strict=strict)
     if criteria.get('area_basis') is not None and criteria['area_basis'] not in AREA_BASIS: raise ValueError('Nepoznata osnova površine.')
     if criteria.get('travel') is not None: validate_travel(criteria['travel'])
 
@@ -263,10 +263,10 @@ def evaluate(prop, investor, pair_checks=None):
         facts = read_facts(prop)
         if facts is None: gap('Ispravni strukturirani podaci nekretnine', 'property')
         today = datetime.now(timezone.utc).date().isoformat()
-        for q in criteria['requirements']:
-            state, label = compare_requirement(q, facts or {}, today), requirement_label(q['key'])
-            if q['mandatory']: check(label, True, state in ('met', 'unmet'), state == 'met')
-            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja, podatak nije potvrđen'))
+        for q, state in zip(criteria['requirements'], compare_requirements(criteria['requirements'], facts or {}, today)):
+            label = requirement_label(q['key'])
+            if q['mandatory']: check(label, state != 'inverted', state in ('met', 'unmet'), state == 'met')
+            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja proturječi drugom uvjetu zahtjeva (informativno)' if state == 'inverted' else ' — želja, podatak nije potvrđen'))
     # Travel time (module 6, off), as in domain.mjs: never computed here, never replaced by a straight-line distance.
     for t in criteria.get('travel') or []:
         label = 'Vrijeme putovanja do „' + t['destination']['name'] + '” (' + t['mode'] + ')'

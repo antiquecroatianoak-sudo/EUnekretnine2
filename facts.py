@@ -3,7 +3,7 @@ supabase/functions/sites-platform/facts.mjs. ops/facts-vectors-v1.json holds the
 Unknown is never False or zero; a requirement that cannot be compared stays a visible open item."""
 import json
 import re
-from datetime import date
+from datetime import date, timedelta, timezone
 
 FACTS_VERSION = 'facts-v1'
 FACT_STATUS = ('potvrđeno', 'nepotvrđeno', 'proturječno')
@@ -43,6 +43,11 @@ def _day(v):
         return False
 
 
+def latest_day(now):
+    """The latest calendar date anywhere (UTC+14) at `now`; an observation date after it has not happened yet."""
+    return (now.astimezone(timezone.utc) + timedelta(hours=14)).date().isoformat()
+
+
 def _text(v, limit):
     return isinstance(v, str) and v.strip() != '' and len(v) <= limit and not re.search(r'[\x00-\x1f]', v)
 
@@ -65,7 +70,8 @@ def _check_value(spec, value, unit, where):
             if v not in spec['values']: raise ValueError(where + ': nepoznata vrijednost.')
 
 
-def validate_facts(raw):
+def validate_facts(raw, now=None):
+    """With `now` (new input) a future observation date is refused; stored records are read without it."""
     f = json.loads(raw) if isinstance(raw, str) else raw
     if not isinstance(f, dict): raise ValueError('Podaci nekretnine moraju biti objekt.')
     out = {}
@@ -80,13 +86,26 @@ def validate_facts(raw):
         if v['status'] == 'potvrđeno' and v.get('origin') == 'predloženo': raise ValueError(spec['label'] + ': prijedlog ne može biti potvrđen podatak.')
         if v.get('evidence') is not None and not _text(v.get('evidence'), 2000): raise ValueError(spec['label'] + ': neispravan dokaz.')
         if not _day(v.get('observed_on')): raise ValueError(spec['label'] + ': datum opažanja YYYY-MM-DD je obavezan.')
+        if now is not None and v['observed_on'] > latest_day(now): raise ValueError(spec['label'] + ': datum opažanja ne smije biti u budućnosti.')
         if v.get('valid_until') is not None and (not _day(v['valid_until']) or v['valid_until'] < v['observed_on']): raise ValueError(spec['label'] + ': neispravan rok važenja.')
         out[key] = {k: v[k] for k in ('value', 'unit', 'origin', 'status', 'evidence', 'observed_on', 'valid_until') if v.get(k) is not None}
         if 'evidence' in out[key]: out[key]['evidence'] = out[key]['evidence'].strip()
     return out
 
 
-def validate_requirements(items):
+def inverted_ranges(items):
+    """min above max for the same fact, compared in the base unit of its dimension."""
+    out = []
+    for key in dict.fromkeys(q.get('key') for q in items or []):
+        lo = next((q for q in items if q.get('key') == key and q.get('op') == 'min'), None)
+        hi = next((q for q in items if q.get('key') == key and q.get('op') == 'max'), None)
+        if lo and hi and lo.get('unit') in UNITS and hi.get('unit') in UNITS and lo['value'] * UNITS[lo['unit']][1] > hi['value'] * UNITS[hi['unit']][1]:
+            out.append(dict(key=key, min=lo, max=hi))
+    return out
+
+
+def validate_requirements(items, strict=False):
+    """`strict` (new input) refuses a mandatory min above a mandatory max; stored requests are read leniently."""
     if not isinstance(items, list) or len(items) > 50: raise ValueError('Zahtjevi moraju biti popis (najviše 50).')
     seen, out = set(), []
     for n, q in enumerate(items):
@@ -101,6 +120,9 @@ def validate_requirements(items):
         if ident in seen: raise ValueError(where + ': isti uvjet je naveden dvaput.')
         seen.add(ident)
         out.append({k: q[k] for k in ('key', 'op', 'value', 'unit', 'mandatory') if q.get(k) is not None} | {'quote': q['quote'].strip()})
+    if strict:
+        for r in inverted_ranges(out):
+            if r['min']['mandatory'] and r['max']['mandatory']: raise ValueError(FACTS[r['key']]['label'] + ': najmanja vrijednost veća je od najveće (obrnut raspon).')
     return out
 
 
@@ -118,6 +140,7 @@ def compare_requirement(q, facts, today):
     if not f: return 'unknown'
     if f['status'] == 'proturječno': return 'conflict'
     if f['status'] != 'potvrđeno': return 'unknown'
+    if f['observed_on'] > today: return 'future'
     if f.get('valid_until') and f['valid_until'] < today: return 'expired'
     if spec['type'] == 'number':
         a, b = f['value'] * UNITS[f['unit']][1], q['value'] * UNITS[q['unit']][1]
@@ -129,6 +152,14 @@ def compare_requirement(q, facts, today):
     return 'met' if fits else 'unmet'
 
 
+def compare_requirements(items, facts, today):
+    """States in order; an impossible range (see compareRequirements in facts.mjs) is 'inverted'."""
+    inv = inverted_ranges(items or [])
+    def inverted(q):
+        return any(r['key'] == q['key'] and (not q['mandatory'] or (r['max'] if q['op'] == 'min' else r['min'])['mandatory']) for r in inv)
+    return ['inverted' if inverted(q) else compare_requirement(q, facts, today) for q in items or []]
+
+
 def requirement_label(key):
     return 'Uvjet zahtjeva: ' + FACTS[key]['label']
 
@@ -138,7 +169,7 @@ AREA_BASIS = {'zemljište ukupno': 'land_total', 'zemljište u vlasništvu': 'la
 
 
 def _usable(f, today):
-    return bool(f) and f.get('status') == 'potvrđeno' and not (f.get('valid_until') and f['valid_until'] < today)
+    return bool(f) and f.get('status') == 'potvrđeno' and not f.get('observed_on', '') > today and not (f.get('valid_until') and f['valid_until'] < today)
 
 
 def land_composition(facts, today):
@@ -152,7 +183,7 @@ def basis_area(basis, facts, today):
     key = AREA_BASIS[basis]
     f = (facts or {}).get(key)
     if not _usable(f, today):
-        return dict(area=None, reason='conflict' if f and f.get('status') == 'proturječno' else 'expired' if f and f.get('status') == 'potvrđeno' else 'unknown')
+        return dict(area=None, reason='conflict' if f and f.get('status') == 'proturječno' else ('future' if f.get('observed_on', '') > today else 'expired') if f and f.get('status') == 'potvrđeno' else 'unknown')
     if key in ('land_owned', 'land_total'):
         c = land_composition(facts, today)
         if c['consistent'] is False: return dict(area=None, reason='composition', note=c['note'])

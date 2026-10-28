@@ -35,7 +35,7 @@ export function proposalValue(field,value){
  if(field.startsWith('facts.')){const key=field.slice(6);if(!Object.hasOwn(FACTS,key))throw Error('Nedopušteno polje.');
   if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Prijedlog podatka mora biti objekt.');
   const {evidence:_,...rest}=value;
-  return validateFacts({[key]:{...rest,origin:'partner',status:'nepotvrđeno'}})[key];}
+  return validateFacts({[key]:{...rest,origin:'partner',status:'nepotvrđeno'}},{now:Date.now()})[key];}
  if(field.endsWith('_url')){if(!https(value))throw Error('Poveznica mora biti javni https URL bez korisničkih podataka.');return value}
  if(field==='price'||field==='area'){if(!num(value)||value<=0)throw Error('Vrijednost mora biti pozitivan broj.');return value}
  if(field==='available_until'){if(!day(value))throw Error('Datum mora biti YYYY-MM-DD.');return value}

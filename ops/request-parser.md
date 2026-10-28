@@ -22,6 +22,13 @@ U obrascu zahtjeva kupca, „Primijeni u obrazac” samo popunjava polja. Operat
   - obrnut raspon se ne ispravlja automatski;
   - površina bez granice („oko”) traži odluku operatora;
   - nepoznata osnova površine je otvoreno pitanje.
+- **Isključenja (nalaz 6464815024).** Država, vrsta, podvrsta, stanje ili uvjet iza riječi isključenja u istoj rečenici ili dijelu rečenice nikad nije potražnja. Primjeri riječi: „ne u”, „ne želimo”, „osim”, „bez”, „not in”, „no interest in”, „excluding”, „nicht in”, „ohne”, „außer”. Dio rečenice završava zarezom, točkom-zarezom ili riječju kontrasta („ali”, „samo”, „but”, „only”, „sondern”, „nur”).
+  - Isključenje se prikazuje kao konkretno upozorenje s izvornim navodom i vraća se u `excluded`. „Primijeni” ga ne preuzima.
+  - Iz isključenog dijela ništa se ne predlaže kao traženo. Na primjer, u „Ne želimo kuću za obnovu, samo useljivu.” predlaže se samo „Useljivo”, a vrstu potvrđuje operator.
+  - Negacije granica („ne manje od”, „not more than”, „nicht mehr als”) i „bez zakupa” nisu isključenja.
+- **Granice specijaliziranih uvjeta.** Za sobe, kategoriju, snagu i visinu granica se čita iz riječi neposredno ispred broja (najmanje/najviše, s negacijama na HR, EN i DE) ili iz raspona „od X do Y”.
+  - Bez granice uvjet se **ne predlaže**, uz upozorenje („20 soba” može biti najmanje, najviše ili točno).
+  - Obrnut raspon se ne predlaže.
 - **Uvjeti.** „Bez zakupa” je uvjet; „nije uvjet” nije. Obavezno i želja razlikuju se prema riječima navoda; ako nije navedeno, predlaže se želja uz otvoreno pitanje.
 - **Budžet.** Ukupni iznos ostaje informativan, a cijena po m² nikad nije ukupni budžet.
 - **Jezici.** HR te uzorci EN, DE, IT, FR i ES.

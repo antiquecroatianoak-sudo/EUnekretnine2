@@ -30,6 +30,17 @@ class FactsTests(unittest.TestCase):
             with self.assertRaises(ValueError, msg=v['name']): facts.validate_requirements(v['input'])
         for v in VECTORS['invalid_facts']:
             with self.assertRaises(ValueError, msg=v['name']): facts.validate_facts(v['input'])
+        for v in VECTORS['future_input']:
+            now = datetime.fromisoformat(v['now'].replace('Z', '+00:00'))
+            if v['valid']: facts.validate_facts(v['facts'], now=now)
+            else:
+                with self.assertRaises(ValueError, msg=v['name']): facts.validate_facts(v['facts'], now=now)
+        range_facts = facts.validate_facts(VECTORS['range_facts'])
+        for v in VECTORS['range_cases']:
+            if v['strict_valid']: facts.validate_requirements(v['requirements'], strict=True)
+            else:
+                with self.assertRaisesRegex(ValueError, 'obrnut raspon', msg=v['name']): facts.validate_requirements(v['requirements'], strict=True)
+            self.assertEqual(facts.compare_requirements(facts.validate_requirements(v['requirements']), range_facts, '2026-10-28'), v['states'], v['name'])
 
     def test_registry_and_results_equal_js(self):
         if not shutil.which('node'): self.skipTest('node nije dostupan')
@@ -72,6 +83,16 @@ class FactsTests(unittest.TestCase):
         self.assertTrue(any('želja nije ispunjena' in v for v in wish['info']))
         self.assertIn('Ispravni strukturirani podaci nekretnine', matching.evaluate(dict(prop, facts_json='{nije'), buyer([owned]))['gaps']['property'])
         self.assertIn('Ispravni strukturirani kriteriji kupca', matching.evaluate(prop, buyer([dict(owned, key='min_rooms')]))['gaps']['buyer'])
+        # 6464745746: a future observation never meets a mandatory requirement; an inverted range is an open buyer item.
+        future = matching.evaluate(dict(prop, facts_json=json.dumps(dict(land_owned=fact(160, 'ha', day='2099-01-01')))), buyer([owned]))
+        self.assertEqual(future['status'], matching.CANDIDATE)
+        self.assertIn('Uvjet zahtjeva: Zemljište u vlasništvu uključeno u prodaju', future['gaps']['property'])
+        inverted = [dict(owned, value=2), dict(owned, op='max', value=10000, unit='m2', quote='najviše 10.000 m2')]
+        r = matching.evaluate(dict(prop, facts_json=json.dumps(dict(land_owned=fact(1.5, 'ha')))), buyer(inverted))
+        self.assertEqual(r['status'], matching.CANDIDATE)
+        self.assertIn('Uvjet zahtjeva: Zemljište u vlasništvu uključeno u prodaju', r['gaps']['buyer'])
+        self.assertEqual(r['rejected'], [])
+        with self.assertRaisesRegex(ValueError, 'obrnut raspon'): matching.validate_criteria(dict(requirements=inverted), strict=True)
 
     def test_area_basis_vectors_equal_js(self):
         now = datetime.now(timezone.utc)
