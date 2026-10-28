@@ -927,6 +927,52 @@
     "call_closed": "expired",
     "call_deadline": "@day:-1"
    }
+  },
+  {
+   "id": "q38",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Stari zahtjev s praznim popisom opsega (obavezno), potvrđena jedinica",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Prazna specifikacija nije dokumentiran nespojiv opseg: otvorena provjera kupca, bez lažnog odbijanja (nalaz 6479674515).",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 100,
+    "property_type": "Stan",
+    "condition": "Useljivo"
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY dokaz",
+     "observed_on": "@day:-10"
+    }
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "not_rejected": [
+    "Uvjet zahtjeva: Opseg prodaje"
+   ]
   }
  ]
 }

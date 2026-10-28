@@ -89,7 +89,9 @@ export function validateRequirements(list,{strict=false}={}){
   if(typeof q.mandatory!=='boolean')throw Error(where+': odredi je li uvjet obavezan ili želja.');
   if(!text(q.quote,500))throw Error(where+': potreban je izvorni navod zahtjeva.');
   const id=q.key+'\n'+q.op;if(seen.has(id))throw Error(where+': isti uvjet je naveden dvaput.');seen.add(id);
-  return {key:q.key,op:q.op,value:q.value,...(q.unit?{unit:q.unit}:{}),mandatory:q.mandatory,quote:q.quote.trim()};
+  // Enum alternatives: duplicates fold; an empty list is no specification (refused on new input, read as open).
+  let value=q.value;if(def.type==='enum'&&Array.isArray(value)){value=[...new Set(value)];if(!value.length&&strict)throw Error(where+': odaberi barem jednu vrijednost.')}
+  return {key:q.key,op:q.op,value,...(q.unit?{unit:q.unit}:{}),mandatory:q.mandatory,quote:q.quote.trim()};
  });
  if(strict)for(const r of invertedRanges(out))if(r.min.mandatory&&r.max.mandatory)throw Error(FACTS[r.key].label+': najmanja vrijednost veća je od najveće (obrnut raspon).');
  return out;
@@ -101,6 +103,8 @@ const base=(value,unit)=>value*UNITS[unit][1];
 export function compareRequirement(q,facts,today){
  const def=FACTS[q.key],f=facts?.[q.key],label=def.label;
  const out={key:q.key,label,mandatory:q.mandatory,op:q.op,requested:q.value,unit:q.unit??null,quote:q.quote,actual:f?.value??null,actual_unit:f?.unit??null,evidence:f?.evidence??null};
+ // A stored request with an empty list of alternatives specifies nothing: an open buyer item, never unmet.
+ if(def.type==='enum'&&Array.isArray(q.value)&&!q.value.length)return {...out,state:'unspecified'};
  if(!f)return {...out,state:'unknown'};
  if(f.status==='proturječno')return {...out,state:'conflict'};
  if(f.status!=='potvrđeno')return {...out,state:'unknown'};
@@ -121,7 +125,7 @@ export function compareRequirements(requirements,facts,now=Date.now()){
 }
 // Labels evaluate() records for each state; a wish only ever adds information.
 export const requirementLabel=r=>'Uvjet zahtjeva: '+r.label;
-export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine',future:'Datum opažanja podatka je u budućnosti',inverted:'Proturječan raspon u zahtjevu kupca'};
+export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine',future:'Datum opažanja podatka je u budućnosti',inverted:'Proturječan raspon u zahtjevu kupca',unspecified:'Zahtjev bez navedene vrijednosti'};
 
 // Module 4: which measured area a request means. Requests without a basis keep the advertised area (legacy).
 export const AREA_BASIS={'zemljište ukupno':'land_total','zemljište u vlasništvu':'land_owned','površina zgrada':'building_area','korisna površina':'usable_area'};

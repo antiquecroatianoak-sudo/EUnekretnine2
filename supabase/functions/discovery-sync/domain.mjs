@@ -192,8 +192,8 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
   r.requirements=compareRequirements(c.requirements,facts||{},now);
   for(const q of r.requirements){const label=requirementLabel(q);
    // An inverted range is the request's own contradiction: an open buyer item, never a rejection of the property.
-   if(q.mandatory)check(label,q.state!=='inverted',q.state==='met'||q.state==='unmet',q.state==='met');
-   else info.push(label+(q.state==='met'?' — želja ispunjena':q.state==='unmet'?' — želja nije ispunjena (informativno)':q.state==='inverted'?' — želja proturječi drugom uvjetu zahtjeva (informativno)':' — želja, podatak nije potvrđen'));}
+   if(q.mandatory)check(label,q.state!=='inverted'&&q.state!=='unspecified',q.state==='met'||q.state==='unmet',q.state==='met');
+   else info.push(label+(q.state==='met'?' — želja ispunjena':q.state==='unmet'?' — želja nije ispunjena (informativno)':q.state==='inverted'?' — želja proturječi drugom uvjetu zahtjeva (informativno)':q.state==='unspecified'?' — želja bez navedene vrijednosti (informativno)':' — želja, podatak nije potvrđen'));}
  }
  // Travel time (module 6, off): matching never calls a service. A mandatory travel requirement stays an open pair
  // item until a stored result exists; a wish only informs. A straight-line distance is never used instead.

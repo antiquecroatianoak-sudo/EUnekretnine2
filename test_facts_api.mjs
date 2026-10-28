@@ -80,6 +80,22 @@ try{
  r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
  assert.equal(r.status,CANDIDATE);assert(r.gaps.buyer.includes('Uvjet zahtjeva: Zemljište u vlasništvu uključeno u prodaju'));assert(!r.rejected.length);
  assert.deepEqual(r.requirements.map(q=>q.state),['inverted','inverted']);
+ // 6479674515: an empty enum requirement is refused on save (profile and separate request), nothing is written; a
+ // stored one is an open buyer item, never a rejection of the property.
+ const emptyScope=[{key:'sale_scope',op:'includes',value:[],mandatory:true,quote:'jedan stan'}];
+ const before=(await sql`select criteria_json from investors where id=${b.id}`)[0].criteria_json,countBefore=(await sql`select count(*)::int n from investors`)[0].n;
+ const inv2=(await sql`select * from investors where id=${b.id}`)[0];
+ await assert.rejects(run({action:'save_investor',id:b.id,record:{...inv2,criteria_json:JSON.stringify({...JSON.parse(inv2.criteria_json),requirements:emptyScope})}}),/barem jednu vrijednost/);
+ await assert.rejects(run({action:'save_request',investor_id:b.id,label:'Prazan opseg',preferred_countries:'Hrvatska',criteria:{property_types:['Zemljište'],conditions:['Neizgrađeno'],requirements:emptyScope}}),/barem jednu vrijednost/);
+ await assert.rejects(run({action:'save_request',investor_id:b.id,label:'Prazna želja',preferred_countries:'Hrvatska',criteria:{property_types:['Zemljište'],conditions:['Neizgrađeno'],requirements:[{...emptyScope[0],mandatory:false}]}}),/barem jednu vrijednost/);
+ assert.equal((await sql`select criteria_json from investors where id=${b.id}`)[0].criteria_json,before,'refused save leaves the record');
+ assert.equal((await sql`select count(*)::int n from investors`)[0].n,countBefore,'no request row written');
+ await sql`update properties set facts_json=${JSON.stringify({sale_scope:fact('jedinica')})} where id=${id}`;
+ await sql`update investors set criteria_json=${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:demand,checked_at:now,requirements:emptyScope})} where id=${b.id}`;
+ await run({action:'refresh'});
+ r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
+ assert.equal(r.status,CANDIDATE);assert(r.gaps.buyer.includes('Uvjet zahtjeva: Opseg prodaje'));assert(!r.rejected.length,'no false rejection');
+ assert.equal(r.requirements[0].state,'unspecified');
  // Digest stability: a verified pair answer recorded on a property without facts stays valid after the migration.
  const plain=(await sql`select * from properties where id<>${id} limit 1`)[0];
  if(plain)assert.equal(pairText('x',plain),pairText('x',{...plain,facts_json:null}));

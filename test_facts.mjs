@@ -19,6 +19,14 @@ for(const v of vectors.invalid_facts)assert.throws(()=>F.validateFacts(v.input),
 for(const v of vectors.future_input){const now=Date.parse(v.now);
  if(v.valid)F.validateFacts(v.facts,{now});else assert.throws(()=>F.validateFacts(v.facts,{now}),undefined,v.name);
  if(/^\d{4}-\d{2}-\d{2}$/.test(v.facts.rooms.observed_on)&&Number.isFinite(Date.parse(v.facts.rooms.observed_on))&&v.facts.rooms.observed_on!=='2026-02-30')F.validateFacts(v.facts);}
+// Empty enum requirement (6479674515 P2): refused on new input, read as an open buyer item ('unspecified'), never a
+// rejection; scalar, one or several valid options compare as before; duplicates fold; unknown options are refused.
+{const ef=F.validateFacts(vectors.enum_facts),at=Date.parse('2026-10-28T10:00:00Z');
+ for(const v of vectors.enum_cases){
+  if(v.strict_valid)F.validateRequirements([v.requirement],{strict:true});else assert.throws(()=>F.validateRequirements([v.requirement],{strict:true}),undefined,v.name);
+  if(v.lenient_valid===false){assert.throws(()=>F.validateRequirements([v.requirement]),undefined,v.name);continue}
+  const [q]=F.validateRequirements([v.requirement]);if('normalized' in v)assert.deepEqual(q.value,v.normalized,v.name);
+  assert.equal(F.compareRequirements([q],ef,at)[0].state,v.state,v.name);}}
 // Inverted ranges (6464745746 P2): strict input refuses a mandatory inverted range; reading keeps it open.
 const rangeFacts=F.validateFacts(vectors.range_facts);
 for(const v of vectors.range_cases){

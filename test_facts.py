@@ -35,6 +35,17 @@ class FactsTests(unittest.TestCase):
             if v['valid']: facts.validate_facts(v['facts'], now=now)
             else:
                 with self.assertRaises(ValueError, msg=v['name']): facts.validate_facts(v['facts'], now=now)
+        enum_facts = facts.validate_facts(VECTORS['enum_facts'])
+        for v in VECTORS['enum_cases']:
+            if v['strict_valid']: facts.validate_requirements([v['requirement']], strict=True)
+            else:
+                with self.assertRaises(ValueError, msg=v['name']): facts.validate_requirements([v['requirement']], strict=True)
+            if v.get('lenient_valid') is False:
+                with self.assertRaises(ValueError, msg=v['name']): facts.validate_requirements([v['requirement']])
+                continue
+            q = facts.validate_requirements([v['requirement']])[0]
+            if 'normalized' in v: self.assertEqual(q['value'], v['normalized'], v['name'])
+            self.assertEqual(facts.compare_requirements([q], enum_facts, '2026-10-28'), [v['state']], v['name'])
         range_facts = facts.validate_facts(VECTORS['range_facts'])
         for v in VECTORS['range_cases']:
             if v['strict_valid']: facts.validate_requirements(v['requirements'], strict=True)

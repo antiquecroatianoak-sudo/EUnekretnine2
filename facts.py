@@ -120,7 +120,12 @@ def validate_requirements(items, strict=False):
         ident = (q['key'], q['op'])
         if ident in seen: raise ValueError(where + ': isti uvjet je naveden dvaput.')
         seen.add(ident)
-        out.append({k: q[k] for k in ('key', 'op', 'value', 'unit', 'mandatory') if q.get(k) is not None} | {'quote': q['quote'].strip()})
+        item = {k: q[k] for k in ('key', 'op', 'value', 'unit', 'mandatory') if q.get(k) is not None} | {'quote': q['quote'].strip()}
+        # As facts.mjs: enum duplicates fold; an empty list is refused on new input and read as open.
+        if spec['type'] == 'enum' and isinstance(item['value'], list):
+            item['value'] = list(dict.fromkeys(item['value']))
+            if not item['value'] and strict: raise ValueError(where + ': odaberi barem jednu vrijednost.')
+        out.append(item)
     if strict:
         for r in inverted_ranges(out):
             if r['min']['mandatory'] and r['max']['mandatory']: raise ValueError(FACTS[r['key']]['label'] + ': najmanja vrijednost veća je od najveće (obrnut raspon).')
@@ -138,6 +143,7 @@ def read_facts(prop):
 
 def compare_requirement(q, facts, today):
     spec, f = FACTS[q['key']], (facts or {}).get(q['key'])
+    if spec['type'] == 'enum' and isinstance(q['value'], list) and not q['value']: return 'unspecified'
     if not f: return 'unknown'
     if f['status'] == 'proturječno': return 'conflict'
     if f['status'] != 'potvrđeno': return 'unknown'

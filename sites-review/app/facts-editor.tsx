@@ -21,6 +21,7 @@ export function RequirementsEditor({value=[],onChange}){
    <select aria-label='Podatak' value={q.key} onChange={e=>{const d=FACTS[e.target.value];set(n,{key:e.target.value,op:OPS[d.type][0],value:undefined,unit:d.dim?unitsFor(d)[0]:undefined})}}>{Object.entries(FACTS).map(([k,d])=><option key={k} value={k}>{d.label}</option>)}</select>
    <select aria-label='Usporedba' value={q.op} onChange={e=>set(n,{op:e.target.value})}>{OPS[def.type].map(o=><option key={o} value={o}>{({min:'najmanje',max:'najviše',equals:'jednako',includes:'jedno od'})[o]}</option>)}</select>
    <ValueInput def={def} value={q.value} unit={q.unit} multiple={def.type==='enum'} label='Tražena vrijednost' onValue={v=>set(n,{value:v})} onUnit={u=>set(n,{unit:u})}/>
+   {def.type==='enum'&&Array.isArray(q.value)&&!q.value.length&&<span className='error' role='alert'>Odaberi barem jednu vrijednost.</span>}
    <label className='checkbox'><input type='checkbox' checked={q.mandatory} onChange={e=>set(n,{mandatory:e.target.checked})}/>Obavezno</label>
    <input aria-label='Izvorni navod' placeholder='Izvorni navod zahtjeva' value={q.quote||''} onChange={e=>set(n,{quote:e.target.value})}/>
    <button className='text-button' type='button' onClick={()=>onChange(value.filter((_,k)=>k!==n))}>Ukloni</button></div>})}
@@ -49,9 +50,9 @@ export function FactsEditor({value,onChange}){
    <button className='text-button' type='button' onClick={()=>{const {[k]:_,...rest}=facts;save(rest)}}>Ukloni</button></div>})}
   {unused.length>0&&<select aria-label='Dodaj podatak' value='' onChange={e=>{const k=e.target.value,def=FACTS[k];if(k)save({...facts,[k]:{unit:def.dim?unitsFor(def)[0]:undefined,status:'nepotvrđeno',origin:'ručno',observed_on:today()}})}}>
    <option value=''>Dodaj podatak…</option>{unused.map(k=><option key={k} value={k}>{FACTS[k].label}</option>)}</select>}
-  <style>{`.facts-editor{border:1px solid #dce4df;border-radius:10px;padding:12px;margin:12px 0}.facts-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}.facts-row input,.facts-row select{min-width:0;max-width:100%}.value-unit{display:inline-flex;gap:4px}.req-table td,.req-table th{padding:4px 8px;text-align:left;vertical-align:top}.req-state-met{color:#1f6b45}.req-state-unmet{color:#9b2c1f}.req-state-unknown,.req-state-conflict,.req-state-expired,.req-state-future,.req-state-inverted{color:#8a5a00}@media(max-width:600px){.facts-row{flex-direction:column;align-items:stretch}}`}</style></fieldset>;
+  <style>{`.facts-editor{border:1px solid #dce4df;border-radius:10px;padding:12px;margin:12px 0}.facts-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}.facts-row input,.facts-row select{min-width:0;max-width:100%}.value-unit{display:inline-flex;gap:4px}.req-table td,.req-table th{padding:4px 8px;text-align:left;vertical-align:top}.req-state-met{color:#1f6b45}.req-state-unmet{color:#9b2c1f}.req-state-unknown,.req-state-conflict,.req-state-expired,.req-state-future,.req-state-inverted,.req-state-unspecified{color:#8a5a00}@media(max-width:600px){.facts-row{flex-direction:column;align-items:stretch}}`}</style></fieldset>;
 }
-const STATE={met:'Odgovara',unmet:'Ne odgovara',unknown:'Podatak nije potvrđen',conflict:'Proturječan podatak',expired:'Zastario podatak',future:'Datum opažanja u budućnosti',inverted:'Proturječan raspon u zahtjevu'};
+const STATE={met:'Odgovara',unmet:'Ne odgovara',unknown:'Podatak nije potvrđen',conflict:'Proturječan podatak',expired:'Zastario podatak',future:'Datum opažanja u budućnosti',inverted:'Proturječan raspon u zahtjevu',unspecified:'Zahtjev bez vrijednosti'};
 const show=(v,u)=>v==null?'—':Array.isArray(v)?v.join(' / '):v===true?'Da':v===false?'Ne':String(v)+(u?' '+u:'');
 // Requested vs actual per documented requirement, with evidence and state; the score stays separate.
 export function RequirementsTable({rows}){

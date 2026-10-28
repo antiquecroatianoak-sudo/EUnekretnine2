@@ -268,8 +268,8 @@ def evaluate(prop, investor, pair_checks=None):
         today = datetime.now(timezone.utc).date().isoformat()
         for q, state in zip(criteria['requirements'], compare_requirements(criteria['requirements'], facts or {}, today)):
             label = requirement_label(q['key'])
-            if q['mandatory']: check(label, state != 'inverted', state in ('met', 'unmet'), state == 'met')
-            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja proturječi drugom uvjetu zahtjeva (informativno)' if state == 'inverted' else ' — želja, podatak nije potvrđen'))
+            if q['mandatory']: check(label, state not in ('inverted', 'unspecified'), state in ('met', 'unmet'), state == 'met')
+            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja proturječi drugom uvjetu zahtjeva (informativno)' if state == 'inverted' else ' — želja bez navedene vrijednosti (informativno)' if state == 'unspecified' else ' — želja, podatak nije potvrđen'))
     # Travel time (module 6, off), as in domain.mjs: never computed here, never replaced by a straight-line distance.
     for t in criteria.get('travel') or []:
         label = 'Vrijeme putovanja do „' + t['destination']['name'] + '” (' + t['mode'] + ')'

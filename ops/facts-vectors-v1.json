@@ -1364,5 +1364,164 @@
    "observed_on": "2026-10-01",
    "unit": "ha"
   }
+ },
+ "enum_cases": [
+  {
+   "name": "empty list, mandatory",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": false,
+   "state": "unspecified"
+  },
+  {
+   "name": "empty list, wish",
+   "requirement": {
+    "key": "subtype",
+    "op": "includes",
+    "value": [],
+    "mandatory": false,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": false,
+   "state": "unspecified"
+  },
+  {
+   "name": "empty farm production",
+   "requirement": {
+    "key": "farm_production",
+    "op": "includes",
+    "value": [],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": false,
+   "state": "unspecified"
+  },
+  {
+   "name": "scalar value",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": "jedinica",
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": true,
+   "state": "met",
+   "normalized": "jedinica"
+  },
+  {
+   "name": "one valid option",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     "jedinica"
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": true,
+   "state": "met",
+   "normalized": [
+    "jedinica"
+   ]
+  },
+  {
+   "name": "several valid options",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     "cijeli projekt",
+     "jedinica"
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": true,
+   "state": "met",
+   "normalized": [
+    "cijeli projekt",
+    "jedinica"
+   ]
+  },
+  {
+   "name": "duplicates are folded",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     "jedinica",
+     "jedinica"
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": true,
+   "state": "met",
+   "normalized": [
+    "jedinica"
+   ]
+  },
+  {
+   "name": "other option only",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     "cijeli projekt"
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": true,
+   "state": "unmet",
+   "normalized": [
+    "cijeli projekt"
+   ]
+  },
+  {
+   "name": "unknown option",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     "stan"
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": false,
+   "lenient_valid": false
+  },
+  {
+   "name": "empty string option",
+   "requirement": {
+    "key": "sale_scope",
+    "op": "includes",
+    "value": [
+     ""
+    ],
+    "mandatory": true,
+    "quote": "TEST ONLY navod"
+   },
+   "strict_valid": false,
+   "lenient_valid": false
+  }
+ ],
+ "enum_facts": {
+  "sale_scope": {
+   "value": "jedinica",
+   "origin": "izvor",
+   "status": "potvrđeno",
+   "evidence": "TEST ONLY",
+   "observed_on": "2026-10-01"
+  }
  }
 }

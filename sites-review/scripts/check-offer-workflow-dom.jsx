@@ -170,6 +170,13 @@ await act(async()=>{renderReqs()});await setValue($('select[aria-label="Predlož
 assert.deepEqual(reqs.map(q=>q.key),['subtype','rooms','hotel_category','operating','operating_months','renovation_needed']);
 assert(reqs.every(q=>q.mandatory===false&&q.value===undefined&&q.quote===''),'template rows are empty wishes');
 await setValue($('select[aria-label="Predložak sektora"]'),'hotel');assert.equal(reqs.length,6,'a template never duplicates rows');
+// 6479674515: deselecting every option of an enum requirement shows a visible validation message (the server refuses it).
+reqs=[{key:'sale_scope',op:'includes',value:['jedinica'],mandatory:true,quote:'jedan stan'}];await act(async()=>{renderReqs()});
+assert(!document.body.textContent.includes('Odaberi barem jednu vrijednost'),'no message while an option is chosen');
+const multi=$('select[aria-label="Tražena vrijednost"][multiple]');
+await act(async()=>{for(const o of multi.options)o.selected=false;multi.dispatchEvent(new window.Event('change',{bubbles:true}))});
+assert.deepEqual(reqs[0].value,[],'deselect-all is kept in the form, not silently dropped');
+assert(document.body.textContent.includes('Odaberi barem jednu vrijednost'),'deselect-all shows a visible validation message');
 await act(async()=>{root.render(<RequirementsTable rows={[{key:'land_owned',op:'min',label:'Zemljište u vlasništvu uključeno u prodaju',mandatory:true,quote:'kupnja 150 ha',requested:150,unit:'ha',actual:110,actual_unit:'ha',evidence:'TEST ONLY oglas',state:'unmet'},
  {key:'rooms',op:'min',label:'Broj soba / smještajnih jedinica',mandatory:false,quote:'po mogućnosti 40 soba',requested:40,unit:'kom',actual:null,actual_unit:null,evidence:null,state:'unknown'}]}/>)});
 const table=document.body.textContent;for(const t of ['≥ 150 ha','110 ha','TEST ONLY oglas','Ne odgovara','(želja)','Podatak nije potvrđen','„kupnja 150 ha”'])assert(table.includes(t),t);
