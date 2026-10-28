@@ -33,7 +33,8 @@ export const FACTS={
  includes_equipment:{label:'Prodaja uključuje opremu',type:'boolean',meaning:'Oprema je dokumentirano dio prodaje i cijene'},
  includes_business:{label:'Prodaja uključuje poslovanje',type:'boolean',meaning:'Poslovanje (društvo, ugovori, licencije) dokumentirano ulazi u prodaju'},
  subtype:{label:'Podvrsta / namjena',type:'enum',values:['hotel','turistički smještaj','skladište / logistika','industrijski objekt','farma','mješovita imovina'],
-  meaning:'Opcionalna podvrsta uz pet osnovnih vrsta; ne mijenja osnovnu vrstu nekretnine'}};
+  meaning:'Opcionalna podvrsta uz pet osnovnih vrsta; ne mijenja osnovnu vrstu nekretnine'},
+ sale_scope:{label:'Opseg prodaje',type:'enum',values:['jedinica','cijeli projekt'],meaning:'Odnose li se cijena i površina oglasa na pojedinačnu jedinicu ili na cijeli projekt'}};
 export const OPS={number:['min','max'],boolean:['equals'],enum:['includes']};
 const text=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max&&!/[\u0000-\u001f]/.test(v);
 function checkValue(def,value,unit,where){
@@ -126,6 +127,12 @@ export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Pr
 export const AREA_BASIS={'zemljište ukupno':'land_total','zemljište u vlasništvu':'land_owned','površina zgrada':'building_area','korisna površina':'usable_area'};
 // A fact that counts today: confirmed, observed on or before today, not past valid_until. Comparison, area bases
 // and the confirmed presentation export use this one rule.
+// sale_scope (q09): when a request makes the scope a hard requirement, the area of a listing means the requested
+// scope only if the listing's scope is a current confirmed fact within it; otherwise the area comparison stays open.
+export function areaScopeKnown(requirements,facts,today){
+ const q=(requirements||[]).find(r=>r.key==='sale_scope'&&r.mandatory);if(!q)return true;
+ const f=facts?.sale_scope;return factCurrent(f,today)&&(Array.isArray(q.value)?q.value:[q.value]).includes(f.value);
+}
 export const factCurrent=(f,today)=>!!f&&f.status==='potvrđeno'&&!(f.observed_on>today)&&!(f.valid_until&&f.valid_until<today);
 const usable=factCurrent;
 // Land composition: owned + leased must agree with the advertised total (0.5 %); measures are never summed into one.

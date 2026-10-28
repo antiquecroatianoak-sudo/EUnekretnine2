@@ -6,7 +6,7 @@ import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-from facts import AREA_BASIS, basis_area, compare_requirements, read_facts, requirement_label, validate_requirements
+from facts import AREA_BASIS, area_scope_known, basis_area, compare_requirements, read_facts, requirement_label, validate_requirements
 from travel import TRAVEL_REASON, validate_travel
 
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
@@ -215,7 +215,10 @@ def evaluate(prop, investor, pair_checks=None):
     if min_area is not None or max_area is not None:
         # Module 4, as in domain.mjs: a documented basis uses that confirmed measure; a known zero is a value.
         label = 'Površina'
-        if criteria.get('area_basis'):
+        today = datetime.now(timezone.utc).date().isoformat()
+        if criteria.get('requirements') and not area_scope_known(criteria['requirements'], read_facts(prop) or {}, today):
+            fit, label = None, 'Površina (opseg prodaje nije potvrđen)'
+        elif criteria.get('area_basis'):
             b = basis_area(criteria['area_basis'], read_facts(prop) or {}, datetime.now(timezone.utc).date().isoformat())
             label = 'Površina (' + criteria['area_basis'] + ')'
             if b.get('note'): info.append(b['note'])

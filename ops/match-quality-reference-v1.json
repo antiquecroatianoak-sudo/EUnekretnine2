@@ -528,7 +528,7 @@
    "title": "Isti kupac; oglas potvrđeno prodaje cijeli projekt",
    "expected": "odstupa",
    "label": "Uvjet zahtjeva: Opseg prodaje",
-   "why": "Izričito nespojiv opseg po tvrdom uvjetu.",
+   "why": "Izričito nespojiv opseg po tvrdom uvjetu. Površina projekta nije razlog odbijanja jedinice: ostaje otvorena, jer mjeri nešto drugo.",
    "parity": true,
    "contract": "podržano",
    "property": {
@@ -567,7 +567,10 @@
      "observed_on": "@day:-10",
      "evidence": "TEST ONLY dokaz"
     }
-   }
+   },
+   "not_rejected": [
+    "Površina"
+   ]
   },
   {
    "id": "q27",

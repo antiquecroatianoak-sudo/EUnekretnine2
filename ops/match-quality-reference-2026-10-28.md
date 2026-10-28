@@ -5,7 +5,7 @@ Nalog vlasnika: komentar 6470902546 u antiquecroatianoak-sudo/EUnekretnine2#47. 
 Ovim radom **evaluator i runtime nisu mijenjani**.
 
 ## Što je dodano
-- **`ops/match-quality-reference-v1.json`** — 25 sintetičkih TEST ONLY parova. Svaki ima skupinu, opis, očekivani ishod, očekivani razlog (oznaka kriterija) i obrazloženje.
+- **`ops/match-quality-reference-v1.json`** — 33 sintetička TEST ONLY para. Svaki ima skupinu, opis, očekivani ishod, očekivani razlog (oznaka kriterija) i obrazloženje.
   - Ishodi: **odgovara** (jasno odgovara kriterijima), **odstupa** (jasno odstupa), **nedovoljno** (nedovoljno podataka).
   - Oznaka interesa ne postoji jer nema dokaza interesa.
 - **`test_match_quality.mjs`** — svaki slučaj prolazi kroz stvarni `evaluate()` iz `domain.mjs`, s osnovnim zapisima koji sami za sebe odgovaraju. Provjerava se ishod i razlog: odbijanje mora biti zbog očekivanog kriterija, otvorena stavka mora biti očekivana. Pokreće se u CI-ju.
@@ -26,24 +26,27 @@ Ovim radom **evaluator i runtime nisu mijenjani**.
 |---|---|---|
 | Osnova površine | q01–q03: površina zgrada naspram velike parcele; nepoznata tražena osnova; bruto naspram korisne | odstupa / nedovoljno / nedovoljno — oglašena površina nikad ne zamjenjuje traženu mjeru |
 | Prodaja, zakup, sastav | q04–q08: „bez zakupa” uz potvrđen zakup, nepoznat zakup, potvrđenu nulu; zgrade nisu dio prodaje; želja „poslovanje” nepoznata | odstupa / nedovoljno / odgovara / odstupa / odgovara |
-| Jedinica ili cijeli projekt | q09 (**izvan ugovora**, vidi nalaz) | nedovoljno |
+| Jedinica ili cijeli projekt | q09, q26–q33: obavezna jedinica uz nepoznat opseg; potvrđen cijeli projekt; potvrđena jedinica unutar i izvan granica; proturječan i budući opseg; želja; legacy bez uvjeta; cijeli projekt uz ha/m² | nedovoljno / odstupa (bez površine kao razloga) / odgovara / odstupa / nedovoljno / nedovoljno / odstupa / odstupa / odgovara |
 | Tvrdo, želja, nepoznato | q10–q14: tolerancija +25 %; tvrda granica; samo sjedište; sjedište ≠ interes; budžet ispod cijene | odgovara / odstupa / nedovoljno / odstupa / odgovara |
 | Proturječni i zastarjeli dokazi | q15–q22: proturječan podatak; istekao podatak; izvor star 40 dana; zahtjev star 100 dana; pravne komplikacije; „Uredno” bez dokaza; istekao rok; nepotvrđena dostupnost | nedovoljno ×4 / odstupa / nedovoljno / odstupa / nedovoljno |
 | Više zahtjeva istog kupca | q23–q24: isti `buyer_identity_id`, različiti kriteriji | odgovara / odstupa — svaki zahtjev se ocjenjuje svojim kriterijima |
 | Kontakt za konkretan zapis | q25: kontakt dokazan za drugi oglas | nedovoljno (samo JS) |
 
 ## Rezultat (stvarni prolaz, 28.10.2026.)
-| Kategorija (24 podržana slučaja) | Broj |
+| Kategorija (33 podržana slučaja, nakon ugovora `sale_scope`) | Broj |
 |---|---|
-| ispravno | 24 |
+| ispravno | 33 |
 | pogrešno pozitivno (par prikazan kao „odgovara” bez osnove) | 0 |
 | pogrešno negativno (opravdan ili otvoren par odbijen) | 0 |
 | nedovoljno umjesto odluke | 0 |
 
-- **JS i Python:** jednaki ishodi na svih 24 slučajeva usporedbe.
+- **JS i Python:** jednaki ishodi na sva 32 slučaja usporedbe.
 - **Opseg tvrdnje.** Ovo je referentni skup sintetičkih slučajeva, ne označeni uzorak stvarnog tržišta. **Ne tvrdi se izmjerena preciznost ni odziv na stvarnim oglasima.** Tvrdi se samo da evaluator na ovim definiranim slučajevima daje očekivani ishod i razlog.
 
-## Nalaz izvan ugovora (opisan, nije mijenjan)
+## Nalaz q09 — riješen ugovorom `sale_scope` (nalog 6471298345)
+Očekivanja su zapisana i predana prije promjene evaluatora (zaseban commit). Zatim je dodan podatak facts-v1 `sale_scope` (vidi `ops/facts-v1.md`). Ispod je izvorni opis nalaza.
+
+### Izvorni opis
 **q09 — jedinica ili cijeli projekt.**
 - **Primjer:** projekt od 40 stanova oglašen s 6.000 m² ukupne površine i cijenom „od”; kupac traži jedan stan od 80–120 m².
 - **Očekivano:** nedovoljno podataka. Nije poznato prodaje li se cijeli projekt ili pojedinačne jedinice.

@@ -26,9 +26,10 @@ const OUTCOME={[D.MATCH]:'odgovara',[D.REJECT]:'odstupa',[D.CANDIDATE]:'nedovolj
 export const kind=(expected,actual)=>actual===expected?'ispravno':actual==='odgovara'?'pogrešno pozitivno':actual==='odstupa'?'pogrešno negativno':'nedovoljno umjesto odluke';
 const results=ref.cases.map(c=>{const {p,i}=build(c),r=D.evaluate(p,i,now),actual=OUTCOME[r.status];
  const where=actual==='odgovara'?r.reasons:actual==='odstupa'?r.rejected:r.missing;
- return {id:c.id,group:c.group,contract:c.contract,expected:c.expected,actual,kind:kind(c.expected,actual),reason_found:where.some(v=>v.startsWith(c.label)),status:r.status}});
+ return {id:c.id,group:c.group,contract:c.contract,expected:c.expected,actual,kind:kind(c.expected,actual),reason_found:where.some(v=>v.startsWith(c.label)),
+  wrong_reason:(c.not_rejected||[]).filter(l=>r.rejected.includes(l)),status:r.status}});
 const supported=results.filter(r=>r.contract==='podržano');
-for(const r of supported){assert.equal(r.actual,r.expected,r.id+' '+r.kind);assert(r.reason_found,r.id+': expected reason „'+ref.cases.find(c=>c.id===r.id).label+'”')}
+for(const r of supported){assert.equal(r.actual,r.expected,r.id+' '+r.kind);assert(r.reason_found,r.id+': expected reason „'+ref.cases.find(c=>c.id===r.id).label+'”');assert.deepEqual(r.wrong_reason,[],r.id+': not a reason for rejection')}
 assert(supported.length>=20&&new Set(supported.map(r=>r.expected)).size===3,'all three outcomes are represented');
 const tally=Object.fromEntries(['ispravno','pogrešno pozitivno','pogrešno negativno','nedovoljno umjesto odluke'].map(k=>[k,supported.filter(r=>r.kind===k).length]));
 console.error(JSON.stringify({supported:tally,outside_contract:results.filter(r=>r.contract!=='podržano').map(r=>({id:r.id,expected:r.expected,actual:r.actual,kind:r.kind}))}));

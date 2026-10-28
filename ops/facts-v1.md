@@ -24,6 +24,12 @@ Nalog: PR #47, komentar 6464121625; plan u `ops/buyer-workflow-enhancements-plan
   - Postojeći zapis s takvim datumom čita se bez promjene; podatak i povijest ostaju.
   - U usporedbi je stanje `future` sve dok je `observed_on` iza današnjeg UTC datuma: otvorena stavka nekretnine, nikad „odgovara”. Datum se nikad ne prepisuje na današnji.
   - Isto vrijedi za osnovu površine (modul 4).
+- **Opseg prodaje `sale_scope` (q09, nalog 6471298345).** Enum `jedinica` / `cijeli projekt`, s izvorom, datumom, statusom i dokazom kao svaki podatak facts-v1. Ručno se upisuje u editoru nekretnine; zahtjev kupca ga navodi kao dokumentiran uvjet (`includes`).
+  - Uspoređuje se samo kad zahtjev kupca to dokumentira. Zahtjevi bez tog uvjeta rade kao prije.
+  - **Obavezan uvjet:** potvrđen nespojiv opseg odbija par. Nepoznat, nepotvrđen, proturječan ili budući podatak ostaje otvorena provjera.
+  - Dok opseg oglasa nije potvrđen i unutar traženog, **površina se ne uspoređuje** („Površina (opseg prodaje nije potvrđen)”): oglašena ili osnovna površina može mjeriti cijeli projekt, a ne jedinicu. Zato površina projekta nikad nije razlog odbijanja jedinice.
+  - **Želja** je samo informacija; površina se tada uspoređuje kao prije.
+  - JS (`areaScopeKnown`) i Python (`area_scope_known`) imaju isto pravilo; referentni skup q09 i q26–q33 provjerava oba.
 - **Obrnut raspon (nalaz 6464745746, P2).** Najmanja i najveća vrijednost istog podatka uspoređuju se u osnovnoj jedinici dimenzije (2 ha > 10.000 m²).
   - Novi unos (`investorInput`, `save_request`, Streamlit obrazac) odbija obrnut raspon kad su obje granice obavezne.
   - Spremljeni zahtjev čita se blago, a usporedba ih označava stanjem `inverted`. Obavezna granica čiji je par također obavezan postaje otvorena stavka na strani kupca, nikad odbijanje nekretnine ni podudaranje.

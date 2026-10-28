@@ -30,6 +30,7 @@ FACTS = {
     'includes_business': dict(label='Prodaja uključuje poslovanje', type='boolean'),
     'subtype': dict(label='Podvrsta / namjena', type='enum',
                     values=('hotel', 'turistički smještaj', 'skladište / logistika', 'industrijski objekt', 'farma', 'mješovita imovina')),
+    'sale_scope': dict(label='Opseg prodaje', type='enum', values=('jedinica', 'cijeli projekt')),
 }
 OPS = {'number': ('min', 'max'), 'boolean': ('equals',), 'enum': ('includes',)}
 
@@ -170,6 +171,14 @@ AREA_BASIS = {'zemljište ukupno': 'land_total', 'zemljište u vlasništvu': 'la
 
 def _usable(f, today):
     return bool(f) and f.get('status') == 'potvrđeno' and not f.get('observed_on', '') > today and not (f.get('valid_until') and f['valid_until'] < today)
+
+
+def area_scope_known(requirements, facts, today):
+    """As areaScopeKnown in facts.mjs: a hard sale_scope requirement trusts the area only for a current confirmed scope within it."""
+    q = next((r for r in requirements or [] if r.get('key') == 'sale_scope' and r.get('mandatory')), None)
+    if not q: return True
+    f = (facts or {}).get('sale_scope')
+    return _usable(f, today) and f['value'] in (q['value'] if isinstance(q['value'], list) else [q['value']])
 
 
 def land_composition(facts, today):

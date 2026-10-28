@@ -48,7 +48,7 @@ class MatchQualityReferenceTests(unittest.TestCase):
             r = matching.evaluate(*build(case, now))
             actual = OUTCOME[r['status']]
             where = r['reasons'] if actual == 'odgovara' else r['rejected'] if actual == 'odstupa' else r['missing']
-            out[case['id']] = (actual, any(v.startswith(case['label']) for v in where))
+            out[case['id']] = (actual, any(v.startswith(case['label']) for v in where) and not set(case.get('not_rejected', [])) & set(r['rejected']))
         return out
 
     def test_expected_outcomes_and_reasons(self):

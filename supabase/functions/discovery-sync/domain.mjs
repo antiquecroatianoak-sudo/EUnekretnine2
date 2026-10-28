@@ -1,4 +1,4 @@
-import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel,AREA_BASIS,basisArea} from './facts.mjs';
+import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel,AREA_BASIS,basisArea,areaScopeKnown} from './facts.mjs';
 import {validateTravel,travelOutcome} from './travel.mjs';
 export const TYPES=['Zemljište','Kuća','Stan','Zgrada','Poslovni prostor'];
 export const CONDITIONS=['Useljivo','Za obnovu','Za rušenje','Neizgrađeno'];
@@ -149,8 +149,11 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  if(c.min_area!=null||c.max_area!=null){
   // Module 4: a documented basis compares the request with that confirmed measure (comparable, so the tolerance
   // applies); a known zero is a value. Without a basis the advertised area is used, as before.
-  let fit,label='Površina';
-  if(c.area_basis){const b=basisArea(c.area_basis,readFacts(p)||{},new Date(now).toISOString().slice(0,10));label='Površina ('+c.area_basis+')';if(b.note)info.push(b.note);
+  let fit,label='Površina';const today=new Date(now).toISOString().slice(0,10);
+  // A documented hard scope requirement (sale_scope) with an unconfirmed or different listing scope: the advertised
+  // or basis area may measure something else, so the comparison stays an open item instead of a result.
+  if(c.requirements?.length&&!areaScopeKnown(c.requirements,readFacts(p)||{},today)){fit=null;label='Površina (opseg prodaje nije potvrđen)'}
+  else if(c.area_basis){const b=basisArea(c.area_basis,readFacts(p)||{},new Date(now).toISOString().slice(0,10));label='Površina ('+c.area_basis+')';if(b.note)info.push(b.note);
    fit=b.area==null?null:b.area>0?areaFit(b.area,c):{fits:c.min_area==null||c.min_area<=0,deviation:-100,hard:c.area_hard===true}}
   else fit=areaFit(p.area,c);
   check(label,true,fit!==null,fit?.fits);
