@@ -15,8 +15,14 @@ const aliases=new Map([
  ['kuća','Kuća'],['stan','Stan'],['zgrada','Zgrada'],['poslovni prostor','Poslovni prostor']
 ].map(([k,v])=>[norm(k),v]));
 const type=v=>TYPES.includes(v)?v:aliases.get(norm(v));
-const object=v=>{try{const o=JSON.parse(v);return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch{return {}}};
+// Only text starting with '{' can parse to a plain object; anything else is {} without a thrown parse error
+// (free-text notes are parsed for every pair during refresh).
+const object=v=>{if(typeof v!=='string'||v.trimStart()[0]!=='{')return {};try{const o=JSON.parse(v);return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch{return {}}};
 
+// Type prefilter for refresh: a pair whose mapped property type is not among the buyer's mapped types always
+// ends in null in suggestion() (every earlier exit is null too), so it need not be evaluated.
+export const propertyTypeKey=p=>type(p.property_type)||null;
+export function buyerTypeSet(i){const raw=criteria(i);return new Set(!raw._invalid&&Array.isArray(raw.property_types)?raw.property_types.map(type).filter(Boolean):[])}
 // Exit reasons of suggestion(), reported by pairFunnel() to separate justified exclusions from data loss.
 export const EXCLUDED={BUYER_CRITERIA:'Kriteriji kupca nisu valjan JSON objekt',BUYER_SOURCE:'Kupac nema URL izvora zahtjeva',PROPERTY_SOURCE:'Nekretnina nema valjan URL izvora',
  BUYER_TYPES:'Kupac nema navedenu vrstu nekretnine',PROPERTY_TYPE:'Vrsta nekretnine nije poznata ni prepoznata',TYPE:'Vrsta nekretnine nije među traženima',COUNTRY:'Država nije među državama interesa kupca',AUCTION:'Dražba je prošla'};
