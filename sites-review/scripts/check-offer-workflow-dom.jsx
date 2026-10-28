@@ -125,7 +125,7 @@ await act(async()=>{button('Spremi zahtjev i ponovno izračunaj').click()});awai
 const saved=posts.find(b=>b.action==='save_request');
 assert.deepEqual({...saved,criteria:{...saved.criteria}},{action:'save_request',investor_id:Number(profile.id),request_id:null,label:'Stan u Splitu',preferred_countries:'Hrvatska',notes:'',verified:false,min_budget:null,max_budget:null,
  criteria:{property_types:['Stan'],conditions:['Useljivo'],min_area:60,max_area:60,cities:[],regions:[],source_url:null,
-  requirements:[{key:'land_owned',op:'min',unit:'ha',mandatory:true,quote:'kupnja 150 ha u vlasništvu',value:150}]}},'unknown budget stays empty, equal bounds kept, no inherited source, documented requirement');
+  requirements:[{key:'land_owned',op:'min',unit:'ha',mandatory:true,quote:'kupnja 150 ha u vlasništvu',value:150}],area_basis:null}},'unknown budget stays empty, equal bounds kept, no inherited source, documented requirement');
 const other=fixture.requests.items.find(r=>!r.root);
 await act(async()=>{$$('.request-card').find(c=>c.textContent.includes(other.request_label)).querySelector('button').click()});
 assert.equal(field('Naziv zahtjeva').value,other.request_label);

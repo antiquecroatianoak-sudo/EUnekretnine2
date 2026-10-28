@@ -1,4 +1,4 @@
-import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel} from './facts.mjs';
+import {validateRequirements,validateFacts,readFacts,compareRequirements,requirementLabel,AREA_BASIS,basisArea} from './facts.mjs';
 export const TYPES=['Zemljište','Kuća','Stan','Zgrada','Poslovni prostor'];
 export const CONDITIONS=['Useljivo','Za obnovu','Za rušenje','Neizgrađeno'];
 export const COUNTRIES=Object.fromEntries(['AT|Austrija','BE|Belgija','BG|Bugarska','HR|Hrvatska','CY|Cipar','CZ|Češka','DK|Danska','EE|Estonija','FI|Finska','FR|Francuska','DE|Njemačka','GR|Grčka','HU|Mađarska','IE|Irska','IT|Italija','LV|Latvija','LT|Litva','LU|Luksemburg','MT|Malta','NL|Nizozemska','PL|Poljska','PT|Portugal','RO|Rumunjska','SK|Slovačka','SI|Slovenija','ES|Španjolska','SE|Švedska'].map(s=>s.split('|')));
@@ -24,6 +24,7 @@ export function validateCriteria(c){
  if(c.min_area!=null&&c.max_area!=null&&c.min_area>c.max_area)throw Error('Nevaljan raspon površine.');
  if(c.requires_buildable!=null&&typeof c.requires_buildable!=='boolean')throw Error('Nevaljan uvjet gradnje.');
  if(c.requirements!=null)validateRequirements(c.requirements);
+ if(c.area_basis!=null&&!Object.hasOwn(AREA_BASIS,c.area_basis))throw Error('Nepoznata osnova površine.');
  if(c.area_hard!=null&&typeof c.area_hard!=='boolean')throw Error('Nevaljana oznaka tvrde granice površine.');
  if(c.source_url&&!validUrl(c.source_url))throw Error('Potreban je valjan URL dokaza zahtjeva kupca.');
 }
@@ -143,7 +144,13 @@ export function evaluate(p,i,now=Date.now(),pairChecks={},sourceRaw=null){
  for(const [k,f,label,allowed] of [['property_types','property_type','Vrsta nekretnine',TYPES],['conditions','condition','Stanje / obnova / rušenje',CONDITIONS]])check(label,!!c[k]?.length,allowed.includes(p[f]),c[k]?.includes(p[f]));
  for(const [k,f,label] of [['cities','city','Grad'],['regions','region','Regija']])if(c[k]?.length)check(label,true,!!p[f],c[k].map(norm).includes(norm(p[f])));
  if(c.min_area!=null||c.max_area!=null){
-  const fit=areaFit(p.area,c);check('Površina',true,fit!==null,fit?.fits);
+  // Module 4: a documented basis compares the request with that confirmed measure (comparable, so the tolerance
+  // applies); a known zero is a value. Without a basis the advertised area is used, as before.
+  let fit,label='Površina';
+  if(c.area_basis){const b=basisArea(c.area_basis,readFacts(p)||{},new Date(now).toISOString().slice(0,10));label='Površina ('+c.area_basis+')';if(b.note)info.push(b.note);
+   fit=b.area==null?null:b.area>0?areaFit(b.area,c):{fits:c.min_area==null||c.min_area<=0,deviation:-100,hard:c.area_hard===true}}
+  else fit=areaFit(p.area,c);
+  check(label,true,fit!==null,fit?.fits);
   if(fit){r.area_deviation=fit.deviation;
    if(fit.deviation&&fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, unutar tolerancije −15 %/+25 %');
    else if(!fit.fits)info.push('Površina '+pct(fit.deviation)+' od tražene granice, izvan '+(fit.hard?'tvrde granice kupca':'tolerancije −15 %/+25 %'));}

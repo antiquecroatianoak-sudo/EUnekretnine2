@@ -54,5 +54,12 @@ assert.equal(D.propertyInput({...base,facts_json:''}).facts_json,null);
 assert.deepEqual(JSON.parse(D.propertyInput({...base,facts_json:{rooms:fact(40,'kom')}}).facts_json),{rooms:fact(40,'kom')});
 assert.throws(()=>D.propertyInput({...base,facts_json:{rooms:fact(40,'kom','potvrđeno'),stars:fact(4,'kom')}}),/Nepoznat podatak/);
 assert.throws(()=>D.investorInput({name:'TEST ONLY',country:'US',preferred_countries:'Hrvatska',notes:'',verified:0,criteria_json:JSON.stringify({requirements:[{key:'rooms',op:'min',value:3,unit:'kom',mandatory:true}]})}),/izvorni navod/);
+// Module 4: area basis and land composition through evaluate(); same vectors as test_facts.py.
+const areaState=(r,label)=>r.reasons.includes(label)?'met':r.rejected.includes(label)?'unmet':r.missing.includes(label)?'open':'absent';
+const areaResults=vectors.area_cases.map(v=>{const i={...buyer(),criteria_json:JSON.stringify({...JSON.parse(buyer().criteria_json),...v.request})};
+ const r=D.evaluate({...p0,area:1500000,facts_json:JSON.stringify(v.facts)},i,now),label=v.request.area_basis?'Površina ('+v.request.area_basis+')':'Površina';
+ assert.equal(areaState(r,label),v.state,v.name);if(v.note)assert(r.info.includes(v.note),v.name+': note');return areaState(r,label)});
+assert.throws(()=>D.investorInput({name:'TEST ONLY',country:'US',preferred_countries:'Hrvatska',notes:'',verified:0,criteria_json:JSON.stringify({min_area:10,area_basis:'zemljište'})}),/osnova površine/);
+console.error(JSON.stringify(areaResults));
 console.log(JSON.stringify(vectors.compare.map(v=>F.compareRequirement(F.validateRequirements([v.requirement])[0],F.validateFacts(v.facts),v.today).state)));
 console.error('facts-v1: vectors, evaluation, digest stability and input validation passed');

@@ -22,6 +22,9 @@ FACTS = {
     'truck_access': dict(label='Pristup kamionima / utovar', type='boolean'),
     'water_rights': dict(label='Dokumentirana prava na vodu', type='boolean'),
     'operating': dict(label='Objekt posluje', type='boolean'),
+    'includes_buildings': dict(label='Prodaja uključuje zgrade', type='boolean'),
+    'includes_equipment': dict(label='Prodaja uključuje opremu', type='boolean'),
+    'includes_business': dict(label='Prodaja uključuje poslovanje', type='boolean'),
     'subtype': dict(label='Podvrsta / namjena', type='enum',
                     values=('hotel', 'turistički smještaj', 'skladište / logistika', 'industrijski objekt', 'farma', 'mješovita imovina')),
 }
@@ -121,3 +124,29 @@ def compare_requirement(q, facts, today):
 
 def requirement_label(key):
     return 'Uvjet zahtjeva: ' + FACTS[key]['label']
+
+
+# Module 4: which measured area a request means; requests without a basis keep the advertised area (legacy).
+AREA_BASIS = {'zemljište ukupno': 'land_total', 'zemljište u vlasništvu': 'land_owned', 'površina zgrada': 'building_area', 'korisna površina': 'usable_area'}
+
+
+def _usable(f, today):
+    return bool(f) and f.get('status') == 'potvrđeno' and not (f.get('valid_until') and f['valid_until'] < today)
+
+
+def land_composition(facts, today):
+    t, o, l = [(facts[k]['value'] * UNITS[facts[k]['unit']][1]) if _usable((facts or {}).get(k), today) else None for k in ('land_total', 'land_owned', 'land_leased')]
+    if o is not None and t is not None and o > t * 1.005: return dict(consistent=False, note='Zemljište u vlasništvu veće je od ukupno oglašenog')
+    if t is None or o is None or l is None: return dict(consistent=None)
+    return dict(consistent=True) if abs(o + l - t) <= t * 0.005 else dict(consistent=False, note='Vlasništvo i zakup ne zbrajaju se u ukupno oglašeno zemljište')
+
+
+def basis_area(basis, facts, today):
+    key = AREA_BASIS[basis]
+    f = (facts or {}).get(key)
+    if not _usable(f, today):
+        return dict(area=None, reason='conflict' if f and f.get('status') == 'proturječno' else 'expired' if f and f.get('status') == 'potvrđeno' else 'unknown')
+    if key in ('land_owned', 'land_total'):
+        c = land_composition(facts, today)
+        if c['consistent'] is False: return dict(area=None, reason='composition', note=c['note'])
+    return dict(area=f['value'] * UNITS[f['unit']][1], reason=None)

@@ -6,7 +6,7 @@ import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-from facts import compare_requirement, read_facts, requirement_label, validate_requirements
+from facts import AREA_BASIS, basis_area, compare_requirement, read_facts, requirement_label, validate_requirements
 
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
@@ -89,6 +89,7 @@ def validate_criteria(criteria):
     if criteria.get('area_hard', False) not in (True, False): raise ValueError('Nevaljana oznaka tvrde granice površine.')
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
     if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'])
+    if criteria.get('area_basis') is not None and criteria['area_basis'] not in AREA_BASIS: raise ValueError('Nepoznata osnova površine.')
 
 # Property facts a pair-specific check is bound to; equal to PAIR_FACTS in domain.mjs.
 PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'condition', 'area', 'price', 'price_basis', 'renovation', 'other_costs',
@@ -210,8 +211,16 @@ def evaluate(prop, investor, pair_checks=None):
     area = prop.get('area')
     area_deviation = None
     if min_area is not None or max_area is not None:
-        fit = area_fit(area, criteria)
-        check('Površina', True, fit is not None, bool(fit and fit['fits']))
+        # Module 4, as in domain.mjs: a documented basis uses that confirmed measure; a known zero is a value.
+        label = 'Površina'
+        if criteria.get('area_basis'):
+            b = basis_area(criteria['area_basis'], read_facts(prop) or {}, datetime.now(timezone.utc).date().isoformat())
+            label = 'Površina (' + criteria['area_basis'] + ')'
+            if b.get('note'): info.append(b['note'])
+            fit = None if b['area'] is None else area_fit(b['area'], criteria) if b['area'] > 0 else dict(fits=min_area is None or min_area <= 0, deviation=-100, hard=criteria.get('area_hard') is True)
+        else:
+            fit = area_fit(area, criteria)
+        check(label, True, fit is not None, bool(fit and fit['fits']))
         if fit:
             area_deviation = fit['deviation']
             if fit['deviation'] and fit['fits']: info.append('Površina ' + _pct(fit['deviation']) + ' od tražene granice, unutar tolerancije −15 %/+25 %')

@@ -73,6 +73,23 @@ class FactsTests(unittest.TestCase):
         self.assertIn('Ispravni strukturirani podaci nekretnine', matching.evaluate(dict(prop, facts_json='{nije'), buyer([owned]))['gaps']['property'])
         self.assertIn('Ispravni strukturirani kriteriji kupca', matching.evaluate(prop, buyer([dict(owned, key='min_rooms')]))['gaps']['buyer'])
 
+    def test_area_basis_vectors_equal_js(self):
+        now = datetime.now(timezone.utc)
+        prop = dict(id=7, country='Hrvatska', city='Osijek', title='TEST ONLY', source='https://example.org/p/7', price=900000.0, area=1500000.0, renovation=0.0, other_costs=0.0,
+                    property_type='Zemljište', condition='Neizgrađeno', status='Aktivno', source_checked_on=now.date().isoformat(), legal='Uredno', legal_evidence_url='https://example.org/legal')
+        results = []
+        for v in VECTORS['area_cases']:
+            c = dict(property_types=['Zemljište'], conditions=['Neizgrađeno'], source_url='https://example.org/d/3', checked_at=now.isoformat(), **v['request'])
+            r = matching.evaluate(dict(prop, facts_json=json.dumps(v['facts'])), dict(id=3, preferred_countries='Hrvatska', notes='', verified=1, criteria_json=json.dumps(c)))
+            label = 'Površina (' + v['request']['area_basis'] + ')' if v['request'].get('area_basis') else 'Površina'
+            state = 'met' if label in r['reasons'] else 'unmet' if label in r['rejected'] else 'open' if label in r['missing'] else 'absent'
+            self.assertEqual(state, v['state'], v['name'])
+            if v.get('note'): self.assertIn(v['note'], r['info'], v['name'])
+            results.append(state)
+        if shutil.which('node'):
+            js = subprocess.run(['node', 'test_facts.mjs'], cwd=ROOT, capture_output=True, text=True, check=True).stderr.strip().splitlines()
+            self.assertEqual(json.loads(js[0]), results)
+
 
 if __name__ == '__main__':
     unittest.main()

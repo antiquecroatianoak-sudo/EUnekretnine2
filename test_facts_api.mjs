@@ -47,6 +47,16 @@ try{
  await run({action:'refresh'});
  pair=await run({action:'pair',property_id:id,investor_id:b.id});r=JSON.parse(pair.current.result_json);
  assert.equal(r.status,MATCH);assert(r.info.some(v=>/želja nije ispunjena/.test(v)));
+ // Module 4: a request with an owned-land basis is compared with the owned area; refresh never changes stored facts.
+ await sql`update investors set criteria_json=${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:demand,checked_at:now,min_area:1500000,area_basis:'zemljište u vlasništvu'})} where id=${b.id}`;
+ const factsBefore=(await sql`select facts_json from properties where id=${id}`)[0].facts_json;
+ await run({action:'refresh'});
+ assert.equal((await sql`select facts_json from properties where id=${id}`)[0].facts_json,factsBefore,'refresh keeps manually entered facts');
+ assert.equal((await run({action:'pair',property_id:id,investor_id:b.id})).current,null,'150 ha owned requested, 110 ha owned: no pair');
+ await sql`update investors set criteria_json=${JSON.stringify({property_types:['Zemljište'],conditions:['Neizgrađeno'],source_url:demand,checked_at:now,min_area:1500000,area_basis:'zemljište ukupno'})} where id=${b.id}`;
+ await run({action:'refresh'});
+ r=JSON.parse((await run({action:'pair',property_id:id,investor_id:b.id})).current.result_json);
+ assert(r.reasons.includes('Površina (zemljište ukupno)'),'the advertised total is 150 ha');
  // Digest stability: a verified pair answer recorded on a property without facts stays valid after the migration.
  const plain=(await sql`select * from properties where id<>${id} limit 1`)[0];
  if(plain)assert.equal(pairText('x',plain),pairText('x',{...plain,facts_json:null}));

@@ -23,6 +23,9 @@ export const FACTS={
  truck_access:{label:'Pristup kamionima / utovar',type:'boolean',meaning:'Dokumentiran pristup teretnim vozilima ili utovarna rampa'},
  water_rights:{label:'Dokumentirana prava na vodu',type:'boolean',meaning:'Pravo korištenja vode prema dokumentu'},
  operating:{label:'Objekt posluje',type:'boolean',meaning:'Objekt je u radu (posluje) prema dokazu'},
+ includes_buildings:{label:'Prodaja uključuje zgrade',type:'boolean',meaning:'Zgrade su dokumentirano dio prodaje i cijene'},
+ includes_equipment:{label:'Prodaja uključuje opremu',type:'boolean',meaning:'Oprema je dokumentirano dio prodaje i cijene'},
+ includes_business:{label:'Prodaja uključuje poslovanje',type:'boolean',meaning:'Poslovanje (društvo, ugovori, licencije) dokumentirano ulazi u prodaju'},
  subtype:{label:'Podvrsta / namjena',type:'enum',values:['hotel','turistički smještaj','skladište / logistika','industrijski objekt','farma','mješovita imovina'],
   meaning:'Opcionalna podvrsta uz pet osnovnih vrsta; ne mijenja osnovnu vrstu nekretnine'}};
 export const OPS={number:['min','max'],boolean:['equals'],enum:['includes']};
@@ -90,3 +93,21 @@ export function compareRequirements(requirements,facts,now=Date.now()){
 // Labels evaluate() records for each state; a wish only ever adds information.
 export const requirementLabel=r=>'Uvjet zahtjeva: '+r.label;
 export const STATE_GAP={unknown:'Podatak nekretnine nije potvrđen',conflict:'Proturječan podatak nekretnine',expired:'Zastario podatak nekretnine'};
+
+// Module 4: which measured area a request means. Requests without a basis keep the advertised area (legacy).
+export const AREA_BASIS={'zemljište ukupno':'land_total','zemljište u vlasništvu':'land_owned','površina zgrada':'building_area','korisna površina':'usable_area'};
+const usable=(f,today)=>f&&f.status==='potvrđeno'&&!(f.valid_until&&f.valid_until<today);
+// Land composition: owned + leased must agree with the advertised total (0.5 %); measures are never summed into one.
+export function landComposition(facts,today){
+ const [t,o,l]=['land_total','land_owned','land_leased'].map(k=>usable(facts?.[k],today)?facts[k].value*UNITS[facts[k].unit][1]:null);
+ if(o!=null&&t!=null&&o>t*1.005)return {consistent:false,note:'Zemljište u vlasništvu veće je od ukupno oglašenog'};
+ if(t==null||o==null||l==null)return {consistent:null};
+ return Math.abs(o+l-t)<=t*0.005?{consistent:true}:{consistent:false,note:'Vlasništvo i zakup ne zbrajaju se u ukupno oglašeno zemljište'};
+}
+// The area a request is compared with: m² of the confirmed fact for its basis, or null (open item) with the reason.
+export function basisArea(basis,facts,today){
+ const key=AREA_BASIS[basis],f=facts?.[key];
+ if(!usable(f,today))return {area:null,reason:f?.status==='proturječno'?'conflict':f&&f.status==='potvrđeno'?'expired':'unknown'};
+ if(key==='land_owned'||key==='land_total'){const c=landComposition(facts,today);if(c.consistent===false)return {area:null,reason:'composition',note:c.note}}
+ return {area:f.value*UNITS[f.unit][1],reason:null};
+}

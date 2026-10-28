@@ -80,9 +80,11 @@ function parseOne(block){
   else if((m=n.match(maxRe))){const a=area(m[1],m[2]);if(a){put('max_area',a.m2,s,a.ambiguous?'niska':'visoka');hit=true}}
   else if((m=n.match(anyRe))){const a=area(m[1],m[2]);if(a){ambiguities.push('Površina „'+m[0].trim()+'” bez oznake najmanje/najviše/oko; granicu odredi ručno.');hit=true}}
   if(evidence.min_area===s||evidence.max_area===s){
-   const basis=/\b(zemljist|parcel|plot|land|grundstuck|terren)/.test(n)?'zemljište':/\b(korisn|neto|usable|net\b|nutzflache)/.test(n)?'korisna površina':/\b(bruto|zgrad|building|gross)/.test(n)?'površina zgrada':null;
-   if(basis)put('area_basis',basis,s,'srednja');else ambiguities.push('Osnova tražene površine (zemljište, zgrada ili korisna) nije navedena u „'+s+'”.');
-   if(/\b(vlasnistv|owned|eigentum)/.test(n))ambiguities.push('Navod traži površinu u vlasništvu; zakupljena se ne smije računati (modul 4).');
+   // Canonical bases of module 4 (facts.mjs AREA_BASIS). Land without ownership wording is "ukupno" with a question.
+   const owned=/\b(vlasnistv|owned|eigentum|in proprieta)/.test(n);
+   const basis=/\b(korisn|neto|usable|net\b|nutzflache)/.test(n)?'korisna površina':/\b(bruto|zgrad|building(?! (land|plot|site))|gross)/.test(n)?'površina zgrada':/\b(zemljist|parcel|plot|land|grundstuck|terren)/.test(n)?(owned?'zemljište u vlasništvu':'zemljište ukupno'):null;
+   if(basis)put('area_basis',basis,s,basis==='zemljište ukupno'?'niska':'srednja');else ambiguities.push('Osnova tražene površine (zemljište, zgrada ili korisna) nije navedena u „'+s+'”.');
+   if(basis==='zemljište ukupno')ambiguities.push('Nije navedeno traži li se ukupno zemljište ili samo zemljište u vlasništvu (bez zakupa); potvrdi osnovu.');
   }
   // Leasehold negation: "bez zakupa" is a requirement; "zakup nije uvjet" is not.
   if(/\b(bez zakup|no lease|without lease|ohne pacht)/.test(n)){requirements.push({key:'land_leased',op:'max',value:0,unit:'ha',mandatory:!WISH.test(n),quote:s});hit=true}

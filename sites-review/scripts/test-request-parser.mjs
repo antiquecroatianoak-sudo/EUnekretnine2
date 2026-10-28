@@ -6,7 +6,7 @@ const {validateRequirements}=await import('../lib/facts.mjs');
 const one=t=>{const r=parseRequestText(t);assert(quotesInSource(r),'every proposed value has a verbatim quote: '+t);for(const q of r.requests)if(q.fields.requirements)validateRequirements(q.fields.requirements);return r.requests[0]};
 // Croatian, ranges in ha with decimal comma, seat vs demand, leasehold negation, total budget.
 let r=one('Tražimo građevinsko zemljište u Hrvatskoj ili Sloveniji, od 1,5 do 3 ha, bez zakupa. Sjedište tvrtke je u Austriji. Budžet do 2 mil €.');
-assert.deepEqual([r.fields.min_area,r.fields.max_area,r.fields.area_basis],[15000,30000,'zemljište']);
+assert.deepEqual([r.fields.min_area,r.fields.max_area,r.fields.area_basis],[15000,30000,'zemljište ukupno']);assert.equal(r.confidence.area_basis,'niska');assert(r.ambiguities.some(a=>/ukupno zemljište ili samo zemljište u vlasništvu/.test(a)));
 assert.deepEqual(r.fields.preferred_countries,['Hrvatska','Slovenija']);assert.equal(r.fields.seat_country,'Austrija','the seat is not demand');
 assert.deepEqual(r.fields.requirements,[{key:'land_leased',op:'max',value:0,unit:'ha',mandatory:true,quote:'Tražimo građevinsko zemljište u Hrvatskoj ili Sloveniji, od 1,5 do 3 ha, bez zakupa.'}]);
 assert.equal(r.fields.max_budget,2000000);assert.equal(r.fields.verified,undefined);assert.equal(r.fields.contact_json,undefined);
@@ -15,6 +15,8 @@ r=one('Stan od ne manje od 60 m2 korisne površine u Irskoj. Pristup kamionima n
 assert.equal(r.fields.min_area,60);assert.equal(r.fields.max_area,undefined);assert.equal(r.fields.area_basis,'korisna površina');assert.equal(r.fields.requirements,undefined);
 assert(r.ambiguities.some(a=>/nije obavezan/.test(a)));
 r=one('Kuća za obnovu, ne više od 250 m² u Italiji.');assert.equal(r.fields.max_area,250);assert.equal(r.fields.min_area,undefined);assert.deepEqual(r.fields.conditions,['Za obnovu']);
+// Ownership wording selects the owned-land basis.
+assert.equal(one('Najmanje 150 ha zemljišta u vlasništvu u Hrvatskoj.').fields.area_basis,'zemljište u vlasništvu');
 // Equal and reversed ranges; reversed is never silently swapped.
 r=one('Zemljište od 1000 do 1000 m2 zemljišta u Hrvatskoj.');assert.deepEqual([r.fields.min_area,r.fields.max_area],[1000,1000]);
 r=one('Zemljište od 5 do 2 ha u Hrvatskoj.');assert.equal(r.fields.min_area,undefined);assert(r.ambiguities.some(a=>/Obrnut raspon/.test(a)));
