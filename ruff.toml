@@ -1,0 +1,8 @@
+# Targeted Python checks (owner approval 6464301339): real errors only — syntax errors (E9), pyflakes (undefined
+# names, redefinitions, unused variables, broken format strings) and pylint errors (PLE). No style or formatting
+# rules; unused imports (F401) stay out to avoid a flood of non-defects. Version pinned in the workflow.
+target-version = "py312"
+
+[lint]
+select = ["E9", "F", "PLE"]
+ignore = ["F401"]

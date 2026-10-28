@@ -70,6 +70,7 @@ jobs:
           node test_facts.mjs
           node test_travel.mjs
           node test_public_identity.mjs
+          node sites-review/scripts/test-listing-context.mjs
           node sites-review/scripts/test-platform-view.mjs
           node sites-review/scripts/test-platform-http.mjs
           node sites-review/scripts/test-pair-review.mjs

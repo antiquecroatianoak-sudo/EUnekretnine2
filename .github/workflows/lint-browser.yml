@@ -1,0 +1,76 @@
+name: Ruff and browser checks
+# Owner approval 6464301339: pinned Ruff with targeted error rules, and Playwright checks of the real dashboard on an
+# isolated test database. Free tools on standard runners; no new accounts or services. They add to, never replace,
+# the database, API and DOM tests in tests.yml.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lint-browser-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install ruff==0.14.3
+      - name: Ruff (real errors only, ruff.toml)
+        run: ruff check --output-format=github .
+      - name: Negative control — an undefined name must fail
+        run: |
+          printf 'def f():\n    return undefined_name\n' > "$RUNNER_TEMP/control.py"
+          if ruff check --config ruff.toml "$RUNNER_TEMP/control.py"; then echo 'Ruff did not report an undefined name'; exit 1; fi
+  browser:
+    # Playwright 1.56.1 supports Chromium on Ubuntu 24.04, not on ubuntu-latest (26.04); standard hosted runner.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: matching_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Pinned browser-check dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pgjs" --no-save --no-audit --no-fund postgres@3.4.7
+          npm install --prefix "$RUNNER_TEMP/e2e" --no-save --no-audit --no-fund playwright@1.56.1 esbuild@0.25.11 react@19.2.6 react-dom@19.2.6 lucide-react@1.31.0
+          "$RUNNER_TEMP/e2e/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Playwright — catalogue, pairs, save and re-read, errors, mobile
+        env:
+          TEST_POSTGRES_URL: postgresql://postgres:ci-only-password@localhost:5432/matching_test
+          E2E_DB_URL: postgres://postgres:ci-only-password@localhost:5432/e2e_ci
+          PG_MODULE: ${{ runner.temp }}/pgjs/node_modules/postgres/src/index.js
+        run: bash e2e/run.sh "$RUNNER_TEMP/e2e" "$RUNNER_TEMP/e2e-artifacts"
+      - name: Screenshots (TEST ONLY data, kept 7 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-screenshots
+          path: ${{ runner.temp }}/e2e-artifacts/*.png
+          retention-days: 7
+          if-no-files-found: ignore
