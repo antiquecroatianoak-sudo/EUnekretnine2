@@ -2,7 +2,7 @@ import {workflow,ACTIONS as WORKFLOW_ACTIONS,READ_ACTIONS as WORKFLOW_READS} fro
 import {changeOf} from './offer.mjs';
 import {explicitProof,admissibleListing,SOURCE_ACTIVE} from './activity-policy.mjs';
 import {agencyDirectory,withAgencies} from './agencies.mjs';
-import {catalogPage,PROPERTY_VISIBLE,INVESTOR_VISIBLE} from './catalog.mjs';
+import {catalogPage,stagedVisibility,INVESTOR_VISIBLE} from './catalog.mjs';
 import postgres from 'npm:postgres@3.4.7';
 import {evaluate,propertyInput,investorInput,MATCH,criteria,validUrl,num,digest,pairText,conditionText,pairCheckMap,ACTIVE_STATUSES,buyerDraft,COUNTRIES,country} from './domain.mjs';
 import {refreshSuggestions} from './refresh-suggestions.mjs';
@@ -23,34 +23,41 @@ async function settings(tx){const rows=await tx`select body_json from discovery_
 // Visibility rules shared by the full read and the pairs read: expired/removed sources, past deadlines.
 // Bounded initial payload. Catalogues continue through `catalog` keyset pages with server-side
 // search; source candidates continue through `sources`. These are page sizes, never overall maxima.
+// Run checkpoints can be large; the stored row is unchanged, the read returns only what sourceProgress() displays.
+const RUN_SUMMARY=`(select json_build_object('summarized',true,'pages_processed',b->'pages_processed','inserted_count',b->'inserted_count','updated_count',b->'updated_count',
+ 'pending_count',case when jsonb_typeof(b->'pending')='array' then jsonb_array_length(b->'pending') else 0 end,'error',left(b->>'error',2000))::text from (select site_private.safe_json(body_json) b) j)`;
 const LIMITS={properties:100,investors:100,sources:10000,source_candidates:500,discovery_runs:2000,activity:500,notification_outbox:2000,match_results:10000};
 async function list(tx){
+ const PROPERTY_VISIBLE=await stagedVisibility(tx);
  const tables=Object.keys(LIMITS);
  const values=await Promise.all(tables.map(t=>{
  if(t==='sources')return tx`select * from sources where is_active order by id limit ${LIMITS.sources}`;
  if(t==='properties')return tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id limit ${LIMITS.properties}`;
  if(t==='investors')return tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id limit ${LIMITS.investors}`;
- if(t==='source_candidates')return tx`select c.* from source_candidates c where c.kind<>'property' or ((${tx.unsafe(SOURCE_ACTIVE)}) and not exists(select 1 from site_private.listing_lifecycle l where l.candidate_id=c.id and l.state in ('expired','removed'))) order by last_seen desc,id limit ${LIMITS.source_candidates}`;
+ if(t==='source_candidates')return tx`select c.* from source_candidates c join pg_temp.source_state s on s.id=c.id where c.kind<>'property' or (s.active and not exists(select 1 from site_private.listing_lifecycle l where l.candidate_id=c.id and l.state in ('expired','removed'))) order by last_seen desc,id limit ${LIMITS.source_candidates}`;
  if(t==='match_results')return tx`select m.* from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id limit ${LIMITS.match_results}`;
  if(t==='notification_outbox')return tx`select n.* from notification_outbox n join properties p on p.id=n.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by n.id limit ${LIMITS.notification_outbox}`;
+ if(t==='discovery_runs')return tx`select source_id,status,checked_at,${tx.unsafe(RUN_SUMMARY)} as body_json from discovery_runs order by 1 limit ${LIMITS.discovery_runs}`;
  if(t==='activity')return tx`select a.*,p.title as property_title,i.name as investor_name from activity a left join properties p on p.id=a.property_id left join investors i on i.id=a.investor_id where a.property_id is null or exists(select 1 from properties p where p.id=a.property_id and ${tx.unsafe(PROPERTY_VISIBLE)}) order by a.id desc limit ${LIMITS.activity}`;
  return tx`select * from ${tx(t)} order by 1 limit ${LIMITS[t]}`;
 }));
  values[0]=await withAgencies(tx,values[0],'properties');values[1]=await withAgencies(tx,values[1],'investors');
  const agencies=await agencyDirectory(tx);
  const [counts]=await tx`select (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties,(select count(*) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors,
-  (select count(*) from properties p where ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_all,(select count(*) from investors)::int as investors_all,
+  (select count(*) from investors)::int as investors_all,
   (select count(distinct coalesce(nullif(i.criteria_json::jsonb->>'buyer_identity_id',''),i.id::text)) from investors i where ${tx.unsafe(INVESTOR_VISIBLE)})::int as buyers,
   (select count(*) from properties p where site_private.property_eligible(p) and site_private.contact_usable(p.contact_json,p.source) and ${tx.unsafe(PROPERTY_VISIBLE)})::int as properties_eligible,
   (select count(*) from investors i where site_private.investor_eligible(i) and site_private.contact_usable(i.contact_json,i.criteria_json::jsonb->>'source_url') and ${tx.unsafe(INVESTOR_VISIBLE)})::int as investors_eligible,
-  (select count(*) from sources where is_active)::int as sources,(select count(*) from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)})::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
+  (select count(*) from sources where is_active)::int as sources,(select count(*) from pg_temp.source_state s where s.kind<>'property' or s.active)::int as source_candidates,(select count(*) from discovery_runs)::int as discovery_runs,
   (select count(*) from activity)::int as activity,(select count(*) from notification_outbox n join properties p on p.id=n.property_id where ${tx.unsafe(PROPERTY_VISIBLE)})::int as notification_outbox,(select count(*) from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)})::int as match_results`;
+ counts.properties_all=counts.properties;
  const truncated=Object.fromEntries(tables.map((t,n)=>[t,counts[t]>values[n].length]));
  return Object.fromEntries([...tables.map((t,i)=>[t,values[i]]),['counts',counts],['agencies',agencies],['truncated',truncated],['settings',await settings(tx)],['loaded_at',new Date().toISOString()]]);
 }
 // Stored pairs with only the records they link to: small, independent of the full read, and explicit about
 // pairs whose property or buyer is outside the visible lists (they are reported, never silently dropped).
 async function pairsRead(tx){
+ const PROPERTY_VISIBLE=await stagedVisibility(tx);
  const rows=await tx`select m.property_id,m.investor_id,m.result_json,m.updated from match_results m join properties p on p.id=m.property_id where ${tx.unsafe(PROPERTY_VISIBLE)} order by m.property_id,m.investor_id`;
  const pids=[...new Set(rows.map(r=>Number(r.property_id)))],iids=[...new Set(rows.map(r=>Number(r.investor_id)))];
  const [properties,investors,[totals]]=await Promise.all([
@@ -68,11 +75,13 @@ async function pairsRead(tx){
 async function sourcesPage(tx,a){
  const offset=Number(a.offset??0),limit=Number(a.limit??LIMITS.source_candidates);
  if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>1000)throw Error('Nevaljana stranica izvora.');
- const [rows,[{n}]]=await Promise.all([tx`select c.* from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)} order by last_seen desc,id limit ${limit} offset ${offset}`,tx`select count(*)::int as n from source_candidates c where c.kind<>'property' or ${tx.unsafe(SOURCE_ACTIVE)}`]);
+ await stagedVisibility(tx);
+ const [rows,[{n}]]=await Promise.all([tx`select c.* from source_candidates c join pg_temp.source_state s on s.id=c.id where c.kind<>'property' or s.active order by last_seen desc,id limit ${limit} offset ${offset}`,tx`select count(*)::int as n from pg_temp.source_state s where s.kind<>'property' or s.active`]);
  return {source_candidates:rows,offset,total:n};
 }
 // Counts only: how the stored candidates arise and why the remaining property × buyer pairs are excluded.
 async function pairDiagnostics(tx){
+ const PROPERTY_VISIBLE=await stagedVisibility(tx);
  const props=await tx`select p.* from properties p where ${tx.unsafe(PROPERTY_VISIBLE)} order by p.id`;
  const investors=await tx`select i.* from investors i where ${tx.unsafe(INVESTOR_VISIBLE)} order by i.id`;
  const checks=pairCheckMap(await tx`select id,property_id,investor_id,requirement,status,digest,evidence,outcome,answered_on,recorded_at from site_private.pair_answers where kind='Odgovor'`);
@@ -128,6 +137,7 @@ const text=(v,max,label)=>{if(typeof v!=='string'||!v.trim()||v.length>max)throw
 const optional=(v,max,label)=>v==null||v===''?null:text(v,max,label);
 // Permanent pair record with its history, review tasks, answers and stages (read only).
 async function pair(tx,a){
+ const PROPERTY_VISIBLE=await stagedVisibility(tx);
  const p=pairId(a.property_id),i=pairId(a.investor_id);
  if(!(await tx`select 1 from properties p where p.id=${p} and ${tx.unsafe(PROPERTY_VISIBLE)}`).length)throw Error('Oglas nema važeću potvrdu aktivnosti.');
  const [record,history,tasks,answers,stages,current,properties,investors]=await Promise.all([

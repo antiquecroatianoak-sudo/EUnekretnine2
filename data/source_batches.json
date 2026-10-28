@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-27T14:50:50.126069+00:00",
- "source_count": 154,
- "inactive_count": 101,
+ "checked_at": "2026-10-28T07:01:08.037847+00:00",
+ "source_count": 168,
+ "inactive_count": 114,
  "groups": {
   "structured_property_adapter": 22,
   "operating_monitor": 53,
-  "approved_access_required": 38,
-  "fetch_or_persistence_failure": 36,
+  "approved_access_required": 41,
+  "fetch_or_persistence_failure": 47,
   "listing_layout": 2,
   "buyer_acquisition_pages": 1,
   "pdf_acquisition_profiles": 2
@@ -681,7 +681,7 @@
    "url": "https://mp-development.hr/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": "TimeoutError: The read operation timed out",
+   "last_error": null,
    "retry_after": null
   },
   {
@@ -715,9 +715,9 @@
    "name": "Bulgarian Properties",
    "url": "https://www.bulgarianproperties.com/",
    "is_active": true,
-   "group": "operating_monitor",
-   "last_error": null,
-   "retry_after": null,
+   "group": "approved_access_required",
+   "last_error": "HTTPError: HTTP Error 403: Forbidden",
+   "retry_after": "2026-10-28T15:19:48.270817+00:00",
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
     "status": "observed",
@@ -1863,10 +1863,10 @@
    "id": "136",
    "name": "Interfarms",
    "url": "https://interfarms.com/nl/",
-   "is_active": false,
-   "group": "fetch_or_persistence_failure",
-   "last_error": null,
-   "retry_after": null,
+   "is_active": true,
+   "group": "operating_monitor",
+   "last_error": "HTTPError: HTTP Error 500: Internal Server Error",
+   "retry_after": "2026-10-28T18:54:17.716826+00:00",
    "probe_at": "2026-10-27T14:50:50.128682+00:00",
    "probe": {
     "status": "observed",
@@ -1908,7 +1908,7 @@
    "name": "Properstar",
    "url": "https://www.properstar.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T14:50:50.128682+00:00",
@@ -1989,7 +1989,7 @@
    "name": "Brevitas",
    "url": "https://brevitas.com/",
    "is_active": false,
-   "group": "fetch_or_persistence_failure",
+   "group": "approved_access_required",
    "last_error": null,
    "retry_after": null,
    "probe_at": "2026-10-27T14:50:50.128682+00:00",
@@ -2283,9 +2283,354 @@
     "link_count": 144,
     "next_action": "Validate individual records, country, contact and terms before import"
    }
+  },
+  {
+   "id": "155",
+   "name": "Villa Aurelia - Golden Sunset Villa, Prvi red do mora, Privlaka - Emporia RealEstate Zadar Villa Aurelia – Golden Sunset Villa, Prvi red do mora, Privlaka VILLA",
+   "url": "https://www.emporia-nekretnine.com/property/kuca-h730-sukosan/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "AggregateRating",
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "Product",
+     "PropertyValueSpecification",
+     "ReadAction",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 144,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "156",
+   "name": "Immobiliensuche - WAG Navigation umschalten Raum für dich",
+   "url": "https://www.wag.at/immobilien/immobiliensuche/suche/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ListItem"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 263,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "157",
+   "name": "Immobilienmakler Wien & Niederösterreich | Immodealer Immodealer – Immobilienmakler für Wien und Niederösterreich",
+   "url": "https://www.immodealer.at/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "ContactPoint",
+     "ImageObject",
+     "ItemList",
+     "ListItem",
+     "OpeningHoursSpecification",
+     "Organization",
+     "Person",
+     "PostalAddress",
+     "RealEstateAgent",
+     "Service",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 45,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "158",
+   "name": "Modernes Wohnen und Arbeiten in einem Haus - Weiler - Amann Immobilien GmbH",
+   "url": "https://www.amann-immobilien.com/modernes-wohnen-und-arbeiten-in-einem-haus-in-weiler-vorarlberg/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "PropertyValueSpecification",
+     "ReadAction",
+     "RealEstateListing",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 96,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "159",
+   "name": "Moradias para comprar - Casas para comprar | Imovirtual.com Moradias para comprar: Todo o país",
+   "url": "https://www.imovirtual.com/pt/resultados/comprar/apartamento/todo-o-pais",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Accommodation",
+     "AggregateOffer",
+     "BreadcrumbList",
+     "ImageObject",
+     "ListItem",
+     "Offer",
+     "Organization",
+     "PostalAddress",
+     "Product",
+     "QuantitativeValue",
+     "UnitPriceSpecification",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 337,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "160",
+   "name": "Case de vânzare | Storia.ro Case de vânzare: Toată România",
+   "url": "https://www.storia.ro/ro/rezultate/vanzare/apartament/toata-romania",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Accommodation",
+     "AggregateOffer",
+     "BreadcrumbList",
+     "ImageObject",
+     "ListItem",
+     "Offer",
+     "Organization",
+     "PostalAddress",
+     "Product",
+     "QuantitativeValue",
+     "UnitPriceSpecification",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 330,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "161",
+   "name": "Büro- & Geschäftsflächen Büro- & Geschäftsflächen der GWS",
+   "url": "https://gws-wohnen.at/immobilien-finden/buero-geschaeftsflaechen/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 61,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "162",
+   "name": "Exklusives PENTHOUSE in Lignano Sabbiadoro mit privater Dachterrasse & Meerblick - CA' ITALIA Exklusives PENTHOUSE in Lignano Sabbiadoro mit privater Dachterras",
+   "url": "https://www.ca-italia-immo.com/immobilie/penthouse-lignano-sabbiadoro/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "PropertyValueSpecification",
+     "ReadAction",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 105,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "163",
+   "name": "Startseite | SAGE Immobilien Zurück Weiter Nach oben scrollen",
+   "url": "https://www.sage-immobilien.at/immobilien/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "CollectionPage",
+     "ImageObject",
+     "ItemList",
+     "ListItem",
+     "Organization",
+     "SearchAction",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 141,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "164",
+   "name": "Top Living Unsere aktuellen Immobilien",
+   "url": "https://top-living.at/immobilien",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 209,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "165",
+   "name": "Issuu PropertyGuru Property Report No.172 (June - July 2022) Issuu PropertyGuru Property Report No.172 (June - July 2022) by PropertyGuru Property Report - Issu",
+   "url": "https://issuu.com/propertygurupropertyreport/docs/pr_no.172/s/15943802",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "DigitalDocument",
+     "Organization",
+     "Person"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 79,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "166",
+   "name": "5 of the best Lake Como properties for sale right now - The Spaces 5 of the best Lake Como properties for sale right now",
+   "url": "https://thespaces.com/5-of-the-best-lake-como-properties-for-sale-right-now/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "Article",
+     "BreadcrumbList",
+     "EntryPoint",
+     "ImageObject",
+     "ListItem",
+     "Organization",
+     "Person",
+     "SearchAction",
+     "WebPage",
+     "WebSite"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 77,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "167",
+   "name": "Tranio - Capital",
+   "url": "https://tranio-capital.com/",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 32,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
+  },
+  {
+   "id": "168",
+   "name": "Immobiliendetails | TEGEA Real Estate",
+   "url": "https://www.tegea.at/immobiliendetails.xhtml",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-28T07:01:08.040927+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "GeoCoordinates",
+     "LocalBusiness",
+     "PostalAddress",
+     "RealEstateAgent"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 53,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
- "probed_count": 19,
+ "probed_count": 14,
  "remaining_due": 0
 }
