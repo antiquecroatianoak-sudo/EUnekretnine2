@@ -185,6 +185,14 @@ await act(async()=>{[...pairCard.querySelectorAll('button')].find(b=>b.textConte
 await act(async()=>{await new Promise(r=>setTimeout(r,20))});
 assert.deepEqual(posts.at(-1),{action:'pair',property_id:1,investor_id:10});
 const dialog=$('[role="dialog"]');
+const comparison=dialog.querySelector('.pair-criteria-table');
+assert(comparison,'pair detail renders a semantic comparison table');
+assert.deepEqual([...comparison.querySelectorAll('thead th')].map(h=>h.textContent),['Kriterij','Zahtjev kupca','Podatak nekretnine','Rezultat']);
+assert.equal(comparison.querySelectorAll('tbody tr.met').length,2);
+assert.equal(comparison.querySelectorAll('tbody tr.unknown').length,3);
+assert.equal(comparison.querySelectorAll('tbody tr.unmet').length,0,'unknown never becomes a mismatch');
+assert(comparison.querySelector('tbody tr.info'),'budget stays informational');
+assert(comparison.querySelector('th[scope="row"]'),'criteria have accessible row headings');
 for(const t of ['Podaci o nekretnini (pitanja prodavatelju)','Provjera za ovaj par','Podudaranje kriterija nije potvrđen interes','Ukupni trošak iznad navedenog budžeta kupca (informativno)'])assert(dialog.textContent.includes(t),t);
 assert.equal($$('button').find(b=>b.textContent==='Zabilježi fazu uz dokaz').disabled,true,'no interest stage for a possible pair');
 await act(async()=>{$$('button').filter(b=>b.textContent==='Nacrt pitanja')[0].click()});
@@ -366,4 +374,22 @@ refuseSave=false;
 await act(async()=>{button('Spremi promjene').click()});
 assert.equal($('[role="dialog"]'),null,'only a successful retry closes the form');
 assert(document.body.textContent.includes('Nekretnina je spremljena.'));
+await act(async()=>root.unmount());
+
+// Source context is visible in the actual catalogue, without changing pair counts.
+const contextual=dataset(true);
+contextual.properties[0]={...contextual.properties[0],price:120000,price_basis:'starting_bid',status:'Aktivno',availability_status:'Dostupnost nije potvrđena',source_agency:{id:9,name:'TEST ONLY Source Agency'}};
+root=await mountWith(async(url,options={})=>({ok:true,json:async()=>contextual}));
+await act(async()=>{button('Nekretnine').click()});
+const contextualRow=$$('table tbody tr').find(r=>r.textContent.includes('Zemljište Galway'));
+assert(contextualRow.textContent.includes('Početna / minimalna ponuda na dražbi'));
+assert(contextualRow.textContent.includes('Dostupnost nije potvrđena'));
+assert(contextualRow.textContent.includes('Izvorna agencija: TEST ONLY Source Agency'));
+const original=contextualRow.querySelector('a[aria-label="Izvorni oglas za Zemljište Galway"]');
+assert.equal(original.href,contextual.properties[0].source);
+assert.equal(original.target,'_blank');assert(original.rel.includes('noopener'));
+await act(async()=>{$$('nav button').find(b=>b.textContent.startsWith('Podudaranja')).click()});
+await act(async()=>{button('Mogući parovi').click()});
+assert.equal($$('.opportunities-table tbody tr').length,2);
+assert($$('.opportunities-table summary').some(s=>s.textContent==='Izvor i dostupnost'));
 await act(async()=>root.unmount());

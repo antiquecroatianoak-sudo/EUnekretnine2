@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {listingContext} from '../lib/listing-context.mjs';
+const source='https://example.org/listing/24';
+// Permissions here are synthetic and used only in this isolated fixture.
+const contact={mode:'agency',name:'TEST ONLY',agency_name:'TEST ONLY Agency',represents_record:true,permitted:true,record_reference:source,contact_url:source,evidence_url:source};
+const p={id:24,source,price_basis:'starting_bid',status:'Aktivno',updated:new Date().toISOString(),contact_json:JSON.stringify(contact),source_agency:{name:'TEST ONLY Source'}};
+const before=JSON.stringify(p),s=listingContext(p);
+assert.equal(s.availability,'Dostupnost nije potvrđena','ordinary save or active label never invents availability');
+assert.equal(s.priceBasis,'Početna / minimalna ponuda na dražbi');
+assert.equal(s.contactLabel,'Kontakt preko agencije');assert.equal(s.agency,'TEST ONLY Source');
+assert.equal(s.record,'Zapis #24');assert.equal(s.source.url,source);
+assert.equal(listingContext({...p,availability_status:'Aktivnost potvrđena'}).availability,'Aktivnost potvrđena');
+assert.equal(listingContext({...p,price_basis:null,auction_at:'2099-01-01'}).priceBasis,'Osnova cijene nije poznata');
+assert.equal(listingContext({...p,price_basis:'Tražena cijena'}).priceBasis,'Tražena cijena');
+assert.equal(listingContext({...p,price_basis:'Početna / minimalna ponuda na dražbi'}).priceBasis,s.priceBasis);
+assert.equal(listingContext({...p,contact_json:{...contact,record_reference:'https://example.org/other'}}).contactLabel,'Kontakt treba dopuniti');
+assert.equal(listingContext({...p,contact_json:{...contact,permitted:false}}).contactLabel,'Kontakt treba dopuniti');
+assert.equal(listingContext({...p,contact_json:{...contact,permission_scope:'property_enquiry_only'}}).contactLabel,'Upit za ovaj oglas');
+for(const url of ['javascript:alert(1)','https://user:password@example.org/x','data:text/html,test',null])assert.equal(listingContext({...p,source:url}).source,null);
+assert.equal(JSON.stringify(p),before,'read-only projection never mutates a saved record');
+console.log('Listing context: unknown availability and price basis, scoped/agency contacts, record binding, safe source links and unchanged records passed.');
