@@ -6,6 +6,9 @@ import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
+from facts import AREA_BASIS, area_scope_known, basis_area, compare_requirements, read_facts, requirement_label, validate_requirements
+from travel import TRAVEL_REASON, validate_travel
+
 PROPERTY_TYPES = ['Zemljište', 'Kuća', 'Stan', 'Zgrada', 'Poslovni prostor']
 CONDITIONS = ['Useljivo', 'Za obnovu', 'Za rušenje', 'Neizgrađeno']
 INACTIVE = {'Prodano', 'Povučeno', 'Rok istekao - ishod nepoznat', 'Zatvoreno'}
@@ -71,7 +74,7 @@ def check_valid(check, text, now=None):
         return False
     return checked.tzinfo is not None and 0 <= age <= 90 * 86400 and check.get('digest') == digest(text)
 
-def validate_criteria(criteria):
+def validate_criteria(criteria, strict=False):
     for key, allowed in [('property_types', PROPERTY_TYPES), ('conditions', CONDITIONS)]:
         values = criteria.get(key, [])
         if not isinstance(values, list) or any(v not in allowed for v in values):
@@ -86,6 +89,9 @@ def validate_criteria(criteria):
     if criteria.get('requires_buildable', False) not in (True, False): raise ValueError('Nevaljan uvjet gradnje.')
     if criteria.get('area_hard', False) not in (True, False): raise ValueError('Nevaljana oznaka tvrde granice površine.')
     if criteria.get('source_url') and not valid_url(criteria['source_url']): raise ValueError('Potreban je valjan URL dokaza zahtjeva kupca.')
+    if criteria.get('requirements') is not None: validate_requirements(criteria['requirements'], strict=strict)
+    if criteria.get('area_basis') is not None and criteria['area_basis'] not in AREA_BASIS: raise ValueError('Nepoznata osnova površine.')
+    if criteria.get('travel') is not None: validate_travel(criteria['travel'])
 
 # Property facts a pair-specific check is bound to; equal to PAIR_FACTS in domain.mjs.
 PAIR_FACTS = ['id', 'country', 'region', 'city', 'title', 'property_type', 'condition', 'area', 'price', 'price_basis', 'renovation', 'other_costs',
@@ -142,6 +148,10 @@ def pair_text(requirement, prop):
     """The buyer's condition wording plus the property facts it was checked against (as pairText in domain.mjs)."""
     # The id is compared as text, as the database driver returns bigint ids as strings in domain.mjs.
     values = [str(prop['id']) if k == 'id' and prop.get('id') is not None else _fact(prop.get(k)) for k in PAIR_FACTS]
+    # Specialised facts (facts.py) join the text only when present, so earlier checks keep their digest.
+    facts = read_facts(prop)
+    if facts is None: values.append({'facts_invalid': str(prop.get('facts_json'))})
+    elif facts: values.append({'facts': facts})
     return json.dumps([str(requirement if requirement is not None else '')] + values, ensure_ascii=False, separators=(',', ':'))
 
 # Area tolerance, equal to areaFit() in domain.mjs: up to 15 % below the lower and 25 % above the upper bound;
@@ -203,8 +213,19 @@ def evaluate(prop, investor, pair_checks=None):
     area = prop.get('area')
     area_deviation = None
     if min_area is not None or max_area is not None:
-        fit = area_fit(area, criteria)
-        check('Površina', True, fit is not None, bool(fit and fit['fits']))
+        # Module 4, as in domain.mjs: a documented basis uses that confirmed measure; a known zero is a value.
+        label = 'Površina'
+        today = datetime.now(timezone.utc).date().isoformat()
+        if criteria.get('requirements') and not area_scope_known(criteria['requirements'], read_facts(prop) or {}, today):
+            fit, label = None, 'Površina (opseg prodaje nije potvrđen)'
+        elif criteria.get('area_basis'):
+            b = basis_area(criteria['area_basis'], read_facts(prop) or {}, datetime.now(timezone.utc).date().isoformat())
+            label = 'Površina (' + criteria['area_basis'] + ')'
+            if b.get('note'): info.append(b['note'])
+            fit = None if b['area'] is None else area_fit(b['area'], criteria) if b['area'] > 0 else dict(fits=min_area is None or min_area <= 0, deviation=-100, hard=criteria.get('area_hard') is True)
+        else:
+            fit = area_fit(area, criteria)
+        check(label, True, fit is not None, bool(fit and fit['fits']))
         if fit:
             area_deviation = fit['deviation']
             if fit['deviation'] and fit['fits']: info.append('Površina ' + _pct(fit['deviation']) + ' od tražene granice, unutar tolerancije −15 %/+25 %')
@@ -240,6 +261,20 @@ def evaluate(prop, investor, pair_checks=None):
             evidence = pair_checks.get(fulfilment) or {}
             if not check_valid(evidence, pair_text(source_text, prop)) or evidence.get('outcome') not in ('zadovoljava', 'ne zadovoljava'): gap(fulfilment, 'pair')
             elif evidence['outcome'] == 'ne zadovoljava': rejected.append(fulfilment)
+    # Documented requirements (facts-v1), as in domain.mjs: a mandatory one is a criterion, a wish only informs.
+    if criteria.get('requirements'):
+        facts = read_facts(prop)
+        if facts is None: gap('Ispravni strukturirani podaci nekretnine', 'property')
+        today = datetime.now(timezone.utc).date().isoformat()
+        for q, state in zip(criteria['requirements'], compare_requirements(criteria['requirements'], facts or {}, today)):
+            label = requirement_label(q['key'])
+            if q['mandatory']: check(label, state not in ('inverted', 'unspecified'), state in ('met', 'unmet'), state == 'met')
+            else: info.append(label + (' — želja ispunjena' if state == 'met' else ' — želja nije ispunjena (informativno)' if state == 'unmet' else ' — želja proturječi drugom uvjetu zahtjeva (informativno)' if state == 'inverted' else ' — želja bez navedene vrijednosti (informativno)' if state == 'unspecified' else ' — želja, podatak nije potvrđen'))
+    # Travel time (module 6, off), as in domain.mjs: never computed here, never replaced by a straight-line distance.
+    for t in criteria.get('travel') or []:
+        label = 'Vrijeme putovanja do „' + t['destination']['name'] + '” (' + t['mode'] + ')'
+        if t['mandatory']: gap(label + ' nije izračunato', 'pair')
+        else: info.append(label + ' — želja; ' + TRAVEL_REASON)
     if not valid_url(prop.get('source')): gap('Izvor oglasa', 'property')
     if not (prop.get('city') or '').strip(): gap('Grad nekretnine', 'property')
     if not source_fresh(prop): gap(SOURCE_FRESH, 'property')
@@ -263,7 +298,8 @@ def evaluate(prop, investor, pair_checks=None):
     call_closed = bool(call.get('call_closed')) or linked.get('source_listing_state') in ('expired', 'removed')
     for deadline in (call.get('call_deadline'), linked.get('deadline')):
         if not deadline: continue
-        try: call_closed = call_closed or datetime.fromisoformat(str(deadline)[:10]).date() < datetime.now(timezone.utc).date()
+        # Parsed even when the call is already closed, so an invalid deadline is still reported (as domain.mjs).
+        try: passed = datetime.fromisoformat(str(deadline)[:10]).date() < datetime.now(timezone.utc).date(); call_closed = call_closed or passed
         except ValueError: gap('Valjan rok javnog poziva kupca', 'buyer')
     if call_closed: rejected.append('Javni poziv kupca je zatvoren ili istekao')
     missing = list(dict.fromkeys(missing))

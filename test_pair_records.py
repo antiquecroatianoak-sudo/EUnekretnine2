@@ -82,8 +82,20 @@ class PairRecordsMigrationTests(unittest.TestCase):
     def test_pair_api_against_migrated_schema(self):
         self.run_node('test_pair_api.mjs')
     @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_offer_workflow_against_migrated_schema(self):
+        self.run_node('test_offer_workflow.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
     def test_read_path_against_migrated_schema(self):
         self.run_node('test_read_staged.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_facts_api_against_migrated_schema(self):
+        self.run_node('test_facts_api.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_completion_api_against_migrated_schema(self):
+        self.run_node('test_completion_api.mjs')
+    @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
+    def test_partner_api_against_migrated_schema(self):
+        self.run_node('test_partner_api.mjs')
     @unittest.skipUnless(os.environ.get('PG_MODULE') and shutil.which('node'), 'PG_MODULE (postgres@3.4.7) ili node nisu dostupni')
     def test_refresh_equivalence_against_migrated_schema(self):
         self.run_node('test_refresh_equivalence.mjs')

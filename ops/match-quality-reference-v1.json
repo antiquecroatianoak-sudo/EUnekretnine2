@@ -1,0 +1,978 @@
+{
+ "version": "match-quality-reference-v1",
+ "note": "TEST ONLY sintetički parovi s očekivanim ishodom i razlogom (nalog 6470902546). Nisu označeni stvarni tržišni parovi; ne služe za tvrdnju o izmjerenoj preciznosti.",
+ "labels": {
+  "odgovara": "jasno odgovara kriterijima",
+  "odstupa": "jasno odstupa",
+  "nedovoljno": "nedovoljno podataka"
+ },
+ "cases": [
+  {
+   "id": "q01",
+   "group": "osnova površine",
+   "title": "Tražena površina zgrada 1000 m², oglas ima parcelu 12.000 m² i potvrđenih 300 m² zgrada",
+   "expected": "odstupa",
+   "label": "Površina (površina zgrada)",
+   "why": "Ista brojka nije ista površina: parcela ne zamjenjuje površinu zgrada.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 12000
+   },
+   "facts": {
+    "building_area": {
+     "value": 300,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "m2",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "criteria": {
+    "min_area": 1000,
+    "area_basis": "površina zgrada"
+   }
+  },
+  {
+   "id": "q02",
+   "group": "osnova površine",
+   "title": "Tražena površina zgrada, površina zgrada nepoznata, oglašeno 12.000 m²",
+   "expected": "nedovoljno",
+   "label": "Površina (površina zgrada)",
+   "why": "Bez podatka za traženu osnovu nema usporedbe; oglašena površina se ne koristi kao zamjena.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 12000
+   },
+   "facts": {},
+   "criteria": {
+    "min_area": 1000,
+    "area_basis": "površina zgrada"
+   }
+  },
+  {
+   "id": "q03",
+   "group": "osnova površine",
+   "title": "Tražena korisna površina 500 m², poznata samo bruto površina zgrada 500 m²",
+   "expected": "nedovoljno",
+   "label": "Površina (korisna površina)",
+   "why": "Bruto i korisna površina nisu iste mjere.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "building_area": {
+     "value": 500,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "m2",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "criteria": {
+    "min_area": 500,
+    "area_basis": "korisna površina"
+   }
+  },
+  {
+   "id": "q04",
+   "group": "prodaja, zakup i sastav prodaje",
+   "title": "Obavezno bez zakupa, potvrđeno 40 ha zakupljenog zemljišta",
+   "expected": "odstupa",
+   "label": "Uvjet zahtjeva: Zakupljeno zemljište",
+   "why": "Dokumentiran tvrdi uvjet nije ispunjen.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "land_leased": {
+     "value": 40,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "ha",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "criteria": {
+    "requirements": [
+     {
+      "key": "land_leased",
+      "op": "max",
+      "value": 0,
+      "unit": "ha",
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q05",
+   "group": "prodaja, zakup i sastav prodaje",
+   "title": "Obavezno bez zakupa, zakup nepoznat",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Zakupljeno zemljište",
+   "why": "Nepoznato nije nula.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {},
+   "criteria": {
+    "requirements": [
+     {
+      "key": "land_leased",
+      "op": "max",
+      "value": 0,
+      "unit": "ha",
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q06",
+   "group": "prodaja, zakup i sastav prodaje",
+   "title": "Obavezno bez zakupa, potvrđeno 0 ha zakupa",
+   "expected": "odgovara",
+   "label": "Uvjet zahtjeva: Zakupljeno zemljište",
+   "why": "Potvrđena nula je vrijednost.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "land_leased": {
+     "value": 0,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "ha",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "criteria": {
+    "requirements": [
+     {
+      "key": "land_leased",
+      "op": "max",
+      "value": 0,
+      "unit": "ha",
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q07",
+   "group": "prodaja, zakup i sastav prodaje",
+   "title": "Obavezno: prodaja uključuje zgrade; potvrđeno da ne uključuje",
+   "expected": "odstupa",
+   "label": "Uvjet zahtjeva: Prodaja uključuje zgrade",
+   "why": "Sastav prodaje je tvrdi uvjet.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "includes_buildings": {
+     "value": false,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "criteria": {
+    "requirements": [
+     {
+      "key": "includes_buildings",
+      "op": "equals",
+      "value": true,
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q08",
+   "group": "prodaja, zakup i sastav prodaje",
+   "title": "Želja: prodaja uključuje poslovanje; nepoznato",
+   "expected": "odgovara",
+   "label": "Država",
+   "why": "Želja nikad ne blokira par.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {},
+   "criteria": {
+    "requirements": [
+     {
+      "key": "includes_business",
+      "op": "equals",
+      "value": true,
+      "mandatory": false,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q09",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac obavezno traži jedan stan 80–120 m²; oglas projekta 6.000 m², opseg prodaje nepoznat",
+   "expected": "nedovoljno",
+   "label": "Površina",
+   "why": "Dokumentiran zahtjev za jedinicom, a opseg oglasa nepoznat: oglašena površina može biti cijeli projekt, pa ostaje otvorena provjera, ne odbijanje.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {}
+  },
+  {
+   "id": "q10",
+   "group": "tvrdi uvjet, želja i nepoznato",
+   "title": "Površina 1.200 m² uz najviše 1.000 m² bez tvrde granice",
+   "expected": "odgovara",
+   "label": "Površina",
+   "why": "Tolerancija +25 %.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 1200
+   },
+   "criteria": {
+    "max_area": 1000
+   }
+  },
+  {
+   "id": "q11",
+   "group": "tvrdi uvjet, želja i nepoznato",
+   "title": "Ista površina uz tvrdu granicu kupca",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Tvrda granica kupca ne dobiva toleranciju.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 1200
+   },
+   "criteria": {
+    "max_area": 1000,
+    "area_hard": true
+   }
+  },
+  {
+   "id": "q12",
+   "group": "tvrdi uvjet, želja i nepoznato",
+   "title": "Kupac bez država interesa (samo sjedište)",
+   "expected": "nedovoljno",
+   "label": "Država",
+   "why": "Sjedište nije potražnja; bez država interesa par ostaje otvoren.",
+   "parity": true,
+   "contract": "podržano",
+   "buyer": {
+    "preferred_countries": "",
+    "country": "Hrvatska"
+   }
+  },
+  {
+   "id": "q13",
+   "group": "tvrdi uvjet, želja i nepoznato",
+   "title": "Sjedište u Hrvatskoj, interes samo Slovenija; nekretnina u Hrvatskoj",
+   "expected": "odstupa",
+   "label": "Država",
+   "why": "Država sjedišta se ne koristi kao interes.",
+   "parity": true,
+   "contract": "podržano",
+   "buyer": {
+    "preferred_countries": "Slovenija",
+    "country": "Hrvatska"
+   }
+  },
+  {
+   "id": "q14",
+   "group": "tvrdi uvjet, želja i nepoznato",
+   "title": "Cijena iznad navedenog budžeta kupca",
+   "expected": "odgovara",
+   "label": "Država",
+   "why": "Budžet je informativan.",
+   "parity": true,
+   "contract": "podržano",
+   "buyer": {
+    "min_budget": 50000,
+    "max_budget": 100000
+   }
+  },
+  {
+   "id": "q15",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Obavezan uvjet, podatak nekretnine proturječan",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Broj soba / smještajnih jedinica",
+   "why": "Proturječan dokaz nije ni potvrda ni odbijanje.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "rooms": {
+     "value": 40,
+     "origin": "izvor",
+     "status": "proturječno",
+     "observed_on": "@day:-10",
+     "unit": "kom"
+    }
+   },
+   "criteria": {
+    "requirements": [
+     {
+      "key": "rooms",
+      "op": "min",
+      "value": 30,
+      "unit": "kom",
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q16",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Obavezan uvjet, potvrđen podatak istekao (valid_until jučer)",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Broj soba / smještajnih jedinica",
+   "why": "Zastario dokaz traži novu provjeru.",
+   "parity": true,
+   "contract": "podržano",
+   "facts": {
+    "rooms": {
+     "value": 40,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-200",
+     "unit": "kom",
+     "evidence": "TEST ONLY dokaz",
+     "valid_until": "@day:-1"
+    }
+   },
+   "criteria": {
+    "requirements": [
+     {
+      "key": "rooms",
+      "op": "min",
+      "value": 30,
+      "unit": "kom",
+      "mandatory": true,
+      "quote": "TEST ONLY navod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "q17",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Izvor oglasa provjeren prije 40 dana",
+   "expected": "nedovoljno",
+   "label": "Aktualnost izvora nekretnine nije potvrđena unutar 30 dana",
+   "why": "Zastarjela provjera izvora.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "source_checked_on": "@day:-40"
+   }
+  },
+  {
+   "id": "q18",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Zahtjev kupca provjeren prije 100 dana",
+   "expected": "nedovoljno",
+   "label": "Potvrđen zahtjev kupca s izvorom i provjerom unutar 90 dana",
+   "why": "Zastarjela provjera zahtjeva.",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "checked_at": "@stamp:-100"
+   }
+  },
+  {
+   "id": "q19",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Pravne komplikacije",
+   "expected": "odstupa",
+   "label": "Pravne komplikacije",
+   "why": "Dokumentiran pravni problem isključuje par.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "legal": "Komplikacije"
+   }
+  },
+  {
+   "id": "q20",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "„Uredno” bez dokaza pravne provjere",
+   "expected": "nedovoljno",
+   "label": "Dokaz pravne provjere",
+   "why": "Status bez dokaza nije potvrda.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "legal_evidence_url": null
+   }
+  },
+  {
+   "id": "q21",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Rok dostupnosti istekao jučer",
+   "expected": "odstupa",
+   "label": "Nekretnina više nije aktivna",
+   "why": "Dokumentirano istekla ponuda ne ulazi u parove.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "available_until": "@day:-1"
+   }
+  },
+  {
+   "id": "q22",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Dostupnost nepotvrđena (status Provjera)",
+   "expected": "nedovoljno",
+   "label": "Potrebna potvrda aktivnosti oglasa",
+   "why": "Nepoznata dostupnost sama ne isključuje oglas.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "status": "Provjera"
+   }
+  },
+  {
+   "id": "q23",
+   "group": "više zahtjeva istog kupca",
+   "title": "Isti kupac, zahtjev A: zemljište u Hrvatskoj",
+   "expected": "odgovara",
+   "label": "Vrsta nekretnine",
+   "why": "Svaki zahtjev se ocjenjuje svojim kriterijima.",
+   "parity": true,
+   "contract": "podržano",
+   "buyer": {
+    "id": "91"
+   },
+   "criteria": {
+    "buyer_identity_id": "9",
+    "request_label": "A"
+   }
+  },
+  {
+   "id": "q24",
+   "group": "više zahtjeva istog kupca",
+   "title": "Isti kupac, zahtjev B: kuća u Sloveniji",
+   "expected": "odstupa",
+   "label": "Vrsta nekretnine",
+   "why": "Kriteriji drugog zahtjeva istog kupca ne spajaju se s prvim.",
+   "parity": true,
+   "contract": "podržano",
+   "buyer": {
+    "id": "92",
+    "preferred_countries": "Slovenija"
+   },
+   "criteria": {
+    "buyer_identity_id": "9",
+    "request_label": "B",
+    "property_types": [
+     "Kuća"
+    ]
+   }
+  },
+  {
+   "id": "q25",
+   "group": "kontakt za konkretan zapis",
+   "title": "Kontakt prodavatelja dokazan za drugi oglas",
+   "expected": "nedovoljno",
+   "label": "Upotrebljiv kontakt",
+   "why": "Kontakt mora pripadati konkretnom zapisu.",
+   "parity": false,
+   "contract": "podržano",
+   "property": {
+    "contact_ref": "https://example.org/test-only/q/other-listing"
+   }
+  },
+  {
+   "id": "q26",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; oglas potvrđeno prodaje cijeli projekt",
+   "expected": "odstupa",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Izričito nespojiv opseg po tvrdom uvjetu. Površina projekta nije razlog odbijanja jedinice: ostaje otvorena, jer mjeri nešto drugo.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "cijeli projekt",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   },
+   "not_rejected": [
+    "Površina"
+   ]
+  },
+  {
+   "id": "q27",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; potvrđena jedinica od 100 m²",
+   "expected": "odgovara",
+   "label": "Površina",
+   "why": "Potvrđena jedinica: površina oglasa je površina jedinice.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 100,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q28",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; potvrđena jedinica, ali 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Opseg potvrđen, površina jedinice izvan granica.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q29",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Isti kupac; opseg prodaje proturječan",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Proturječan podatak nije ni potvrda ni odbijanje.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "proturječno",
+     "observed_on": "@day:-10"
+    }
+   }
+  },
+  {
+   "id": "q30",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac samo preferira jedinicu (želja); opseg nepoznat; 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Želja je informativna; površina se uspoređuje kao prije.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": false,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {}
+  },
+  {
+   "id": "q31",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Bez dokumentiranog zahtjeva za opsegom (legacy); 6.000 m²",
+   "expected": "odstupa",
+   "label": "Površina",
+   "why": "Bez dokumentiranog zahtjeva ponašanje ostaje nepromijenjeno.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120
+   }
+  },
+  {
+   "id": "q32",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac obavezno traži cijeli projekt, najmanje 2 ha zemljišta ukupno; potvrđen cijeli projekt i 25.000 m²",
+   "expected": "odgovara",
+   "label": "Površina (zemljište ukupno)",
+   "why": "Opseg potvrđen; jedinice ha i m² uspoređuju se na istoj mjeri.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 800,
+    "property_type": "Zemljište",
+    "condition": "Neizgrađeno"
+   },
+   "criteria": {
+    "min_area": 20000,
+    "area_basis": "zemljište ukupno",
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "cijeli projekt"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "cijeli projekt",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "evidence": "TEST ONLY dokaz"
+    },
+    "land_total": {
+     "value": 25000,
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "@day:-10",
+     "unit": "m2",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q33",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Kupac obavezno traži jedinicu; „potvrđena jedinica” s datumom opažanja u budućnosti",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Budući datum nije još opaženi podatak.",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 6000,
+    "property_type": "Stan",
+    "condition": "Useljivo",
+    "price_basis": "Nepoznata osnova cijene",
+    "title": "TEST ONLY projekt 40 stanova"
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [
+       "jedinica"
+      ],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "observed_on": "2099-01-01",
+     "evidence": "TEST ONLY dokaz"
+    }
+   }
+  },
+  {
+   "id": "q34",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Javni poziv kupca izričito zatvoren, a ostali strukturirani kriteriji nevaljani",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Dokumentirano zatvoren poziv nije potražnja, bez obzira na druge nevaljane podatke (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_closed": "expired",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q35",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Rok javnog poziva prošao jučer, ostali kriteriji nevaljani",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Prošao objavljeni rok isključuje zahtjev (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_deadline": "@day:-1",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q36",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Nevaljan rok javnog poziva uz nevaljane ostale kriterije",
+   "expected": "nedovoljno",
+   "label": "Valjan rok javnog poziva kupca",
+   "why": "Neispravan rok je otvorena provjera, ne tiho ignoriran podatak (audit, nalaz A1).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_deadline": "nije-datum",
+    "source_url": "nije-url"
+   }
+  },
+  {
+   "id": "q37",
+   "group": "proturječni i zastarjeli dokazi",
+   "title": "Javni poziv zatvoren i rok prošao (dva signala istog kraja)",
+   "expected": "odstupa",
+   "label": "Javni poziv kupca je zatvoren ili istekao",
+   "why": "Jedan razlog, naveden jednom: pregled para broji odstupanja (audit, nalaz A2).",
+   "parity": true,
+   "contract": "podržano",
+   "criteria": {
+    "call_closed": "expired",
+    "call_deadline": "@day:-1"
+   }
+  },
+  {
+   "id": "q38",
+   "group": "jedinica ili cijeli projekt",
+   "title": "Stari zahtjev s praznim popisom opsega (obavezno), potvrđena jedinica",
+   "expected": "nedovoljno",
+   "label": "Uvjet zahtjeva: Opseg prodaje",
+   "why": "Prazna specifikacija nije dokumentiran nespojiv opseg: otvorena provjera kupca, bez lažnog odbijanja (nalaz 6479674515).",
+   "parity": true,
+   "contract": "podržano",
+   "property": {
+    "area": 100,
+    "property_type": "Stan",
+    "condition": "Useljivo"
+   },
+   "facts": {
+    "sale_scope": {
+     "value": "jedinica",
+     "origin": "izvor",
+     "status": "potvrđeno",
+     "evidence": "TEST ONLY dokaz",
+     "observed_on": "@day:-10"
+    }
+   },
+   "criteria": {
+    "property_types": [
+     "Stan"
+    ],
+    "conditions": [
+     "Useljivo"
+    ],
+    "min_area": 80,
+    "max_area": 120,
+    "requirements": [
+     {
+      "key": "sale_scope",
+      "op": "includes",
+      "value": [],
+      "mandatory": true,
+      "quote": "TEST ONLY navod opsega"
+     }
+    ]
+   },
+   "not_rejected": [
+    "Uvjet zahtjeva: Opseg prodaje"
+   ]
+  }
+ ]
+}
