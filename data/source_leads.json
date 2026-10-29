@@ -1,10 +1,9 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 29,
-  "nedostupno": 15,
-  "nije_relevantno": 27,
-  "novo": 1,
+  "kandidat_nekretnine": 30,
+  "nedostupno": 16,
+  "nije_relevantno": 28,
   "robots_zabrana": 10
  },
  "leads": [
@@ -241,6 +240,34 @@
    "title": "960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten, Garage und zwei Carports - Immoviewer 960/75150 - Einfamilienhaus mit Salzwasserpool, Wintergarten"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-29T07:16:07.777955+00:00",
+   "country_hint": "BE",
+   "evidence": [
+    {
+     "anchor": "https://www.avlwoningbouw.be/projecten/nieuwbouwwoning-hulsbeekstraat-85-3450-geetbets",
+     "found_on": "https://www.era.be/nl/te-koop/geetbets/grond/zuidgeorienteerde-bouwgrond-voor-ob-geetbets",
+     "seen": "2026-10-29T07:16:07.683628+00:00",
+     "url": "https://www.avlwoningbouw.be/projecten/nieuwbouwwoning-hulsbeekstraat-85-3450-geetbets"
+    }
+   ],
+   "first_seen": "2026-10-29T07:16:07.683628+00:00",
+   "host": "avlwoningbouw.be",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 3,
+    "property_words": 5
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Nieuwbouwwoning Hulsbeekstraat 85 3450 Geetbets | AVL Woningbouw Nieuwbouwwoning Hulsbeekstraat 85 3450 Geetbets"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-28T07:14:06.853886+00:00",
    "country_hint": null,
@@ -309,7 +336,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -393,7 +420,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -413,7 +440,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -433,7 +460,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -645,7 +672,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -665,7 +692,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -1121,7 +1148,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "blokirano"
   },
   {
@@ -1275,7 +1302,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1329,7 +1356,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -1469,7 +1496,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -1969,7 +1996,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:44:53.366542+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -2217,7 +2244,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-28T07:14:06.754013+00:00",
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
    "status": "nedostupno"
   },
   {
@@ -2341,6 +2368,8 @@
    "status": "robots_zabrana"
   },
   {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-29T07:16:07.777955+00:00",
    "country_hint": null,
    "evidence": [
     {
@@ -2356,7 +2385,35 @@
     "property"
    ],
    "last_seen": "2026-10-27T18:54:34.505266+00:00",
-   "status": "novo"
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 4
+   },
+   "status": "nije_relevantno",
+   "title": "Mahogany House — West Coast Modern | Real Estate Agents for Architect-Designed Property Mahogany House"
+  },
+  {
+   "check_note": "HTTP 429",
+   "checked_at": "2026-10-29T07:16:07.777955+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "Projekt Homepage",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/gewerbeimmobilien-kaufen/wien/wien-1100-favoriten/david-59-fuer-ihren-erfolg-erstklassige-buero-praxisraeume-mit-top-verkehrsanbindung-und-gartenflaeche-778731974/",
+     "seen": "2026-10-29T07:16:07.683628+00:00",
+     "url": "https://wohn3.at/de/immobilien/david-59-erstklassige-eigentums-anlegerwohnungen-mit-1-4-zimmern-und-freiflaechen-in-top-zentraler-lage-0e97a531"
+    }
+   ],
+   "first_seen": "2026-10-29T07:16:07.683628+00:00",
+   "host": "wohn3.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "status": "nedostupno"
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
@@ -2464,6 +2521,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-29T01:03:40.809318+00:00",
- "verified_at": "2026-10-28T07:14:06.853886+00:00"
+ "updated_at": "2026-10-29T07:16:07.683628+00:00",
+ "verified_at": "2026-10-29T07:16:07.777955+00:00"
 }
