@@ -1,13 +1,13 @@
 {
  "schema_version": 1,
- "checked_at": "2026-10-29T07:02:32.612773+00:00",
- "source_count": 168,
- "inactive_count": 114,
+ "checked_at": "2026-10-30T07:03:53.828559+00:00",
+ "source_count": 169,
+ "inactive_count": 115,
  "groups": {
   "structured_property_adapter": 22,
   "operating_monitor": 54,
   "approved_access_required": 40,
-  "fetch_or_persistence_failure": 47,
+  "fetch_or_persistence_failure": 48,
   "listing_layout": 2,
   "buyer_acquisition_pages": 1,
   "pdf_acquisition_profiles": 2
@@ -101,7 +101,7 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [
@@ -401,7 +401,7 @@
    "url": "https://www.immoweb.be/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "ValueError: Page exceeds transfer budget",
    "retry_after": null
   },
   {
@@ -681,7 +681,7 @@
    "url": "https://mp-development.hr/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "URLError: <urlopen error timed out>",
    "retry_after": null
   },
   {
@@ -707,7 +707,7 @@
    "url": "https://www.era.be/nl/te-koop",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "HTTPError: HTTP Error 503: Service Unavailable",
    "retry_after": null
   },
   {
@@ -716,7 +716,7 @@
    "url": "https://www.bulgarianproperties.com/",
    "is_active": true,
    "group": "operating_monitor",
-   "last_error": null,
+   "last_error": "TimeoutError: The read operation timed out",
    "retry_after": null,
    "probe_at": "2026-10-25T19:53:39.562181+00:00",
    "probe": {
@@ -1083,7 +1083,7 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1100,10 +1100,13 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
-    "structured_types": [],
+    "structured_types": [
+     "ImageObject",
+     "Organization"
+    ],
     "has_explicit_acquisition_phrase": false,
     "link_count": 61,
     "next_action": "Validate individual records, country, contact and terms before import"
@@ -1117,7 +1120,7 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [
@@ -1140,12 +1143,12 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "fetch_failed",
     "error": "HTTPError: HTTP Error 406: Not Acceptable"
    },
-   "probe_retry_after": "2026-10-28T10:04:26.356895+00:00"
+   "probe_retry_after": "2026-10-31T07:03:53.831674+00:00"
   },
   {
    "id": "91",
@@ -1172,7 +1175,7 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1189,7 +1192,7 @@
    "group": "buyer_acquisition_pages",
    "last_error": "ValueError: No explicit public acquisition demand; company profile is not a buyer request",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [
@@ -1275,7 +1278,7 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1292,12 +1295,12 @@
    "group": "structured_property_adapter",
    "last_error": "No validated detail URL adapter; research automation must supply one",
    "retry_after": null,
-   "probe_at": "2026-10-27T10:04:26.356895+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
     "has_explicit_acquisition_phrase": false,
-    "link_count": 162,
+    "link_count": 174,
     "next_action": "Validate individual records, country, contact and terms before import"
    }
   },
@@ -1559,12 +1562,12 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "fetch_failed",
     "error": "HTTPError: HTTP Error 405: Not Allowed"
    },
-   "probe_retry_after": "2026-10-28T12:53:02.878214+00:00"
+   "probe_retry_after": "2026-10-31T07:03:53.831674+00:00"
   },
   {
    "id": "120",
@@ -1574,7 +1577,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1591,20 +1594,12 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
-    "status": "observed",
-    "structured_types": [
-     "BreadcrumbList",
-     "ListItem",
-     "Organization",
-     "WebPage",
-     "WebSite"
-    ],
-    "has_explicit_acquisition_phrase": false,
-    "link_count": 96,
-    "next_action": "Validate individual records, country, contact and terms before import"
-   }
+    "status": "fetch_failed",
+    "error": "TimeoutError: The read operation timed out"
+   },
+   "probe_retry_after": "2026-10-31T07:03:53.831674+00:00"
   },
   {
    "id": "122",
@@ -1614,7 +1609,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [
@@ -1656,7 +1651,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1673,7 +1668,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1705,12 +1700,12 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
     "has_explicit_acquisition_phrase": false,
-    "link_count": 190,
+    "link_count": 191,
     "next_action": "Validate individual records, country, contact and terms before import"
    }
   },
@@ -1722,7 +1717,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1739,7 +1734,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [],
@@ -1756,7 +1751,7 @@
    "group": "fetch_or_persistence_failure",
    "last_error": null,
    "retry_after": null,
-   "probe_at": "2026-10-27T12:53:02.878214+00:00",
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
    "probe": {
     "status": "observed",
     "structured_types": [
@@ -1866,7 +1861,7 @@
    "is_active": true,
    "group": "operating_monitor",
    "last_error": "HTTPError: HTTP Error 500: Internal Server Error",
-   "retry_after": "2026-10-29T18:57:08.568733+00:00",
+   "retry_after": "2026-10-30T18:59:17.285456+00:00",
    "probe_at": "2026-10-27T14:50:50.128682+00:00",
    "probe": {
     "status": "observed",
@@ -2628,9 +2623,29 @@
     "link_count": 53,
     "next_action": "Validate individual records, country, contact and terms before import"
    }
+  },
+  {
+   "id": "169",
+   "name": "Nieuwbouwwoning Hulsbeekstraat 85 3450 Geetbets | AVL Woningbouw Nieuwbouwwoning Hulsbeekstraat 85 3450 Geetbets",
+   "url": "https://www.avlwoningbouw.be/projecten/nieuwbouwwoning-hulsbeekstraat-85-3450-geetbets",
+   "is_active": false,
+   "group": "fetch_or_persistence_failure",
+   "last_error": null,
+   "retry_after": null,
+   "probe_at": "2026-10-30T07:03:53.831674+00:00",
+   "probe": {
+    "status": "observed",
+    "structured_types": [
+     "BreadcrumbList",
+     "ListItem"
+    ],
+    "has_explicit_acquisition_phrase": false,
+    "link_count": 69,
+    "next_action": "Validate individual records, country, contact and terms before import"
+   }
   }
  ],
  "scope": "Diagnostics only; no activation, buyer verification or full coverage claim",
  "probed_count": 20,
- "remaining_due": 52
+ "remaining_due": 53
 }

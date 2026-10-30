@@ -1,9 +1,9 @@
 {
  "counts": {
   "blokirano": 4,
-  "kandidat_nekretnine": 30,
+  "kandidat_nekretnine": 31,
   "nedostupno": 16,
-  "nije_relevantno": 28,
+  "nije_relevantno": 29,
   "robots_zabrana": 10
  },
  "leads": [
@@ -228,7 +228,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T10:44:53.366542+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -336,7 +336,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -440,7 +440,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -460,7 +460,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -672,7 +672,7 @@
    "kinds": [
     "buyer"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "robots_zabrana"
   },
   {
@@ -692,7 +692,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -1148,7 +1148,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "blokirano"
   },
   {
@@ -1281,6 +1281,34 @@
   },
   {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
+   "checked_at": "2026-10-30T07:16:19.638386+00:00",
+   "country_hint": null,
+   "evidence": [
+    {
+     "anchor": "Jobs",
+     "found_on": "https://www.immoweb.be/en/classified/new-real-estate-project-houses/for-sale/duffel/2570/21940909",
+     "seen": "2026-10-30T07:16:19.553495+00:00",
+     "url": "https://jobs.ashbyhq.com/immoweb"
+    }
+   ],
+   "first_seen": "2026-10-30T07:16:19.553495+00:00",
+   "host": "jobs.ashbyhq.com",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
+   "signals": {
+    "areas": 0,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 0,
+    "property_words": 1
+   },
+   "status": "nije_relevantno",
+   "title": "Immoweb Jobs"
+  },
+  {
+   "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-24T15:50:03.992575+00:00",
    "country_hint": "AT",
    "evidence": [
@@ -1302,7 +1330,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -1356,7 +1384,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -1496,7 +1524,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -1980,6 +2008,40 @@
    "status": "nedostupno"
   },
   {
+   "check_note": "Stranica prikazuje oglase s cijenama; dostupnost i uvjeti korištenja nisu potvrđeni.",
+   "checked_at": "2026-10-30T07:16:19.638386+00:00",
+   "country_hint": "AT",
+   "evidence": [
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/kaernten/voelkermarkt/rueckzugsort-in-suedkaernten-ein-zweifamilienhaus-mit-extravagantem-zubau-sauna-bergblick-schwimmteich-1557087607/",
+     "seen": "2026-10-30T07:16:19.553495+00:00",
+     "url": "https://www.simon-immo.at/immobilien-kaufen/category-blog/188-115-voelkermarkt-globasnitz-haus"
+    },
+    {
+     "anchor": "weitere Objektinformationen",
+     "found_on": "https://www.willhaben.at/iad/immobilien/d/haus-kaufen/kaernten/voelkermarkt/gepflegtes-ein-mehrfamilienhaus-mit-grosszuegigem-garagengebaeude-in-sonniger-lage-in-st-kanzian-am-klopeiner-see-1739245744/",
+     "seen": "2026-10-30T07:16:19.553495+00:00",
+     "url": "https://www.simon-immo.at/immobilien-kaufen/category-blog/189-116-st-kanzian-klopeiner-see"
+    }
+   ],
+   "first_seen": "2026-10-30T07:16:19.553495+00:00",
+   "host": "simon-immo.at",
+   "kinds": [
+    "property"
+   ],
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
+   "signals": {
+    "areas": 4,
+    "buyer_words": 0,
+    "listing_types": 0,
+    "prices": 3,
+    "property_words": 15
+   },
+   "status": "kandidat_nekretnine",
+   "title": "Rückzugsort in Südkärnten – Ein-/ Zweifamilienhaus mit extravagantem Zubau, Sauna, Bergblick & Schwimmteich - Simon Immobilien Rückzugsort in Südkärnten – Ein-/"
+  },
+  {
    "check_note": "Nema dovoljno znakova oglasa ili potražnje.",
    "checked_at": "2026-10-23T18:29:56.667281+00:00",
    "country_hint": "AT",
@@ -1996,7 +2058,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "signals": {
     "areas": 0,
     "buyer_words": 0,
@@ -2244,7 +2306,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-29T07:16:07.683628+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -2264,7 +2326,7 @@
    "kinds": [
     "property"
    ],
-   "last_seen": "2026-10-27T15:02:42.928734+00:00",
+   "last_seen": "2026-10-30T07:16:19.553495+00:00",
    "status": "nedostupno"
   },
   {
@@ -2521,6 +2583,6 @@
   }
  ],
  "schema_version": 1,
- "updated_at": "2026-10-30T01:05:39.144449+00:00",
- "verified_at": "2026-10-29T07:16:07.777955+00:00"
+ "updated_at": "2026-10-30T07:16:19.553495+00:00",
+ "verified_at": "2026-10-30T07:16:19.638386+00:00"
 }
